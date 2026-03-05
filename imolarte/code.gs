@@ -361,31 +361,37 @@ function _createGiftCard(b) {
     ciudad     : em.ciudad    || '',
   }).clienteId;
 
+  // Separar destTel en prefijo + número si viene junto
+  const destTelRaw = dest.telefono || '';
+
   sheet.appendRow([
-    ts,                        // A  Timestamp
-    ref,                       // B  Referencia
-    b.codigo       || '',      // C  Código (HC-XXXXXXXX)
-    b.valor        || 0,       // D  Valor COP
-    b.vigencia     || '',      // E  Válido hasta
-    cliId,                     // F  ClienteID_Emisor
-    em.nombre      || '',      // G  Emisor_Nombre
-    em.apellido    || '',      // H  Emisor_Apellido
-    em.email       || '',      // I  Emisor_Email
-    tel,                       // J  Emisor_Tel
-    em.tipoDoc     || '',      // K  Tipo_Documento
-    em.numDoc      || '',      // L  Número_Documento
-    em.direccion   || '',      // M  Emisor_Dirección
-    em.barrio      || '',      // N  Emisor_Barrio
-    em.ciudad      || '',      // O  Emisor_Ciudad
-    dest.nombre    || '',      // P  Destinatario_Nombre
-    dest.telefono  || '',      // Q  Destinatario_WhatsApp
-    b.mensaje      || '',      // R  Mensaje
-    'PENDIENTE_PAGO',          // S  Estado
-    '',                        // T  Fecha activación
-    '',                        // U  Canjeado_En
-    '',                        // V  Wompi_Transaction_ID
-    '',                        // W  Notas internas
-    b.campaniaId   || '',      // X  Campaña_ID
+    b.campaniaId   || '',      // A  Campaña_ID
+    ts,                        // B  Timestamp
+    ref,                       // C  Referencia
+    b.codigo       || '',      // D  Código_Gift (HC-XXXXXXXX)
+    b.valor        || 0,       // E  Valor_COP
+    b.vigencia     || '',      // F  Válido_Hasta
+    cliId,                     // G  ClienteID_Emisor
+    em.nombre      || '',      // H  Emisor_Nombre
+    em.apellido    || '',      // I  Emisor_Apellido
+    em.email       || '',      // J  Emisor_Email
+    tel,                       // K  Emisor_Tel
+    em.tipoDoc     || '',      // L  Emisor_Tipo_Doc
+    em.numDoc      || '',      // M  Emisor_Num_Doc
+    em.direccion   || '',      // N  Emisor_Dirección
+    em.barrio      || '',      // O  Emisor_Barrio
+    em.ciudad      || '',      // P  Emisor_Ciudad
+    dest.nombre    || '',      // Q  Dest_Nombre
+    dest.apellido  || '',      // R  Dest_Apellido
+    destTelRaw,                // S  Dest_Tel
+    b.mensaje      || '',      // T  Dest_Mensaje
+    'PENDIENTE_PAGO',          // U  Estado_Pago
+    'INACTIVA',                // V  Estado_Gift
+    '',                        // W  Wompi_Transaction_ID
+    '',                        // X  Fecha_Pago
+    '',                        // Y  Fecha_Activación
+    '',                        // Z  Canjeado_En
+    '',                        // AA Notas_Internas
   ]);
 
   _log('createGiftCard', ref, b.codigo, cliId, 'OK');
@@ -397,41 +403,49 @@ function _confirmarPagoGiftCard(b) {
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
 
-  const colRef   = header.indexOf('Referencia');
-  const colEst   = header.indexOf('Estado');
-  const colTxId  = header.indexOf('Wompi_Transaction_ID');
-  const colFecha = header.indexOf('Fecha activación');
+  const colRef    = header.indexOf('Referencia');
+  const colEstPago= header.indexOf('Estado_Pago');
+  const colEstGift= header.indexOf('Estado_Gift');
+  const colTxId   = header.indexOf('Wompi_Transaction_ID');
+  const colFPago  = header.indexOf('Fecha_Pago');
+  const colFAct   = header.indexOf('Fecha_Activación');
 
   const ref    = b.referencia    || '';
   const status = b.status        || 'APPROVED';
   const txId   = b.transactionId || '';
 
-  if (!ref) return { ok: false, error: 'Referencia requerida' };
+  if (!ref)      return { ok: false, error: 'Referencia requerida' };
   if (colRef < 0) return { ok: false, error: 'Columna Referencia no encontrada en GiftCards' };
 
   for (let i = 1; i < data.length; i++) {
     if (data[i][colRef] === ref) {
-      const estadoGC = status === 'APPROVED'
+      const now = new Date();
+
+      // Estado_Pago — espejo Wompi
+      if (colEstPago >= 0) sheet.getRange(i + 1, colEstPago + 1).setValue(status);
+
+      // Estado_Gift — lógica operativa
+      const estadoGift = status === 'APPROVED'
         ? 'ACTIVA'
         : (status === 'PENDING' ? 'PENDIENTE_PAGO' : 'CANCELADA');
+      if (colEstGift >= 0) sheet.getRange(i + 1, colEstGift + 1).setValue(estadoGift);
 
-      sheet.getRange(i + 1, colEst + 1).setValue(estadoGC);
-      if (status === 'APPROVED' && colFecha >= 0) {
-        sheet.getRange(i + 1, colFecha + 1).setValue(new Date());
-      }
-      if (txId && colTxId >= 0) {
-        sheet.getRange(i + 1, colTxId + 1).setValue(txId);
+      // Transaction ID y fechas
+      if (txId   && colTxId  >= 0) sheet.getRange(i + 1, colTxId  + 1).setValue(txId);
+      if (colFPago >= 0) sheet.getRange(i + 1, colFPago + 1).setValue(now);
+      if (status === 'APPROVED' && colFAct >= 0) {
+        sheet.getRange(i + 1, colFAct + 1).setValue(now);
       }
 
-      _log('confirmarPagoGiftCard', ref, status, estadoGC);
+      _log('confirmarPagoGiftCard', ref, status, estadoGift);
 
       // Email al emisor si APPROVED
       if (status === 'APPROVED') {
         const colEmail  = header.indexOf('Emisor_Email');
         const colNombre = header.indexOf('Emisor_Nombre');
-        const colCodigo = header.indexOf('Código');
-        const colValor  = header.indexOf('Valor COP');
-        const colVig    = header.indexOf('Válido hasta');
+        const colCodigo = header.indexOf('Código_Gift');
+        const colValor  = header.indexOf('Valor_COP');
+        const colVig    = header.indexOf('Válido_Hasta');
         const email  = data[i][colEmail]  || '';
         const nombre = data[i][colNombre] || '';
         const codigo = data[i][colCodigo] || '';
@@ -440,7 +454,7 @@ function _confirmarPagoGiftCard(b) {
         if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig);
       }
 
-      return { ok: true, referencia: ref, status, estado: estadoGC };
+      return { ok: true, referencia: ref, status, estado: estadoGift };
     }
   }
   _log('confirmarPagoGiftCard', ref, 'NOT_FOUND');
@@ -449,18 +463,26 @@ function _confirmarPagoGiftCard(b) {
 
 function _getGiftCard(codigo) {
   if (!codigo) return { ok: false, error: 'Código requerido' };
-  const sheet = _getSheet(CFG.SHEETS.GIFT_CARDS);
-  const data  = sheet.getDataRange().getValues();
+  const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  const data   = sheet.getDataRange().getValues();
+  const header = data[0];
+  const colCod    = header.indexOf('Código_Gift');
+  const colValor  = header.indexOf('Valor_COP');
+  const colVig    = header.indexOf('Válido_Hasta');
+  const colEstGift= header.indexOf('Estado_Gift');
+  const colCanjeado = header.indexOf('Canjeado_En');
   for (let i = 1; i < data.length; i++) {
-    if (data[i][2] === codigo) {
+    if (data[i][colCod] === codigo) {
+      const estado = data[i][colEstGift] || '';
+      const valor  = data[i][colValor]   || 0;
       return {
         ok         : true,
-        codigo     : data[i][2],
-        valor      : data[i][3],
-        vigencia   : data[i][4],
-        estado     : data[i][15],
-        canjeadoEn : data[i][17],
-        available  : data[i][15] === 'ACTIVA' ? data[i][3] : 0,
+        codigo     : data[i][colCod],
+        valor,
+        vigencia   : data[i][colVig]      || '',
+        estado,
+        canjeadoEn : data[i][colCanjeado] || '',
+        available  : estado === 'ACTIVA' ? valor : 0,
       };
     }
   }
@@ -468,17 +490,49 @@ function _getGiftCard(codigo) {
 }
 
 function _redeemDono(b) {
-  const sheet = _getSheet(CFG.SHEETS.GIFT_CARDS);
-  const data  = sheet.getDataRange().getValues();
+  const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  const data   = sheet.getDataRange().getValues();
+  const header = data[0];
+  const colCod     = header.indexOf('Código_Gift');
+  const colEstGift = header.indexOf('Estado_Gift');
+  const colCanjeado= header.indexOf('Canjeado_En');
   for (let i = 1; i < data.length; i++) {
-    if (data[i][2] === b.code) {
-      sheet.getRange(i + 1, 16).setValue('CANJEADA');
-      sheet.getRange(i + 1, 18).setValue(b.referencia || '');
+    if (data[i][colCod] === b.code) {
+      if (colEstGift  >= 0) sheet.getRange(i + 1, colEstGift  + 1).setValue('CANJEADA');
+      if (colCanjeado >= 0) sheet.getRange(i + 1, colCanjeado + 1).setValue(b.referencia || '');
       _log('redeemDono', b.code, 'CANJEADA');
       return { ok: true };
     }
   }
   return { ok: false, error: 'Código no encontrado' };
+}
+
+// ── Resetea SOLO la hoja GiftCards: borra todo y recrea headers ──
+// Ejecutar manualmente UNA VEZ desde Apps Script cuando necesites migrar columnas
+function resetGiftCardSheet() {
+  const HEADERS = [
+    'Campaña_ID','Timestamp','Referencia','Código_Gift','Valor_COP','Válido_Hasta',
+    'ClienteID_Emisor',
+    'Emisor_Nombre','Emisor_Apellido','Emisor_Email','Emisor_Tel',
+    'Emisor_Tipo_Doc','Emisor_Num_Doc',
+    'Emisor_Dirección','Emisor_Barrio','Emisor_Ciudad',
+    'Dest_Nombre','Dest_Apellido','Dest_Tel','Dest_Mensaje',
+    'Estado_Pago','Estado_Gift',
+    'Wompi_Transaction_ID','Fecha_Pago','Fecha_Activación',
+    'Canjeado_En','Notas_Internas',
+  ];
+  const ss    = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(CFG.SHEETS.GIFT_CARDS);
+  if (!sheet) { Logger.log('Hoja GiftCards no encontrada'); return; }
+  sheet.clearContents();
+  sheet.appendRow(HEADERS);
+  sheet.getRange(1, 1, 1, HEADERS.length)
+    .setBackground('#1a1610')
+    .setFontColor('#C4A05A')
+    .setFontWeight('bold');
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, HEADERS.length);
+  Logger.log('✅ resetGiftCardSheet completado — ' + HEADERS.length + ' columnas');
 }
 
 // ============================================================
@@ -1026,13 +1080,20 @@ function setupSheets() {
       'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
     ],
     [CFG.SHEETS.GIFT_CARDS]: [
-      'Timestamp','Referencia','Código','Valor COP','Válido hasta','ClienteID_Emisor',
+      // A-E: Identificación y valor
+      'Campaña_ID','Timestamp','Referencia','Código_Gift','Valor_COP','Válido_Hasta',
+      // F-N: Emisor (quien regala)
+      'ClienteID_Emisor',
       'Emisor_Nombre','Emisor_Apellido','Emisor_Email','Emisor_Tel',
-      'Tipo_Documento','Número_Documento',
+      'Emisor_Tipo_Doc','Emisor_Num_Doc',
       'Emisor_Dirección','Emisor_Barrio','Emisor_Ciudad',
-      'Destinatario_Nombre','Destinatario_WhatsApp','Mensaje',
-      'Estado','Fecha activación','Canjeado_En','Wompi_Transaction_ID',
-      'Notas internas','Campaña_ID',
+      // O-S: Destinatario (a quien van a regalar)
+      'Dest_Nombre','Dest_Apellido','Dest_Tel','Dest_Mensaje',
+      // T-X: Estado y trazabilidad
+      'Estado_Pago','Estado_Gift',
+      'Wompi_Transaction_ID','Fecha_Pago','Fecha_Activación',
+      // Y-Z: Operativo
+      'Canjeado_En','Notas_Internas',
     ],
     [CFG.SHEETS.CLIENTES]: [
       'Teléfono','Nombre','Apellido','Email',

@@ -1872,7 +1872,7 @@ const Modal = (() => {
         valor:        amount,
         campaniaId:   IMOLARTE_CONFIG?.campania?.id || '',
         emisor:       { nombre, apellido, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
-        destinatario: { nombre: recNom + (recApe ? ' ' + recApe : ''), telefono: recPais + recTel },
+        destinatario: { nombre: recNom, apellido: recApe, telefono: recPais + recTel },
         mensaje,
       });
     } catch(err) { Logger.warn('modal.js: error registrando gift card', err); }
