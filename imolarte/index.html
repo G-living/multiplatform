@@ -762,7 +762,7 @@
           </div>
           <span class="cmo-error" id="wpErrDatos"></span>
 
-          <div class="cmo-footer cmo-footer-wompi">
+          <div class="cmo-footer cmo-footer-wompi" id="wpPayActions">
             <button type="button" class="btn btn-secondary cmo-btn-pago" id="btnPagar60">
               <span class="cmo-btn-pago-label">Pagar anticipo 60%</span>
               <span class="cmo-btn-pago-amount" id="wpAmount60"></span>
@@ -770,6 +770,13 @@
             <button type="button" class="btn btn-primary cmo-btn-pago" id="btnPagar100">
               <span class="cmo-btn-pago-label">Pagar total — 3% dcto.</span>
               <span class="cmo-btn-pago-amount" id="wpAmount100"></span>
+            </button>
+          </div>
+
+          <div class="cmo-footer" id="wpPayGift" style="display:none">
+            <button type="button" class="btn btn-primary cmo-btn-pago" id="btnPagarGift" style="width:100%">
+              <span class="cmo-btn-pago-label">🎁 Confirmar compra con Gift Card</span>
+              <span class="cmo-btn-pago-amount" id="wpAmountGift">$0</span>
             </button>
           </div>
 
@@ -845,6 +852,26 @@
                 <label class="cmo-label" for="gfApellido">Apellido <span class="cmo-req">*</span></label>
                 <input class="cmo-input" type="text" id="gfApellido" name="gfApellido" autocomplete="family-name" placeholder="García" required>
                 <span class="cmo-error" id="gfErrApellido"></span>
+              </div>
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfTipoDoc">Tipo de documento <span class="cmo-req">*</span></label>
+                <select class="cmo-input cmo-select" id="gfTipoDoc" name="gfTipoDoc" required>
+                  <option value="">— Selecciona —</option>
+                  <option value="CC">C.C. — Cédula de ciudadanía</option>
+                  <option value="CE">C.E. — Cédula de extranjería</option>
+                  <option value="NIT">NIT</option>
+                  <option value="PAS">Pasaporte</option>
+                  <option value="TI">T.I. — Tarjeta de identidad</option>
+                </select>
+                <span class="cmo-error" id="gfErrTipoDoc"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfNumDoc">Número de documento <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfNumDoc" name="gfNumDoc"
+                       inputmode="numeric" placeholder="1234567890" required>
+                <span class="cmo-error" id="gfErrNumDoc"></span>
               </div>
             </div>
             <div class="cmo-group">

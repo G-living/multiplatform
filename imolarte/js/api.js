@@ -167,8 +167,8 @@ const Api = (() => {
     return _get({ action: 'getGiftCard', codigo });
   }
 
-  async function redeemDono(code, amount) {
-    return _post({ action: 'redeemDono', code, amount });
+  async function redeemDono(code, amount, referencia) {
+    return _post({ action: 'redeemDono', code, amount, referencia: referencia || '' });
   }
 
   async function validateDono(code) {

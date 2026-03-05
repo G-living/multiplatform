@@ -462,46 +462,87 @@ function _confirmarPagoGiftCard(b) {
 }
 
 function _getGiftCard(codigo) {
-  if (!codigo) return { ok: false, error: 'Código requerido' };
+  if (!codigo) return { ok: false, valid: false, error: 'Código requerido', reason: 'Código requerido' };
   const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
-  const colCod    = header.indexOf('Código_Gift');
-  const colValor  = header.indexOf('Valor_COP');
-  const colVig    = header.indexOf('Válido_Hasta');
-  const colEstGift= header.indexOf('Estado_Gift');
-  const colCanjeado = header.indexOf('Canjeado_En');
+  const colCod     = header.indexOf('Código_Gift');
+  const colValor   = header.indexOf('Valor_COP');
+  const colVig     = header.indexOf('Válido_Hasta');
+  const colEstGift = header.indexOf('Estado_Gift');
+  const colCanjeado= header.indexOf('Canjeado_En');
+
+  if (colCod < 0) return { ok: false, valid: false, reason: 'Sheet no configurado correctamente' };
+
   for (let i = 1; i < data.length; i++) {
-    if (data[i][colCod] === codigo) {
+    if (String(data[i][colCod]).trim() === String(codigo).trim()) {
       const estado = data[i][colEstGift] || '';
       const valor  = data[i][colValor]   || 0;
+      const isActive = estado === 'ACTIVA';
+      const available = isActive ? valor : 0;
+      const reason = !isActive
+        ? (estado === 'CANJEADA'     ? 'Este bono ya fue canjeado'
+          : estado === 'CANCELADA'   ? 'Este bono fue cancelado'
+          : estado === 'INACTIVA'    ? 'Este bono aún no está activo'
+          : 'Bono no disponible (' + estado + ')')
+        : '';
       return {
-        ok         : true,
-        codigo     : data[i][colCod],
+        ok        : true,
+        valid     : isActive,
+        codigo    : data[i][colCod],
         valor,
-        vigencia   : data[i][colVig]      || '',
+        vigencia  : data[i][colVig]       || '',
         estado,
-        canjeadoEn : data[i][colCanjeado] || '',
-        available  : estado === 'ACTIVA' ? valor : 0,
+        canjeadoEn: data[i][colCanjeado]  || '',
+        available,
+        reason,
       };
     }
   }
-  return { ok: false, error: 'Código no encontrado' };
+  return { ok: false, valid: false, error: 'Código no encontrado', reason: 'Código no encontrado' };
 }
 
 function _redeemDono(b) {
   const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
-  const colCod     = header.indexOf('Código_Gift');
-  const colEstGift = header.indexOf('Estado_Gift');
-  const colCanjeado= header.indexOf('Canjeado_En');
+  const colCod      = header.indexOf('Código_Gift');
+  const colValor    = header.indexOf('Valor_COP');
+  const colEstGift  = header.indexOf('Estado_Gift');
+  const colCanjeado = header.indexOf('Canjeado_En');
+  const colNotas    = header.indexOf('Notas_Internas');
+
   for (let i = 1; i < data.length; i++) {
-    if (data[i][colCod] === b.code) {
-      if (colEstGift  >= 0) sheet.getRange(i + 1, colEstGift  + 1).setValue('CANJEADA');
-      if (colCanjeado >= 0) sheet.getRange(i + 1, colCanjeado + 1).setValue(b.referencia || '');
-      _log('redeemDono', b.code, 'CANJEADA');
-      return { ok: true };
+    if (String(data[i][colCod]).trim() === String(b.code).trim()) {
+      const valorActual  = Number(data[i][colValor]) || 0;
+      const montoUsado   = Number(b.amount)          || valorActual;  // si no viene amount, canjea todo
+      const saldoRestante = Math.max(0, valorActual - montoUsado);
+
+      // Actualizar saldo
+      if (colValor >= 0) sheet.getRange(i + 1, colValor + 1).setValue(saldoRestante);
+
+      // Estado: CANJEADA si saldo = 0, ACTIVA si queda saldo
+      const nuevoEstado = saldoRestante === 0 ? 'CANJEADA' : 'ACTIVA';
+      if (colEstGift  >= 0) sheet.getRange(i + 1, colEstGift  + 1).setValue(nuevoEstado);
+
+      // Referencia del canje
+      if (colCanjeado >= 0) {
+        const prevCanje = data[i][colCanjeado] || '';
+        const nuevoCanje = prevCanje
+          ? prevCanje + ' | ' + (b.referencia || '')
+          : (b.referencia || '');
+        sheet.getRange(i + 1, colCanjeado + 1).setValue(nuevoCanje);
+      }
+
+      // Nota de saldo
+      if (colNotas >= 0) {
+        const nota = `Usado: ${_fmtCOP(montoUsado)} en ${b.referencia || '?'}. Saldo restante: ${_fmtCOP(saldoRestante)}`;
+        const prevNotas = data[i][colNotas] || '';
+        sheet.getRange(i + 1, colNotas + 1).setValue(prevNotas ? prevNotas + '\n' + nota : nota);
+      }
+
+      _log('redeemDono', b.code, nuevoEstado, 'usado:' + montoUsado, 'saldo:' + saldoRestante);
+      return { ok: true, saldoRestante, estado: nuevoEstado };
     }
   }
   return { ok: false, error: 'Código no encontrado' };
