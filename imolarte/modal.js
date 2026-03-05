@@ -573,6 +573,16 @@ const Modal = (() => {
       if (overlay) overlay.style.display = 'none';
       document.body.style.overflow = '';
     };
+    // TyC y Datos — modal WA (IDs propios para no conflicto con Wompi)
+    document.getElementById('btnOpenTyCWA')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplTyC', 'Términos y Condiciones Generales');
+    });
+    document.getElementById('btnOpenDatosWA')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplDatosWA', 'Autorización de Almacenamiento de Datos — Ley 1581/2012');
+    });
+    // TyC y Datos — modal Wompi
     document.getElementById('btnOpenTyC')?.addEventListener('click', e => {
       e.preventDefault();
       e.stopPropagation();
@@ -588,6 +598,14 @@ const Modal = (() => {
     });
     document.getElementById('btnOpenDatos')?.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _openLegal('tplDatos', 'Tratamiento de Datos Personales — Ley Habeas Data'); }
+    });
+    document.getElementById('btnOpenTyCGift')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplTyC', 'Términos y Condiciones Generales');
+    });
+    document.getElementById('btnOpenDatosGift')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplDatos', 'Tratamiento de Datos Personales — Ley Habeas Data');
     });
     document.getElementById('btnCloseLegal')?.addEventListener('click', _closeLegal);
     document.getElementById('modalLegal')?.addEventListener('click', e => {
@@ -1071,7 +1089,17 @@ const Modal = (() => {
       ok = false;
     } else if (tycEl) tycEl.textContent = '';
 
-    // Cesión / Datos personales (solo Wompi)
+    // Datos personales — WA
+    if (prefix === 'wa') {
+      const datos    = document.getElementById('waCheckDatos');
+      const datosErr = document.getElementById('waErrDatos');
+      if (datos && !datos.checked) {
+        if (datosErr) datosErr.textContent = 'Debes aceptar el tratamiento de datos personales';
+        ok = false;
+      } else if (datosErr) datosErr.textContent = '';
+    }
+
+    // Datos personales — Wompi
     if (prefix === 'wp') {
       const datos    = document.getElementById('wpCheckDatos');
       const datosErr = document.getElementById('wpErrDatos');
