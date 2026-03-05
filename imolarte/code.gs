@@ -1527,8 +1527,7 @@ function setupSheets() {
     }
   });
 
-  Logger.log('✅ setupSheets completado');
-  setupDropdowns();
+  Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
 }
 
 // ============================================================
@@ -1548,7 +1547,7 @@ function setupDropdowns() {
     const header   = sheetWP.getRange(1, 1, 1, sheetWP.getLastColumn()).getValues()[0];
     const colFP    = header.indexOf('Forma_pago');
     if (colFP >= 0) {
-      sheetWP.getRange(2, colFP + 1, 999, 1).clearDataValidations();
+      sheetWP.getRange(2, colFP + 1, 50, 1).clearDataValidations();
       sheetWP.getRange(1, colFP + 1).setNote(
         'Valores: WOMPI_60 | WOMPI_100 | GIFT_CARD\n' +
         'Con saldo gift: WOMPI_60+GIFT:HC-XXXXX\n' +
@@ -1567,7 +1566,7 @@ function _applyDropdown(ss, sheetName, colName, valores) {
   if (col < 0) { Logger.log('Columna no encontrada: ' + colName); return; }
   const rule = SpreadsheetApp.newDataValidation()
     .requireValueInList(valores, true).setAllowInvalid(false).build();
-  sheet.getRange(2, col + 1, 499, 1).setDataValidation(rule);
+  sheet.getRange(2, col + 1, 50, 1).setDataValidation(rule);
   Logger.log('✅ Dropdown: ' + sheetName + ' → ' + colName);
 }
 
