@@ -330,6 +330,13 @@ function _confirmarPagoWompi(b) {
         }
       }
 
+      // Acumular total en cliente al confirmar
+      if (status === 'APPROVED' && total > 0) {
+        const colTel = header.indexOf('Teléfono');
+        const telCliente = colTel >= 0 ? (data[i][colTel] || '') : '';
+        if (telCliente) _upsertCliente({ telefono: telCliente, total });
+      }
+
       return { ok: true, referencia: ref, status, estadoPedido };
     }
   }
@@ -395,6 +402,16 @@ function _createGiftCard(b) {
   ]);
 
   _log('createGiftCard', ref, b.codigo, cliId, 'OK');
+
+  // Upsert destinatario como cliente si tiene teléfono
+  if (destTelRaw) {
+    _upsertCliente({
+      telefono : destTelRaw,
+      nombre   : dest.nombre   || '',
+      apellido : dest.apellido || '',
+    });
+  }
+
   return { ok: true, referencia: ref, codigo: b.codigo, clienteId: cliId };
 }
 
@@ -446,12 +463,16 @@ function _confirmarPagoGiftCard(b) {
         const colCodigo = header.indexOf('Código_Gift');
         const colValor  = header.indexOf('Valor_COP');
         const colVig    = header.indexOf('Válido_Hasta');
+        const colTel    = header.indexOf('Emisor_Tel');
         const email  = data[i][colEmail]  || '';
         const nombre = data[i][colNombre] || '';
         const codigo = data[i][colCodigo] || '';
         const valor  = data[i][colValor]  || 0;
         const vig    = data[i][colVig]    || '';
+        const telEmisor = data[i][colTel] || '';
         if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig);
+        // Acumular total en cliente emisor
+        if (telEmisor && valor > 0) _upsertCliente({ telefono: telEmisor, total: valor });
       }
 
       return { ok: true, referencia: ref, status, estado: estadoGift };
@@ -595,50 +616,83 @@ function _upsertCliente(b) {
 
   if (!tel) return { ok: true, clienteId: 'SIN-TEL' };
 
+  // ── Buscar por teléfono (PK) ──────────────────────────────
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]).replace(/\s/g, '') === tel) {
-      const row = sheet.getRange(i + 1, 1, 1, 21).getValues()[0];
+    if (String(data[i][0]).replace(/\s/g, '') !== tel) continue;
 
-      // Completar campos personales vacíos sin sobrescribir
-      if (!row[1]  && b.nombre)       sheet.getRange(i+1,  2).setValue(b.nombre);
-      if (!row[2]  && b.apellido)     sheet.getRange(i+1,  3).setValue(b.apellido);
-      if (!row[3]  && b.email)        sheet.getRange(i+1,  4).setValue(b.email);
-      if (!row[4]  && b.tipoDoc)      sheet.getRange(i+1,  5).setValue(b.tipoDoc);
-      if (!row[5]  && b.numDoc)       sheet.getRange(i+1,  6).setValue(b.numDoc);
-      if (!row[6]  && b.tipoPersona)  sheet.getRange(i+1,  7).setValue(b.tipoPersona);
-      if (!row[7]  && b.cumpleDia)    sheet.getRange(i+1,  8).setValue(b.cumpleDia);
-      if (!row[8]  && b.cumpleMes)    sheet.getRange(i+1,  9).setValue(b.cumpleMes);
+    const row = sheet.getRange(i + 1, 1, 1, 21).getValues()[0];
 
-      // Direcciones: llenar Dir_1 primero, luego Dir_2 si es diferente
-      if (b.direccion) {
-        const dir1 = String(row[9]  || '').trim();
-        const dir2 = String(row[12] || '').trim();
-        const nueva = b.direccion.trim();
-        if (!dir1) {
-          // Dir_1 vacía → llenar Dir_1
-          sheet.getRange(i+1, 10).setValue(b.direccion);
-          if (b.barrio) sheet.getRange(i+1, 11).setValue(b.barrio);
-          if (b.ciudad) sheet.getRange(i+1, 12).setValue(b.ciudad);
-        } else if (dir1 !== nueva && !dir2) {
-          // Dir_1 tiene otro valor y Dir_2 vacía → llenar Dir_2
-          sheet.getRange(i+1, 13).setValue(b.direccion);
-          if (b.barrio) sheet.getRange(i+1, 14).setValue(b.barrio);
-          if (b.ciudad) sheet.getRange(i+1, 15).setValue(b.ciudad);
+    // ── Conflicto de documento: mismo tipo pero distinto número ──
+    // Regla: si llegan mismos nombre+apellido pero otro numDoc para el mismo tipoDoc
+    // → grabar silenciosamente en Notas, NO sobrescribir
+    if (b.tipoDoc && b.numDoc && row[4] && row[5]) {
+      const mismoTipo  = String(row[4]).trim() === String(b.tipoDoc).trim();
+      const distintoNum= String(row[5]).trim() !== String(b.numDoc).trim();
+      if (mismoTipo && distintoNum) {
+        const nota = `[${Utilities.formatDate(ts,'America/Bogota','dd/MM/yy')}] Doc conflicto: tipo=${b.tipoDoc} num recibido=${b.numDoc} vs registrado=${row[5]}`;
+        const prevNotas = String(row[19] || '');
+        // Solo anotar si no está ya registrado
+        if (!prevNotas.includes(b.numDoc)) {
+          sheet.getRange(i+1, 20).setValue(prevNotas ? prevNotas + '\n' + nota : nota);
         }
-        // Si ambas tienen valor y son distintas → no sobrescribir
+        // NO actualizar tipoDoc/numDoc — mantener el original
+      } else if (!row[4] && b.tipoDoc) {
+        sheet.getRange(i+1, 5).setValue(b.tipoDoc);
+        if (b.numDoc) sheet.getRange(i+1, 6).setValue(b.numDoc);
       }
-
-      // Última interacción + contador
-      sheet.getRange(i+1, 17).setValue(ts);
-      sheet.getRange(i+1, 18).setValue((row[17] || 0) + 1);
-
-      const clienteId = row[20];
-      _log('upsertCliente', 'UPDATE', tel, clienteId);
-      return { ok: true, clienteId, nuevo: false };
+    } else {
+      // Completar campos personales vacíos sin sobrescribir
+      if (!row[4] && b.tipoDoc)      sheet.getRange(i+1,  5).setValue(b.tipoDoc);
+      if (!row[5] && b.numDoc)       sheet.getRange(i+1,  6).setValue(b.numDoc);
     }
+
+    if (!row[1]  && b.nombre)       sheet.getRange(i+1,  2).setValue(b.nombre);
+    if (!row[2]  && b.apellido)     sheet.getRange(i+1,  3).setValue(b.apellido);
+    if (!row[3]  && b.email)        sheet.getRange(i+1,  4).setValue(b.email);
+    if (!row[6]  && b.tipoPersona)  sheet.getRange(i+1,  7).setValue(b.tipoPersona);
+    if (!row[7]  && b.cumpleDia)    sheet.getRange(i+1,  8).setValue(b.cumpleDia);
+    if (!row[8]  && b.cumpleMes)    sheet.getRange(i+1,  9).setValue(b.cumpleMes);
+
+    // ── Direcciones: Dir_1 primero, Dir_2 si es diferente ────
+    if (b.direccion) {
+      const dir1  = String(row[9]  || '').trim();
+      const dir2  = String(row[12] || '').trim();
+      const nueva = b.direccion.trim();
+      if (!dir1) {
+        sheet.getRange(i+1, 10).setValue(b.direccion);
+        if (b.barrio) sheet.getRange(i+1, 11).setValue(b.barrio);
+        if (b.ciudad) sheet.getRange(i+1, 12).setValue(b.ciudad);
+      } else if (dir1 !== nueva && !dir2) {
+        sheet.getRange(i+1, 13).setValue(b.direccion);
+        if (b.barrio) sheet.getRange(i+1, 14).setValue(b.barrio);
+        if (b.ciudad) sheet.getRange(i+1, 15).setValue(b.ciudad);
+      }
+      // Si ambas llenas y distintas → anotar silenciosamente en Notas
+      else if (dir1 !== nueva && dir2 && dir2 !== nueva) {
+        const nota = `[Alt dir] ${b.direccion}${b.barrio ? ', ' + b.barrio : ''}${b.ciudad ? ', ' + b.ciudad : ''}`;
+        const prevNotas = String(row[19] || '');
+        if (!prevNotas.includes(b.direccion)) {
+          sheet.getRange(i+1, 20).setValue(prevNotas ? prevNotas + '\n' + nota : nota);
+        }
+      }
+    }
+
+    // ── Acumular total si viene ───────────────────────────────
+    if (b.total && b.total > 0) {
+      const prevTotal = Number(row[18]) || 0;
+      sheet.getRange(i+1, 19).setValue(prevTotal + b.total);
+    }
+
+    // Última interacción + contador
+    sheet.getRange(i+1, 17).setValue(ts);
+    sheet.getRange(i+1, 18).setValue((row[17] || 0) + 1);
+
+    const clienteId = row[20];
+    _log('upsertCliente', 'UPDATE', tel, clienteId);
+    return { ok: true, clienteId, nuevo: false };
   }
 
-  // Nuevo cliente
+  // ── Nuevo cliente ─────────────────────────────────────────
   const clienteId = 'IMO-' + Date.now();
   sheet.appendRow([
     tel,                    // A  Teléfono (PK)
@@ -659,7 +713,7 @@ function _upsertCliente(b) {
     ts,                     // P  Primera_interacción
     ts,                     // Q  Última_interacción
     1,                      // R  Num_interacciones
-    0,                      // S  Total_histórico_COP
+    b.total       || 0,     // S  Total_histórico_COP
     '',                     // T  Notas
     clienteId,              // U  ClienteID
   ]);

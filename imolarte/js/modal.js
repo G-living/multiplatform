@@ -1891,8 +1891,12 @@ const Modal = (() => {
       } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-\.]+$/.test(el.value.trim())) {
         msg = 'Solo se permiten letras';
       }
-    } else if ((id === 'gfRecNombre' || id === 'gfRecApellido') && el.required && !el.value.trim()) {
-      msg = 'Campo obligatorio';
+    } else if ((id === 'gfRecNombre' || id === 'gfRecApellido') && el.required) {
+      if (!el.value.trim()) {
+        msg = 'Campo obligatorio';
+      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-]+$/.test(el.value.trim())) {
+        msg = 'Solo se permiten letras';
+      }
     } else if (id === 'gfRecTel' && el.required) {
       if (!el.value.trim()) {
         msg = 'Campo obligatorio';
