@@ -601,7 +601,7 @@ const Modal = (() => {
     });
     document.getElementById('btnOpenTyCGift')?.addEventListener('click', e => {
       e.preventDefault(); e.stopPropagation();
-      _openLegal('tplTyCGift', 'Términos y Condiciones — Gift Card');
+      _openLegal('tplTyC', 'Términos y Condiciones Generales');
     });
     document.getElementById('btnOpenDatosGift')?.addEventListener('click', e => {
       e.preventDefault(); e.stopPropagation();
@@ -689,7 +689,6 @@ const Modal = (() => {
 
     document.getElementById('btnPagar60')?.addEventListener('click', () => _submitWompi('60'));
     document.getElementById('btnPagar100')?.addEventListener('click', () => _submitWompi('100'));
-    document.getElementById('btnPagarGift')?.addEventListener('click', () => _submitConGiftCard());
 
     // Validación blur en tiempo real — WA
     ['waInputNombre','waInputApellido','waInputEmail','waInputEmailConf','waInputTel',
@@ -1135,7 +1134,8 @@ const Modal = (() => {
         telefono:     g(`${p}InputTel`),
         tipoDoc:      g(`${p}InputTipoDoc`),
         numDoc:       g(`${p}InputNumDoc`),
-                cumpleDia:    g(`${p}InputCumpleDia`),
+        tipoPersona:  gr(`${p}InputTipoPersona`),
+        cumpleDia:    g(`${p}InputCumpleDia`),
         cumpleMes:    g(`${p}InputCumpleMes`),
         referralCode: '',
       },
@@ -1349,39 +1349,14 @@ const Modal = (() => {
     // Mostrar línea descuento 100%
     const disc100Line = document.getElementById('wpLineDisc100');
     const disc100Val  = document.getElementById('wpValDisc100');
-    if (disc100Line) disc100Line.style.display = disc100 > 0 && base > 0 ? 'flex' : 'none';
+    if (disc100Line) disc100Line.style.display = disc100 > 0 ? 'flex' : 'none';
     if (disc100Val)  disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
 
-    // ── Bono cubre el total → botón Gift, sin Wompi ──
-    const bonoCobreTotal = bonoDesc >= subtotal;
-    const wpPayActions = document.getElementById('wpPayActions');
-    const wpPayGift    = document.getElementById('wpPayGift');
-    const totalFinalLine = document.getElementById('wpLineTotalFinal');
-    const totalFinalVal  = document.getElementById('wpValTotalFinal');
-
-    if (bonoCobreTotal) {
-      if (wpPayActions) wpPayActions.style.display = 'none';
-      if (wpPayGift)    wpPayGift.style.display     = 'block';
-      const giftAmtEl = document.getElementById('wpAmountGift');
-      if (giftAmtEl) giftAmtEl.textContent = 'Cubierto por Gift Card';
-      if (totalFinalLine) totalFinalLine.style.display = 'flex';
-      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(0) + ' a pagar';
-    } else {
-      if (wpPayActions) wpPayActions.style.display = 'flex';
-      if (wpPayGift)    wpPayGift.style.display     = 'none';
-      // Botones con montos
-      const btn60El  = document.getElementById('wpAmount60');
-      const btn100El = document.getElementById('wpAmount100');
-      if (btn60El)  btn60El.textContent  = Utils.formatPrice(pay60);
-      if (btn100El) btn100El.textContent = Utils.formatPrice(pay100);
-      // Total final: mostrar solo si hay descuento activo
-      if (bonoDesc > 0 || disc100 > 0) {
-        if (totalFinalLine) totalFinalLine.style.display = 'flex';
-        if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(pay100);
-      } else {
-        if (totalFinalLine) totalFinalLine.style.display = 'none';
-      }
-    }
+    // Botones con montos
+    const btn60El  = document.getElementById('wpAmount60');
+    const btn100El = document.getElementById('wpAmount100');
+    if (btn60El)  btn60El.textContent  = Utils.formatPrice(pay60);
+    if (btn100El) btn100El.textContent = Utils.formatPrice(pay100);
   }
 
   // ═══════════════════════════════════════════════════
@@ -1412,9 +1387,7 @@ const Modal = (() => {
     let reference = '';
     try {
       const result = await Api.createPedidoWompi(data, items, {
-        formaPago:        _ckBono?.code
-                            ? (pct === '60' ? 'WOMPI_60' : 'WOMPI_100') + '+GIFT:' + _ckBono.code
-                            : (pct === '60' ? 'WOMPI_60' : 'WOMPI_100'),
+        formaPago:        pct === '60' ? 'WOMPI_60' : 'WOMPI_100',
         subtotal,
         descuento,
         total,
@@ -1471,55 +1444,6 @@ const Modal = (() => {
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 
-  // ═══════════════════════════════════════════════════
-  // PAGO COMPLETO CON GIFT CARD (bono ≥ total)
-  // ═══════════════════════════════════════════════════
-  async function _submitConGiftCard() {
-    if (!_validateCMOForm('wp')) return;
-
-    const btn = document.getElementById('btnPagarGift');
-    if (btn) { btn.disabled = true; btn.textContent = 'Procesando…'; }
-
-    const data     = _collectCMO('wp');
-    const items    = Cart.getItems();
-    const subtotal = _ckSubtotal;
-    const bonoDesc = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
-    const total    = 0;  // cubierto por gift card
-
-    // 1. Registrar pedido en Sheets
-    let reference = '';
-    try {
-      const result = await Api.createPedidoWompi(data, items, {
-        formaPago:        'GIFT_CARD',
-        subtotal,
-        descuento:        bonoDesc,
-        total,
-        porcentajePagado: 100,
-        referencia:       '',
-      });
-      reference = (result.ok && result.referencia) ? result.referencia : `WP-${Date.now()}`;
-    } catch(err) {
-      reference = `WP-${Date.now()}`;
-      Logger.warn('modal.js: error registrando pedido gift', err);
-    }
-
-    // 2. Redimir bono
-    if (_ckBono?.code) {
-      try { await Api.redeemDono(_ckBono.code, bonoDesc, reference); }
-      catch(err) { Logger.warn('modal.js: error redimiendo bono gift', err); }
-    }
-
-    // 3. Confirmar pedido directamente (sin Wompi)
-    try {
-      await Api.confirmarPagoWompi(reference, 'APPROVED', 'GIFT_CARD');
-    } catch(err) { Logger.warn('modal.js: error confirmando pedido gift', err); }
-
-    // 4. Vaciar carrito y redirigir a checkout con estado aprobado
-    try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
-    Logger.log('modal.js: compra con gift card confirmada', reference);
-    window.location.href = `checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED`;
-  }
-
 
   // ═══════════════════════════════════════════════════
   // MODAL GIFT — canvas tarjeta + código + vigencia
@@ -1539,10 +1463,10 @@ const Modal = (() => {
     return code;  // ej: HC-A3K9WX2M
   }
 
-  // ── Calcula fecha vigencia +9 meses ──
+  // ── Calcula fecha vigencia +180 días ──
   function _giftVigencia() {
     const d = new Date();
-    d.setMonth(d.getMonth() + 9);
+    d.setDate(d.getDate() + 180);
     const meses = ['ene','feb','mar','abr','may','jun',
                    'jul','ago','sep','oct','nov','dic'];
     return `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
@@ -1746,29 +1670,21 @@ const Modal = (() => {
     _giftCode       = '';
     _giftValidUntil = '';
 
-    // Pre-diligenciar valor 500.000
+    // Reset campo monto
     const amountEl = document.getElementById('giftAmount');
-    if (amountEl) amountEl.value = '500.000';
+    if (amountEl) amountEl.value = '';
     const errEl = document.getElementById('giftErrAmount');
     if (errEl) errEl.textContent = '';
     const infoEl = document.getElementById('giftCardInfo');
+    if (infoEl) infoEl.style.display = 'none';
     const nextBtn = document.getElementById('giftBtnNext');
-
-    // Inicializar con 500.000
-    _giftValue      = 500000;
-    _giftCode       = _generateGiftCode();
-    _giftValidUntil = _giftVigencia();
-    const codeEl  = document.getElementById('giftCodeDisplay');
-    const validEl = document.getElementById('giftValidUntil');
-    if (codeEl)  codeEl.textContent  = _giftCode;
-    if (validEl) validEl.textContent = _giftValidUntil;
-    if (infoEl)  infoEl.style.display = 'block';
-    if (nextBtn) nextBtn.disabled = false;
+    if (nextBtn) nextBtn.disabled = true;
 
     _giftShowStep(1);
     _openModal('modalGift');
 
-    setTimeout(() => _drawGiftCard(500000), 80);
+    // Dibujar tarjeta vacía
+    setTimeout(() => _drawGiftCard(0), 80);
   }
 
   function _giftShowStep(n) {
@@ -1787,19 +1703,12 @@ const Modal = (() => {
       const infoEl    = document.getElementById('giftCardInfo');
       const nextBtn   = document.getElementById('giftBtnNext');
 
-      if (amount > 0 && amount < 200000) {
-        if (errEl) errEl.textContent = 'Valor mínimo $200.000';
+      if (amount > 0 && amount < 20000) {
+        if (errEl) errEl.textContent = 'Valor mínimo $20.000';
         if (nextBtn) nextBtn.disabled = true;
-        _giftValue = 0; _giftCode = ''; _giftValidUntil = '';
-        if (infoEl) infoEl.style.display = 'none';
-        _drawGiftCard(amount);
-        return;
-      }
-
-      if (amount > 10000000) {
-        if (errEl) errEl.textContent = 'Valor máximo $10.000.000';
-        if (nextBtn) nextBtn.disabled = true;
-        _giftValue = 0; _giftCode = ''; _giftValidUntil = '';
+        _giftValue = 0;
+        _giftCode  = '';
+        _giftValidUntil = '';
         if (infoEl) infoEl.style.display = 'none';
         _drawGiftCard(amount);
         return;
@@ -1807,7 +1716,7 @@ const Modal = (() => {
 
       if (errEl) errEl.textContent = '';
 
-      if (amount >= 200000) {
+      if (amount >= 20000) {
         _giftValue = amount;
         // Generar código y vigencia si no existen aún
         if (!_giftCode) {
@@ -1834,15 +1743,13 @@ const Modal = (() => {
 
     // Botón Continuar → paso 2
     document.getElementById('giftBtnNext')?.addEventListener('click', () => {
-      if (_giftValue < 200000 || _giftValue > 10000000) return;
+      if (_giftValue < 20000) return;
       const label = '$ ' + _giftValue.toLocaleString('es-CO');
       const selEl = document.getElementById('giftSelectedLabel');
       const totEl = document.getElementById('giftTotalDisplay');
       if (selEl) selEl.textContent = label;
       if (totEl) totEl.textContent = Utils.formatPrice(_giftValue);
       _giftShowStep(2);
-      // Inicializar Places aquí — el input gfDir ya está visible
-      setTimeout(() => _initPlacesAutocomplete('gfDir', 'gfBarrio', 'gfCiudad'), 100);
     });
 
     // Botón Volver
@@ -1854,9 +1761,8 @@ const Modal = (() => {
     // Email confirmación en tiempo real
     document.getElementById('gfEmailConf')?.addEventListener('input', () => _validateGiftField('gfEmailConf'));
 
-    // Validación blur — incluye destinatario
-    ['gfNombre','gfApellido','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
-     'gfRecNombre','gfRecApellido','gfRecTel'].forEach(id => {
+    // Validación blur
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel'].forEach(id => {
       document.getElementById(id)?.addEventListener('blur', () => _validateGiftField(id));
     });
 
@@ -1873,10 +1779,6 @@ const Modal = (() => {
 
     if (el.required && !el.value.trim()) {
       msg = 'Campo obligatorio';
-    } else if (id === 'gfTipoDoc' && el.required && !el.value) {
-      msg = 'Selecciona un tipo';
-    } else if (id === 'gfNumDoc' && el.value.trim()) {
-      if (!/^\d{4,15}$/.test(el.value.trim())) msg = 'Solo números, 4-15 dígitos';
     } else if ((id === 'gfNombre' || id === 'gfApellido') && el.value.trim()) {
       const r = _CMO_VALIDATORS.nombre(el.value);
       if (r !== true) msg = r;
@@ -1895,27 +1797,6 @@ const Modal = (() => {
     } else if (id === 'gfTel' && el.value) {
       const r = _CMO_VALIDATORS.telefono(el.value);
       if (r !== true) msg = r;
-    } else if (id === 'gfDir' && el.required && !el.value.trim()) {
-      msg = 'Campo obligatorio';
-    } else if ((id === 'gfBarrio' || id === 'gfCiudad') && el.required) {
-      if (!el.value.trim()) {
-        msg = 'Campo obligatorio';
-      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-\.]+$/.test(el.value.trim())) {
-        msg = 'Solo se permiten letras';
-      }
-    } else if ((id === 'gfRecNombre' || id === 'gfRecApellido') && el.required) {
-      if (!el.value.trim()) {
-        msg = 'Campo obligatorio';
-      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-]+$/.test(el.value.trim())) {
-        msg = 'Solo se permiten letras';
-      }
-    } else if (id === 'gfRecTel' && el.required) {
-      if (!el.value.trim()) {
-        msg = 'Campo obligatorio';
-      } else {
-        const r = _CMO_VALIDATORS.telefono(el.value);
-        if (r !== true) msg = r;
-      }
     }
 
     if (errEl) errEl.textContent = msg;
@@ -1925,8 +1806,7 @@ const Modal = (() => {
 
   function _validateGiftForm() {
     let ok = true;
-    ['gfNombre','gfApellido','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
-     'gfRecNombre','gfRecApellido','gfRecTel'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel'].forEach(id => {
       if (!_validateGiftField(id)) ok = false;
     });
     // Checkbox TyC
@@ -1956,17 +1836,10 @@ const Modal = (() => {
     // Datos del formulario
     const nombre   = document.getElementById('gfNombre')?.value.trim() || '';
     const apellido = document.getElementById('gfApellido')?.value.trim() || '';
-    const tipoDoc  = document.getElementById('gfTipoDoc')?.value || '';
-    const numDoc   = document.getElementById('gfNumDoc')?.value.trim() || '';
     const email    = document.getElementById('gfEmail')?.value.trim() || '';
     const tel      = document.getElementById('gfTel')?.value.trim() || '';
     const pais     = document.getElementById('gfPais')?.value || '+57';
-    const dir      = document.getElementById('gfDir')?.value.trim() || '';
-    const barrio   = document.getElementById('gfBarrio')?.value.trim() || '';
-    const ciudad   = document.getElementById('gfCiudad')?.value.trim() || '';
     const recNom   = document.getElementById('gfRecNombre')?.value.trim() || '';
-    const recApe   = document.getElementById('gfRecApellido')?.value.trim() || '';
-    const recPais  = document.getElementById('gfRecPais')?.value || '+57';
     const recTel   = document.getElementById('gfRecTel')?.value.trim() || '';
     const mensaje  = document.getElementById('gfMensaje')?.value.trim() || '';
 
@@ -1977,9 +1850,8 @@ const Modal = (() => {
         codigo:       _giftCode,
         vigencia:     _giftValidUntil,
         valor:        amount,
-        campaniaId:   IMOLARTE_CONFIG?.campania?.id || '',
-        emisor:       { nombre, apellido, tipoDoc, numDoc, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
-        destinatario: { nombre: recNom, apellido: recApe, telefono: recPais + recTel },
+        emisor:       { nombre, apellido, email, telefono: pais + tel },
+        destinatario: { nombre: recNom, telefono: recTel },
         mensaje,
       });
     } catch(err) { Logger.warn('modal.js: error registrando gift card', err); }
