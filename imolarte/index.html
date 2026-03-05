@@ -800,12 +800,12 @@
           <div class="gift-amount-wrap">
             <label class="cmo-label" for="giftAmount">
               Valor del Gift Card (COP) <span class="cmo-req">*</span>
-              <span class="cmo-hint"> — mínimo $20.000</span>
+              <span class="cmo-hint"> — mínimo $200.000</span>
             </label>
             <div class="gift-amount-input-wrap">
               <span class="gift-amount-prefix">$</span>
               <input class="cmo-input gift-amount-input" type="text" id="giftAmount" name="giftAmount"
-                     inputmode="numeric" autocomplete="off" placeholder="50.000">
+                     inputmode="numeric" autocomplete="off" placeholder="500.000">
             </div>
             <span class="cmo-error" id="giftErrAmount"></span>
           </div>
@@ -875,13 +875,34 @@
                 <span class="cmo-error" id="gfErrTel"></span>
               </div>
             </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfDir">Dirección <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="gfDir" name="gfDir" autocomplete="street-address" placeholder="Calle 70 # 9-87, Bogotá" required>
+              <span class="cmo-error" id="gfErrDir"></span>
+            </div>
             <div class="cmo-section-label">Para quién es el regalo</div>
             <div class="cmo-row-2">
               <div class="cmo-group">
-                <label class="cmo-label" for="gfRecNombre">Nombre del destinatario</label>
-                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="Nombre" autocomplete="off">
+                <label class="cmo-label" for="gfRecNombre">Nombre(s) destinatario</label>
+                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="María" autocomplete="off">
               </div>
               <div class="cmo-group">
+                <label class="cmo-label" for="gfRecApellido">Apellido(s) destinatario</label>
+                <input class="cmo-input" type="text" id="gfRecApellido" name="gfRecApellido" placeholder="García" autocomplete="off">
+              </div>
+            </div>
+            <div class="cmo-row-phone">
+              <div class="cmo-group cmo-group-prefix">
+                <label class="cmo-label" for="gfRecPais">País</label>
+                <select class="cmo-input cmo-select" id="gfRecPais" name="gfRecPais">
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+              </div>
+              <div class="cmo-group cmo-group-tel">
                 <label class="cmo-label" for="gfRecTel">WhatsApp destinatario</label>
                 <input class="cmo-input" type="tel" id="gfRecTel" name="gfRecTel" placeholder="3001234567" autocomplete="off">
                 <span class="cmo-hint-block">Enviaremos el código de regalo por aquí</span>
@@ -894,7 +915,7 @@
             <div class="cmo-check-wrap" style="margin-top:16px">
               <input type="checkbox" id="gfCheckTyC" name="gfCheckTyC" required>
               <label for="gfCheckTyC" class="cmo-check-label">
-                Acepto los <span class="cmo-legal-link" id="btnOpenTyCGift" role="button" tabindex="0">términos y condiciones</span> y la <span class="cmo-legal-link" id="btnOpenDatosGift" role="button" tabindex="0">política de privacidad</span>. <span class="cmo-req">*</span>
+                Acepto los <span class="cmo-legal-link" id="btnOpenTyCGift" role="button" tabindex="0">términos y condiciones de Gift Card</span> y la <span class="cmo-legal-link" id="btnOpenDatosGift" role="button" tabindex="0">política de privacidad</span>. <span class="cmo-req">*</span>
               </label>
             </div>
             <span class="cmo-error" id="gfErrTyC"></span>
@@ -1014,6 +1035,27 @@
       <p>Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos; revocar esta autorización; y presentar queja ante la Superintendencia de Industria y Comercio (SIC).</p>
       <h3>Contacto</h3>
       <p>Escríbenos a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> indicando tu nombre, documento y el derecho que deseas ejercer. Responderemos en máximo 15 días hábiles.</p>
+    </div>
+  </template>
+
+  <!-- TyC Gift Card -->
+  <template id="tplTyCGift">
+    <div class="legal-doc">
+      <p class="legal-entity">HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
+      <h3>1. Valor e IVA</h3>
+      <p>El valor cargado a la Gift Card incluye el IVA del 19% vigente en Colombia. La persona que adquiere la tarjeta recibirá una factura electrónica por el valor total de la recarga, expedida a nombre del comprador registrado en el formulario.</p>
+      <h3>2. Vigencia</h3>
+      <p>Cada Gift Card tiene una vigencia de nueve (9) meses contados a partir de la fecha de emisión. Transcurrido dicho plazo sin que la tarjeta haya sido canjeada total o parcialmente, será anulada automáticamente y su valor o saldo eventual quedarán en favor de HELENA CABALLERO SAS, sin posibilidad de reembolso.</p>
+      <h3>3. Cesibilidad</h3>
+      <p>Las Gift Cards son cedibles a terceros. El código único de la tarjeta puede ser transferido libremente por su titular a cualquier persona, quien podrá utilizarlo en las mismas condiciones.</p>
+      <h3>4. Canje</h3>
+      <p>El código de la Gift Card deberá ingresarse en el espacio habilitado para bonos en el paso de pago del carrito de compra. El valor se descontará automáticamente del total del pedido. Si el valor del pedido es inferior al saldo de la tarjeta, el remanente quedará disponible para usos futuros dentro de la vigencia.</p>
+      <h3>5. Custodia y responsabilidad</h3>
+      <p>La Gift Card se asimila a dinero en efectivo. HELENA CABALLERO SAS no se responsabiliza por pérdida, robo, uso no autorizado o deterioro del código una vez entregado al comprador. Se recomienda guardar el código en un lugar seguro y no compartirlo con terceros no autorizados.</p>
+      <h3>6. No reembolsable</h3>
+      <p>Las Gift Cards no son reembolsables en efectivo ni canjeables por dinero bajo ninguna circunstancia, salvo disposición legal en contrario.</p>
+      <h3>7. Contacto</h3>
+      <p>Para consultas sobre saldo, vigencia o cualquier inconveniente con tu Gift Card, escríbenos a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> o por WhatsApp al +57 300 425 7367.</p>
     </div>
   </template>
 

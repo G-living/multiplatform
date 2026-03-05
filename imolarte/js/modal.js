@@ -601,7 +601,7 @@ const Modal = (() => {
     });
     document.getElementById('btnOpenTyCGift')?.addEventListener('click', e => {
       e.preventDefault(); e.stopPropagation();
-      _openLegal('tplTyC', 'Términos y Condiciones Generales');
+      _openLegal('tplTyCGift', 'Términos y Condiciones — Gift Card');
     });
     document.getElementById('btnOpenDatosGift')?.addEventListener('click', e => {
       e.preventDefault(); e.stopPropagation();
@@ -1670,21 +1670,29 @@ const Modal = (() => {
     _giftCode       = '';
     _giftValidUntil = '';
 
-    // Reset campo monto
+    // Pre-diligenciar valor 500.000
     const amountEl = document.getElementById('giftAmount');
-    if (amountEl) amountEl.value = '';
+    if (amountEl) amountEl.value = '500.000';
     const errEl = document.getElementById('giftErrAmount');
     if (errEl) errEl.textContent = '';
     const infoEl = document.getElementById('giftCardInfo');
-    if (infoEl) infoEl.style.display = 'none';
     const nextBtn = document.getElementById('giftBtnNext');
-    if (nextBtn) nextBtn.disabled = true;
+
+    // Inicializar con 500.000
+    _giftValue      = 500000;
+    _giftCode       = _generateGiftCode();
+    _giftValidUntil = _giftVigencia();
+    const codeEl  = document.getElementById('giftCodeDisplay');
+    const validEl = document.getElementById('giftValidUntil');
+    if (codeEl)  codeEl.textContent  = _giftCode;
+    if (validEl) validEl.textContent = _giftValidUntil;
+    if (infoEl)  infoEl.style.display = 'block';
+    if (nextBtn) nextBtn.disabled = false;
 
     _giftShowStep(1);
     _openModal('modalGift');
 
-    // Dibujar tarjeta vacía
-    setTimeout(() => _drawGiftCard(0), 80);
+    setTimeout(() => _drawGiftCard(500000), 80);
   }
 
   function _giftShowStep(n) {
@@ -1703,8 +1711,8 @@ const Modal = (() => {
       const infoEl    = document.getElementById('giftCardInfo');
       const nextBtn   = document.getElementById('giftBtnNext');
 
-      if (amount > 0 && amount < 20000) {
-        if (errEl) errEl.textContent = 'Valor mínimo $20.000';
+      if (amount > 0 && amount < 200000) {
+        if (errEl) errEl.textContent = 'Valor mínimo $200.000';
         if (nextBtn) nextBtn.disabled = true;
         _giftValue = 0;
         _giftCode  = '';
@@ -1716,7 +1724,7 @@ const Modal = (() => {
 
       if (errEl) errEl.textContent = '';
 
-      if (amount >= 20000) {
+      if (amount >= 200000) {
         _giftValue = amount;
         // Generar código y vigencia si no existen aún
         if (!_giftCode) {
@@ -1743,7 +1751,7 @@ const Modal = (() => {
 
     // Botón Continuar → paso 2
     document.getElementById('giftBtnNext')?.addEventListener('click', () => {
-      if (_giftValue < 20000) return;
+      if (_giftValue < 200000) return;
       const label = '$ ' + _giftValue.toLocaleString('es-CO');
       const selEl = document.getElementById('giftSelectedLabel');
       const totEl = document.getElementById('giftTotalDisplay');
@@ -1762,7 +1770,7 @@ const Modal = (() => {
     document.getElementById('gfEmailConf')?.addEventListener('input', () => _validateGiftField('gfEmailConf'));
 
     // Validación blur
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir'].forEach(id => {
       document.getElementById(id)?.addEventListener('blur', () => _validateGiftField(id));
     });
 
@@ -1797,6 +1805,8 @@ const Modal = (() => {
     } else if (id === 'gfTel' && el.value) {
       const r = _CMO_VALIDATORS.telefono(el.value);
       if (r !== true) msg = r;
+    } else if (id === 'gfDir' && el.required && !el.value.trim()) {
+      msg = 'Campo obligatorio';
     }
 
     if (errEl) errEl.textContent = msg;
@@ -1806,7 +1816,7 @@ const Modal = (() => {
 
   function _validateGiftForm() {
     let ok = true;
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir'].forEach(id => {
       if (!_validateGiftField(id)) ok = false;
     });
     // Checkbox TyC
@@ -1839,7 +1849,10 @@ const Modal = (() => {
     const email    = document.getElementById('gfEmail')?.value.trim() || '';
     const tel      = document.getElementById('gfTel')?.value.trim() || '';
     const pais     = document.getElementById('gfPais')?.value || '+57';
+    const dir      = document.getElementById('gfDir')?.value.trim() || '';
     const recNom   = document.getElementById('gfRecNombre')?.value.trim() || '';
+    const recApe   = document.getElementById('gfRecApellido')?.value.trim() || '';
+    const recPais  = document.getElementById('gfRecPais')?.value || '+57';
     const recTel   = document.getElementById('gfRecTel')?.value.trim() || '';
     const mensaje  = document.getElementById('gfMensaje')?.value.trim() || '';
 
@@ -1850,8 +1863,8 @@ const Modal = (() => {
         codigo:       _giftCode,
         vigencia:     _giftValidUntil,
         valor:        amount,
-        emisor:       { nombre, apellido, email, telefono: pais + tel },
-        destinatario: { nombre: recNom, telefono: recTel },
+        emisor:       { nombre, apellido, email, telefono: pais + tel, direccion: dir },
+        destinatario: { nombre: recNom + (recApe ? ' ' + recApe : ''), telefono: recPais + recTel },
         mensaje,
       });
     } catch(err) { Logger.warn('modal.js: error registrando gift card', err); }
