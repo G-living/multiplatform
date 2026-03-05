@@ -1463,10 +1463,10 @@ const Modal = (() => {
     return code;  // ej: HC-A3K9WX2M
   }
 
-  // ── Calcula fecha vigencia +180 días ──
+  // ── Calcula fecha vigencia +9 meses ──
   function _giftVigencia() {
     const d = new Date();
-    d.setDate(d.getDate() + 180);
+    d.setMonth(d.getMonth() + 9);
     const meses = ['ene','feb','mar','abr','may','jun',
                    'jul','ago','sep','oct','nov','dic'];
     return `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
@@ -1770,12 +1770,15 @@ const Modal = (() => {
     document.getElementById('gfEmailConf')?.addEventListener('input', () => _validateGiftField('gfEmailConf'));
 
     // Validación blur
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad'].forEach(id => {
       document.getElementById(id)?.addEventListener('blur', () => _validateGiftField(id));
     });
 
     // Submit formulario
     document.getElementById('formGift')?.addEventListener('submit', _handleSubmitGift);
+
+    // Google Places para dirección del emisor
+    _initPlacesAutocomplete('gfDir', 'gfBarrio', 'gfCiudad');
   }
 
   function _validateGiftField(id) {
@@ -1807,6 +1810,8 @@ const Modal = (() => {
       if (r !== true) msg = r;
     } else if (id === 'gfDir' && el.required && !el.value.trim()) {
       msg = 'Campo obligatorio';
+    } else if ((id === 'gfBarrio' || id === 'gfCiudad') && el.required && !el.value.trim()) {
+      msg = 'Campo obligatorio';
     }
 
     if (errEl) errEl.textContent = msg;
@@ -1816,7 +1821,7 @@ const Modal = (() => {
 
   function _validateGiftForm() {
     let ok = true;
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad'].forEach(id => {
       if (!_validateGiftField(id)) ok = false;
     });
     // Checkbox TyC
@@ -1850,6 +1855,8 @@ const Modal = (() => {
     const tel      = document.getElementById('gfTel')?.value.trim() || '';
     const pais     = document.getElementById('gfPais')?.value || '+57';
     const dir      = document.getElementById('gfDir')?.value.trim() || '';
+    const barrio   = document.getElementById('gfBarrio')?.value.trim() || '';
+    const ciudad   = document.getElementById('gfCiudad')?.value.trim() || '';
     const recNom   = document.getElementById('gfRecNombre')?.value.trim() || '';
     const recApe   = document.getElementById('gfRecApellido')?.value.trim() || '';
     const recPais  = document.getElementById('gfRecPais')?.value || '+57';
@@ -1863,7 +1870,8 @@ const Modal = (() => {
         codigo:       _giftCode,
         vigencia:     _giftValidUntil,
         valor:        amount,
-        emisor:       { nombre, apellido, email, telefono: pais + tel, direccion: dir },
+        campaniaId:   IMOLARTE_CONFIG?.campania?.id || '',
+        emisor:       { nombre, apellido, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
         destinatario: { nombre: recNom + (recApe ? ' ' + recApe : ''), telefono: recPais + recTel },
         mensaje,
       });

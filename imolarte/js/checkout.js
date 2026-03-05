@@ -67,6 +67,8 @@ function _handleStatus(status, reference, txId) {
   const refEl     = document.getElementById('confirmRef');
   const actionsEl = document.getElementById('confirmActions');
 
+  const isGift = reference && reference.startsWith('GIFT-');
+
   function setContent(icon, title, msg, ref, actionsHtml, colorClass) {
     if (iconEl)    iconEl.textContent = icon;
     if (titleEl)   { titleEl.textContent = title; if (colorClass) titleEl.classList.add(colorClass); }
@@ -81,15 +83,28 @@ function _handleStatus(status, reference, txId) {
   const btnReintentar = '<a href="index.html" class="btn btn-secondary">Volver al catálogo</a>';
 
   if (status === 'APPROVED') {
-    setContent(
-      '🏺', '¡Gracias por tu compra!',
-      `Tu pago fue confirmado exitosamente.<br><br>
+    const msgProducto = `Tu pago fue confirmado exitosamente.<br><br>
        En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.
        Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
-       Cada pieza que elegiste es única — <em>hecha a mano en Italia, especialmente para ti.</em>`,
+       Cada pieza que elegiste es única — <em>hecha a mano en Italia, especialmente para ti.</em>`;
+
+    const msgGift = `Tu pago fue confirmado exitosamente.<br><br>
+       Tu <strong>Gift Card</strong> ha sido generada. En los próximos minutos recibirás un
+       <strong>email</strong> con el código de tu tarjeta y las instrucciones de uso.<br><br>
+       Recuerda que la Gift Card tiene vigencia de <strong>9 meses</strong> desde la fecha de emisión.
+       Guarda el código en un lugar seguro — se asimila a dinero en efectivo.`;
+
+    setContent(
+      isGift ? '🎁' : '🏺',
+      isGift ? '¡Gift Card lista!' : '¡Gracias por tu compra!',
+      isGift ? msgGift : msgProducto,
       reference, btnCatalogo, 'confirm-title--success'
     );
-    Api.confirmarPagoWompi(reference, status, txId);
+    if (isGift) {
+      Api.confirmarPagoGiftCard(reference, status, txId);
+    } else {
+      Api.confirmarPagoWompi(reference, status, txId);
+    }
 
   } else if (status === 'DECLINED' || status === 'ERROR') {
     setContent(
@@ -102,13 +117,17 @@ function _handleStatus(status, reference, txId) {
 
   } else if (status === 'PENDING') {
     setContent(
-      '⏳', 'Pago en verificación',
+      '⏳', isGift ? 'Gift Card en verificación' : 'Pago en verificación',
       `Tu pago está siendo procesado.<br><br>
        Te notificaremos por <strong>email</strong> en cuanto se confirme.
        No es necesario realizar otro pago.`,
       reference, btnCatalogo, 'confirm-title--pending'
     );
-    Api.confirmarPagoWompi(reference, status, txId);
+    if (isGift) {
+      Api.confirmarPagoGiftCard(reference, status, txId);
+    } else {
+      Api.confirmarPagoWompi(reference, status, txId);
+    }
 
   } else {
     setContent(

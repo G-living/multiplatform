@@ -154,6 +154,15 @@ const Api = (() => {
     return _post({ action: 'createGiftCard', ...payload });
   }
 
+  async function confirmarPagoGiftCard(referencia, status, transactionId) {
+    return _post({
+      action:        'confirmarPagoGiftCard',
+      referencia,
+      status,
+      transactionId: transactionId || '',
+    });
+  }
+
   async function getGiftCard(codigo) {
     return _get({ action: 'getGiftCard', codigo });
   }
@@ -190,6 +199,7 @@ const Api = (() => {
     getPedido,
     // Gift Cards
     createGiftCard,
+    confirmarPagoGiftCard,
     getGiftCard,
     redeemDono,
     validateDono,
