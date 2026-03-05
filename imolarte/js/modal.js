@@ -1357,12 +1357,16 @@ const Modal = (() => {
     const bonoCobreTotal = bonoDesc >= subtotal;
     const wpPayActions = document.getElementById('wpPayActions');
     const wpPayGift    = document.getElementById('wpPayGift');
+    const totalFinalLine = document.getElementById('wpLineTotalFinal');
+    const totalFinalVal  = document.getElementById('wpValTotalFinal');
 
     if (bonoCobreTotal) {
       if (wpPayActions) wpPayActions.style.display = 'none';
       if (wpPayGift)    wpPayGift.style.display     = 'block';
       const giftAmtEl = document.getElementById('wpAmountGift');
       if (giftAmtEl) giftAmtEl.textContent = 'Cubierto por Gift Card';
+      if (totalFinalLine) totalFinalLine.style.display = 'flex';
+      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(0) + ' a pagar';
     } else {
       if (wpPayActions) wpPayActions.style.display = 'flex';
       if (wpPayGift)    wpPayGift.style.display     = 'none';
@@ -1371,6 +1375,13 @@ const Modal = (() => {
       const btn100El = document.getElementById('wpAmount100');
       if (btn60El)  btn60El.textContent  = Utils.formatPrice(pay60);
       if (btn100El) btn100El.textContent = Utils.formatPrice(pay100);
+      // Total final: mostrar solo si hay descuento activo
+      if (bonoDesc > 0 || disc100 > 0) {
+        if (totalFinalLine) totalFinalLine.style.display = 'flex';
+        if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(pay100);
+      } else {
+        if (totalFinalLine) totalFinalLine.style.display = 'none';
+      }
     }
   }
 
@@ -1402,7 +1413,9 @@ const Modal = (() => {
     let reference = '';
     try {
       const result = await Api.createPedidoWompi(data, items, {
-        formaPago:        pct === '60' ? 'WOMPI_60' : 'WOMPI_100',
+        formaPago:        _ckBono?.code
+                            ? (pct === '60' ? 'WOMPI_60' : 'WOMPI_100') + '+GIFT:' + _ckBono.code
+                            : (pct === '60' ? 'WOMPI_60' : 'WOMPI_100'),
         subtotal,
         descuento,
         total,

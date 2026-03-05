@@ -783,6 +783,22 @@
     font-weight: var(--font-weight-semibold);
 }
 
+.cmo-total-final {
+    border-top: 1px solid var(--color-border);
+    margin-top: 6px;
+    padding-top: 6px;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+}
+
+.cmo-iva-note {
+    font-size: 10px;
+    color: var(--color-text-muted, #999);
+    margin: 6px 0 2px 0;
+    font-style: italic;
+    line-height: 1.4;
+}
+
 /* Footer / CTAs */
 .cmo-footer {
     margin-top: var(--spacing-md);
