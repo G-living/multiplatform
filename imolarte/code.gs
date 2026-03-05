@@ -1,11 +1,25 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v2.0
+// IMOLARTE — Google Apps Script Backend v16
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
-// Web App URL    : publicar como nueva versión tras pegar este código
-// Ejecutar UNA VEZ: setupSheets() para crear hojas y headers
-//                   setupDropdowns() para aplicar dropdowns col Estado_Pedido
-// Trigger manual : onSheetChange → instalar en Triggers → On edit
+// Deploy: publicar como nueva versión tras pegar este código
+// Setup  (una vez): setupSheets() → setupDropdowns() → setupProtections()
+// Reset  GiftCards: resetGiftCardSheet()
+// Reset  Clientes : resetClientesSheet()
+// Dashboard      : rebuildDashboard()   (o trigger diario)
+// Trigger edit   : onSheetChange → On edit
+// ============================================================
+//
+// CAMBIOS v16
+// ─ Clientes: PK dual TipoDoc+NumDoc (primero) / Teléfono (fallback)
+// ─ Clientes: sin Tipo_Persona, sin Dir_2, columna Historial_cambios
+// ─ Clientes: alerta identidad sospechosa → email admin MAYÚSCULA
+// ─ GiftCards: Valor_COP → Saldo_Gift_COP
+// ─ GiftCards: sin upsert destinatario como cliente
+// ─ GiftCards: Canjeado_En acumula ref+monto+fecha por línea
+// ─ Dashboard_Clientes: nueva sheet, 1 fila/cliente, rebuildDashboard()
+// ─ setupProtections(): protege cols calculadas, deja editables las operativas
+// ─ Places CSS: fix posición dropdown en modal gift
 // ============================================================
 
 'use strict';
@@ -13,27 +27,28 @@
 const CFG = {
   SPREADSHEET_ID  : '1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg',
   NOMBRE_TIENDA   : 'IMOLARTE by Helena Caballero',
+  EMAIL_ADMIN     : 'filippo.massara2016@gmail.com',
   EMAIL_REMITENTE : 'filippo.massara2016@gmail.com',
   WHATSAPP        : '+573004257367',
   WEBSITE         : 'https://www.helenacaballero.com',
-  CATALOGO        : 'https://g-living.github.io/claudecatalogue/',
-  WISHLIST_ABANDON_MIN: 30,   // minutos antes de email carrito abandonado
+  CATALOGO        : 'https://g-living.github.io/multiplatform/imolarte/',
+  WISHLIST_ABANDON_MIN: 30,
   SHEETS: {
-    WISHLIST      : 'Wishlist',        // ex Pedidos_WA
+    WISHLIST      : 'Wishlist',
     PEDIDOS_WOMPI : 'Pedidos_Wompi',
     GIFT_CARDS    : 'GiftCards',
     CLIENTES      : 'Clientes',
+    DASHBOARD     : 'Dashboard_Clientes',
     CAMPANIAS     : 'Campañas',
     LOG           : 'Log',
   },
 };
 
-// Estados válidos
 const ESTADOS_WISHLIST = ['PENDIENTE', 'ENVIADO_WA'];
 const ESTADOS_PEDIDO   = [
-  'PENDIENTE', 'CONFIRMADO', 'CANCELADO',
-  'EN_PRODUCCION', 'EN_TRANSITO', 'EN_NACIONALIZACION',
-  'LISTO_DESPACHO', 'DISPONIBLE_TIENDA', 'DESPACHADO',
+  'PENDIENTE','CONFIRMADO','CANCELADO',
+  'EN_PRODUCCION','EN_TRANSITO','EN_NACIONALIZACION',
+  'LISTO_DESPACHO','DISPONIBLE_TIENDA','DESPACHADO',
 ];
 
 // ============================================================
@@ -48,10 +63,8 @@ function doPost(e) {
     } else {
       body = JSON.parse(e.postData.contents);
     }
-
     const action = body.action || '';
     _log('doPost', action, JSON.stringify(body).slice(0, 200));
-
     let result;
     switch (action) {
       case 'createWishlist'        : result = _createWishlist(body);          break;
@@ -63,7 +76,7 @@ function doPost(e) {
       case 'upsertCliente'         : result = _upsertCliente(body);           break;
       case 'redeemDono'            : result = _redeemDono(body);              break;
       case 'ping'                  : result = { ok: true, ts: new Date().toISOString() }; break;
-      // aliases legacy — mantener para compatibilidad
+      // aliases legacy
       case 'createPedidoWA'        : result = _createWishlist(body);          break;
       case 'updateEstadoWA'        : result = _updateEstadoWishlist(body);    break;
       case 'updateEstado'          : result = _confirmarPagoWompi(body);      break;
@@ -101,13 +114,12 @@ function doGet(e) {
 }
 
 // ============================================================
-// WISHLIST (ex Pedidos_WA)
-// Columnas: Campaña_ID | Timestamp | Referencia | ClienteID |
-//           Nombre | Apellido | Email | Teléfono |
-//           Tipo_Doc | Num_Doc | Tipo_Persona |
-//           Dirección_Wishlist | Barrio_Wishlist | Ciudad_Wishlist | Notas |
-//           Productos_JSON | Total_COP |
-//           Estado_Wishlist | Notas_internas
+// WISHLIST
+// Cols: Campaña_ID | Timestamp | Referencia | ClienteID |
+//       Nombre | Apellido | Email | Teléfono |
+//       Tipo_Doc | Num_Doc |
+//       Dirección_Wishlist | Barrio_Wishlist | Ciudad_Wishlist | Notas |
+//       Productos_JSON | Total_COP | Estado_Wishlist | Notas_internas
 // ============================================================
 
 function _createWishlist(b) {
@@ -120,41 +132,38 @@ function _createWishlist(b) {
   const campania = b.campaniaId || '';
 
   const cliId = _upsertCliente({
-    telefono    : tel,
-    codigoPais  : cli.codigoPais   || '+57',
-    nombre      : cli.nombre       || '',
-    apellido    : cli.apellido     || '',
-    email       : cli.email        || '',
-    tipoDoc     : cli.tipoDoc      || '',
-    numDoc      : cli.numDoc       || '',
-    tipoPersona : cli.tipoPersona  || '',
-    cumpleDia   : cli.cumpleDia    || '',
-    cumpleMes   : cli.cumpleMes    || '',
-    direccion   : ent.direccion    || '',
-    barrio      : ent.barrio       || '',
-    ciudad      : ent.ciudad       || '',
+    telefono  : tel,
+    nombre    : cli.nombre    || '',
+    apellido  : cli.apellido  || '',
+    email     : cli.email     || '',
+    tipoDoc   : cli.tipoDoc   || '',
+    numDoc    : cli.numDoc    || '',
+    cumpleDia : cli.cumpleDia || '',
+    cumpleMes : cli.cumpleMes || '',
+    direccion : ent.direccion || '',
+    barrio    : ent.barrio    || '',
+    ciudad    : ent.ciudad    || '',
   }).clienteId;
 
   sheet.appendRow([
-    campania,                             // A  Campaña_ID
-    ts,                                   // B  Timestamp
-    ref,                                  // C  Referencia
-    cliId,                                // D  ClienteID
-    cli.nombre      || '',                // E  Nombre
-    cli.apellido    || '',                // F  Apellido
-    cli.email       || '',                // G  Email
-    tel,                                  // H  Teléfono
-    cli.tipoDoc     || '',                // I  Tipo_Doc
-    cli.numDoc      || '',                // J  Num_Doc
-    cli.tipoPersona || '',                // K  Tipo_Persona
-    ent.direccion   || '',                // L  Dirección_Wishlist
-    ent.barrio      || '',                // M  Barrio_Wishlist
-    ent.ciudad      || '',                // N  Ciudad_Wishlist
-    ent.notas       || '',                // O  Notas
-    JSON.stringify(b.productos || []),    // P  Productos_JSON
-    b.total         || 0,                 // Q  Total_COP
-    'PENDIENTE',                          // R  Estado_Wishlist
-    '',                                   // S  Notas_internas
+    campania,                            // A  Campaña_ID
+    ts,                                  // B  Timestamp
+    ref,                                 // C  Referencia
+    cliId,                               // D  ClienteID
+    cli.nombre    || '',                 // E  Nombre
+    cli.apellido  || '',                 // F  Apellido
+    cli.email     || '',                 // G  Email
+    tel,                                 // H  Teléfono
+    cli.tipoDoc   || '',                 // I  Tipo_Doc
+    cli.numDoc    || '',                 // J  Num_Doc
+    ent.direccion || '',                 // K  Dirección_Wishlist
+    ent.barrio    || '',                 // L  Barrio_Wishlist
+    ent.ciudad    || '',                 // M  Ciudad_Wishlist
+    ent.notas     || '',                 // N  Notas
+    JSON.stringify(b.productos || []),   // O  Productos_JSON
+    b.total       || 0,                  // P  Total_COP
+    'PENDIENTE',                         // Q  Estado_Wishlist
+    '',                                  // R  Notas_internas
   ]);
 
   _log('createWishlist', ref, cliId, 'OK');
@@ -165,7 +174,7 @@ function _updateEstadoWishlist(b) {
   const sheet  = _getSheet(CFG.SHEETS.WISHLIST);
   const ref    = b.referencia || '';
   const estado = b.estadoWA || b.estado || 'ENVIADO_WA';
-  if (!ref) return { ok: false, error: 'Referencia requerida' };
+  if (!ref)    return { ok: false, error: 'Referencia requerida' };
   if (!ESTADOS_WISHLIST.includes(estado)) return { ok: false, error: 'Estado inválido: ' + estado };
 
   const data   = sheet.getDataRange().getValues();
@@ -178,37 +187,29 @@ function _updateEstadoWishlist(b) {
     if (data[i][colRef] === ref) {
       sheet.getRange(i + 1, colEstado + 1).setValue(estado);
       _log('updateEstadoWishlist', ref, estado, 'OK');
-
-      // Email al cliente cuando confirma envío por WA
       if (estado === 'ENVIADO_WA') {
-        const colEmail  = header.indexOf('Email');
-        const colNombre = header.indexOf('Nombre');
-        const colProds  = header.indexOf('Productos_JSON');
-        const colTotal  = header.indexOf('Total_COP');
-        const email  = data[i][colEmail]  || '';
-        const nombre = data[i][colNombre] || '';
-        const prods  = _parseJSON(data[i][colProds]);
-        const total  = data[i][colTotal]  || 0;
+        const email  = data[i][header.indexOf('Email')]         || '';
+        const nombre = data[i][header.indexOf('Nombre')]        || '';
+        const prods  = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
+        const total  = data[i][header.indexOf('Total_COP')]     || 0;
         if (email) _emailEnviadoWA(email, nombre, ref, prods, total);
       }
-
       return { ok: true, referencia: ref, estado };
     }
   }
-  _log('updateEstadoWishlist', ref, 'NOT_FOUND');
   return { ok: false, error: 'Referencia no encontrada: ' + ref };
 }
 
 // ============================================================
 // PEDIDOS WOMPI
-// Columnas: Campaña_ID | Timestamp | Referencia |
-//           Wompi_Transaction_ID | Estado_Pago_Wompi |
-//           ClienteID | Nombre | Apellido | Email | Teléfono |
-//           Tipo_Doc | Num_Doc | Tipo_Persona |
-//           Dirección | Barrio | Ciudad | Notas_entrega |
-//           Productos_JSON | Subtotal_COP | Descuento_COP |
-//           Total_COP | Pct_Pagado | Forma_pago |
-//           Estado_Pedido | Fecha_despacho | Notas_internas | SIIGO_Factura_ID
+// Cols: Campaña_ID | Timestamp | Referencia |
+//       Wompi_Transaction_ID | Estado_Pago_Wompi |
+//       ClienteID | Nombre | Apellido | Email | Teléfono |
+//       Tipo_Doc | Num_Doc |
+//       Dirección | Barrio | Ciudad | Notas_entrega |
+//       Productos_JSON | Subtotal_COP | Descuento_COP |
+//       Total_COP | Pct_Pagado | Forma_pago |
+//       Estado_Pedido | Fecha_despacho | Notas_internas | SIIGO_Factura_ID
 // ============================================================
 
 function _createPedidoWompi(b) {
@@ -221,58 +222,50 @@ function _createPedidoWompi(b) {
   const campania = b.campaniaId || '';
 
   const cliId = _upsertCliente({
-    telefono    : tel,
-    codigoPais  : cli.codigoPais   || '+57',
-    nombre      : cli.nombre       || '',
-    apellido    : cli.apellido     || '',
-    email       : cli.email        || '',
-    tipoDoc     : cli.tipoDoc      || '',
-    numDoc      : cli.numDoc       || '',
-    tipoPersona : cli.tipoPersona  || '',
-    cumpleDia   : cli.cumpleDia    || '',
-    cumpleMes   : cli.cumpleMes    || '',
-    direccion   : ent.direccion    || '',
-    barrio      : ent.barrio       || '',
-    ciudad      : ent.ciudad       || '',
+    telefono  : tel,
+    nombre    : cli.nombre    || '',
+    apellido  : cli.apellido  || '',
+    email     : cli.email     || '',
+    tipoDoc   : cli.tipoDoc   || '',
+    numDoc    : cli.numDoc    || '',
+    cumpleDia : cli.cumpleDia || '',
+    cumpleMes : cli.cumpleMes || '',
+    direccion : ent.direccion || '',
+    barrio    : ent.barrio    || '',
+    ciudad    : ent.ciudad    || '',
   }).clienteId;
 
   sheet.appendRow([
-    campania,                             // A  Campaña_ID
-    ts,                                   // B  Timestamp
-    ref,                                  // C  Referencia
-    b.wompiTransactionId || '',           // D  Wompi_Transaction_ID
-    'PENDING',                            // E  Estado_Pago_Wompi
-    cliId,                                // F  ClienteID
-    cli.nombre      || '',                // G  Nombre
-    cli.apellido    || '',                // H  Apellido
-    cli.email       || '',                // I  Email
-    tel,                                  // J  Teléfono
-    cli.tipoDoc     || '',                // K  Tipo_Doc
-    cli.numDoc      || '',                // L  Num_Doc
-    cli.tipoPersona || '',                // M  Tipo_Persona
-    ent.direccion   || '',                // N  Dirección
-    ent.barrio      || '',                // O  Barrio
-    ent.ciudad      || '',                // P  Ciudad
-    ent.notas       || '',                // Q  Notas_entrega
-    JSON.stringify(b.productos || []),    // R  Productos_JSON
-    b.subtotal      || 0,                 // S  Subtotal_COP
-    b.descuento     || 0,                 // T  Descuento_COP
-    b.total         || 0,                 // U  Total_COP
-    b.porcentajePagado || 100,            // V  Pct_Pagado
-    b.formaPago     || 'WOMPI_100',       // W  Forma_pago
-    'PENDIENTE',                          // X  Estado_Pedido
-    '',                                   // Y  Fecha_despacho
-    '',                                   // Z  Notas_internas
-    '',                                   // AA SIIGO_Factura_ID
+    campania,                            // A  Campaña_ID
+    ts,                                  // B  Timestamp
+    ref,                                 // C  Referencia
+    b.wompiTransactionId || '',          // D  Wompi_Transaction_ID
+    'PENDING',                           // E  Estado_Pago_Wompi
+    cliId,                               // F  ClienteID
+    cli.nombre    || '',                 // G  Nombre
+    cli.apellido  || '',                 // H  Apellido
+    cli.email     || '',                 // I  Email
+    tel,                                 // J  Teléfono
+    cli.tipoDoc   || '',                 // K  Tipo_Doc
+    cli.numDoc    || '',                 // L  Num_Doc
+    ent.direccion || '',                 // M  Dirección
+    ent.barrio    || '',                 // N  Barrio
+    ent.ciudad    || '',                 // O  Ciudad
+    ent.notas     || '',                 // P  Notas_entrega
+    JSON.stringify(b.productos || []),   // Q  Productos_JSON
+    b.subtotal    || 0,                  // R  Subtotal_COP
+    b.descuento   || 0,                  // S  Descuento_COP
+    b.total       || 0,                  // T  Total_COP
+    b.porcentajePagado || 100,           // U  Pct_Pagado
+    b.formaPago   || 'WOMPI_100',        // V  Forma_pago
+    'PENDIENTE',                         // W  Estado_Pedido
+    '',                                  // X  Fecha_despacho
+    '',                                  // Y  Notas_internas
+    '',                                  // Z  SIIGO_Factura_ID
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
-
-  // Email confirmación de pedido recibido (antes del pago)
-  if (cli.email) {
-    _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
-  }
-
+  if (cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
   return { ok: true, referencia: ref, clienteId: cliId };
 }
 
@@ -281,12 +274,11 @@ function _confirmarPagoWompi(b) {
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
 
-  const colRef      = header.indexOf('Referencia');
-  const colPagoWP   = header.indexOf('Estado_Pago_Wompi');
-  const colPedido   = header.indexOf('Estado_Pedido');
-  const colTxId     = header.indexOf('Wompi_Transaction_ID');
+  const colRef    = header.indexOf('Referencia');
+  const colPagoWP = header.indexOf('Estado_Pago_Wompi');
+  const colPedido = header.indexOf('Estado_Pedido');
+  const colTxId   = header.indexOf('Wompi_Transaction_ID');
 
-  // Acepta llamadas desde checkout.js y desde webhook Cloudflare
   const d      = b.data || {};
   const ref    = b.referencia    || d.pedidoId      || '';
   const status = b.status        || d.paymentStatus  || 'APPROVED';
@@ -297,48 +289,36 @@ function _confirmarPagoWompi(b) {
     return { ok: false, error: 'Columnas no encontradas en Pedidos_Wompi' };
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][colRef] === ref) {
-      // Estado_Pago_Wompi — espejo directo Wompi
-      sheet.getRange(i + 1, colPagoWP + 1).setValue(status);
+    if (data[i][colRef] !== ref) continue;
 
-      // Estado_Pedido — lógica operativa
-      const estadoPedido = status === 'APPROVED'
-        ? 'CONFIRMADO'
-        : (status === 'PENDING' ? 'PENDIENTE' : 'CANCELADO');
-      sheet.getRange(i + 1, colPedido + 1).setValue(estadoPedido);
+    sheet.getRange(i + 1, colPagoWP + 1).setValue(status);
+    const estadoPedido = status === 'APPROVED' ? 'CONFIRMADO'
+      : (status === 'PENDING' ? 'PENDIENTE' : 'CANCELADO');
+    sheet.getRange(i + 1, colPedido + 1).setValue(estadoPedido);
+    if (txId && colTxId >= 0) sheet.getRange(i + 1, colTxId + 1).setValue(txId);
 
-      // Transaction ID si viene
-      if (txId && colTxId >= 0) sheet.getRange(i + 1, colTxId + 1).setValue(txId);
+    _log('confirmarPagoWompi', ref, status, estadoPedido);
 
-      _log('confirmarPagoWompi', ref, status, estadoPedido);
+    const email  = data[i][header.indexOf('Email')]         || '';
+    const nombre = data[i][header.indexOf('Nombre')]        || '';
+    const prods  = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
+    const total  = data[i][header.indexOf('Total_COP')]     || 0;
 
-      // Emails según resultado
-      const colEmail  = header.indexOf('Email');
-      const colNombre = header.indexOf('Nombre');
-      const colProds  = header.indexOf('Productos_JSON');
-      const colTotal  = header.indexOf('Total_COP');
-      const email  = data[i][colEmail]  || '';
-      const nombre = data[i][colNombre] || '';
-      const prods  = _parseJSON(data[i][colProds]);
-      const total  = data[i][colTotal]  || 0;
-
-      if (email) {
-        if (status === 'APPROVED') {
-          _emailPagoConfirmado(email, nombre, ref, prods, total);
-        } else if (['DECLINED', 'ERROR', 'VOIDED'].includes(status)) {
-          _emailPagoCancelado(email, nombre, ref, status);
-        }
-      }
-
-      // Acumular total en cliente al confirmar
-      if (status === 'APPROVED' && total > 0) {
-        const colTel = header.indexOf('Teléfono');
-        const telCliente = colTel >= 0 ? (data[i][colTel] || '') : '';
-        if (telCliente) _upsertCliente({ telefono: telCliente, total });
-      }
-
-      return { ok: true, referencia: ref, status, estadoPedido };
+    if (email) {
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total);
+      else if (['DECLINED','ERROR','VOIDED'].includes(status))
+        _emailPagoCancelado(email, nombre, ref, status);
     }
+
+    // Acumular total histórico en cliente
+    if (status === 'APPROVED' && total > 0) {
+      const tel = data[i][header.indexOf('Teléfono')] || '';
+      const doc = { tipoDoc: data[i][header.indexOf('Tipo_Doc')] || '',
+                    numDoc:  data[i][header.indexOf('Num_Doc')]  || '' };
+      _upsertCliente({ telefono: tel, ...doc, total });
+    }
+
+    return { ok: true, referencia: ref, status, estadoPedido };
   }
   _log('confirmarPagoWompi', ref, 'NOT_FOUND');
   return { ok: false, error: 'Referencia no encontrada: ' + ref };
@@ -346,6 +326,16 @@ function _confirmarPagoWompi(b) {
 
 // ============================================================
 // GIFT CARDS
+// Cols: Campaña_ID | Timestamp | Referencia | Código_Gift |
+//       Saldo_Gift_COP | Válido_Hasta |
+//       ClienteID_Emisor |
+//       Emisor_Nombre | Emisor_Apellido | Emisor_Email | Emisor_Tel |
+//       Emisor_Tipo_Doc | Emisor_Num_Doc |
+//       Emisor_Dirección | Emisor_Barrio | Emisor_Ciudad |
+//       Dest_Nombre | Dest_Apellido | Dest_Tel | Dest_Mensaje |
+//       Estado_Pago | Estado_Gift |
+//       Wompi_Transaction_ID | Fecha_Pago | Fecha_Activación |
+//       Canjeado_En | Notas_Internas
 // ============================================================
 
 function _createGiftCard(b) {
@@ -357,61 +347,51 @@ function _createGiftCard(b) {
   const tel   = em.telefono || '';
 
   const cliId = _upsertCliente({
-    telefono   : tel,
-    nombre     : em.nombre    || '',
-    apellido   : em.apellido  || '',
-    email      : em.email     || '',
-    tipoDoc    : em.tipoDoc   || '',
-    numDoc     : em.numDoc    || '',
-    direccion  : em.direccion || '',
-    barrio     : em.barrio    || '',
-    ciudad     : em.ciudad    || '',
+    telefono  : tel,
+    nombre    : em.nombre    || '',
+    apellido  : em.apellido  || '',
+    email     : em.email     || '',
+    tipoDoc   : em.tipoDoc   || '',
+    numDoc    : em.numDoc    || '',
+    direccion : em.direccion || '',
+    barrio    : em.barrio    || '',
+    ciudad    : em.ciudad    || '',
   }).clienteId;
 
-  // Separar destTel en prefijo + número si viene junto
   const destTelRaw = dest.telefono || '';
 
   sheet.appendRow([
-    b.campaniaId   || '',      // A  Campaña_ID
-    ts,                        // B  Timestamp
-    ref,                       // C  Referencia
-    b.codigo       || '',      // D  Código_Gift (HC-XXXXXXXX)
-    b.valor        || 0,       // E  Valor_COP
-    b.vigencia     || '',      // F  Válido_Hasta
-    cliId,                     // G  ClienteID_Emisor
-    em.nombre      || '',      // H  Emisor_Nombre
-    em.apellido    || '',      // I  Emisor_Apellido
-    em.email       || '',      // J  Emisor_Email
-    tel,                       // K  Emisor_Tel
-    em.tipoDoc     || '',      // L  Emisor_Tipo_Doc
-    em.numDoc      || '',      // M  Emisor_Num_Doc
-    em.direccion   || '',      // N  Emisor_Dirección
-    em.barrio      || '',      // O  Emisor_Barrio
-    em.ciudad      || '',      // P  Emisor_Ciudad
-    dest.nombre    || '',      // Q  Dest_Nombre
-    dest.apellido  || '',      // R  Dest_Apellido
-    destTelRaw,                // S  Dest_Tel
-    b.mensaje      || '',      // T  Dest_Mensaje
-    'PENDIENTE_PAGO',          // U  Estado_Pago
-    'INACTIVA',                // V  Estado_Gift
-    '',                        // W  Wompi_Transaction_ID
-    '',                        // X  Fecha_Pago
-    '',                        // Y  Fecha_Activación
-    '',                        // Z  Canjeado_En
-    '',                        // AA Notas_Internas
+    b.campaniaId  || '',     // A  Campaña_ID
+    ts,                      // B  Timestamp
+    ref,                     // C  Referencia
+    b.codigo      || '',     // D  Código_Gift
+    b.valor       || 0,      // E  Saldo_Gift_COP  ← renombrado
+    b.vigencia    || '',     // F  Válido_Hasta
+    cliId,                   // G  ClienteID_Emisor
+    em.nombre     || '',     // H  Emisor_Nombre
+    em.apellido   || '',     // I  Emisor_Apellido
+    em.email      || '',     // J  Emisor_Email
+    tel,                     // K  Emisor_Tel
+    em.tipoDoc    || '',     // L  Emisor_Tipo_Doc
+    em.numDoc     || '',     // M  Emisor_Num_Doc
+    em.direccion  || '',     // N  Emisor_Dirección
+    em.barrio     || '',     // O  Emisor_Barrio
+    em.ciudad     || '',     // P  Emisor_Ciudad
+    dest.nombre   || '',     // Q  Dest_Nombre
+    dest.apellido || '',     // R  Dest_Apellido
+    destTelRaw,              // S  Dest_Tel
+    b.mensaje     || '',     // T  Dest_Mensaje
+    'PENDIENTE_PAGO',        // U  Estado_Pago
+    'INACTIVA',              // V  Estado_Gift
+    '',                      // W  Wompi_Transaction_ID
+    '',                      // X  Fecha_Pago
+    '',                      // Y  Fecha_Activación
+    '',                      // Z  Canjeado_En
+    '',                      // AA Notas_Internas
   ]);
 
   _log('createGiftCard', ref, b.codigo, cliId, 'OK');
-
-  // Upsert destinatario como cliente si tiene teléfono
-  if (destTelRaw) {
-    _upsertCliente({
-      telefono : destTelRaw,
-      nombre   : dest.nombre   || '',
-      apellido : dest.apellido || '',
-    });
-  }
-
+  // ⚠️ No upsert destinatario — solo se registra cuando él mismo compra
   return { ok: true, referencia: ref, codigo: b.codigo, clienteId: cliId };
 }
 
@@ -420,63 +400,52 @@ function _confirmarPagoGiftCard(b) {
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
 
-  const colRef    = header.indexOf('Referencia');
-  const colEstPago= header.indexOf('Estado_Pago');
-  const colEstGift= header.indexOf('Estado_Gift');
-  const colTxId   = header.indexOf('Wompi_Transaction_ID');
-  const colFPago  = header.indexOf('Fecha_Pago');
-  const colFAct   = header.indexOf('Fecha_Activación');
+  const colRef     = header.indexOf('Referencia');
+  const colEstPago = header.indexOf('Estado_Pago');
+  const colEstGift = header.indexOf('Estado_Gift');
+  const colTxId    = header.indexOf('Wompi_Transaction_ID');
+  const colFPago   = header.indexOf('Fecha_Pago');
+  const colFAct    = header.indexOf('Fecha_Activación');
 
   const ref    = b.referencia    || '';
   const status = b.status        || 'APPROVED';
   const txId   = b.transactionId || '';
 
-  if (!ref)      return { ok: false, error: 'Referencia requerida' };
+  if (!ref)       return { ok: false, error: 'Referencia requerida' };
   if (colRef < 0) return { ok: false, error: 'Columna Referencia no encontrada en GiftCards' };
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][colRef] === ref) {
-      const now = new Date();
+    if (data[i][colRef] !== ref) continue;
+    const now = new Date();
 
-      // Estado_Pago — espejo Wompi
-      if (colEstPago >= 0) sheet.getRange(i + 1, colEstPago + 1).setValue(status);
+    if (colEstPago >= 0) sheet.getRange(i + 1, colEstPago + 1).setValue(status);
+    const estadoGift = status === 'APPROVED' ? 'ACTIVA'
+      : (status === 'PENDING' ? 'PENDIENTE_PAGO' : 'CANCELADA');
+    if (colEstGift >= 0) sheet.getRange(i + 1, colEstGift + 1).setValue(estadoGift);
 
-      // Estado_Gift — lógica operativa
-      const estadoGift = status === 'APPROVED'
-        ? 'ACTIVA'
-        : (status === 'PENDING' ? 'PENDIENTE_PAGO' : 'CANCELADA');
-      if (colEstGift >= 0) sheet.getRange(i + 1, colEstGift + 1).setValue(estadoGift);
+    if (txId   && colTxId  >= 0) sheet.getRange(i + 1, colTxId  + 1).setValue(txId);
+    if (colFPago >= 0)            sheet.getRange(i + 1, colFPago + 1).setValue(now);
+    if (status === 'APPROVED' && colFAct >= 0) sheet.getRange(i + 1, colFAct + 1).setValue(now);
 
-      // Transaction ID y fechas
-      if (txId   && colTxId  >= 0) sheet.getRange(i + 1, colTxId  + 1).setValue(txId);
-      if (colFPago >= 0) sheet.getRange(i + 1, colFPago + 1).setValue(now);
-      if (status === 'APPROVED' && colFAct >= 0) {
-        sheet.getRange(i + 1, colFAct + 1).setValue(now);
-      }
+    _log('confirmarPagoGiftCard', ref, status, estadoGift);
 
-      _log('confirmarPagoGiftCard', ref, status, estadoGift);
+    if (status === 'APPROVED') {
+      const colSaldo  = header.indexOf('Saldo_Gift_COP');
+      const email     = data[i][header.indexOf('Emisor_Email')]   || '';
+      const nombre    = data[i][header.indexOf('Emisor_Nombre')]  || '';
+      const codigo    = data[i][header.indexOf('Código_Gift')]    || '';
+      const valor     = data[i][colSaldo >= 0 ? colSaldo : header.indexOf('Valor_COP')] || 0;
+      const vig       = data[i][header.indexOf('Válido_Hasta')]   || '';
+      const telEmisor = data[i][header.indexOf('Emisor_Tel')]     || '';
+      const docTipo   = data[i][header.indexOf('Emisor_Tipo_Doc')] || '';
+      const docNum    = data[i][header.indexOf('Emisor_Num_Doc')]  || '';
 
-      // Email al emisor si APPROVED
-      if (status === 'APPROVED') {
-        const colEmail  = header.indexOf('Emisor_Email');
-        const colNombre = header.indexOf('Emisor_Nombre');
-        const colCodigo = header.indexOf('Código_Gift');
-        const colValor  = header.indexOf('Valor_COP');
-        const colVig    = header.indexOf('Válido_Hasta');
-        const colTel    = header.indexOf('Emisor_Tel');
-        const email  = data[i][colEmail]  || '';
-        const nombre = data[i][colNombre] || '';
-        const codigo = data[i][colCodigo] || '';
-        const valor  = data[i][colValor]  || 0;
-        const vig    = data[i][colVig]    || '';
-        const telEmisor = data[i][colTel] || '';
-        if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig);
-        // Acumular total en cliente emisor
-        if (telEmisor && valor > 0) _upsertCliente({ telefono: telEmisor, total: valor });
-      }
-
-      return { ok: true, referencia: ref, status, estado: estadoGift };
+      if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig);
+      if (telEmisor && valor > 0)
+        _upsertCliente({ telefono: telEmisor, tipoDoc: docTipo, numDoc: docNum, total: valor });
     }
+
+    return { ok: true, referencia: ref, status, estado: estadoGift };
   }
   _log('confirmarPagoGiftCard', ref, 'NOT_FOUND');
   return { ok: false, error: 'Referencia no encontrada: ' + ref };
@@ -488,7 +457,9 @@ function _getGiftCard(codigo) {
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
   const colCod     = header.indexOf('Código_Gift');
-  const colValor   = header.indexOf('Valor_COP');
+  // compatibilidad: acepta Saldo_Gift_COP (nuevo) o Valor_COP (legacy)
+  const colSaldo   = header.indexOf('Saldo_Gift_COP') >= 0
+    ? header.indexOf('Saldo_Gift_COP') : header.indexOf('Valor_COP');
   const colVig     = header.indexOf('Válido_Hasta');
   const colEstGift = header.indexOf('Estado_Gift');
   const colCanjeado= header.indexOf('Canjeado_En');
@@ -496,29 +467,28 @@ function _getGiftCard(codigo) {
   if (colCod < 0) return { ok: false, valid: false, reason: 'Sheet no configurado correctamente' };
 
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][colCod]).trim() === String(codigo).trim()) {
-      const estado = data[i][colEstGift] || '';
-      const valor  = data[i][colValor]   || 0;
-      const isActive = estado === 'ACTIVA';
-      const available = isActive ? valor : 0;
-      const reason = !isActive
-        ? (estado === 'CANJEADA'     ? 'Este bono ya fue canjeado'
-          : estado === 'CANCELADA'   ? 'Este bono fue cancelado'
-          : estado === 'INACTIVA'    ? 'Este bono aún no está activo'
-          : 'Bono no disponible (' + estado + ')')
-        : '';
-      return {
-        ok        : true,
-        valid     : isActive,
-        codigo    : data[i][colCod],
-        valor,
-        vigencia  : data[i][colVig]       || '',
-        estado,
-        canjeadoEn: data[i][colCanjeado]  || '',
-        available,
-        reason,
-      };
-    }
+    if (String(data[i][colCod]).trim() !== String(codigo).trim()) continue;
+    const estado    = data[i][colEstGift] || '';
+    const saldo     = data[i][colSaldo]   || 0;
+    const isActive  = estado === 'ACTIVA';
+    const available = isActive ? saldo : 0;
+    const reason    = !isActive
+      ? (estado === 'CANJEADA'   ? 'Este bono ya fue canjeado'
+        : estado === 'CANCELADA' ? 'Este bono fue cancelado'
+        : estado === 'INACTIVA'  ? 'Este bono aún no está activo'
+        : 'Bono no disponible (' + estado + ')')
+      : '';
+    return {
+      ok        : true,
+      valid     : isActive,
+      codigo    : data[i][colCod],
+      valor     : saldo,
+      vigencia  : data[i][colVig]      || '',
+      estado,
+      canjeadoEn: data[i][colCanjeado] || '',
+      available,
+      reason,
+    };
   }
   return { ok: false, valid: false, error: 'Código no encontrado', reason: 'Código no encontrado' };
 }
@@ -528,52 +498,50 @@ function _redeemDono(b) {
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
   const colCod      = header.indexOf('Código_Gift');
-  const colValor    = header.indexOf('Valor_COP');
+  // compatibilidad Saldo_Gift_COP / Valor_COP
+  const colSaldo    = header.indexOf('Saldo_Gift_COP') >= 0
+    ? header.indexOf('Saldo_Gift_COP') : header.indexOf('Valor_COP');
   const colEstGift  = header.indexOf('Estado_Gift');
   const colCanjeado = header.indexOf('Canjeado_En');
   const colNotas    = header.indexOf('Notas_Internas');
 
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][colCod]).trim() === String(b.code).trim()) {
-      const valorActual  = Number(data[i][colValor]) || 0;
-      const montoUsado   = Number(b.amount)          || valorActual;  // si no viene amount, canjea todo
-      const saldoRestante = Math.max(0, valorActual - montoUsado);
+    if (String(data[i][colCod]).trim() !== String(b.code).trim()) continue;
 
-      // Actualizar saldo
-      if (colValor >= 0) sheet.getRange(i + 1, colValor + 1).setValue(saldoRestante);
+    const saldoActual   = Number(data[i][colSaldo]) || 0;
+    const montoUsado    = Number(b.amount) || saldoActual;
+    const saldoRestante = Math.max(0, saldoActual - montoUsado);
+    const ts            = new Date();
+    const fechaFmt      = Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yy HH:mm');
 
-      // Estado: CANJEADA si saldo = 0, ACTIVA si queda saldo
-      const nuevoEstado = saldoRestante === 0 ? 'CANJEADA' : 'ACTIVA';
-      if (colEstGift  >= 0) sheet.getRange(i + 1, colEstGift  + 1).setValue(nuevoEstado);
+    if (colSaldo   >= 0) sheet.getRange(i + 1, colSaldo   + 1).setValue(saldoRestante);
+    const nuevoEstado = saldoRestante === 0 ? 'CANJEADA' : 'ACTIVA';
+    if (colEstGift >= 0) sheet.getRange(i + 1, colEstGift + 1).setValue(nuevoEstado);
 
-      // Referencia del canje
-      if (colCanjeado >= 0) {
-        const prevCanje = data[i][colCanjeado] || '';
-        const nuevoCanje = prevCanje
-          ? prevCanje + ' | ' + (b.referencia || '')
-          : (b.referencia || '');
-        sheet.getRange(i + 1, colCanjeado + 1).setValue(nuevoCanje);
-      }
-
-      // Nota de saldo
-      if (colNotas >= 0) {
-        const nota = `Usado: ${_fmtCOP(montoUsado)} en ${b.referencia || '?'}. Saldo restante: ${_fmtCOP(saldoRestante)}`;
-        const prevNotas = data[i][colNotas] || '';
-        sheet.getRange(i + 1, colNotas + 1).setValue(prevNotas ? prevNotas + '\n' + nota : nota);
-      }
-
-      _log('redeemDono', b.code, nuevoEstado, 'usado:' + montoUsado, 'saldo:' + saldoRestante);
-      return { ok: true, saldoRestante, estado: nuevoEstado };
+    // Canjeado_En: una línea por uso — ref | monto | fecha
+    if (colCanjeado >= 0) {
+      const prev     = String(data[i][colCanjeado] || '');
+      const linea    = `${b.referencia || '?'} | ${_fmtCOP(montoUsado)} | ${fechaFmt}`;
+      sheet.getRange(i + 1, colCanjeado + 1).setValue(prev ? prev + '\n' + linea : linea);
     }
+
+    // Notas_Internas: log compacto
+    if (colNotas >= 0) {
+      const prev = String(data[i][colNotas] || '');
+      const nota = `[${fechaFmt}] Usado ${_fmtCOP(montoUsado)} en ${b.referencia || '?'}. Saldo: ${_fmtCOP(saldoRestante)}`;
+      sheet.getRange(i + 1, colNotas + 1).setValue(prev ? prev + '\n' + nota : nota);
+    }
+
+    _log('redeemDono', b.code, nuevoEstado, 'usado:' + montoUsado, 'saldo:' + saldoRestante);
+    return { ok: true, saldoRestante, estado: nuevoEstado };
   }
   return { ok: false, error: 'Código no encontrado' };
 }
 
-// ── Resetea SOLO la hoja GiftCards: borra todo y recrea headers ──
-// Ejecutar manualmente UNA VEZ desde Apps Script cuando necesites migrar columnas
+// ── Reset GiftCards ─────────────────────────────────────────
 function resetGiftCardSheet() {
   const HEADERS = [
-    'Campaña_ID','Timestamp','Referencia','Código_Gift','Valor_COP','Válido_Hasta',
+    'Campaña_ID','Timestamp','Referencia','Código_Gift','Saldo_Gift_COP','Válido_Hasta',
     'ClienteID_Emisor',
     'Emisor_Nombre','Emisor_Apellido','Emisor_Email','Emisor_Tel',
     'Emisor_Tipo_Doc','Emisor_Num_Doc',
@@ -589,159 +557,247 @@ function resetGiftCardSheet() {
   sheet.clearContents();
   sheet.appendRow(HEADERS);
   sheet.getRange(1, 1, 1, HEADERS.length)
-    .setBackground('#1a1610')
-    .setFontColor('#C4A05A')
-    .setFontWeight('bold');
+    .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, HEADERS.length);
   Logger.log('✅ resetGiftCardSheet completado — ' + HEADERS.length + ' columnas');
 }
 
 // ============================================================
-// CLIENTES — upsert por teléfono (PK)
-// Columnas: Teléfono | Nombre | Apellido | Email |
-//           Tipo_Doc | Num_Doc | Tipo_Persona |
-//           Cumple_Día | Cumple_Mes |
-//           Dirección_1 | Barrio_1 | Ciudad_1 |
-//           Dirección_2 | Barrio_2 | Ciudad_2 |
-//           Primera_interacción | Última_interacción | Num_interacciones |
-//           Total_histórico_COP | Notas | ClienteID
+// CLIENTES — v16
+// PK dual: TipoDoc+NumDoc (primero) / Teléfono (fallback)
+// Cols: TipoDoc | NumDoc | Nombre | Apellido | Email | Teléfono |
+//       Cumple_Día | Cumple_Mes |
+//       Dirección | Barrio | Ciudad |
+//       Primera_interacción | Última_interacción | Num_interacciones |
+//       Total_histórico_COP | Historial_cambios | ClienteID
 // ============================================================
+
+// Índices de columnas Clientes (base 0, para uso interno)
+const CLI = {
+  TIPO_DOC     : 0,   // A
+  NUM_DOC      : 1,   // B
+  NOMBRE       : 2,   // C
+  APELLIDO     : 3,   // D
+  EMAIL        : 4,   // E
+  TELEFONO     : 5,   // F
+  CUMPLE_DIA   : 6,   // G
+  CUMPLE_MES   : 7,   // H
+  DIRECCION    : 8,   // I
+  BARRIO       : 9,   // J
+  CIUDAD       : 10,  // K
+  PRIMERA_INT  : 11,  // L
+  ULTIMA_INT   : 12,  // M
+  NUM_INT      : 13,  // N
+  TOTAL_HIST   : 14,  // O
+  HISTORIAL    : 15,  // P
+  CLIENTE_ID   : 16,  // Q
+};
 
 function _upsertCliente(b) {
   const sheet = _getSheet(CFG.SHEETS.CLIENTES);
   const data  = sheet.getDataRange().getValues();
   const tel   = (b.telefono || '').replace(/\s/g, '');
   const ts    = new Date();
+  const dtFmt = () => Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yy HH:mm');
 
-  if (!tel) return { ok: true, clienteId: 'SIN-TEL' };
+  // ── Helper: agregar línea al Historial_cambios ───────────
+  function _addHistorial(i, linea) {
+    const prev = String(data[i][CLI.HISTORIAL] || '');
+    sheet.getRange(i + 1, CLI.HISTORIAL + 1)
+      .setValue(prev ? prev + '\n' + linea : linea);
+  }
 
-  // ── Función interna para aplicar update a una fila ───────
-  function _applyUpdate(i, row) {
-    // Conflicto de documento: mismo tipo pero distinto número
-    if (b.tipoDoc && b.numDoc && row[4] && row[5]) {
-      const mismoTipo   = String(row[4]).trim() === String(b.tipoDoc).trim();
-      const distintoNum = String(row[5]).trim() !== String(b.numDoc).trim();
-      if (mismoTipo && distintoNum) {
-        const nota = `[${Utilities.formatDate(ts,'America/Bogota','dd/MM/yy')}] Doc conflicto: tipo=${b.tipoDoc} num recibido=${b.numDoc} vs registrado=${row[5]}`;
-        const prevNotas = String(row[19] || '');
-        if (!prevNotas.includes(b.numDoc)) {
-          sheet.getRange(i+1, 20).setValue(prevNotas ? prevNotas + '\n' + nota : nota);
-        }
-      } else if (!row[4] && b.tipoDoc) {
-        sheet.getRange(i+1, 5).setValue(b.tipoDoc);
-        if (b.numDoc) sheet.getRange(i+1, 6).setValue(b.numDoc);
-      }
-    } else {
-      if (!row[4] && b.tipoDoc) sheet.getRange(i+1, 5).setValue(b.tipoDoc);
-      if (!row[5] && b.numDoc)  sheet.getRange(i+1, 6).setValue(b.numDoc);
-    }
+  // ── Helper: aplicar update a fila encontrada ─────────────
+  function _applyUpdate(i) {
+    const row = sheet.getRange(i + 1, 1, 1, 17).getValues()[0];
 
-    if (!row[1]  && b.nombre)      sheet.getRange(i+1,  2).setValue(b.nombre);
-    if (!row[2]  && b.apellido)    sheet.getRange(i+1,  3).setValue(b.apellido);
-    if (!row[3]  && b.email)       sheet.getRange(i+1,  4).setValue(b.email);
-    if (!row[6]  && b.tipoPersona) sheet.getRange(i+1,  7).setValue(b.tipoPersona);
-    if (!row[7]  && b.cumpleDia)   sheet.getRange(i+1,  8).setValue(b.cumpleDia);
-    if (!row[8]  && b.cumpleMes)   sheet.getRange(i+1,  9).setValue(b.cumpleMes);
-
-    // Teléfono alternativo: si llegó con un tel distinto al de la PK, anotar
-    const telEnFila = String(row[0]).replace(/\s/g, '');
-    if (tel !== telEnFila) {
-      const prevNotas = String(row[19] || '');
-      const notaTel = `[Tel alt] ${tel}`;
-      if (!prevNotas.includes(tel)) {
-        sheet.getRange(i+1, 20).setValue(prevNotas ? prevNotas + '\n' + notaTel : notaTel);
+    // Nombre: si el nuevo es más largo (más completo), actualizar y loggear
+    if (b.nombre && b.nombre.trim()) {
+      const actual = String(row[CLI.NOMBRE] || '').trim();
+      const nuevo  = b.nombre.trim();
+      if (!actual) {
+        sheet.getRange(i + 1, CLI.NOMBRE + 1).setValue(nuevo);
+      } else if (nuevo.length > actual.length && nuevo.toLowerCase().includes(actual.toLowerCase())) {
+        sheet.getRange(i + 1, CLI.NOMBRE + 1).setValue(nuevo);
+        _addHistorial(i, `[${dtFmt()}] Nombre: "${actual}" → "${nuevo}"`);
+      } else if (nuevo !== actual && !nuevo.toLowerCase().includes(actual.toLowerCase())) {
+        // Nombre completamente diferente — loggear sin sobrescribir
+        _addHistorial(i, `[${dtFmt()}] Nombre alt recibido: "${nuevo}" (registrado: "${actual}")`);
       }
     }
 
-    // Direcciones: Dir_1 primero, Dir_2 si diferente, resto en Notas
-    if (b.direccion) {
-      const dir1  = String(row[9]  || '').trim();
-      const dir2  = String(row[12] || '').trim();
-      const nueva = b.direccion.trim();
-      if (!dir1) {
-        sheet.getRange(i+1, 10).setValue(b.direccion);
-        if (b.barrio) sheet.getRange(i+1, 11).setValue(b.barrio);
-        if (b.ciudad) sheet.getRange(i+1, 12).setValue(b.ciudad);
-      } else if (dir1 !== nueva && !dir2) {
-        sheet.getRange(i+1, 13).setValue(b.direccion);
-        if (b.barrio) sheet.getRange(i+1, 14).setValue(b.barrio);
-        if (b.ciudad) sheet.getRange(i+1, 15).setValue(b.ciudad);
-      } else if (dir1 !== nueva && dir2 && dir2 !== nueva) {
-        const nota = `[Alt dir] ${b.direccion}${b.barrio ? ', ' + b.barrio : ''}${b.ciudad ? ', ' + b.ciudad : ''}`;
-        const prevNotas = String(row[19] || '');
-        if (!prevNotas.includes(b.direccion)) {
-          sheet.getRange(i+1, 20).setValue(prevNotas ? prevNotas + '\n' + nota : nota);
-        }
+    // Apellido: misma lógica que nombre
+    if (b.apellido && b.apellido.trim()) {
+      const actual = String(row[CLI.APELLIDO] || '').trim();
+      const nuevo  = b.apellido.trim();
+      if (!actual) {
+        sheet.getRange(i + 1, CLI.APELLIDO + 1).setValue(nuevo);
+      } else if (nuevo.length > actual.length && nuevo.toLowerCase().includes(actual.toLowerCase())) {
+        sheet.getRange(i + 1, CLI.APELLIDO + 1).setValue(nuevo);
+        _addHistorial(i, `[${dtFmt()}] Apellido: "${actual}" → "${nuevo}"`);
+      } else if (nuevo !== actual && !nuevo.toLowerCase().includes(actual.toLowerCase())) {
+        _addHistorial(i, `[${dtFmt()}] Apellido alt recibido: "${nuevo}" (registrado: "${actual}")`);
       }
     }
 
-    // Acumular total
+    // Email: llenar si vacío, loggear si cambia
+    if (b.email && b.email.trim()) {
+      const actual = String(row[CLI.EMAIL] || '').trim();
+      if (!actual) {
+        sheet.getRange(i + 1, CLI.EMAIL + 1).setValue(b.email.trim());
+      } else if (actual !== b.email.trim()) {
+        _addHistorial(i, `[${dtFmt()}] Email alt: ${b.email.trim()} (registrado: ${actual})`);
+      }
+    }
+
+    // Teléfono: si se encontró por doc y el tel es diferente, actualizar y loggear
+    if (tel) {
+      const actual = String(row[CLI.TELEFONO] || '').replace(/\s/g, '');
+      if (!actual) {
+        sheet.getRange(i + 1, CLI.TELEFONO + 1).setValue(tel);
+      } else if (actual !== tel) {
+        sheet.getRange(i + 1, CLI.TELEFONO + 1).setValue(tel);
+        _addHistorial(i, `[${dtFmt()}] Tel: ${actual} → ${tel}`);
+      }
+    }
+
+    // Cumpleaños: solo llenar si vacío (no cambian)
+    if (b.cumpleDia && !row[CLI.CUMPLE_DIA]) sheet.getRange(i + 1, CLI.CUMPLE_DIA + 1).setValue(b.cumpleDia);
+    if (b.cumpleMes && !row[CLI.CUMPLE_MES]) sheet.getRange(i + 1, CLI.CUMPLE_MES + 1).setValue(b.cumpleMes);
+
+    // Dirección: actualizar la principal, loggear cambio si es diferente
+    if (b.direccion && b.direccion.trim()) {
+      const actual = String(row[CLI.DIRECCION] || '').trim();
+      const nueva  = b.direccion.trim();
+      if (!actual) {
+        sheet.getRange(i + 1, CLI.DIRECCION + 1).setValue(nueva);
+        if (b.barrio) sheet.getRange(i + 1, CLI.BARRIO  + 1).setValue(b.barrio);
+        if (b.ciudad) sheet.getRange(i + 1, CLI.CIUDAD  + 1).setValue(b.ciudad);
+      } else if (actual !== nueva) {
+        // Actualizar con la más reciente
+        sheet.getRange(i + 1, CLI.DIRECCION + 1).setValue(nueva);
+        if (b.barrio) sheet.getRange(i + 1, CLI.BARRIO  + 1).setValue(b.barrio);
+        if (b.ciudad) sheet.getRange(i + 1, CLI.CIUDAD  + 1).setValue(b.ciudad);
+        _addHistorial(i, `[${dtFmt()}] Dir anterior: ${actual}${row[CLI.BARRIO] ? ', ' + row[CLI.BARRIO] : ''}`);
+      }
+    }
+
+    // Acumular total histórico
     if (b.total && b.total > 0) {
-      const prevTotal = Number(row[18]) || 0;
-      sheet.getRange(i+1, 19).setValue(prevTotal + b.total);
+      const prev = Number(row[CLI.TOTAL_HIST]) || 0;
+      sheet.getRange(i + 1, CLI.TOTAL_HIST + 1).setValue(prev + b.total);
     }
 
-    // Última interacción + contador
-    sheet.getRange(i+1, 17).setValue(ts);
-    sheet.getRange(i+1, 18).setValue((row[17] || 0) + 1);
+    // Interacciones
+    sheet.getRange(i + 1, CLI.ULTIMA_INT + 1).setValue(ts);
+    sheet.getRange(i + 1, CLI.NUM_INT    + 1).setValue((Number(row[CLI.NUM_INT]) || 0) + 1);
 
-    return row[20]; // clienteId
+    return String(row[CLI.CLIENTE_ID] || '');
   }
 
-  // ── 1. Buscar por teléfono (PK principal) ────────────────
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]).replace(/\s/g, '') !== tel) continue;
-    const row = sheet.getRange(i + 1, 1, 1, 21).getValues()[0];
-    const clienteId = _applyUpdate(i, row);
-    _log('upsertCliente', 'UPDATE_TEL', tel, clienteId);
-    return { ok: true, clienteId, nuevo: false };
+  // ── Helper: detectar identidad sospechosa ────────────────
+  function _checkIdentidadSospechosa(rowNombre, rowApellido, rowCumpleDia, rowCumpleMes) {
+    if (!b.nombre || !b.apellido) return false;
+    const nombreDiff    = b.nombre.trim().toLowerCase()   !== (rowNombre  || '').trim().toLowerCase();
+    const apellidoDiff  = b.apellido.trim().toLowerCase() !== (rowApellido|| '').trim().toLowerCase();
+    const cumpleDiff    = b.cumpleDia && rowCumpleDia && String(b.cumpleDia) !== String(rowCumpleDia);
+    // Sospechoso: nombre Y apellido completamente distintos
+    // O nombre+apellido distintos Y fecha nacimiento distinta
+    return (nombreDiff && apellidoDiff) || (nombreDiff && apellidoDiff && cumpleDiff);
   }
 
-  // ── 2. Buscar por tipo+num doc (PK secundaria anti-duplicado) ─
+  // ── 1. Buscar por TipoDoc + NumDoc (PK principal) ────────
   if (b.tipoDoc && b.numDoc) {
     for (let i = 1; i < data.length; i++) {
-      const rowTipoDoc = String(data[i][4] || '').trim();
-      const rowNumDoc  = String(data[i][5] || '').trim();
-      if (rowTipoDoc === b.tipoDoc && rowNumDoc === b.numDoc) {
-        const row = sheet.getRange(i + 1, 1, 1, 21).getValues()[0];
-        const clienteId = _applyUpdate(i, row);
-        _log('upsertCliente', 'UPDATE_DOC', b.tipoDoc, b.numDoc, clienteId);
-        return { ok: true, clienteId, nuevo: false };
+      if (String(data[i][CLI.TIPO_DOC]).trim() !== b.tipoDoc.trim()) continue;
+      if (String(data[i][CLI.NUM_DOC] ).trim() !== b.numDoc.trim() ) continue;
+
+      // Verificar identidad sospechosa antes de actualizar
+      const sospechoso = _checkIdentidadSospechosa(
+        data[i][CLI.NOMBRE], data[i][CLI.APELLIDO],
+        data[i][CLI.CUMPLE_DIA], data[i][CLI.CUMPLE_MES]
+      );
+      if (sospechoso) {
+        _emailIdentidadSospechosa(b, data[i]);
+        _addHistorial(i, `[${dtFmt()}] ⚠️ IDENTIDAD SOSPECHOSA: nombre recibido "${b.nombre} ${b.apellido}" no coincide`);
+        // Dejar pasar — solo loggear y alertar
       }
+
+      const clienteId = _applyUpdate(i);
+      _log('upsertCliente', 'UPDATE_DOC', b.tipoDoc, b.numDoc, clienteId);
+      return { ok: true, clienteId, nuevo: false };
     }
   }
 
-  // ── 3. Nuevo cliente ──────────────────────────────────────
+  // ── 2. Buscar por Teléfono (fallback) ────────────────────
+  if (tel) {
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][CLI.TELEFONO]).replace(/\s/g, '') !== tel) continue;
+
+      const sospechoso = _checkIdentidadSospechosa(
+        data[i][CLI.NOMBRE], data[i][CLI.APELLIDO],
+        data[i][CLI.CUMPLE_DIA], data[i][CLI.CUMPLE_MES]
+      );
+      if (sospechoso) {
+        _emailIdentidadSospechosa(b, data[i]);
+        _addHistorial(i, `[${dtFmt()}] ⚠️ IDENTIDAD SOSPECHOSA: nombre recibido "${b.nombre} ${b.apellido}" no coincide`);
+      }
+
+      const clienteId = _applyUpdate(i);
+      _log('upsertCliente', 'UPDATE_TEL', tel, clienteId);
+      return { ok: true, clienteId, nuevo: false };
+    }
+  }
+
+  // ── 3. Nuevo cliente ─────────────────────────────────────
+  if (!tel && !b.tipoDoc) return { ok: true, clienteId: 'SIN-ID' };
+
   const clienteId = 'IMO-' + Date.now();
   sheet.appendRow([
-    tel,                    // A  Teléfono (PK)
-    b.nombre      || '',    // B  Nombre
-    b.apellido    || '',    // C  Apellido
-    b.email       || '',    // D  Email
-    b.tipoDoc     || '',    // E  Tipo_Doc
-    b.numDoc      || '',    // F  Num_Doc
-    b.tipoPersona || '',    // G  Tipo_Persona
-    b.cumpleDia   || '',    // H  Cumple_Día
-    b.cumpleMes   || '',    // I  Cumple_Mes
-    b.direccion   || '',    // J  Dirección_1
-    b.barrio      || '',    // K  Barrio_1
-    b.ciudad      || '',    // L  Ciudad_1
-    '',                     // M  Dirección_2
-    '',                     // N  Barrio_2
-    '',                     // O  Ciudad_2
-    ts,                     // P  Primera_interacción
-    ts,                     // Q  Última_interacción
-    1,                      // R  Num_interacciones
-    b.total       || 0,     // S  Total_histórico_COP
-    '',                     // T  Notas
-    clienteId,              // U  ClienteID
+    b.tipoDoc  || '',   // A  TipoDoc
+    b.numDoc   || '',   // B  NumDoc
+    b.nombre   || '',   // C  Nombre
+    b.apellido || '',   // D  Apellido
+    b.email    || '',   // E  Email
+    tel        || '',   // F  Teléfono
+    b.cumpleDia|| '',   // G  Cumple_Día
+    b.cumpleMes|| '',   // H  Cumple_Mes
+    b.direccion|| '',   // I  Dirección
+    b.barrio   || '',   // J  Barrio
+    b.ciudad   || '',   // K  Ciudad
+    ts,                 // L  Primera_interacción
+    ts,                 // M  Última_interacción
+    1,                  // N  Num_interacciones
+    b.total    || 0,    // O  Total_histórico_COP
+    '',                 // P  Historial_cambios
+    clienteId,          // Q  ClienteID
   ]);
 
-  _log('upsertCliente', 'INSERT', tel, clienteId);
+  _log('upsertCliente', 'INSERT', tel || b.tipoDoc, clienteId);
   return { ok: true, clienteId, nuevo: true };
 }
 
+// ── Reset Clientes (ejecutar cuando migres a v16) ───────────
+function resetClientesSheet() {
+  const HEADERS = [
+    'TipoDoc','NumDoc','Nombre','Apellido','Email','Teléfono',
+    'Cumple_Día','Cumple_Mes',
+    'Dirección','Barrio','Ciudad',
+    'Primera_interacción','Última_interacción','Num_interacciones',
+    'Total_histórico_COP','Historial_cambios','ClienteID',
+  ];
+  const ss    = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(CFG.SHEETS.CLIENTES);
+  if (!sheet) { Logger.log('Hoja Clientes no encontrada'); return; }
+  sheet.clearContents();
+  sheet.appendRow(HEADERS);
+  sheet.getRange(1, 1, 1, HEADERS.length)
+    .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, HEADERS.length);
+  Logger.log('✅ resetClientesSheet completado — ' + HEADERS.length + ' columnas');
+}
 
 function _getCliente(telefono) {
   if (!telefono) return { ok: false, error: 'Teléfono requerido' };
@@ -749,25 +805,21 @@ function _getCliente(telefono) {
   const data  = sheet.getDataRange().getValues();
   const tel   = telefono.replace(/\s/g, '');
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]).replace(/\s/g, '') === tel) {
+    if (String(data[i][CLI.TELEFONO]).replace(/\s/g, '') === tel) {
       return {
-        ok           : true,
-        clienteId    : data[i][20],
-        telefono     : data[i][0],
-        nombre       : data[i][1],
-        apellido     : data[i][2],
-        email        : data[i][3],
-        tipoDoc      : data[i][4],
-        numDoc       : data[i][5],
-        tipoPersona  : data[i][6],
-        cumpleDia    : data[i][7],
-        cumpleMes    : data[i][8],
-        direccion1   : data[i][9],
-        barrio1      : data[i][10],
-        ciudad1      : data[i][11],
-        direccion2   : data[i][12],
-        barrio2      : data[i][13],
-        ciudad2      : data[i][14],
+        ok          : true,
+        clienteId   : data[i][CLI.CLIENTE_ID],
+        tipoDoc     : data[i][CLI.TIPO_DOC],
+        numDoc      : data[i][CLI.NUM_DOC],
+        nombre      : data[i][CLI.NOMBRE],
+        apellido    : data[i][CLI.APELLIDO],
+        email       : data[i][CLI.EMAIL],
+        telefono    : data[i][CLI.TELEFONO],
+        cumpleDia   : data[i][CLI.CUMPLE_DIA],
+        cumpleMes   : data[i][CLI.CUMPLE_MES],
+        direccion   : data[i][CLI.DIRECCION],
+        barrio      : data[i][CLI.BARRIO],
+        ciudad      : data[i][CLI.CIUDAD],
       };
     }
   }
@@ -775,46 +827,211 @@ function _getCliente(telefono) {
 }
 
 // ============================================================
-// RECUPERAR PEDIDO (para enlace carrito abandonado)
+// DASHBOARD_CLIENTES — 1 fila por cliente
+// Cols: ClienteID | TipoDoc | NumDoc | Nombre | Apellido |
+//       Email | Teléfono | Ciudad |
+//       Primera_compra | Última_compra | Nº_pedidos |
+//       Total_gastado_COP | GiftCards_emitidas | GiftCards_saldo_activo |
+//       Historial_pedidos
+// ============================================================
+
+function rebuildDashboard() {
+  const ss       = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const HEADERS  = [
+    'ClienteID','TipoDoc','NumDoc','Nombre','Apellido',
+    'Email','Teléfono','Ciudad',
+    'Primera_compra','Última_compra','Nº_pedidos',
+    'Total_gastado_COP','GiftCards_emitidas','GiftCards_saldo_activo',
+    'Historial_pedidos',
+  ];
+
+  // Asegurar hoja Dashboard existe
+  let dash = ss.getSheetByName(CFG.SHEETS.DASHBOARD);
+  if (!dash) dash = ss.insertSheet(CFG.SHEETS.DASHBOARD);
+  dash.clearContents();
+  dash.appendRow(HEADERS);
+  dash.getRange(1, 1, 1, HEADERS.length)
+    .setBackground('#0d3b2e').setFontColor('#7fc6a4').setFontWeight('bold');
+  dash.setFrozenRows(1);
+
+  // Leer Clientes
+  const cliSheet = _getSheet(CFG.SHEETS.CLIENTES);
+  const cliData  = cliSheet.getDataRange().getValues();
+
+  // Leer Pedidos_Wompi indexados por ClienteID
+  const wpSheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+  const wpData   = wpSheet.getDataRange().getValues();
+  const wpHeader = wpData[0];
+  const wpMap    = {}; // clienteId → [pedidos]
+  for (let i = 1; i < wpData.length; i++) {
+    const row = wpData[i];
+    const cid = String(row[wpHeader.indexOf('ClienteID')] || '');
+    if (!cid) continue;
+    if (!wpMap[cid]) wpMap[cid] = [];
+    wpMap[cid].push(row);
+  }
+
+  // Leer GiftCards indexadas por ClienteID_Emisor
+  const gcSheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  const gcData   = gcSheet.getDataRange().getValues();
+  const gcHeader = gcData[0];
+  const gcMap    = {}; // clienteId → [gifts]
+  for (let i = 1; i < gcData.length; i++) {
+    const row = gcData[i];
+    const cid = String(row[gcHeader.indexOf('ClienteID_Emisor')] || '');
+    if (!cid) continue;
+    if (!gcMap[cid]) gcMap[cid] = [];
+    gcMap[cid].push(row);
+  }
+
+  const wpColTotal    = wpHeader.indexOf('Total_COP');
+  const wpColTs       = wpHeader.indexOf('Timestamp');
+  const wpColRef      = wpHeader.indexOf('Referencia');
+  const wpColProds    = wpHeader.indexOf('Productos_JSON');
+  const wpColEstado   = wpHeader.indexOf('Estado_Pedido');
+  const gcColSaldo    = gcHeader.indexOf('Saldo_Gift_COP') >= 0
+    ? gcHeader.indexOf('Saldo_Gift_COP') : gcHeader.indexOf('Valor_COP');
+  const gcColEstGift  = gcHeader.indexOf('Estado_Gift');
+  const gcColCodigo   = gcHeader.indexOf('Código_Gift');
+
+  const rows = [];
+
+  for (let i = 1; i < cliData.length; i++) {
+    const c = cliData[i];
+    const cid = String(c[CLI.CLIENTE_ID] || '');
+    if (!cid) continue;
+
+    const pedidos = wpMap[cid] || [];
+    const gifts   = gcMap[cid] || [];
+
+    // Métricas de pedidos
+    const pedidosConfirmados = pedidos.filter(p =>
+      ['CONFIRMADO','EN_PRODUCCION','EN_TRANSITO','EN_NACIONALIZACION',
+       'LISTO_DESPACHO','DISPONIBLE_TIENDA','DESPACHADO'].includes(String(p[wpColEstado]))
+    );
+
+    let totalGastado   = 0;
+    let primeraCompra  = null;
+    let ultimaCompra   = null;
+    const histLineas   = [];
+
+    pedidosConfirmados.forEach(p => {
+      const total = Number(p[wpColTotal]) || 0;
+      totalGastado += total;
+      const ts = p[wpColTs] ? new Date(p[wpColTs]) : null;
+      if (ts) {
+        if (!primeraCompra || ts < primeraCompra) primeraCompra = ts;
+        if (!ultimaCompra  || ts > ultimaCompra)  ultimaCompra  = ts;
+      }
+      // Historial_pedidos: productos legibles por pedido
+      const ref    = String(p[wpColRef] || '');
+      const prods  = _parseJSON(p[wpColProds]);
+      const fecha  = ts ? Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yy') : '?';
+      const items  = prods.map(pr => {
+        const parts = [pr.productName || pr.name || ''];
+        if (pr.collection) parts.push(pr.collection);
+        parts.push(`x${pr.quantity || 1}`);
+        parts.push(_fmtCOP((pr.price || 0) * (pr.quantity || 1)));
+        return parts.join(' · ');
+      }).join(' / ');
+      histLineas.push(`[${fecha}] ${ref} — ${items || 'sin detalle'} — Total: ${_fmtCOP(total)}`);
+    });
+
+    // Métricas GiftCards
+    const gcEmitidas = gifts.length;
+    const gcSaldoActivo = gifts
+      .filter(g => String(g[gcColEstGift]) === 'ACTIVA')
+      .reduce((s, g) => s + (Number(g[gcColSaldo]) || 0), 0);
+    if (gifts.length > 0) {
+      gifts.forEach(g => {
+        const cod    = String(g[gcColCodigo] || '');
+        const estado = String(g[gcColEstGift] || '');
+        const saldo  = Number(g[gcColSaldo]) || 0;
+        histLineas.push(`[GIFT] ${cod} — ${estado} — Saldo: ${_fmtCOP(saldo)}`);
+      });
+    }
+
+    const primeraStr = primeraCompra
+      ? Utilities.formatDate(primeraCompra, 'America/Bogota', 'dd/MM/yy') : '';
+    const ultimaStr  = ultimaCompra
+      ? Utilities.formatDate(ultimaCompra,  'America/Bogota', 'dd/MM/yy') : '';
+
+    rows.push([
+      cid,                                          // ClienteID
+      String(c[CLI.TIPO_DOC]   || ''),              // TipoDoc
+      String(c[CLI.NUM_DOC]    || ''),              // NumDoc
+      String(c[CLI.NOMBRE]     || ''),              // Nombre
+      String(c[CLI.APELLIDO]   || ''),              // Apellido
+      String(c[CLI.EMAIL]      || ''),              // Email
+      String(c[CLI.TELEFONO]   || ''),              // Teléfono
+      String(c[CLI.CIUDAD]     || ''),              // Ciudad
+      primeraStr,                                   // Primera_compra
+      ultimaStr,                                    // Última_compra
+      pedidosConfirmados.length,                    // Nº_pedidos
+      totalGastado,                                 // Total_gastado_COP
+      gcEmitidas,                                   // GiftCards_emitidas
+      gcSaldoActivo,                                // GiftCards_saldo_activo
+      histLineas.join('\n'),                        // Historial_pedidos
+    ]);
+  }
+
+  if (rows.length > 0) {
+    dash.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
+  }
+
+  // Formato columnas de dinero
+  const colTotalG  = HEADERS.indexOf('Total_gastado_COP')    + 1;
+  const colSaldoG  = HEADERS.indexOf('GiftCards_saldo_activo')+ 1;
+  if (rows.length > 0) {
+    dash.getRange(2, colTotalG, rows.length, 1)
+      .setNumberFormat('$#,##0');
+    dash.getRange(2, colSaldoG, rows.length, 1)
+      .setNumberFormat('$#,##0');
+  }
+
+  dash.autoResizeColumns(1, HEADERS.length);
+  dash.setFrozenRows(1);
+  _log('rebuildDashboard', 'OK', rows.length + ' clientes');
+  Logger.log('✅ Dashboard_Clientes reconstruido — ' + rows.length + ' filas');
+}
+
+// ============================================================
+// RECUPERAR PEDIDO
 // ============================================================
 
 function _getPedido(referencia) {
   if (!referencia) return { ok: false, error: 'Referencia requerida' };
-
-  // Buscar en Wishlist
   if (referencia.startsWith('WA-')) {
     const sheet  = _getSheet(CFG.SHEETS.WISHLIST);
     const data   = sheet.getDataRange().getValues();
     const header = data[0];
     const colRef = header.indexOf('Referencia');
     for (let i = 1; i < data.length; i++) {
-      if (data[i][colRef] === referencia) {
-        const row = {};
-        header.forEach((h, j) => row[h] = data[i][j]);
-        return {
-          ok          : true,
-          referencia,
-          hoja        : 'Wishlist',
-          cliente     : {
-            nombre      : row['Nombre'],
-            apellido    : row['Apellido'],
-            email       : row['Email'],
-            telefono    : row['Teléfono'],
-            tipoDoc     : row['Tipo_Doc'],
-            numDoc      : row['Num_Doc'],
-            tipoPersona : row['Tipo_Persona'],
-          },
-          entrega     : {
-            direccion : row['Dirección_Wishlist'],
-            barrio    : row['Barrio_Wishlist'],
-            ciudad    : row['Ciudad_Wishlist'],
-            notas     : row['Notas'],
-          },
-          productos   : _parseJSON(row['Productos_JSON']),
-          total       : row['Total_COP'],
-          estado      : row['Estado_Wishlist'],
-        };
-      }
+      if (data[i][colRef] !== referencia) continue;
+      const row = {};
+      header.forEach((h, j) => row[h] = data[i][j]);
+      return {
+        ok        : true,
+        referencia,
+        hoja      : 'Wishlist',
+        cliente   : {
+          nombre    : row['Nombre'],
+          apellido  : row['Apellido'],
+          email     : row['Email'],
+          telefono  : row['Teléfono'],
+          tipoDoc   : row['Tipo_Doc'],
+          numDoc    : row['Num_Doc'],
+        },
+        entrega   : {
+          direccion : row['Dirección_Wishlist'],
+          barrio    : row['Barrio_Wishlist'],
+          ciudad    : row['Ciudad_Wishlist'],
+          notas     : row['Notas'],
+        },
+        productos : _parseJSON(row['Productos_JSON']),
+        total     : row['Total_COP'],
+        estado    : row['Estado_Wishlist'],
+      };
     }
   }
   return { ok: false, error: 'Pedido no encontrado: ' + referencia };
@@ -830,67 +1047,54 @@ function _getCampaniasActivas() {
   const header = data[0];
   const hoy    = new Date();
   const activas = [];
-
   for (let i = 1; i < data.length; i++) {
     const row = {};
     header.forEach((h, j) => row[h] = data[i][j]);
-
-    // Auto-cerrar si Vigencia_Fin pasó y sigue ACTIVA
     const vigFin = row['Vigencia_Fin'] ? new Date(row['Vigencia_Fin']) : null;
     if (vigFin && hoy > vigFin && row['Estado'] === 'ACTIVA') {
-      const colEstado = header.indexOf('Estado');
-      sheet.getRange(i + 1, colEstado + 1).setValue('CERRADA');
+      sheet.getRange(i + 1, header.indexOf('Estado') + 1).setValue('CERRADA');
       _log('campania_autocerrada', row['Campaña_ID']);
       continue;
     }
-
     if (row['Estado'] === 'ACTIVA') activas.push(row);
   }
   return { ok: true, campanias: activas };
 }
 
-function _getClientesSegmento(segmento) {
+function _getClientesSegmento() {
   const sheet  = _getSheet(CFG.SHEETS.CLIENTES);
   const data   = sheet.getDataRange().getValues();
-  const header = data[0];
   const todos  = [];
   for (let i = 1; i < data.length; i++) {
-    const row = {};
-    header.forEach((h, j) => row[h] = data[i][j]);
     todos.push({
-      clienteId : row['ClienteID'],
-      nombre    : row['Nombre'],
-      apellido  : row['Apellido'],
-      email     : row['Email'],
-      telefono  : row['Teléfono'],
+      clienteId : data[i][CLI.CLIENTE_ID],
+      nombre    : data[i][CLI.NOMBRE],
+      apellido  : data[i][CLI.APELLIDO],
+      email     : data[i][CLI.EMAIL],
+      telefono  : data[i][CLI.TELEFONO],
     });
   }
-  return todos; // segmentación avanzada — sprint futuro
+  return todos;
 }
 
 // ============================================================
-// TRIGGER onSheetChange — notificar cambio manual de Estado_Pedido
-// Instalar: Triggers → onSheetChange → On edit
+// TRIGGERS
 // ============================================================
 
 function onSheetChange(e) {
   try {
     if (!e || e.changeType !== 'EDIT') return;
     const sheet = e.source.getActiveSheet();
-    const hoja  = sheet.getName();
-
-    // Solo monitorear Pedidos_Wompi para cambios manuales de Estado_Pedido
-    if (hoja !== CFG.SHEETS.PEDIDOS_WOMPI) return;
+    if (sheet.getName() !== CFG.SHEETS.PEDIDOS_WOMPI) return;
 
     const header    = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const colEstado = header.indexOf('Estado_Pedido');
     if (colEstado < 0 || e.range.getColumn() !== colEstado + 1) return;
 
     const nuevoEstado = e.range.getValue();
-    // Solo estados manuales — CONFIRMADO y CANCELADO los maneja el sistema
     const ESTADOS_MANUALES = [
-      'EN_PRODUCCION', 'EN_TRANSITO', 'EN_NACIONALIZACION',
-      'LISTO_DESPACHO', 'DISPONIBLE_TIENDA', 'DESPACHADO',
+      'EN_PRODUCCION','EN_TRANSITO','EN_NACIONALIZACION',
+      'LISTO_DESPACHO','DISPONIBLE_TIENDA','DESPACHADO',
     ];
     if (!ESTADOS_MANUALES.includes(nuevoEstado)) return;
 
@@ -901,16 +1105,10 @@ function onSheetChange(e) {
   }
 }
 
-// ============================================================
-// TRIGGER time-based — carrito abandonado (cada hora)
-// Instalar: Triggers → checkWishlistAbandonadas → Time-driven → Hour timer → Every hour
-// ============================================================
-
 function checkWishlistAbandonadas() {
   const sheet  = _getSheet(CFG.SHEETS.WISHLIST);
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
-
   const colRef    = header.indexOf('Referencia');
   const colTs     = header.indexOf('Timestamp');
   const colEstado = header.indexOf('Estado_Wishlist');
@@ -919,33 +1117,19 @@ function checkWishlistAbandonadas() {
   const colProds  = header.indexOf('Productos_JSON');
   const colTotal  = header.indexOf('Total_COP');
   const colNotas  = header.indexOf('Notas_internas');
-
   const ahora     = new Date();
-  const limiteMins = CFG.WISHLIST_ABANDON_MIN;
 
   for (let i = 1; i < data.length; i++) {
-    const estado = data[i][colEstado];
-    if (estado !== 'PENDIENTE') continue;
-
-    const ts = new Date(data[i][colTs]);
-    const minutos = (ahora - ts) / 60000;
-
-    // Solo enviar si han pasado entre limiteMins y limiteMins+60 (evitar re-envíos)
-    if (minutos < limiteMins || minutos > limiteMins + 60) continue;
-
+    if (data[i][colEstado] !== 'PENDIENTE') continue;
+    const minutos = (ahora - new Date(data[i][colTs])) / 60000;
+    if (minutos < CFG.WISHLIST_ABANDON_MIN || minutos > CFG.WISHLIST_ABANDON_MIN + 60) continue;
     const email  = data[i][colEmail]  || '';
-    const nombre = data[i][colNombre] || '';
     const ref    = data[i][colRef]    || '';
-    const prods  = _parseJSON(data[i][colProds]);
-    const total  = data[i][colTotal]  || 0;
-
     if (!email) continue;
-
-    // Marcar en Notas_internas para no re-enviar
     const notas = String(data[i][colNotas] || '');
     if (notas.includes('ABANDON_EMAIL_SENT')) continue;
-
-    _emailCarritoAbandonado(email, nombre, ref, prods, total);
+    _emailCarritoAbandonado(email, data[i][colNombre] || '', ref,
+      _parseJSON(data[i][colProds]), data[i][colTotal] || 0);
     sheet.getRange(i + 1, colNotas + 1).setValue(
       (notas ? notas + ' | ' : '') + 'ABANDON_EMAIL_SENT:' + ahora.toISOString()
     );
@@ -957,7 +1141,6 @@ function checkWishlistAbandonadas() {
 // EMAILS
 // ============================================================
 
-// Email cuando se crea pedido Wompi (antes del pago)
 function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
     const subject = `✅ ${CFG.NOMBRE_TIENDA} — Pedido ${ref} recibido`;
@@ -965,19 +1148,14 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
       <p>Hemos recibido tu pedido. Aquí está el resumen:</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
-      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">
-        Total: ${_fmtCOP(total)}
-      </p>
-      <p style="font-size:13px;color:#666;margin-top:16px">
-        Tu pago está siendo procesado. Te confirmaremos en breve.
-      </p>
+      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total: ${_fmtCOP(total)}</p>
+      <p style="font-size:13px;color:#666;margin-top:16px">Tu pago está siendo procesado. Te confirmaremos en breve.</p>
     `);
     GmailApp.sendEmail(email, subject, '', { htmlBody: body });
     _log('emailPedidoRecibido', ref, email, 'OK');
   } catch(err) { _log('emailPedidoRecibido_ERROR', ref, err.message); }
 }
 
-// Email cuando Wompi aprueba el pago
 function _emailPagoConfirmado(email, nombre, ref, productos, total) {
   try {
     const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
@@ -985,9 +1163,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total) {
       <p>¡Gracias por tu compra! Tu pago ha sido confirmado exitosamente.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
-      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">
-        Total pagado: ${_fmtCOP(total)}
-      </p>
+      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total pagado: ${_fmtCOP(total)}</p>
       <p style="font-size:13px;color:#666;margin-top:16px">
         Cada pieza es única — hecha a mano en Italia, especialmente para ti.<br>
         Te mantendremos informado sobre el estado de tu pedido en cada etapa.
@@ -998,7 +1174,6 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total) {
   } catch(err) { _log('emailPagoConfirmado_ERROR', ref, err.message); }
 }
 
-// Email cuando pago es rechazado o hay error
 function _emailPagoCancelado(email, nombre, ref, status) {
   try {
     const subject = `❌ ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
@@ -1007,9 +1182,8 @@ function _emailPagoCancelado(email, nombre, ref, status) {
       'VOIDED'   : 'Tu transacción fue anulada.',
       'ERROR'    : 'Ocurrió un error al procesar tu pago. Por favor intenta nuevamente.',
     };
-    const msg = msgs[status] || 'Tu pago no pudo ser procesado.';
     const body = _emailWrapper(nombre, `
-      <p>${msg}</p>
+      <p>${msgs[status] || 'Tu pago no pudo ser procesado.'}</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       <p style="font-size:13px;color:#666;margin-top:16px">
         Si tienes dudas, escríbenos por 
@@ -1017,8 +1191,7 @@ function _emailPagoCancelado(email, nombre, ref, status) {
         y te ayudamos de inmediato.
       </p>
       <div style="margin-top:20px;text-align:center">
-        <a href="${CFG.CATALOGO}" 
-           style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
+        <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
           Volver al catálogo
         </a>
       </div>
@@ -1028,7 +1201,6 @@ function _emailPagoCancelado(email, nombre, ref, status) {
   } catch(err) { _log('emailPagoCancelado_ERROR', ref, err.message); }
 }
 
-// Email cuando Gift Card es activada (pago APPROVED)
 function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia) {
   try {
     const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
@@ -1043,13 +1215,12 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia) {
       <p style="font-size:13px;color:#666">Referencia de pago: <strong>${ref}</strong></p>
       <p style="font-size:13px;color:#666;margin-top:16px">
         <strong>¿Cómo usar tu Gift Card?</strong><br>
-        Ingresa el código en el campo de bono/descuento durante el proceso de pago en nuestro catálogo.<br><br>
-        <strong>Recuerda:</strong> guarda este código en un lugar seguro — se asimila a dinero en efectivo y 
-        puede ser cedido a terceros. Tiene una vigencia de 9 meses desde la fecha de emisión.
+        Ingresa el código en el campo de bono durante el pago en nuestro catálogo.<br><br>
+        <strong>Recuerda:</strong> guarda este código en un lugar seguro — se asimila a dinero en efectivo.
+        Vigencia 9 meses desde la fecha de emisión.
       </p>
       <div style="margin-top:20px;text-align:center">
-        <a href="${CFG.CATALOGO}" 
-           style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
+        <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
           Ir al catálogo
         </a>
       </div>
@@ -1059,84 +1230,57 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia) {
   } catch(err) { _log('emailGiftCardActivada_ERROR', ref, err.message); }
 }
 
-// Email cuando cliente confirma envío wishlist por WA
 function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
     const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>Hemos recibido tu lista de deseos y nuestro equipo te contactará a la mayor brevedad 
-      para brindarte atención personalizada.</p>
+      <p>Hemos recibido tu lista de deseos y nuestro equipo te contactará a la mayor brevedad.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
-      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">
-        Total estimado: ${_fmtCOP(total)}
-      </p>
-      <p style="font-size:13px;color:#666;margin-top:16px">
-        Eres especial para nosotros — cada pieza que eliges es una obra de arte 
-        hecha a mano en Italia. Nos encanta acompañarte en ese proceso.
-      </p>
+      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(total)}</p>
     `);
     GmailApp.sendEmail(email, subject, '', { htmlBody: body });
     _log('emailEnviadoWA', ref, email, 'OK');
   } catch(err) { _log('emailEnviadoWA_ERROR', ref, err.message); }
 }
 
-// Email carrito abandonado con enlace de recuperación
 function _emailCarritoAbandonado(email, nombre, ref, productos, total) {
   try {
-    const enlace = `${CFG.CATALOGO}?ref=${ref}`;
     const subject = `🛒 ${CFG.NOMBRE_TIENDA} — ¿Olvidaste algo?`;
+    const enlace  = `${CFG.CATALOGO}?ref=${ref}`;
     const body = _emailWrapper(nombre, `
       <p>Notamos que seleccionaste algunas piezas pero no completaste el proceso.</p>
-      <p style="font-size:13px;color:#666">¡No pierdas la oportunidad! Tu selección te espera:</p>
       ${_productosHTML(productos)}
-      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">
-        Total estimado: ${_fmtCOP(total)}
-      </p>
-      <p style="font-size:13px;color:#666;margin-top:16px">
-        Desde el siguiente enlace recuperas tu carrito original y puedes:<br>
-        • Enviarnos tu lista por <strong>WhatsApp</strong> para atención personalizada<br>
-        • O confirmar tu pedido directamente con un clic en <strong>Pagar con Wompi</strong>
-      </p>
+      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(total)}</p>
       <div style="margin-top:24px;text-align:center">
-        <a href="${enlace}" 
-           style="background:#C4A05A;color:#fff;padding:14px 32px;border-radius:6px;text-decoration:none;font-size:15px;font-weight:bold">
+        <a href="${enlace}" style="background:#C4A05A;color:#fff;padding:14px 32px;border-radius:6px;text-decoration:none;font-size:15px;font-weight:bold">
           Recuperar mi carrito
         </a>
       </div>
-      <p style="font-size:12px;color:#aaa;margin-top:20px;text-align:center">
-        Referencia: ${ref}
-      </p>
+      <p style="font-size:12px;color:#aaa;margin-top:20px;text-align:center">Referencia: ${ref}</p>
     `);
     GmailApp.sendEmail(email, subject, '', { htmlBody: body });
     _log('emailCarritoAbandonado', ref, email, 'OK');
   } catch(err) { _log('emailCarritoAbandonado_ERROR', ref, err.message); }
 }
 
-// Email notificación cambio manual de Estado_Pedido por operador
 function _emailNotificarEstadoPedido(rowData, header, estado) {
   try {
-    const colEmail  = header.indexOf('Email');
-    const colNombre = header.indexOf('Nombre');
-    const colRef    = header.indexOf('Referencia');
-    const email  = rowData[colEmail]  || '';
-    const nombre = rowData[colNombre] || 'cliente';
-    const ref    = rowData[colRef]    || '';
+    const email  = rowData[header.indexOf('Email')]     || '';
+    const nombre = rowData[header.indexOf('Nombre')]    || 'cliente';
+    const ref    = rowData[header.indexOf('Referencia')]|| '';
     if (!email) return;
-
     const MENSAJES = {
       'EN_PRODUCCION'      : 'Tu pedido está en producción en Italia. Te notificaremos cuando esté listo para embarque.',
-      'EN_TRANSITO'        : 'Tu pedido está en tránsito desde Italia hacia Colombia. Te mantendremos informado.',
-      'EN_NACIONALIZACION' : 'Tu pedido está en proceso de nacionalización en aduana. Pronto estará disponible.',
-      'LISTO_DESPACHO'     : 'Tu pedido está listo para ser despachado. Pronto recibirás la información de envío.',
+      'EN_TRANSITO'        : 'Tu pedido está en tránsito desde Italia hacia Colombia.',
+      'EN_NACIONALIZACION' : 'Tu pedido está en proceso de nacionalización en aduana.',
+      'LISTO_DESPACHO'     : 'Tu pedido está listo para ser despachado.',
       'DISPONIBLE_TIENDA'  : 'Tu pedido está disponible para retirar en nuestra tienda en Bogotá.',
       'DESPACHADO'         : 'Tu pedido ha sido despachado. Pronto recibirás la información de seguimiento.',
     };
-    const msg = MENSAJES[estado] || `El estado de tu pedido ha sido actualizado: ${estado}.`;
-
     const subject = `📦 ${CFG.NOMBRE_TIENDA} — Actualización pedido ${ref}`;
     const body = _emailWrapper(nombre, `
-      <p>${msg}</p>
+      <p>${MENSAJES[estado] || 'El estado de tu pedido ha sido actualizado: ' + estado}</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       <p style="font-size:13px;color:#666;margin-top:16px">
         Gracias por tu preferencia. Si tienes preguntas escríbenos por 
@@ -1148,8 +1292,82 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
   } catch(err) { _log('emailNotificarEstado_ERROR', err.message); }
 }
 
+// ── Alerta identidad sospechosa → admin ─────────────────────
+function _emailIdentidadSospechosa(b, rowEncontrada) {
+  try {
+    const subject = '🚨⚠️ ALERTA IDENTIDAD SOSPECHOSA — IMOLARTE — REVISAR DE INMEDIATO ⚠️🚨';
+    const body = `
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+  <div style="background:#8b0000;padding:20px 24px;border-radius:8px 8px 0 0">
+    <h1 style="color:#fff;font-size:20px;margin:0;letter-spacing:1px">
+      🚨 ALERTA DE SEGURIDAD — IMOLARTE
+    </h1>
+    <p style="color:#ffcccc;font-size:13px;margin:6px 0 0">
+      Se detectó una posible inconsistencia de identidad en una transacción
+    </p>
+  </div>
+  <div style="background:#fff8f8;padding:24px;border:2px solid #8b0000;border-top:none">
+    <p style="font-size:15px;color:#333">
+      ⚠️ Un cliente completó una transacción con un documento ya registrado 
+      pero con un <strong>nombre y/o apellido completamente diferente</strong>.
+    </p>
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px">
+      <tr style="background:#f0e8e8">
+        <th style="padding:8px;text-align:left;border:1px solid #ddd;width:40%">Campo</th>
+        <th style="padding:8px;text-align:left;border:1px solid #ddd">Registrado en sistema</th>
+        <th style="padding:8px;text-align:left;border:1px solid #ddd">Recibido en transacción</th>
+      </tr>
+      <tr>
+        <td style="padding:8px;border:1px solid #ddd"><strong>TipoDoc</strong></td>
+        <td style="padding:8px;border:1px solid #ddd">${rowEncontrada[CLI.TIPO_DOC] || '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd">${b.tipoDoc || '—'}</td>
+      </tr>
+      <tr style="background:#fafafa">
+        <td style="padding:8px;border:1px solid #ddd"><strong>NumDoc</strong></td>
+        <td style="padding:8px;border:1px solid #ddd">${rowEncontrada[CLI.NUM_DOC] || '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd">${b.numDoc || '—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;border:1px solid #ddd"><strong>Nombre</strong></td>
+        <td style="padding:8px;border:1px solid #ddd;color:#0a6b0a">${rowEncontrada[CLI.NOMBRE] || '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd;color:#cc0000"><strong>${b.nombre || '—'}</strong></td>
+      </tr>
+      <tr style="background:#fafafa">
+        <td style="padding:8px;border:1px solid #ddd"><strong>Apellido</strong></td>
+        <td style="padding:8px;border:1px solid #ddd;color:#0a6b0a">${rowEncontrada[CLI.APELLIDO] || '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd;color:#cc0000"><strong>${b.apellido || '—'}</strong></td>
+      </tr>
+      <tr>
+        <td style="padding:8px;border:1px solid #ddd"><strong>Teléfono</strong></td>
+        <td style="padding:8px;border:1px solid #ddd">${rowEncontrada[CLI.TELEFONO] || '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd">${b.telefono || '—'}</td>
+      </tr>
+      <tr style="background:#fafafa">
+        <td style="padding:8px;border:1px solid #ddd"><strong>Email</strong></td>
+        <td style="padding:8px;border:1px solid #ddd">${rowEncontrada[CLI.EMAIL] || '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd">${b.email || '—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;border:1px solid #ddd"><strong>ClienteID</strong></td>
+        <td style="padding:8px;border:1px solid #ddd" colspan="2">${rowEncontrada[CLI.CLIENTE_ID] || '—'}</td>
+      </tr>
+    </table>
+    <p style="font-size:13px;color:#666;background:#fff3cd;padding:12px;border-radius:4px;border-left:4px solid #ffc107">
+      ⚠️ <strong>La transacción fue procesada normalmente.</strong> Este es solo un aviso.
+      Revisa el sheet Clientes y los Pedidos correspondientes para confirmar o bloquear manualmente.
+    </p>
+    <p style="font-size:12px;color:#aaa;margin-top:16px">
+      Generado automáticamente por IMOLARTE Backend · ${new Date().toISOString()}
+    </p>
+  </div>
+</div>`;
+    GmailApp.sendEmail(CFG.EMAIL_ADMIN, subject, '', { htmlBody: body });
+    _log('emailIdentidadSospechosa', b.tipoDoc, b.numDoc, b.nombre, 'ALERTA_ENVIADA');
+  } catch(err) { _log('emailIdentidadSospechosa_ERROR', err.message); }
+}
+
 // ============================================================
-// EMAIL WRAPPER — layout compartido
+// EMAIL WRAPPER
 // ============================================================
 
 function _emailWrapper(nombre, contenido) {
@@ -1172,7 +1390,7 @@ function _emailWrapper(nombre, contenido) {
 }
 
 // ============================================================
-// SETUP — ejecutar UNA VEZ manualmente
+// SETUP
 // ============================================================
 
 function setupSheets() {
@@ -1180,44 +1398,37 @@ function setupSheets() {
     [CFG.SHEETS.WISHLIST]: [
       'Campaña_ID','Timestamp','Referencia','ClienteID',
       'Nombre','Apellido','Email','Teléfono',
-      'Tipo_Doc','Num_Doc','Tipo_Persona',
+      'Tipo_Doc','Num_Doc',
       'Dirección_Wishlist','Barrio_Wishlist','Ciudad_Wishlist','Notas',
-      'Productos_JSON','Total_COP',
-      'Estado_Wishlist','Notas_internas',
+      'Productos_JSON','Total_COP','Estado_Wishlist','Notas_internas',
     ],
     [CFG.SHEETS.PEDIDOS_WOMPI]: [
       'Campaña_ID','Timestamp','Referencia',
       'Wompi_Transaction_ID','Estado_Pago_Wompi',
       'ClienteID','Nombre','Apellido','Email','Teléfono',
-      'Tipo_Doc','Num_Doc','Tipo_Persona',
+      'Tipo_Doc','Num_Doc',
       'Dirección','Barrio','Ciudad','Notas_entrega',
       'Productos_JSON','Subtotal_COP','Descuento_COP',
       'Total_COP','Pct_Pagado','Forma_pago',
       'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
     ],
     [CFG.SHEETS.GIFT_CARDS]: [
-      // A-E: Identificación y valor
-      'Campaña_ID','Timestamp','Referencia','Código_Gift','Valor_COP','Válido_Hasta',
-      // F-N: Emisor (quien regala)
+      'Campaña_ID','Timestamp','Referencia','Código_Gift','Saldo_Gift_COP','Válido_Hasta',
       'ClienteID_Emisor',
       'Emisor_Nombre','Emisor_Apellido','Emisor_Email','Emisor_Tel',
       'Emisor_Tipo_Doc','Emisor_Num_Doc',
       'Emisor_Dirección','Emisor_Barrio','Emisor_Ciudad',
-      // O-S: Destinatario (a quien van a regalar)
       'Dest_Nombre','Dest_Apellido','Dest_Tel','Dest_Mensaje',
-      // T-X: Estado y trazabilidad
       'Estado_Pago','Estado_Gift',
       'Wompi_Transaction_ID','Fecha_Pago','Fecha_Activación',
-      // Y-Z: Operativo
       'Canjeado_En','Notas_Internas',
     ],
     [CFG.SHEETS.CLIENTES]: [
-      'Teléfono','Nombre','Apellido','Email',
-      'Tipo_Doc','Num_Doc','Tipo_Persona','Cumple_Día','Cumple_Mes',
-      'Dirección_1','Barrio_1','Ciudad_1',
-      'Dirección_2','Barrio_2','Ciudad_2',
+      'TipoDoc','NumDoc','Nombre','Apellido','Email','Teléfono',
+      'Cumple_Día','Cumple_Mes',
+      'Dirección','Barrio','Ciudad',
       'Primera_interacción','Última_interacción','Num_interacciones',
-      'Total_histórico_COP','Notas','ClienteID',
+      'Total_histórico_COP','Historial_cambios','ClienteID',
     ],
     [CFG.SHEETS.CAMPANIAS]: [
       'Campaña_ID','Marca_ID','Nombre','Descripción',
@@ -1232,7 +1443,6 @@ function setupSheets() {
   };
 
   const ss = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
-
   Object.entries(HEADERS).forEach(([nombre, headers]) => {
     let sheet = ss.getSheetByName(nombre);
     if (!sheet) {
@@ -1242,9 +1452,7 @@ function setupSheets() {
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(headers);
       sheet.getRange(1, 1, 1, headers.length)
-        .setBackground('#1a1610')
-        .setFontColor('#C4A05A')
-        .setFontWeight('bold');
+        .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
       sheet.setFrozenRows(1);
       sheet.autoResizeColumns(1, headers.length);
       Logger.log('Headers escritos: ' + nombre);
@@ -1256,42 +1464,29 @@ function setupSheets() {
 }
 
 // ============================================================
-// DROPDOWNS — ejecutar para actualizar validaciones
+// DROPDOWNS
 // ============================================================
 
 function setupDropdowns() {
   const ss = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
-
-  // Estado_Pedido en Pedidos_Wompi
   _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Estado_Pedido', ESTADOS_PEDIDO);
+  _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Pct_Pagado',    ['60', '100']);
+  _applyDropdown(ss, CFG.SHEETS.WISHLIST,       'Estado_Wishlist', ESTADOS_WISHLIST);
+  _applyDropdown(ss, CFG.SHEETS.CAMPANIAS,      'Estado', ['ACTIVA','CERRADA','PAUSADA']);
 
-  // Pct_Pagado en Pedidos_Wompi
-  _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Pct_Pagado', ['60', '100']);
-
-  // Forma_pago en Pedidos_Wompi — texto libre (no dropdown) porque puede incluir +GIFT:CODE
-  // Se usa setNote en el header para documentar los valores posibles:
-  // WOMPI_60, WOMPI_100, GIFT_CARD, WOMPI_60+GIFT:HC-XXXXX, WOMPI_100+GIFT:HC-XXXXX
-
-  // Estado_Wishlist en Wishlist
-  _applyDropdown(ss, CFG.SHEETS.WISHLIST, 'Estado_Wishlist', ESTADOS_WISHLIST);
-
-  // Estado en Campañas
-  _applyDropdown(ss, CFG.SHEETS.CAMPANIAS, 'Estado', ['ACTIVA', 'CERRADA', 'PAUSADA']);
-
-  // Documentar Forma_pago con nota en el header
+  // Nota en header Forma_pago
   const sheetWP = ss.getSheetByName(CFG.SHEETS.PEDIDOS_WOMPI);
   if (sheetWP) {
-    const header  = sheetWP.getRange(1, 1, 1, sheetWP.getLastColumn()).getValues()[0];
-    const colFP   = header.indexOf('Forma_pago');
-    if (colFP >= 0) {
-      sheetWP.getRange(1, colFP + 1).setNote(
+    const header = sheetWP.getRange(1, 1, 1, sheetWP.getLastColumn()).getValues()[0];
+    const col    = header.indexOf('Forma_pago');
+    if (col >= 0) {
+      sheetWP.getRange(1, col + 1).setNote(
         'Valores: WOMPI_60 | WOMPI_100 | GIFT_CARD\n' +
         'Con saldo gift: WOMPI_60+GIFT:HC-XXXXX\n' +
         '               WOMPI_100+GIFT:HC-XXXXX'
       );
     }
   }
-
   Logger.log('✅ setupDropdowns completado');
 }
 
@@ -1300,15 +1495,64 @@ function _applyDropdown(ss, sheetName, colName, valores) {
   if (!sheet) { Logger.log('Sheet no encontrada: ' + sheetName); return; }
   const header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   const col    = header.indexOf(colName);
-  if (col < 0) { Logger.log('Columna no encontrada: ' + colName + ' en ' + sheetName); return; }
-
+  if (col < 0) { Logger.log('Columna no encontrada: ' + colName); return; }
   const rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(valores, true)
-    .setAllowInvalid(false)
-    .build();
-
+    .requireValueInList(valores, true).setAllowInvalid(false).build();
   sheet.getRange(2, col + 1, 499, 1).setDataValidation(rule);
-  Logger.log('✅ Dropdown aplicado: ' + sheetName + ' → ' + colName);
+  Logger.log('✅ Dropdown: ' + sheetName + ' → ' + colName);
+}
+
+// ============================================================
+// PROTECCIONES — ejecutar UNA VEZ después de setupSheets
+// Protege columnas calculadas por el sistema.
+// Tú como editor puedes sobrescribir con advertencia.
+// ============================================================
+
+function setupProtections() {
+  const ss    = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const email = CFG.EMAIL_ADMIN;
+
+  function _protectCols(sheetName, colNames, desc) {
+    const sheet  = ss.getSheetByName(sheetName);
+    if (!sheet) return;
+    const header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    colNames.forEach(colName => {
+      const col = header.indexOf(colName);
+      if (col < 0) return;
+      // Rango: fila 2 hasta 1000
+      const range = sheet.getRange(2, col + 1, 999, 1);
+      const prot  = range.protect();
+      prot.setDescription(desc + ' — ' + colName);
+      // Solo el admin puede editar sin advertencia
+      prot.addEditor(email);
+      prot.setWarningOnly(true); // advertencia pero no bloqueo total
+      Logger.log('🔒 Protección: ' + sheetName + ' → ' + colName);
+    });
+  }
+
+  // Clientes — cols calculadas por el sistema
+  _protectCols(CFG.SHEETS.CLIENTES,
+    ['TipoDoc','NumDoc','ClienteID','Primera_interacción','Última_interacción',
+     'Num_interacciones','Total_histórico_COP','Historial_cambios'],
+    'Sistema IMOLARTE — no editar manualmente'
+  );
+
+  // Pedidos_Wompi — cols calculadas
+  _protectCols(CFG.SHEETS.PEDIDOS_WOMPI,
+    ['Campaña_ID','Timestamp','Referencia','Wompi_Transaction_ID',
+     'Estado_Pago_Wompi','ClienteID','Subtotal_COP','Descuento_COP','Total_COP'],
+    'Sistema IMOLARTE — no editar manualmente'
+  );
+
+  // GiftCards — cols calculadas
+  _protectCols(CFG.SHEETS.GIFT_CARDS,
+    ['Campaña_ID','Timestamp','Referencia','Código_Gift','Saldo_Gift_COP',
+     'ClienteID_Emisor','Estado_Pago','Wompi_Transaction_ID',
+     'Fecha_Pago','Fecha_Activación','Canjeado_En'],
+    'Sistema IMOLARTE — no editar manualmente'
+  );
+
+  Logger.log('✅ setupProtections completado');
 }
 
 // ============================================================
@@ -1316,7 +1560,7 @@ function _applyDropdown(ss, sheetName, colName, valores) {
 // ============================================================
 
 function _getSheet(nombre) {
-  const ss = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const ss    = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
   const sheet = ss.getSheetByName(nombre);
   if (!sheet) throw new Error('Sheet no encontrada: ' + nombre);
   return sheet;
@@ -1348,7 +1592,7 @@ function _productosHTML(productos) {
   const rows = productos.map(p => `
     <tr>
       <td style="padding:6px 8px;border-bottom:1px solid #e8e0d0;font-size:13px">
-        ${p.productName || p.name || ''} ${p.collection ? '— ' + p.collection : ''}
+        ${p.productName || p.name || ''}${p.collection ? ' — ' + p.collection : ''}
       </td>
       <td style="padding:6px 8px;border-bottom:1px solid #e8e0d0;font-size:13px;text-align:center">
         ×${p.quantity || 1}
@@ -1373,6 +1617,8 @@ function _productosHTML(productos) {
 function _log(fn, a1='', a2='', a3='', a4='') {
   try {
     const sheet = _getSheet(CFG.SHEETS.LOG);
-    sheet.appendRow([new Date(), fn, String(a1).slice(0,200), String(a2).slice(0,200), String(a3).slice(0,200), String(a4).slice(0,200)]);
+    sheet.appendRow([new Date(), fn,
+      String(a1).slice(0,200), String(a2).slice(0,200),
+      String(a3).slice(0,200), String(a4).slice(0,200)]);
   } catch(e) { Logger.log('LOG_ERROR: ' + e.message); }
 }

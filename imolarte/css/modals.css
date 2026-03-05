@@ -976,7 +976,8 @@ gmp-placeautocomplete::part(input):focus {
 
 /* El grupo del input dirección necesita position:relative para el dropdown */
 .cmo-group:has(#waInputDir),
-.cmo-group:has(#wpInputDir) {
+.cmo-group:has(#wpInputDir),
+.cmo-group:has(#gfDir) {
     position: relative;
 }
 
