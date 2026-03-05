@@ -895,12 +895,14 @@
             <div class="cmo-section-label">Para quién es el regalo</div>
             <div class="cmo-row-2">
               <div class="cmo-group">
-                <label class="cmo-label" for="gfRecNombre">Nombre(s) destinatario</label>
-                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="María" autocomplete="off">
+                <label class="cmo-label" for="gfRecNombre">Nombre(s) destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="María" autocomplete="off" required>
+                <span class="cmo-error" id="gfErrRecNombre"></span>
               </div>
               <div class="cmo-group">
-                <label class="cmo-label" for="gfRecApellido">Apellido(s) destinatario</label>
-                <input class="cmo-input" type="text" id="gfRecApellido" name="gfRecApellido" placeholder="García" autocomplete="off">
+                <label class="cmo-label" for="gfRecApellido">Apellido(s) destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecApellido" name="gfRecApellido" placeholder="García" autocomplete="off" required>
+                <span class="cmo-error" id="gfErrRecApellido"></span>
               </div>
             </div>
             <div class="cmo-row-phone">
@@ -915,8 +917,9 @@
                 </select>
               </div>
               <div class="cmo-group cmo-group-tel">
-                <label class="cmo-label" for="gfRecTel">WhatsApp destinatario</label>
-                <input class="cmo-input" type="tel" id="gfRecTel" name="gfRecTel" placeholder="3001234567" autocomplete="off">
+                <label class="cmo-label" for="gfRecTel">WhatsApp destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="tel" id="gfRecTel" name="gfRecTel" placeholder="3001234567" autocomplete="off" required>
+                <span class="cmo-error" id="gfErrRecTel"></span>
                 <span class="cmo-hint-block">Enviaremos el código de regalo por aquí</span>
               </div>
             </div>

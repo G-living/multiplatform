@@ -1714,9 +1714,16 @@ const Modal = (() => {
       if (amount > 0 && amount < 200000) {
         if (errEl) errEl.textContent = 'Valor mínimo $200.000';
         if (nextBtn) nextBtn.disabled = true;
-        _giftValue = 0;
-        _giftCode  = '';
-        _giftValidUntil = '';
+        _giftValue = 0; _giftCode = ''; _giftValidUntil = '';
+        if (infoEl) infoEl.style.display = 'none';
+        _drawGiftCard(amount);
+        return;
+      }
+
+      if (amount > 10000000) {
+        if (errEl) errEl.textContent = 'Valor máximo $10.000.000';
+        if (nextBtn) nextBtn.disabled = true;
+        _giftValue = 0; _giftCode = ''; _giftValidUntil = '';
         if (infoEl) infoEl.style.display = 'none';
         _drawGiftCard(amount);
         return;
@@ -1751,13 +1758,15 @@ const Modal = (() => {
 
     // Botón Continuar → paso 2
     document.getElementById('giftBtnNext')?.addEventListener('click', () => {
-      if (_giftValue < 200000) return;
+      if (_giftValue < 200000 || _giftValue > 10000000) return;
       const label = '$ ' + _giftValue.toLocaleString('es-CO');
       const selEl = document.getElementById('giftSelectedLabel');
       const totEl = document.getElementById('giftTotalDisplay');
       if (selEl) selEl.textContent = label;
       if (totEl) totEl.textContent = Utils.formatPrice(_giftValue);
       _giftShowStep(2);
+      // Inicializar Places aquí — el input gfDir ya está visible
+      setTimeout(() => _initPlacesAutocomplete('gfDir', 'gfBarrio', 'gfCiudad'), 100);
     });
 
     // Botón Volver
@@ -1769,16 +1778,14 @@ const Modal = (() => {
     // Email confirmación en tiempo real
     document.getElementById('gfEmailConf')?.addEventListener('input', () => _validateGiftField('gfEmailConf'));
 
-    // Validación blur
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad'].forEach(id => {
+    // Validación blur — incluye destinatario
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
+     'gfRecNombre','gfRecApellido','gfRecTel'].forEach(id => {
       document.getElementById(id)?.addEventListener('blur', () => _validateGiftField(id));
     });
 
     // Submit formulario
     document.getElementById('formGift')?.addEventListener('submit', _handleSubmitGift);
-
-    // Google Places para dirección del emisor
-    _initPlacesAutocomplete('gfDir', 'gfBarrio', 'gfCiudad');
   }
 
   function _validateGiftField(id) {
@@ -1810,8 +1817,21 @@ const Modal = (() => {
       if (r !== true) msg = r;
     } else if (id === 'gfDir' && el.required && !el.value.trim()) {
       msg = 'Campo obligatorio';
-    } else if ((id === 'gfBarrio' || id === 'gfCiudad') && el.required && !el.value.trim()) {
+    } else if ((id === 'gfBarrio' || id === 'gfCiudad') && el.required) {
+      if (!el.value.trim()) {
+        msg = 'Campo obligatorio';
+      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-\.]+$/.test(el.value.trim())) {
+        msg = 'Solo se permiten letras';
+      }
+    } else if ((id === 'gfRecNombre' || id === 'gfRecApellido') && el.required && !el.value.trim()) {
       msg = 'Campo obligatorio';
+    } else if (id === 'gfRecTel' && el.required) {
+      if (!el.value.trim()) {
+        msg = 'Campo obligatorio';
+      } else {
+        const r = _CMO_VALIDATORS.telefono(el.value);
+        if (r !== true) msg = r;
+      }
     }
 
     if (errEl) errEl.textContent = msg;
@@ -1821,7 +1841,8 @@ const Modal = (() => {
 
   function _validateGiftForm() {
     let ok = true;
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
+     'gfRecNombre','gfRecApellido','gfRecTel'].forEach(id => {
       if (!_validateGiftField(id)) ok = false;
     });
     // Checkbox TyC
