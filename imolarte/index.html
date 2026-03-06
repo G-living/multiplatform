@@ -743,6 +743,9 @@
             <div class="cmo-total-line cmo-line-discount" id="wpLineDisc100" style="display:none">
               <span>Descuento 3% (pago total)</span><span id="wpValDisc100" class="cmo-discount-val"></span>
             </div>
+            <div class="cmo-total-line cmo-line-total" id="wpLineTotalFinal" style="display:none">
+              <span><strong>Total a pagar</strong></span><span id="wpValTotalFinal" class="cmo-total-val"></span>
+            </div>
           </div>
 
           <!-- Legal Wompi — TyC + Datos personales completo -->
@@ -762,7 +765,7 @@
           </div>
           <span class="cmo-error" id="wpErrDatos"></span>
 
-          <div class="cmo-footer cmo-footer-wompi">
+          <div class="cmo-footer cmo-footer-wompi" id="wpPayActions">
             <button type="button" class="btn btn-secondary cmo-btn-pago" id="btnPagar60">
               <span class="cmo-btn-pago-label">Pagar anticipo 60%</span>
               <span class="cmo-btn-pago-amount" id="wpAmount60"></span>
@@ -770,6 +773,13 @@
             <button type="button" class="btn btn-primary cmo-btn-pago" id="btnPagar100">
               <span class="cmo-btn-pago-label">Pagar total — 3% dcto.</span>
               <span class="cmo-btn-pago-amount" id="wpAmount100"></span>
+            </button>
+          </div>
+
+          <div class="cmo-footer" id="wpPayGift" style="display:none">
+            <button type="button" class="btn btn-primary cmo-btn-pago" id="btnPagarGift" style="width:100%">
+              <span class="cmo-btn-pago-label">🎁 Confirmar compra con Gift Card</span>
+              <span class="cmo-btn-pago-amount" id="wpAmountGift">$0</span>
             </button>
           </div>
 
@@ -1074,6 +1084,27 @@
       <p>Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos; revocar esta autorización; y presentar queja ante la Superintendencia de Industria y Comercio (SIC).</p>
       <h3>Contacto</h3>
       <p>Escríbenos a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> indicando tu nombre, documento y el derecho que deseas ejercer. Responderemos en máximo 15 días hábiles.</p>
+    </div>
+  </template>
+
+  <!-- TyC Gift Card -->
+  <template id="tplTyCGift">
+    <div class="legal-doc">
+      <p class="legal-entity">HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
+      <h3>1. Valor e IVA</h3>
+      <p>El valor cargado a la Gift Card incluye el IVA del 19% vigente en Colombia. La persona que adquiere la tarjeta recibirá una factura electrónica por el valor total de la recarga, expedida a nombre del comprador registrado en el formulario.</p>
+      <h3>2. Vigencia</h3>
+      <p>Cada Gift Card tiene una vigencia de nueve (9) meses contados a partir de la fecha de emisión. Transcurrido dicho plazo sin que la tarjeta haya sido canjeada total o parcialmente, será anulada automáticamente y su valor o saldo eventual quedarán en favor de HELENA CABALLERO SAS, sin posibilidad de reembolso.</p>
+      <h3>3. Cesibilidad</h3>
+      <p>Las Gift Cards son cedibles a terceros. El código único de la tarjeta puede ser transferido libremente por su titular a cualquier persona, quien podrá utilizarlo en las mismas condiciones.</p>
+      <h3>4. Canje</h3>
+      <p>El código de la Gift Card deberá ingresarse en el espacio habilitado para bonos en el paso de pago del carrito de compra. El valor se descontará automáticamente del total del pedido. Si el valor del pedido es inferior al saldo de la tarjeta, el remanente quedará disponible para usos futuros dentro de la vigencia.</p>
+      <h3>5. Custodia y responsabilidad</h3>
+      <p>La Gift Card se asimila a dinero en efectivo. HELENA CABALLERO SAS no se responsabiliza por pérdida, robo, uso no autorizado o deterioro del código una vez entregado al comprador. Se recomienda guardar el código en un lugar seguro y no compartirlo con terceros no autorizados.</p>
+      <h3>6. No reembolsable</h3>
+      <p>Las Gift Cards no son reembolsables en efectivo ni canjeables por dinero bajo ninguna circunstancia, salvo disposición legal en contrario.</p>
+      <h3>7. Contacto</h3>
+      <p>Para consultas sobre saldo, vigencia o cualquier inconveniente con tu Gift Card, escríbenos a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> o por WhatsApp al +57 300 425 7367.</p>
     </div>
   </template>
 
