@@ -857,6 +857,30 @@
                 <span class="cmo-error" id="gfErrApellido"></span>
               </div>
             </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCumpleDia">Día de cumpleaños</label>
+                <input class="cmo-input" type="number" id="gfCumpleDia" name="gfCumpleDia" min="1" max="31" placeholder="15">
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCumpleMes">Mes de cumpleaños</label>
+                <select class="cmo-input cmo-select" id="gfCumpleMes" name="gfCumpleMes">
+                  <option value="">— Mes —</option>
+                  <option value="1">Enero</option>
+                  <option value="2">Febrero</option>
+                  <option value="3">Marzo</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Mayo</option>
+                  <option value="6">Junio</option>
+                  <option value="7">Julio</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+              </div>
+            </div>
             <div class="cmo-group">
               <label class="cmo-label" for="gfEmail">Email <span class="cmo-req">*</span></label>
               <input class="cmo-input" type="email" id="gfEmail" name="gfEmail" autocomplete="email" placeholder="maria@ejemplo.com" required>
@@ -936,9 +960,9 @@
             </div>
             <div class="cmo-group">
               <label class="cmo-label" for="gfRecEmail">Email destinatario <span class="cmo-req">*</span></label>
+              <span class="cmo-hint-block" style="margin-bottom:6px">Enviaremos el código de regalo por email y WhatsApp</span>
               <input class="cmo-input" type="email" id="gfRecEmail" name="gfRecEmail" placeholder="email@ejemplo.com" required autocomplete="off">
               <span class="cmo-error" id="gfErrRecEmail"></span>
-              <span class="cmo-hint-block">Enviaremos el código de regalo por aquí</span>
             </div>
             <div class="cmo-row-phone">
               <div class="cmo-group cmo-group-prefix">
@@ -998,7 +1022,7 @@
   <!-- TyC — compartido WA y Wompi -->
   <template id="tplTyC">
     <div class="legal-doc">
-      <p class="legal-entity">IMOLARTE by Helena Caballero SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
+      <p class="legal-entity">IMOLARTE by Helena Caballero SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2c4d48414542455f585e4d4f4543426c44494049424d4f4d4e4d4040495e43024f4341">[email&#160;protected]</a></p>
       <h3>1. Objeto</h3>
       <p>Estos términos regulan la compra de productos de cerámica artesanal italiana a través del catálogo en línea de IMOLARTE by Helena Caballero SAS.</p>
       <h3>2. Productos a pedido</h3>
@@ -1033,14 +1057,14 @@
       <h3>12. Ley aplicable</h3>
       <p>Este contrato se rige por las leyes de la República de Colombia. Controversias ante jueces competentes de Bogotá D.C.</p>
       <h3>13. Contacto</h3>
-      <p>Para consultas: <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a></p>
+      <p>Para consultas: <a href="/cdn-cgi/l/email-protection#4726232a2e292e34333526242e2829072f222b222926242625262b2b2235286924282a"><span class="__cf_email__" data-cfemail="c4a5a0a9adaaadb7b0b6a5a7adabaa84aca1a8a1aaa5a7a5a6a5a8a8a1b6abeaa7aba9">[email&#160;protected]</span></a></p>
     </div>
   </template>
 
   <!-- Datos Personales — Wompi (transacción comercial completa) -->
   <template id="tplDatos">
     <div class="legal-doc">
-      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
+      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b1d0d5dcd8dfd8c2c5c3d0d2d8dedff1d9d4ddd4dfd0d2d0d3d0ddddd4c3de9fd2dedc">[email&#160;protected]</a></p>
       <p>Autorizo de manera libre, previa, expresa, informada e inequívoca a HELENA CABALLERO SAS para tratar mis datos personales recolectados en esta compra, incluyendo:</p>
       <h3>Datos recolectados</h3>
       <p>Nombre completo, documento de identidad, correo electrónico, teléfono, dirección de entrega, datos de pago (procesados por pasarela segura, sin almacenamiento directo), comportamiento de compra y pago.</p>
@@ -1059,7 +1083,7 @@
       <h3>Derechos como titular — Art. 8 Ley 1581/2012</h3>
       <p>Conocer, actualizar, rectificar y suprimir sus datos; revocar la autorización; solicitar prueba de la autorización; presentar queja ante la SIC una vez agotado el trámite interno; acceder gratuitamente a sus datos.</p>
       <h3>Canales para ejercer sus derechos</h3>
-      <p>Envíe solicitud a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> indicando nombre, documento, derecho a ejercer y hechos. Responderemos en máximo 15 días hábiles.</p>
+      <p>Envíe solicitud a <a href="/cdn-cgi/l/email-protection#b4d5d0d9dddaddc7c0c6d5d7dddbdaf4dcd1d8d1dad5d7d5d6d5d8d8d1c6db9ad7dbd9"><span class="__cf_email__" data-cfemail="b6d7d2dbdfd8dfc5c2c4d7d5dfd9d8f6ded3dad3d8d7d5d7d4d7dadad3c4d998d5d9db">[email&#160;protected]</span></a> indicando nombre, documento, derecho a ejercer y hechos. Responderemos en máximo 15 días hábiles.</p>
       <p class="legal-consent">Al marcar esta casilla confirmo haber leído y entendido este texto, y otorgo la autorización de forma voluntaria.</p>
     </div>
   </template>
@@ -1067,7 +1091,7 @@
   <!-- Datos Personales WA — almacenamiento de contacto (sin pago) -->
   <template id="tplDatosWA">
     <div class="legal-doc">
-      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
+      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5d3c39303433342e292f3c3e3432331d35383138333c3e3c3f3c3131382f32733e3230">[email&#160;protected]</a></p>
       <p>Al enviar tu lista de deseos, autorizas de manera libre, previa, expresa e informada a <strong>HELENA CABALLERO SAS</strong> para recolectar y tratar los datos personales que proporcionas en este formulario, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p>
       <h3>Datos recolectados</h3>
       <p>Nombre completo, documento de identidad, correo electrónico, número de teléfono y dirección de contacto.</p>
@@ -1083,14 +1107,14 @@
       <h3>Tus derechos — Art. 8 Ley 1581/2012</h3>
       <p>Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos; revocar esta autorización; y presentar queja ante la Superintendencia de Industria y Comercio (SIC).</p>
       <h3>Contacto</h3>
-      <p>Escríbenos a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> indicando tu nombre, documento y el derecho que deseas ejercer. Responderemos en máximo 15 días hábiles.</p>
+      <p>Escríbenos a <a href="/cdn-cgi/l/email-protection#6203060f0b0c0b11161003010b0d0c220a070e070c03010300030e0e07100d4c010d0f"><span class="__cf_email__" data-cfemail="a6c7c2cbcfc8cfd5d2d4c7c5cfc9c8e6cec3cac3c8c7c5c7c4c7cacac3d4c988c5c9cb">[email&#160;protected]</span></a> indicando tu nombre, documento y el derecho que deseas ejercer. Responderemos en máximo 15 días hábiles.</p>
     </div>
   </template>
 
   <!-- TyC Gift Card -->
   <template id="tplTyCGift">
     <div class="legal-doc">
-      <p class="legal-entity">HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
+      <p class="legal-entity">HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="aecfcac3c7c0c7dddadccfcdc7c1c0eec6cbc2cbc0cfcdcfcccfc2c2cbdcc180cdc1c3">[email&#160;protected]</a></p>
       <h3>1. Valor e IVA</h3>
       <p>El valor cargado a la Gift Card incluye el IVA del 19% vigente en Colombia. La persona que adquiere la tarjeta recibirá una factura electrónica por el valor total de la recarga, expedida a nombre del comprador registrado en el formulario.</p>
       <h3>2. Vigencia</h3>
@@ -1098,15 +1122,4 @@
       <h3>3. Cesibilidad</h3>
       <p>Las Gift Cards son cedibles a terceros. El código único de la tarjeta puede ser transferido libremente por su titular a cualquier persona, quien podrá utilizarlo en las mismas condiciones.</p>
       <h3>4. Canje</h3>
-      <p>El código de la Gift Card deberá ingresarse en el espacio habilitado para bonos en el paso de pago del carrito de compra. El valor se descontará automáticamente del total del pedido. Si el valor del pedido es inferior al saldo de la tarjeta, el remanente quedará disponible para usos futuros dentro de la vigencia.</p>
-      <h3>5. Custodia y responsabilidad</h3>
-      <p>La Gift Card se asimila a dinero en efectivo. HELENA CABALLERO SAS no se responsabiliza por pérdida, robo, uso no autorizado o deterioro del código una vez entregado al comprador. Se recomienda guardar el código en un lugar seguro y no compartirlo con terceros no autorizados.</p>
-      <h3>6. No reembolsable</h3>
-      <p>Las Gift Cards no son reembolsables en efectivo ni canjeables por dinero bajo ninguna circunstancia, salvo disposición legal en contrario.</p>
-      <h3>7. Contacto</h3>
-      <p>Para consultas sobre saldo, vigencia o cualquier inconveniente con tu Gift Card, escríbenos a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> o por WhatsApp al +57 300 425 7367.</p>
-    </div>
-  </template>
-
-</body>
-</html>
+      <p>El código de la Gift Card deberá ingresarse en el espacio habilitado para bonos en el paso de pago del carri

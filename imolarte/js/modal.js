@@ -1331,56 +1331,58 @@ const Modal = (() => {
     const cfg       = IMOLARTE_CONFIG.checkout;
     const subtotal  = _ckSubtotal;
     const bonoDesc  = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
-    const base      = subtotal - bonoDesc;
-    const disc100   = Math.round(base * cfg.discountPayFull);
-    const pay60     = Math.round(subtotal * 0.6);  // 60% del subtotal original
-    const pay100    = base - disc100;
+    const base      = subtotal - bonoDesc;                     // total tras descontar bono
+    const disc100   = Math.round(base * cfg.discountPayFull);  // 3% sobre base
+    const pay60     = Math.round(base * 0.6);                  // W3: 60% sobre base post-bono
+    const pay100    = base - disc100;                          // W1: neto con 3% incluido
 
     // Mostrar subtotal
     const subEl = document.getElementById('wpValSubtotal');
     if (subEl) subEl.textContent = Utils.formatPrice(subtotal);
 
-    // Mostrar/ocultar línea bono
+    // Mostrar/ocultar línea bono con valor negativo
     const bonoLine = document.getElementById('wpLineBono');
     const bonoVal  = document.getElementById('wpValBono');
     if (bonoLine) bonoLine.style.display = bonoDesc > 0 ? 'flex' : 'none';
     if (bonoVal)  bonoVal.textContent = '− ' + Utils.formatPrice(bonoDesc);
 
-    // Mostrar línea descuento 100%
-    const disc100Line = document.getElementById('wpLineDisc100');
-    const disc100Val  = document.getElementById('wpValDisc100');
-    if (disc100Line) disc100Line.style.display = disc100 > 0 && base > 0 ? 'flex' : 'none';
-    if (disc100Val)  disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
-
-    // ── Bono cubre el total → botón Gift, sin Wompi ──
-    const bonoCobreTotal = bonoDesc >= subtotal;
-    const wpPayActions = document.getElementById('wpPayActions');
-    const wpPayGift    = document.getElementById('wpPayGift');
+    // Línea "Total" solo visible cuando hay bono — muestra base post-bono
     const totalFinalLine = document.getElementById('wpLineTotalFinal');
     const totalFinalVal  = document.getElementById('wpValTotalFinal');
+    if (bonoDesc > 0) {
+      if (totalFinalLine) totalFinalLine.style.display = 'flex';
+      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(base);
+    } else {
+      if (totalFinalLine) totalFinalLine.style.display = 'none';
+    }
+
+    // Ocultar siempre la línea de descuento 3% separada (queda en label del botón)
+    const disc100Line = document.getElementById('wpLineDisc100');
+    if (disc100Line) disc100Line.style.display = 'none';
+
+    // ── Bono cubre el total → botón Gift Card, sin Wompi ──
+    const bonoCobreTotal = bonoDesc >= subtotal;
+    const wpPayActions   = document.getElementById('wpPayActions');
+    const wpPayGift      = document.getElementById('wpPayGift');
 
     if (bonoCobreTotal) {
       if (wpPayActions) wpPayActions.style.display = 'none';
       if (wpPayGift)    wpPayGift.style.display     = 'block';
       const giftAmtEl = document.getElementById('wpAmountGift');
       if (giftAmtEl) giftAmtEl.textContent = 'Cubierto por Gift Card';
-      if (totalFinalLine) totalFinalLine.style.display = 'flex';
-      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(0) + ' a pagar';
     } else {
       if (wpPayActions) wpPayActions.style.display = 'flex';
       if (wpPayGift)    wpPayGift.style.display     = 'none';
-      // Botones con montos
+
+      // W2: labels de botones con formato aprobado
       const btn60El  = document.getElementById('wpAmount60');
       const btn100El = document.getElementById('wpAmount100');
-      if (btn60El)  btn60El.textContent  = Utils.formatPrice(pay60);
-      if (btn100El) btn100El.textContent = Utils.formatPrice(pay100);
-      // Total final: mostrar solo si hay descuento activo
-      if (bonoDesc > 0 || disc100 > 0) {
-        if (totalFinalLine) totalFinalLine.style.display = 'flex';
-        if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(pay100);
-      } else {
-        if (totalFinalLine) totalFinalLine.style.display = 'none';
-      }
+      if (btn60El)
+        btn60El.textContent = 'Pago Anticipo 60%  ' + Utils.formatPrice(pay60);
+      if (btn100El)
+        btn100El.innerHTML =
+          'Pago Anticipado 100%&nbsp;&nbsp;' + Utils.formatPrice(pay100) +
+          '&nbsp;&nbsp;<span style="font-size:11px;opacity:0.85">→ 3% dto. incluido</span>';
     }
   }
 
@@ -1402,7 +1404,7 @@ const Modal = (() => {
     const bonoDesc    = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
     const base        = subtotal - bonoDesc;
     const disc100     = pct === '100' ? Math.round(base * cfg.discountPayFull) : 0;
-    const total       = pct === '60'  ? Math.round(subtotal * 0.6) : base - disc100;
+    const total       = pct === '60'  ? Math.round(base * 0.6) : base - disc100;
     const descuento   = bonoDesc + disc100;
     const amountCents = Math.round(total * 100);
 
@@ -1955,8 +1957,10 @@ const Modal = (() => {
     const cfg       = IMOLARTE_CONFIG.checkout;
 
     // Datos del formulario
-    const nombre   = document.getElementById('gfNombre')?.value.trim() || '';
-    const apellido = document.getElementById('gfApellido')?.value.trim() || '';
+    const nombre    = document.getElementById('gfNombre')?.value.trim() || '';
+    const apellido  = document.getElementById('gfApellido')?.value.trim() || '';
+    const cumpleDia = document.getElementById('gfCumpleDia')?.value.trim() || '';
+    const cumpleMes = document.getElementById('gfCumpleMes')?.value || '';
     const tipoDoc  = document.getElementById('gfTipoDoc')?.value || '';
     const numDoc   = document.getElementById('gfNumDoc')?.value.trim() || '';
     const email    = document.getElementById('gfEmail')?.value.trim() || '';
@@ -1980,7 +1984,7 @@ const Modal = (() => {
         vigencia:     _giftValidUntil,
         valor:        amount,
         campaniaId:   IMOLARTE_CONFIG?.campania?.id || '',
-        emisor:       { nombre, apellido, tipoDoc, numDoc, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
+        emisor:       { nombre, apellido, cumpleDia, cumpleMes, tipoDoc, numDoc, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
         destinatario: { nombre: recNom, apellido: recApe, email: recEmail, telefono: recPais + recTel },
         mensaje,
       });
