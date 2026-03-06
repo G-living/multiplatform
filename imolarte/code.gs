@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v16
+// IMOLARTE — Google Apps Script Backend v19
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -11,6 +11,9 @@
 // ============================================================
 //
 // CAMBIOS v16
+// ─ v17: fix Historial_cambios, acumulación Total_histórico/Num_interacciones en vivo, spam Forma_pago
+// ─ v18: Dest_Email en GiftCards, email destinatario gift, Productos_comprados en Clientes
+// ─ v19: _skipEmail en createPedidoWompi, pedidos huérfanos via sessionStorage
 // ─ Clientes: PK dual TipoDoc+NumDoc (primero) / Teléfono (fallback)
 // ─ Clientes: sin Tipo_Persona, sin Dir_2, columna Historial_cambios
 // ─ Clientes: alerta identidad sospechosa → email admin MAYÚSCULA
@@ -71,7 +74,12 @@ function doPost(e) {
       case 'createPedidoWompi'     : result = _createPedidoWompi(body);       break;
       case 'createGiftCard'        : result = _createGiftCard(body);          break;
       case 'updateEstadoWishlist'  : result = _updateEstadoWishlist(body);    break;
-      case 'confirmarPagoWompi'    : result = _confirmarPagoWompi(body);      break;
+      case 'confirmarPagoWompi'    :
+        // Ruteo automático: referencias GIFT- van a _confirmarPagoGiftCard
+        result = (String(body.referencia || '').startsWith('GIFT-'))
+          ? _confirmarPagoGiftCard(body)
+          : _confirmarPagoWompi(body);
+        break;
       case 'confirmarPagoGiftCard' : result = _confirmarPagoGiftCard(body);   break;
       case 'upsertCliente'         : result = _upsertCliente(body);           break;
       case 'redeemDono'            : result = _redeemDono(body);              break;

@@ -119,7 +119,7 @@ const Api = (() => {
       descuento:          totales.descuento         || 0,
       total:              totales.total             || 0,
       porcentajePagado:   totales.porcentajePagado  || 100,
-      referencia:         '',
+      referencia:         totales.referencia || '',
       wompiTransactionId: '',
     });
     return result.ok
