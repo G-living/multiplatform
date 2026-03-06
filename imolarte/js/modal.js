@@ -1381,27 +1381,39 @@ const Modal = (() => {
     const descuento   = bonoDesc + disc100;
     const amountCents = Math.round(total * 100);
 
-    // Generar referencia local — NO grabar en Sheets todavía.
-    // El pedido se graba en Sheets solo cuando Wompi confirma APPROVED
-    // (en checkout.js), evitando entradas PENDIENTE huérfanas.
-    const reference = `WP-${Date.now()}`;
-
-    // Guardar payload completo en sessionStorage para que checkout.js lo use
+    // ── 1. Registrar pedido en Sheets PRIMERO ─────────────────
+    // Apps Script genera y retorna la referencia única (WP-xxxxxxxx)
+    // Esa misma referencia se pasa a Wompi para cruzar la transacción al regresar
+    let reference = '';
     try {
-      sessionStorage.setItem('imolarte_pending_pedido', JSON.stringify({
+      const result = await Api.createPedidoWompi(data, items, {
         formaPago:        pct === '60' ? 'WOMPI_60' : 'WOMPI_100',
-        subtotal, descuento, total,
+        subtotal,
+        descuento,
+        total,
         porcentajePagado: pct === '60' ? 60 : 100,
-        referencia:       reference,
-        cliente:          data.cliente,
-        entrega:          data.entrega,
-        productos:        items,
-        bono:             _ckBono ? { code: _ckBono.code, monto: bonoDesc } : null,
-        campaniaId:       IMOLARTE_CONFIG?.campania?.id || '',
-      }));
-    } catch(e) { Logger.warn('modal.js: no se pudo guardar payload en sessionStorage', e); }
+        referencia:       '',   // Apps Script genera su propio ID
+      });
+      if (result.ok && result.referencia) {
+        reference = result.referencia;
+        Logger.log('modal.js: pedido Wompi registrado en Sheets', reference);
+      } else {
+        Logger.warn('modal.js: createPedidoWompi sin referencia', result.error);
+        reference = `WP-${Date.now()}`;   // fallback — no bloquear el pago
+      }
+    } catch(err) {
+      Logger.warn('modal.js: error registrando pedido Wompi', err);
+      reference = `WP-${Date.now()}`;
+    }
 
-    // ── Obtener firma de integridad Wompi ──────────────────────
+    // ── 2. Redimir bono si aplica ─────────────────────────────
+    if (_ckBono?.code) {
+      try {
+        await Api.redeemDono(_ckBono.code, bonoDesc, reference);
+      } catch(err) { Logger.warn('modal.js: error redimiendo bono', err); }
+    }
+
+    // ── 3. Obtener firma de integridad Wompi ──────────────────
     let signature = null;
     try {
       const resp = await fetch(cfg.signatureWorkerUrl, {
@@ -1413,15 +1425,9 @@ const Modal = (() => {
         const r = await resp.json();
         signature = r.integritySignature || null;
       }
-    } catch(err) {
-      Logger.warn('modal.js: error firma Wompi', err);
-      // Rehabilitar botones si falla la firma
-      if (btn60)  { btn60.disabled  = false; btn60.textContent  = 'Pagar 60%'; }
-      if (btn100) { btn100.disabled = false; btn100.textContent = 'Pagar 100%'; }
-      return;
-    }
+    } catch(err) { Logger.warn('modal.js: error firma Wompi', err); }
 
-    // ── Redirigir a Wompi ──────────────────────────────────────
+    // ── 4. Redirigir a Wompi con la referencia del servidor ───
     const params = new URLSearchParams({
       'public-key':      cfg.wompiPublicKey,
       'currency':        cfg.currency,
@@ -1434,7 +1440,7 @@ const Modal = (() => {
     if (data.cliente.email)    params.set('customer-data:email', data.cliente.email);
     if (data.cliente.telefono) params.set('customer-data:phone-number', `${data.cliente.codigoPais}${data.cliente.telefono}`);
 
-    Logger.log('modal.js: redirigiendo a Wompi (pedido se graba al confirmar)', { reference, amountCents, pct });
+    Logger.log('modal.js: redirigiendo a Wompi', { reference, amountCents, pct });
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 
@@ -1756,7 +1762,7 @@ const Modal = (() => {
     document.getElementById('gfEmailConf')?.addEventListener('input', () => _validateGiftField('gfEmailConf'));
 
     // Validación blur
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfRecEmail'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel'].forEach(id => {
       document.getElementById(id)?.addEventListener('blur', () => _validateGiftField(id));
     });
 
@@ -1776,7 +1782,7 @@ const Modal = (() => {
     } else if ((id === 'gfNombre' || id === 'gfApellido') && el.value.trim()) {
       const r = _CMO_VALIDATORS.nombre(el.value);
       if (r !== true) msg = r;
-    } else if ((id === 'gfEmail' || id === 'gfRecEmail') && el.value) {
+    } else if (id === 'gfEmail' && el.value) {
       const r = _CMO_VALIDATORS.email(el.value);
       if (r !== true) msg = r;
     } else if (id === 'gfEmailConf' && el.value) {
@@ -1800,7 +1806,7 @@ const Modal = (() => {
 
   function _validateGiftForm() {
     let ok = true;
-    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel','gfRecEmail'].forEach(id => {
+    ['gfNombre','gfApellido','gfEmail','gfEmailConf','gfTel'].forEach(id => {
       if (!_validateGiftField(id)) ok = false;
     });
     // Checkbox TyC
@@ -1834,9 +1840,8 @@ const Modal = (() => {
     const tel      = document.getElementById('gfTel')?.value.trim() || '';
     const pais     = document.getElementById('gfPais')?.value || '+57';
     const recNom   = document.getElementById('gfRecNombre')?.value.trim() || '';
-    const recEmail = document.getElementById('gfRecEmail')?.value.trim()  || '';
-    const recTel   = document.getElementById('gfRecTel')?.value.trim()    || '';
-    const mensaje  = document.getElementById('gfMensaje')?.value.trim()   || '';
+    const recTel   = document.getElementById('gfRecTel')?.value.trim() || '';
+    const mensaje  = document.getElementById('gfMensaje')?.value.trim() || '';
 
     // Registrar en Sheets vía Api.js
     try {
@@ -1846,7 +1851,7 @@ const Modal = (() => {
         vigencia:     _giftValidUntil,
         valor:        amount,
         emisor:       { nombre, apellido, email, telefono: pais + tel },
-        destinatario: { nombre: recNom, email: recEmail, telefono: recTel },
+        destinatario: { nombre: recNom, telefono: recTel },
         mensaje,
       });
     } catch(err) { Logger.warn('modal.js: error registrando gift card', err); }
