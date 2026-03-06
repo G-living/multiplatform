@@ -800,12 +800,12 @@
           <div class="gift-amount-wrap">
             <label class="cmo-label" for="giftAmount">
               Valor del Gift Card (COP) <span class="cmo-req">*</span>
-              <span class="cmo-hint"> — mínimo $20.000</span>
+              <span class="cmo-hint"> — mínimo $200.000</span>
             </label>
             <div class="gift-amount-input-wrap">
               <span class="gift-amount-prefix">$</span>
               <input class="cmo-input gift-amount-input" type="text" id="giftAmount" name="giftAmount"
-                     inputmode="numeric" autocomplete="off" placeholder="50.000">
+                     inputmode="numeric" autocomplete="off" placeholder="500.000">
             </div>
             <span class="cmo-error" id="giftErrAmount"></span>
           </div>
@@ -875,22 +875,77 @@
                 <span class="cmo-error" id="gfErrTel"></span>
               </div>
             </div>
-            <div class="cmo-section-label">Para quién es el regalo</div>
             <div class="cmo-row-2">
               <div class="cmo-group">
-                <label class="cmo-label" for="gfRecNombre">Nombre del destinatario</label>
-                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="Nombre" autocomplete="off">
+                <label class="cmo-label" for="gfTipoDoc">Tipo de documento <span class="cmo-req">*</span></label>
+                <select class="cmo-input cmo-select" id="gfTipoDoc" name="gfTipoDoc" required>
+                  <option value="">— Selecciona —</option>
+                  <option value="CC">C.C. — Cédula de ciudadanía</option>
+                  <option value="CE">C.E. — Cédula de extranjería</option>
+                  <option value="NIT">NIT</option>
+                  <option value="PAS">Pasaporte</option>
+                  <option value="TI">T.I. — Tarjeta de identidad</option>
+                </select>
+                <span class="cmo-error" id="gfErrTipoDoc"></span>
               </div>
               <div class="cmo-group">
-                <label class="cmo-label" for="gfRecEmail">Email destinatario <span class="cmo-req">*</span></label>
-                <input class="cmo-input" type="email" id="gfRecEmail" name="gfRecEmail" placeholder="email@ejemplo.com" required autocomplete="off">
-                <span class="cmo-error" id="gfErrRecEmail"></span>
-                <span class="cmo-hint-block">Enviaremos el código de regalo por aquí</span>
+                <label class="cmo-label" for="gfNumDoc">Número de documento <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfNumDoc" name="gfNumDoc" inputmode="numeric" placeholder="1234567890" required>
+                <span class="cmo-error" id="gfErrNumDoc"></span>
               </div>
             </div>
             <div class="cmo-group">
-              <label class="cmo-label" for="gfRecTel">WhatsApp destinatario <span class="cmo-hint">(opcional — para envío futuro)</span></label>
-              <input class="cmo-input" type="tel" id="gfRecTel" name="gfRecTel" placeholder="3001234567" autocomplete="off">
+              <label class="cmo-label" for="gfDir">Dirección <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="gfDir" name="gfDir" autocomplete="street-address" placeholder="Calle 70 # 9-87, Bogotá" required>
+              <span class="cmo-error" id="gfErrDir"></span>
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfBarrio">Barrio <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfBarrio" name="gfBarrio" placeholder="El Chico" required>
+                <span class="cmo-error" id="gfErrBarrio"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCiudad">Ciudad <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfCiudad" name="gfCiudad" placeholder="Bogotá" required>
+                <span class="cmo-error" id="gfErrCiudad"></span>
+              </div>
+            </div>
+            <div class="cmo-section-label">Para quién es el regalo</div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfRecNombre">Nombre(s) destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="María" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecNombre"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfRecApellido">Apellido(s) destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecApellido" name="gfRecApellido" placeholder="García" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecApellido"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfRecEmail">Email destinatario <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="email" id="gfRecEmail" name="gfRecEmail" placeholder="email@ejemplo.com" required autocomplete="off">
+              <span class="cmo-error" id="gfErrRecEmail"></span>
+              <span class="cmo-hint-block">Enviaremos el código de regalo por aquí</span>
+            </div>
+            <div class="cmo-row-phone">
+              <div class="cmo-group cmo-group-prefix">
+                <label class="cmo-label" for="gfRecPais">País</label>
+                <select class="cmo-input cmo-select" id="gfRecPais" name="gfRecPais">
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+              </div>
+              <div class="cmo-group cmo-group-tel">
+                <label class="cmo-label" for="gfRecTel">WhatsApp destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="tel" id="gfRecTel" name="gfRecTel" placeholder="3001234567" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecTel"></span>
+              </div>
             </div>
             <div class="cmo-group">
               <label class="cmo-label" for="gfMensaje">Mensaje personalizado</label>
@@ -933,7 +988,7 @@
   <!-- TyC — compartido WA y Wompi -->
   <template id="tplTyC">
     <div class="legal-doc">
-      <p class="legal-entity">IMOLARTE by Helena Caballero SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6302070e0a0d0a10171102000a0c0d230b060f060d02000201020f0f06110c4d000c0e">[email&#160;protected]</a></p>
+      <p class="legal-entity">IMOLARTE by Helena Caballero SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
       <h3>1. Objeto</h3>
       <p>Estos términos regulan la compra de productos de cerámica artesanal italiana a través del catálogo en línea de IMOLARTE by Helena Caballero SAS.</p>
       <h3>2. Productos a pedido</h3>
@@ -968,14 +1023,14 @@
       <h3>12. Ley aplicable</h3>
       <p>Este contrato se rige por las leyes de la República de Colombia. Controversias ante jueces competentes de Bogotá D.C.</p>
       <h3>13. Contacto</h3>
-      <p>Para consultas: <a href="/cdn-cgi/l/email-protection#4120252c282f283235332022282e2f0129242d242f20222023202d2d24332e6f222e2c"><span class="__cf_email__" data-cfemail="8feeebe2e6e1e6fcfbfdeeece6e0e1cfe7eae3eae1eeeceeedeee3e3eafde0a1ece0e2">[email&#160;protected]</span></a></p>
+      <p>Para consultas: <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a></p>
     </div>
   </template>
 
   <!-- Datos Personales — Wompi (transacción comercial completa) -->
   <template id="tplDatos">
     <div class="legal-doc">
-      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6302070e0a0d0a10171102000a0c0d230b060f060d02000201020f0f06110c4d000c0e">[email&#160;protected]</a></p>
+      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
       <p>Autorizo de manera libre, previa, expresa, informada e inequívoca a HELENA CABALLERO SAS para tratar mis datos personales recolectados en esta compra, incluyendo:</p>
       <h3>Datos recolectados</h3>
       <p>Nombre completo, documento de identidad, correo electrónico, teléfono, dirección de entrega, datos de pago (procesados por pasarela segura, sin almacenamiento directo), comportamiento de compra y pago.</p>
@@ -994,7 +1049,7 @@
       <h3>Derechos como titular — Art. 8 Ley 1581/2012</h3>
       <p>Conocer, actualizar, rectificar y suprimir sus datos; revocar la autorización; solicitar prueba de la autorización; presentar queja ante la SIC una vez agotado el trámite interno; acceder gratuitamente a sus datos.</p>
       <h3>Canales para ejercer sus derechos</h3>
-      <p>Envíe solicitud a <a href="/cdn-cgi/l/email-protection#3d5c59505453544e494f5c5e5452537d55585158535c5e5c5f5c5151584f52135e5250"><span class="__cf_email__" data-cfemail="bfdedbd2d6d1d6cccbcddedcd6d0d1ffd7dad3dad1dedcdeddded3d3dacdd091dcd0d2">[email&#160;protected]</span></a> indicando nombre, documento, derecho a ejercer y hechos. Responderemos en máximo 15 días hábiles.</p>
+      <p>Envíe solicitud a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> indicando nombre, documento, derecho a ejercer y hechos. Responderemos en máximo 15 días hábiles.</p>
       <p class="legal-consent">Al marcar esta casilla confirmo haber leído y entendido este texto, y otorgo la autorización de forma voluntaria.</p>
     </div>
   </template>
@@ -1002,7 +1057,7 @@
   <!-- Datos Personales WA — almacenamiento de contacto (sin pago) -->
   <template id="tplDatosWA">
     <div class="legal-doc">
-      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="84e5e0e9edeaedf7f0f6e5e7edebeac4ece1e8e1eae5e7e5e6e5e8e8e1f6ebaae7ebe9">[email&#160;protected]</a></p>
+      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br>administracion@helenacaballero.com</p>
       <p>Al enviar tu lista de deseos, autorizas de manera libre, previa, expresa e informada a <strong>HELENA CABALLERO SAS</strong> para recolectar y tratar los datos personales que proporcionas en este formulario, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p>
       <h3>Datos recolectados</h3>
       <p>Nombre completo, documento de identidad, correo electrónico, número de teléfono y dirección de contacto.</p>
@@ -1011,4 +1066,16 @@
         <li>Atender tu solicitud de información sobre productos y disponibilidad.</li>
         <li>Contactarte vía WhatsApp o email para coordinar tu pedido.</li>
         <li>Registrar tu historial de interacciones con la marca para brindarte un servicio personalizado.</li>
-        <li>Enviarte comunicaciones comerciales sobre productos, colecciones y eventos (puedes revocar esto en cualquier momento).
+        <li>Enviarte comunicaciones comerciales sobre productos, colecciones y eventos (puedes revocar esto en cualquier momento).</li>
+      </ul>
+      <h3>Duración</h3>
+      <p>Los datos se conservarán mientras exista una relación comercial activa o hasta que solicites su eliminación, salvo obligación legal de conservación.</p>
+      <h3>Tus derechos — Art. 8 Ley 1581/2012</h3>
+      <p>Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos; revocar esta autorización; y presentar queja ante la Superintendencia de Industria y Comercio (SIC).</p>
+      <h3>Contacto</h3>
+      <p>Escríbenos a <a href="mailto:administracion@helenacaballero.com">administracion@helenacaballero.com</a> indicando tu nombre, documento y el derecho que deseas ejercer. Responderemos en máximo 15 días hábiles.</p>
+    </div>
+  </template>
+
+</body>
+</html>
