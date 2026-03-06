@@ -2148,19 +2148,6 @@ const Modal = (() => {
     _bindEvents();
     _bindGiftEvents();
     _startInactivityWatch();
-
-    // Si el usuario volvió con «Regresar» desde Wompi, reabrir el modal de checkout
-    // con el carrito y los botones activos para que pueda reintentar el pago
-    try {
-      if (sessionStorage.getItem('imolarte_wompi_redirect') === '1') {
-        sessionStorage.removeItem('imolarte_wompi_redirect');
-        // Pequeño delay para que el DOM esté listo
-        setTimeout(() => {
-          if (Cart.getItems().length > 0) openCheckoutWompi();
-        }, 300);
-      }
-    } catch(e) {}
-
     Logger.log('modal.js inicializado ✓');
   }
 
@@ -2181,6 +2168,28 @@ const Modal = (() => {
 // ===== BOOTSTRAP =====
 document.addEventListener('DOMContentLoaded', () => {
   Modal.init();
+});
+
+// Detectar vuelta desde Wompi vía bfcache (back/forward cache)
+// DOMContentLoaded NO se dispara en este caso — pageshow con persisted=true sí
+window.addEventListener('pageshow', (e) => {
+  if (!e.persisted) return; // carga normal, ya manejada por DOMContentLoaded
+  // Restaurar botones Wompi que quedaron en "Procesando..."
+  const btn60  = document.getElementById('btnPagar60');
+  const btn100 = document.getElementById('btnPagar100');
+  if (btn60)  btn60.disabled  = false;
+  if (btn100) btn100.disabled = false;
+  // Reabrir modal si hay carrito activo y venimos de Wompi
+  try {
+    if (sessionStorage.getItem('imolarte_wompi_redirect') === '1') {
+      sessionStorage.removeItem('imolarte_wompi_redirect');
+      setTimeout(() => {
+        if (typeof Cart !== 'undefined' && Cart.getItems().length > 0) {
+          Modal.openCheckoutWompi();
+        }
+      }, 100);
+    }
+  } catch(e) {}
 });
 
 window.Modal = Modal;
