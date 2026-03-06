@@ -318,6 +318,7 @@ function _confirmarPagoWompi(b) {
     const prods      = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
     const total      = data[i][header.indexOf('Total_COP')]     || 0;
     const subtotal   = data[i][header.indexOf('Subtotal_COP')]  || 0;
+    const descuento  = data[i][header.indexOf('Descuento_COP')] || 0;
     const formaPago  = String(data[i][header.indexOf('Forma_pago')] || '');
     const pctPagado  = Number(data[i][header.indexOf('Pct_Pagado')])  || 100;
 
@@ -336,7 +337,7 @@ function _confirmarPagoWompi(b) {
     }
 
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
@@ -388,6 +389,8 @@ function _createGiftCard(b) {
     email     : em.email     || '',
     tipoDoc   : em.tipoDoc   || '',
     numDoc    : em.numDoc    || '',
+    cumpleDia : em.cumpleDia || '',
+    cumpleMes : em.cumpleMes || '',
     direccion : em.direccion || '',
     barrio    : em.barrio    || '',
     ciudad    : em.ciudad    || '',
@@ -469,20 +472,25 @@ function _confirmarPagoGiftCard(b) {
       const colSaldo  = header.indexOf('Saldo_Gift_COP');
       const email     = data[i][header.indexOf('Emisor_Email')]   || '';
       const nombre    = data[i][header.indexOf('Emisor_Nombre')]  || '';
+      const apellido  = data[i][header.indexOf('Emisor_Apellido')]|| '';
       const codigo    = data[i][header.indexOf('Código_Gift')]    || '';
       const valor     = data[i][colSaldo >= 0 ? colSaldo : header.indexOf('Valor_COP')] || 0;
-      const vig       = data[i][header.indexOf('Válido_Hasta')]   || '';
+      // Vigencia: forzar string limpio — Sheets puede devolver Date object
+      const vigRaw    = data[i][header.indexOf('Válido_Hasta')];
+      const vig       = (vigRaw instanceof Date)
+        ? Utilities.formatDate(vigRaw, 'America/Bogota', 'dd MMM yyyy')
+        : String(vigRaw || '');
       const telEmisor = data[i][header.indexOf('Emisor_Tel')]     || '';
       const docTipo   = data[i][header.indexOf('Emisor_Tipo_Doc')] || '';
       const docNum    = data[i][header.indexOf('Emisor_Num_Doc')]  || '';
 
-      if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig);
+      const destEmail    = data[i][header.indexOf('Dest_Email')]    || '';
+      const destNombre   = data[i][header.indexOf('Dest_Nombre')]   || '';
+      const destApellido = data[i][header.indexOf('Dest_Apellido')] || '';
+      const mensaje      = data[i][header.indexOf('Dest_Mensaje')]  || '';
 
-      // Email al destinatario con el código de regalo y mensaje del emisor
-      const destEmail  = data[i][header.indexOf('Dest_Email')]   || '';
-      const destNombre = data[i][header.indexOf('Dest_Nombre')]  || '';
-      const mensaje    = data[i][header.indexOf('Dest_Mensaje')] || '';
-      if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, codigo, valor, vig, mensaje);
+      if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig, destNombre, destApellido);
+      if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, apellido, codigo, valor, vig, mensaje);
 
       if (telEmisor && valor > 0)
         _upsertCliente({ telefono: telEmisor, tipoDoc: docTipo, numDoc: docNum, total: valor, _soloTotal: true });
@@ -638,6 +646,13 @@ const CLI = {
   CLIENTE_ID   : 17,  // R  ← movido
 };
 
+// Convierte un valor de celda Sheets a entero seguro.
+// Evita el bug de celda con formato Fecha: Number(Date) = timestamp ms negativo.
+function _safeInt(val) {
+  if (typeof val === 'number' && !isNaN(val) && Math.abs(val) < 1e12) return val;
+  return 0;
+}
+
 function _upsertCliente(b) {
   const sheet = _getSheet(CFG.SHEETS.CLIENTES);
   const data  = sheet.getDataRange().getValues();
@@ -730,7 +745,7 @@ function _upsertCliente(b) {
     // Acumular total histórico — leer en vivo para evitar stale snapshot
     if (b.total && b.total > 0) {
       const cellTotal = sheet.getRange(i + 1, CLI.TOTAL_HIST + 1);
-      const prev = Number(cellTotal.getValue()) || 0;
+      const prev = _safeInt(cellTotal.getValue());
       cellTotal.setValue(prev + b.total);
     }
 
@@ -753,7 +768,7 @@ function _upsertCliente(b) {
     if (!b._soloTotal) {
       sheet.getRange(i + 1, CLI.ULTIMA_INT + 1).setValue(ts);
       const cellInt = sheet.getRange(i + 1, CLI.NUM_INT + 1);
-      cellInt.setValue((Number(cellInt.getValue()) || 0) + 1);
+      cellInt.setValue(_safeInt(cellInt.getValue()) + 1);
     }
 
     return String(row[CLI.CLIENTE_ID] || '');
@@ -1220,30 +1235,66 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   } catch(err) { _log('emailPedidoRecibido_ERROR', ref, err.message); }
 }
 
-function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo) {
+function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento) {
   try {
     const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
 
-    // Bloque de resumen de pago
-    let pagosHTML = '';
-    if (giftInfo && giftInfo.tipo === 'TOTAL') {
-      // 100% bono
-      pagosHTML = `
-        <div style="background:#f0f8f0;border-left:4px solid #5a9a5a;padding:12px 16px;border-radius:4px;margin:12px 0">
-          <p style="margin:0;font-size:13px;color:#2d6a2d">
-            🎁 <strong>Pagado 100% con Gift Card</strong><br>
-            Valor del bono aplicado: <strong>${_fmtCOP(total)}</strong>
-          </p>
-        </div>`;
-    } else if (giftInfo && giftInfo.tipo === 'MIXTO') {
-      // mixto: wompi + bono
-      pagosHTML = `
-        <div style="background:#f0f8f0;border-left:4px solid #5a9a5a;padding:12px 16px;border-radius:4px;margin:12px 0">
-          <p style="margin:0 0 6px;font-size:13px;color:#333"><strong>Resumen de pago:</strong></p>
-          <p style="margin:0;font-size:13px;color:#333">
-            💳 Pago Wompi: <strong>${_fmtCOP(giftInfo.montoWompi)}</strong><br>
-            🎁 Bono <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>: 
-            <strong>${_fmtCOP(giftInfo.monto)}</strong>
+    // ── Tabla de ítems ──────────────────────────────────────
+    const tablaProductos = _productosHTML(productos);
+
+    // ── Bloque resumen financiero ───────────────────────────
+    let resumenHTML = '';
+
+    // Línea bono si aplica
+    let bonoHTML = '';
+    let bonoDesc = 0;
+    if (giftInfo && giftInfo.tipo === 'MIXTO') {
+      bonoDesc = giftInfo.monto;
+      bonoHTML = `
+        <tr>
+          <td style="padding:5px 8px;font-size:13px;color:#555">
+            🎁 Bono <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>
+          </td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">
+            − ${_fmtCOP(bonoDesc)}
+          </td>
+        </tr>`;
+    } else if (giftInfo && giftInfo.tipo === 'TOTAL') {
+      bonoDesc = total;
+      bonoHTML = `
+        <tr>
+          <td style="padding:5px 8px;font-size:13px;color:#555">🎁 Pagado 100% con Gift Card</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(bonoDesc)}</td>
+        </tr>`;
+    }
+
+    // Subtotal + bono + total pagado
+    const subtotalMostrar = subtotal || total;
+    resumenHTML = `
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f5ee;border-radius:6px">
+        <tr>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Subtotal</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
+        </tr>
+        ${bonoHTML}
+        <tr style="border-top:2px solid #C4A05A">
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">Total pagado</td>
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(total)}</td>
+        </tr>
+      </table>`;
+
+    // ── Bloque saldo pendiente (solo pct=60) ────────────────
+    let saldoHTML = '';
+    const pct = Number(pctPagado) || 100;
+    if (pct === 60) {
+      const saldoPendiente = Math.round((subtotalMostrar - bonoDesc) * 0.4);
+      saldoHTML = `
+        <div style="background:#fff8e6;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#7a5c00">Saldo pendiente: ${_fmtCOP(saldoPendiente)}</p>
+          <p style="margin:0;font-size:13px;color:#555">
+            Es importante cancelarlo a tiempo para evitar incurrir en mayores costos o penalidades.
+            Te recordaremos y enviaremos la factura de compra una vez tu(s) producto(s) estén listos
+            para ser despachados desde Italia.
           </p>
         </div>`;
     }
@@ -1251,9 +1302,9 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo) {
     const body = _emailWrapper(nombre, `
       <p>¡Gracias por tu compra! Tu pago ha sido confirmado exitosamente.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
-      ${_productosHTML(productos)}
-      ${pagosHTML}
-      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total: ${_fmtCOP(total)}</p>
+      ${tablaProductos}
+      ${resumenHTML}
+      ${saldoHTML}
       <p style="font-size:13px;color:#666;margin-top:16px">
         Cada pieza es única — hecha a mano en Italia, especialmente para ti.<br>
         Te mantendremos informado sobre el estado de tu pedido en cada etapa.
@@ -1291,24 +1342,29 @@ function _emailPagoCancelado(email, nombre, ref, status) {
   } catch(err) { _log('emailPagoCancelado_ERROR', ref, err.message); }
 }
 
-function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia) {
+function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido) {
   try {
     const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
+    const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
-      <p>¡Tu Gift Card ha sido activada exitosamente!</p>
+      <p>Hola ${nombre}, ¡la Gift Card que adquiriste ha sido activada y enviada a
+      <strong>${destCompleto}</strong> exitosamente!</p>
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">CÓDIGO DE REGALO</p>
         <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
         <p style="color:#C4A05A;font-size:18px;font-weight:bold;margin:0 0 8px">${_fmtCOP(valor)}</p>
         <p style="color:#888;font-size:12px;margin:0">Válido hasta: ${vigencia}</p>
       </div>
-      <p style="font-size:13px;color:#666">Referencia de pago: <strong>${ref}</strong></p>
-      <p style="font-size:13px;color:#666;margin-top:16px">
-        <strong>¿Cómo usar tu Gift Card?</strong><br>
-        Ingresa el código en el campo de bono durante el pago en nuestro catálogo.<br><br>
-        <strong>Recuerda:</strong> guarda este código en un lugar seguro — se asimila a dinero en efectivo.
-        Vigencia 9 meses desde la fecha de emisión.
+      <p style="font-size:13px;color:#555;margin-top:16px">
+        <strong>¿Cómo usar la Gift Card?</strong><br>
+        Ingresando el código impreso en la tarjeta regalo en el campo habilitado antes del
+        check-out del carrito de compras. Es válida para compras en toda nuestra tienda
+        y tiene vigencia de 9 meses desde la fecha de emisión.
       </p>
+      <p style="font-size:13px;color:#555;margin-top:12px">
+        <strong>Recuerda:</strong> guarda este código en un lugar seguro.
+      </p>
+      <p style="font-size:12px;color:#aaa;margin-top:16px">Referencia de pago: ${ref}</p>
       <div style="margin-top:20px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
           Ir al catálogo
@@ -1320,16 +1376,17 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia) {
   } catch(err) { _log('emailGiftCardActivada_ERROR', ref, err.message); }
 }
 
-function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, codigo, valor, vigencia, mensaje) {
+function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorApellido, codigo, valor, vigencia, mensaje) {
   try {
     const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tienes un regalo esperándote!`;
+    const emisorCompleto = [emisorNombre, emisorApellido].filter(Boolean).join(' ');
     const mensajeHTML = mensaje
       ? `<div style="background:#f8f5ee;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0;font-style:italic;color:#555">
-           "${mensaje}"<br><span style="font-size:12px;color:#888;font-style:normal">— ${emisorNombre}</span>
+           "${mensaje}"<br><span style="font-size:12px;color:#888;font-style:normal">— ${emisorCompleto}</span>
          </div>`
-      : `<p style="font-size:13px;color:#666">${emisorNombre} te envía este regalo con cariño.</p>`;
+      : `<p style="font-size:13px;color:#666">${emisorCompleto} te envía este regalo con cariño.</p>`;
     const body = _emailWrapper(destNombre || 'Querido destinatario', `
-      <p><strong>${emisorNombre}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}. 🎉</p>
+      <p><strong>${emisorCompleto}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}. 🎉</p>
       ${mensajeHTML}
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">TU CÓDIGO DE REGALO</p>
@@ -1337,11 +1394,14 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, codigo,
         <p style="color:#C4A05A;font-size:18px;font-weight:bold;margin:0 0 8px">${_fmtCOP(valor)}</p>
         <p style="color:#888;font-size:12px;margin:0">Válido hasta: ${vigencia}</p>
       </div>
-      <p style="font-size:13px;color:#666;margin-top:16px">
+      <p style="font-size:13px;color:#555;margin-top:16px">
         <strong>¿Cómo usar tu Gift Card?</strong><br>
-        Explora nuestro catálogo, agrega los productos que desees al carrito
-        e ingresa el código en el campo de <em>"¿Tienes un código de regalo?"</em> durante el pago.<br><br>
-        <strong>Guarda este código</strong> — se asimila a dinero en efectivo.
+        Ingresando el código impreso en la tarjeta regalo en el campo habilitado antes del
+        check-out del carrito de compras. Es válida para compras en toda nuestra tienda
+        y tiene vigencia de 9 meses desde la fecha de emisión.
+      </p>
+      <p style="font-size:13px;color:#555;margin-top:12px">
+        <strong>Recuerda:</strong> guarda este código en un lugar seguro.
       </p>
       <div style="margin-top:20px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
@@ -1358,7 +1418,7 @@ function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
     const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>Hemos recibido tu lista de deseos y nuestro equipo te contactará a la mayor brevedad.</p>
+      <p>Hemos recibido tu lista de deseos. Nuestro equipo te contactará lo más pronto posible para brindarte asesoría especializada y coordinar los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
       <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(total)}</p>

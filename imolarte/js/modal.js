@@ -975,6 +975,11 @@ const Modal = (() => {
     _ckBono     = null;
     _ckSubtotal = Cart.getTotal();
     _updateWompiTotals();
+    // Restaurar botones por si se vuelve de Wompi o de un intento fallido
+    const btn60  = document.getElementById('btnPagar60');
+    const btn100 = document.getElementById('btnPagar100');
+    if (btn60)  btn60.disabled  = false;
+    if (btn100) btn100.disabled = false;
     _openModal('modalCheckoutWompi');
     _initPlacesAutocomplete('wpInputDir', 'wpInputBarrio', 'wpInputCiudad');
   }
@@ -1378,11 +1383,9 @@ const Modal = (() => {
       const btn60El  = document.getElementById('wpAmount60');
       const btn100El = document.getElementById('wpAmount100');
       if (btn60El)
-        btn60El.textContent = 'Pago Anticipo 60%  ' + Utils.formatPrice(pay60);
+        btn60El.textContent = Utils.formatPrice(pay60);
       if (btn100El)
-        btn100El.innerHTML =
-          'Pago Anticipado 100%&nbsp;&nbsp;' + Utils.formatPrice(pay100) +
-          '&nbsp;&nbsp;<span style="font-size:11px;opacity:0.85">→ 3% dto. incluido</span>';
+        btn100El.textContent = Utils.formatPrice(pay100) + '  —  3% dto. incl.';
     }
   }
 
@@ -1396,6 +1399,8 @@ const Modal = (() => {
     const btn100 = document.getElementById('btnPagar100');
     if (btn60)  { btn60.disabled  = true; btn60.textContent  = 'Procesando…'; }
     if (btn100) { btn100.disabled = true; btn100.textContent = 'Procesando…'; }
+    const errGenEl = document.getElementById('wpErrGeneral');
+    if (errGenEl) errGenEl.style.display = 'none';
 
     const data        = _collectCMO('wp');
     const items       = Cart.getItems();
@@ -1445,8 +1450,18 @@ const Modal = (() => {
       }
     } catch(err) {
       Logger.warn('modal.js: error firma Wompi', err);
-      if (btn60)  { btn60.disabled  = false; btn60.textContent  = 'Pagar 60%'; }
-      if (btn100) { btn100.disabled = false; btn100.textContent = 'Pagar 100%'; }
+    }
+
+    // Si no hay firma no se puede proceder — Wompi rechazará
+    if (!signature) {
+      _updateWompiTotals(); // restaura labels con montos correctos
+      if (btn60)  btn60.disabled  = false;
+      if (btn100) btn100.disabled = false;
+      const errEl = document.getElementById('wpErrGeneral');
+      if (errEl) {
+        errEl.textContent = 'Error al conectar con el procesador de pagos. Por favor intenta de nuevo.';
+        errEl.style.display = 'block';
+      }
       return;
     }
 
@@ -1851,7 +1866,7 @@ const Modal = (() => {
     document.getElementById('gfEmailConf')?.addEventListener('input', () => _validateGiftField('gfEmailConf'));
 
     // Validación blur — incluye destinatario
-    ['gfNombre','gfApellido','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
+    ['gfNombre','gfApellido','gfCumpleDia','gfCumpleMes','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
      'gfRecNombre','gfRecApellido','gfRecEmail','gfRecTel'].forEach(id => {
       document.getElementById(id)?.addEventListener('blur', () => _validateGiftField(id));
     });
@@ -1919,6 +1934,8 @@ const Modal = (() => {
         const r = _CMO_VALIDATORS.email(el.value);
         if (r !== true) msg = r;
       }
+    } else if ((id === 'gfCumpleDia' || id === 'gfCumpleMes') && el.required) {
+      if (!el.value) msg = 'Campo obligatorio';
     }
 
     if (errEl) errEl.textContent = msg;
@@ -1928,7 +1945,7 @@ const Modal = (() => {
 
   function _validateGiftForm() {
     let ok = true;
-    ['gfNombre','gfApellido','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
+    ['gfNombre','gfApellido','gfCumpleDia','gfCumpleMes','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
      'gfRecNombre','gfRecApellido','gfRecEmail','gfRecTel'].forEach(id => {
       if (!_validateGiftField(id)) ok = false;
     });
