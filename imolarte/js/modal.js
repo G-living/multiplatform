@@ -2174,20 +2174,21 @@ document.addEventListener('DOMContentLoaded', () => {
 // DOMContentLoaded NO se dispara en este caso — pageshow con persisted=true sí
 window.addEventListener('pageshow', (e) => {
   if (!e.persisted) return; // carga normal, ya manejada por DOMContentLoaded
-  // Restaurar botones Wompi que quedaron en "Procesando..."
-  const btn60  = document.getElementById('btnPagar60');
-  const btn100 = document.getElementById('btnPagar100');
-  if (btn60)  btn60.disabled  = false;
-  if (btn100) btn100.disabled = false;
-  // Reabrir modal si hay carrito activo y venimos de Wompi
+  // Reabrir modal con botones y labels restaurados si venimos de Wompi
   try {
     if (sessionStorage.getItem('imolarte_wompi_redirect') === '1') {
       sessionStorage.removeItem('imolarte_wompi_redirect');
       setTimeout(() => {
         if (typeof Cart !== 'undefined' && Cart.getItems().length > 0) {
-          Modal.openCheckoutWompi();
+          Modal.openCheckoutWompi(); // restaura disabled=false y labels vía _updateWompiTotals
+        } else {
+          // Sin carrito: al menos desbloquear botones
+          const btn60  = document.getElementById('btnPagar60');
+          const btn100 = document.getElementById('btnPagar100');
+          if (btn60)  btn60.disabled  = false;
+          if (btn100) btn100.disabled = false;
         }
-      }, 100);
+      }, 50);
     }
   } catch(e) {}
 });
