@@ -214,7 +214,9 @@ function _updateEstadoWishlist(b) {
 
 function _createPedidoWompi(b) {
   const sheet    = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
-  const ref      = b.referencia || 'WP-' + Date.now();
+  // Usar referencia del payload si viene (caso: pago ya confirmado por Wompi)
+  // Si no viene, generar nueva (caso legacy / fallback)
+  const ref      = (b.referencia && b.referencia !== '') ? b.referencia : ('WP-' + Date.now());
   const ts       = new Date();
   const cli      = b.cliente || {};
   const ent      = b.entrega || {};
@@ -267,7 +269,9 @@ function _createPedidoWompi(b) {
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
-  if (cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
+  // _skipEmail: true cuando el pedido se crea post-pago desde checkout.js
+  // En ese caso solo se envía el email de pago confirmado, no el de "pedido recibido"
+  if (!b._skipEmail && cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
   return { ok: true, referencia: ref, clienteId: cliId };
 }
 
@@ -388,7 +392,7 @@ function _createGiftCard(b) {
     ts,                      // B  Timestamp
     ref,                     // C  Referencia
     b.codigo      || '',     // D  Código_Gift
-    b.valor       || 0,      // E  Saldo_Gift_COP  ← renombrado
+    b.valor       || 0,      // E  Saldo_Gift_COP
     b.vigencia    || '',     // F  Válido_Hasta
     cliId,                   // G  ClienteID_Emisor
     em.nombre     || '',     // H  Emisor_Nombre
@@ -402,15 +406,16 @@ function _createGiftCard(b) {
     em.ciudad     || '',     // P  Emisor_Ciudad
     dest.nombre   || '',     // Q  Dest_Nombre
     dest.apellido || '',     // R  Dest_Apellido
-    destTelRaw,              // S  Dest_Tel
-    b.mensaje     || '',     // T  Dest_Mensaje
-    'PENDIENTE_PAGO',        // U  Estado_Pago
-    'INACTIVA',              // V  Estado_Gift
-    '',                      // W  Wompi_Transaction_ID
-    '',                      // X  Fecha_Pago
-    '',                      // Y  Fecha_Activación
-    '',                      // Z  Canjeado_En
-    '',                      // AA Notas_Internas
+    dest.email    || '',     // S  Dest_Email  ← nuevo
+    destTelRaw,              // T  Dest_Tel
+    b.mensaje     || '',     // U  Dest_Mensaje
+    'PENDIENTE_PAGO',        // V  Estado_Pago
+    'INACTIVA',              // W  Estado_Gift
+    '',                      // X  Wompi_Transaction_ID
+    '',                      // Y  Fecha_Pago
+    '',                      // Z  Fecha_Activación
+    '',                      // AA Canjeado_En
+    '',                      // AB Notas_Internas
   ]);
 
   _log('createGiftCard', ref, b.codigo, cliId, 'OK');
@@ -464,6 +469,13 @@ function _confirmarPagoGiftCard(b) {
       const docNum    = data[i][header.indexOf('Emisor_Num_Doc')]  || '';
 
       if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig);
+
+      // Email al destinatario con el código de regalo y mensaje del emisor
+      const destEmail  = data[i][header.indexOf('Dest_Email')]   || '';
+      const destNombre = data[i][header.indexOf('Dest_Nombre')]  || '';
+      const mensaje    = data[i][header.indexOf('Dest_Mensaje')] || '';
+      if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, codigo, valor, vig, mensaje);
+
       if (telEmisor && valor > 0)
         _upsertCliente({ telefono: telEmisor, tipoDoc: docTipo, numDoc: docNum, total: valor, _soloTotal: true });
     }
@@ -569,7 +581,7 @@ function resetGiftCardSheet() {
     'Emisor_Nombre','Emisor_Apellido','Emisor_Email','Emisor_Tel',
     'Emisor_Tipo_Doc','Emisor_Num_Doc',
     'Emisor_Dirección','Emisor_Barrio','Emisor_Ciudad',
-    'Dest_Nombre','Dest_Apellido','Dest_Tel','Dest_Mensaje',
+    'Dest_Nombre','Dest_Apellido','Dest_Email','Dest_Tel','Dest_Mensaje',
     'Estado_Pago','Estado_Gift',
     'Wompi_Transaction_ID','Fecha_Pago','Fecha_Activación',
     'Canjeado_En','Notas_Internas',
@@ -707,10 +719,11 @@ function _upsertCliente(b) {
       }
     }
 
-    // Acumular total histórico
+    // Acumular total histórico — leer en vivo para evitar stale snapshot
     if (b.total && b.total > 0) {
-      const prev = Number(row[CLI.TOTAL_HIST]) || 0;
-      sheet.getRange(i + 1, CLI.TOTAL_HIST + 1).setValue(prev + b.total);
+      const cellTotal = sheet.getRange(i + 1, CLI.TOTAL_HIST + 1);
+      const prev = Number(cellTotal.getValue()) || 0;
+      cellTotal.setValue(prev + b.total);
     }
 
     // Acumular productos comprados (solo cuando viene con _pedidoRef)
@@ -728,10 +741,11 @@ function _upsertCliente(b) {
       cell.setValue(prev ? prev + '\n' + linea : linea);
     }
 
-    // Interacciones — solo si NO es llamada interna de acumulación de total
+    // Interacciones — leer en vivo, solo si NO es llamada interna
     if (!b._soloTotal) {
       sheet.getRange(i + 1, CLI.ULTIMA_INT + 1).setValue(ts);
-      sheet.getRange(i + 1, CLI.NUM_INT    + 1).setValue((Number(row[CLI.NUM_INT]) || 0) + 1);
+      const cellInt = sheet.getRange(i + 1, CLI.NUM_INT + 1);
+      cellInt.setValue((Number(cellInt.getValue()) || 0) + 1);
     }
 
     return String(row[CLI.CLIENTE_ID] || '');
@@ -1298,6 +1312,40 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia) {
   } catch(err) { _log('emailGiftCardActivada_ERROR', ref, err.message); }
 }
 
+function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, codigo, valor, vigencia, mensaje) {
+  try {
+    const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tienes un regalo esperándote!`;
+    const mensajeHTML = mensaje
+      ? `<div style="background:#f8f5ee;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0;font-style:italic;color:#555">
+           "${mensaje}"<br><span style="font-size:12px;color:#888;font-style:normal">— ${emisorNombre}</span>
+         </div>`
+      : `<p style="font-size:13px;color:#666">${emisorNombre} te envía este regalo con cariño.</p>`;
+    const body = _emailWrapper(destNombre || 'Querido destinatario', `
+      <p><strong>${emisorNombre}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}. 🎉</p>
+      ${mensajeHTML}
+      <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
+        <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">TU CÓDIGO DE REGALO</p>
+        <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
+        <p style="color:#C4A05A;font-size:18px;font-weight:bold;margin:0 0 8px">${_fmtCOP(valor)}</p>
+        <p style="color:#888;font-size:12px;margin:0">Válido hasta: ${vigencia}</p>
+      </div>
+      <p style="font-size:13px;color:#666;margin-top:16px">
+        <strong>¿Cómo usar tu Gift Card?</strong><br>
+        Explora nuestro catálogo, agrega los productos que desees al carrito
+        e ingresa el código en el campo de <em>"¿Tienes un código de regalo?"</em> durante el pago.<br><br>
+        <strong>Guarda este código</strong> — se asimila a dinero en efectivo.
+      </p>
+      <div style="margin-top:20px;text-align:center">
+        <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
+          Explorar catálogo
+        </a>
+      </div>
+    `);
+    GmailApp.sendEmail(destEmail, subject, '', { htmlBody: body });
+    _log('emailGiftCardDestinatario', codigo, destEmail, 'OK');
+  } catch(err) { _log('emailGiftCardDestinatario_ERROR', codigo, err.message); }
+}
+
 function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
     const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
@@ -1486,7 +1534,7 @@ function setupSheets() {
       'Emisor_Nombre','Emisor_Apellido','Emisor_Email','Emisor_Tel',
       'Emisor_Tipo_Doc','Emisor_Num_Doc',
       'Emisor_Dirección','Emisor_Barrio','Emisor_Ciudad',
-      'Dest_Nombre','Dest_Apellido','Dest_Tel','Dest_Mensaje',
+      'Dest_Nombre','Dest_Apellido','Dest_Email','Dest_Tel','Dest_Mensaje',
       'Estado_Pago','Estado_Gift',
       'Wompi_Transaction_ID','Fecha_Pago','Fecha_Activación',
       'Canjeado_En','Notas_Internas',
@@ -1536,18 +1584,27 @@ function setupSheets() {
 
 function setupDropdowns() {
   const ss = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
-  _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Estado_Pedido', ESTADOS_PEDIDO);
-  _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Pct_Pagado',    ['60', '100']);
-  _applyDropdown(ss, CFG.SHEETS.WISHLIST,       'Estado_Wishlist', ESTADOS_WISHLIST);
-  _applyDropdown(ss, CFG.SHEETS.CAMPANIAS,      'Estado', ['ACTIVA','CERRADA','PAUSADA']);
 
-  // Forma_pago — texto libre, NO dropdown — limpiar cualquier validación residual
+  // Limpiar TODAS las validaciones existentes antes de reaplicar
+  // Evita acumulación de reglas en columnas incorrectas por ejecuciones previas
+  [CFG.SHEETS.PEDIDOS_WOMPI, CFG.SHEETS.WISHLIST, CFG.SHEETS.CAMPANIAS].forEach(nombre => {
+    const sheet = ss.getSheetByName(nombre);
+    if (!sheet) return;
+    const lastCol = sheet.getLastColumn() || 30;
+    sheet.getRange(2, 1, 50, lastCol).clearDataValidations();
+  });
+
+  _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Estado_Pedido',   ESTADOS_PEDIDO);
+  _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Pct_Pagado',      ['60', '100']);
+  _applyDropdown(ss, CFG.SHEETS.WISHLIST,       'Estado_Wishlist', ESTADOS_WISHLIST);
+  _applyDropdown(ss, CFG.SHEETS.CAMPANIAS,      'Estado',         ['ACTIVA','CERRADA','PAUSADA']);
+
+  // Forma_pago — texto libre, añadir solo nota en header
   const sheetWP = ss.getSheetByName(CFG.SHEETS.PEDIDOS_WOMPI);
   if (sheetWP) {
-    const header   = sheetWP.getRange(1, 1, 1, sheetWP.getLastColumn()).getValues()[0];
-    const colFP    = header.indexOf('Forma_pago');
+    const header = sheetWP.getRange(1, 1, 1, sheetWP.getLastColumn()).getValues()[0];
+    const colFP  = header.indexOf('Forma_pago');
     if (colFP >= 0) {
-      sheetWP.getRange(2, colFP + 1, 50, 1).clearDataValidations();
       sheetWP.getRange(1, colFP + 1).setNote(
         'Valores: WOMPI_60 | WOMPI_100 | GIFT_CARD\n' +
         'Con saldo gift: WOMPI_60+GIFT:HC-XXXXX\n' +
