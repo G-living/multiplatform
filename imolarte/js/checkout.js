@@ -18,11 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
   }
 
-  // Vaciar carrito si venimos de Wompi
-  if (status || txId) {
-    try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
-  }
-
   // Limpiar URL sin recargar
   window.history.replaceState({}, '', window.location.pathname);
 
@@ -81,6 +76,9 @@ function _handleStatus(status, reference, txId) {
   const btnReintentar = '<a href="index.html" class="btn btn-secondary">Volver al catálogo</a>';
 
   if (status === 'APPROVED') {
+    // Vaciar carrito solo en pago exitoso
+    try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
+
     setContent(
       '🏺', '¡Gracias por tu compra!',
       `Tu pago fue confirmado exitosamente.<br><br>

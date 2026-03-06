@@ -1479,6 +1479,8 @@ const Modal = (() => {
     if (data.cliente.telefono) params.set('customer-data:phone-number', `${data.cliente.codigoPais}${data.cliente.telefono}`);
 
     Logger.log('modal.js: redirigiendo a Wompi', { reference, amountCents, pct });
+    // Flag para detectar vuelta con «Regresar» — restaura modal con botones activos
+    try { sessionStorage.setItem('imolarte_wompi_redirect', '1'); } catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 
@@ -2035,6 +2037,7 @@ const Modal = (() => {
     if (tel)       params.set('customer-data:phone-number', `${pais}${tel}`);
 
     Logger.log('modal.js: gift card → Wompi', { reference, amountCts });
+    try { sessionStorage.setItem('imolarte_wompi_redirect', '1'); } catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 
@@ -2145,6 +2148,19 @@ const Modal = (() => {
     _bindEvents();
     _bindGiftEvents();
     _startInactivityWatch();
+
+    // Si el usuario volvió con «Regresar» desde Wompi, reabrir el modal de checkout
+    // con el carrito y los botones activos para que pueda reintentar el pago
+    try {
+      if (sessionStorage.getItem('imolarte_wompi_redirect') === '1') {
+        sessionStorage.removeItem('imolarte_wompi_redirect');
+        // Pequeño delay para que el DOM esté listo
+        setTimeout(() => {
+          if (Cart.getItems().length > 0) openCheckoutWompi();
+        }, 300);
+      }
+    } catch(e) {}
+
     Logger.log('modal.js inicializado ✓');
   }
 

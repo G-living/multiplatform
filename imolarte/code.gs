@@ -745,6 +745,7 @@ function _upsertCliente(b) {
     // Acumular total histórico — leer en vivo para evitar stale snapshot
     if (b.total && b.total > 0) {
       const cellTotal = sheet.getRange(i + 1, CLI.TOTAL_HIST + 1);
+      cellTotal.setNumberFormat('#,##0');
       const prev = _safeInt(cellTotal.getValue());
       cellTotal.setValue(prev + b.total);
     }
@@ -768,6 +769,7 @@ function _upsertCliente(b) {
     if (!b._soloTotal) {
       sheet.getRange(i + 1, CLI.ULTIMA_INT + 1).setValue(ts);
       const cellInt = sheet.getRange(i + 1, CLI.NUM_INT + 1);
+      cellInt.setNumberFormat('0');
       cellInt.setValue(_safeInt(cellInt.getValue()) + 1);
     }
 
@@ -852,6 +854,12 @@ function _upsertCliente(b) {
     '',                 // Q  Productos_comprados
     clienteId,          // R  ClienteID
   ]);
+
+  // Forzar formato numérico en celdas N (Num_interacciones) y O (Total_histórico_COP)
+  // para evitar que hereden formato Fecha de la columna y muestren "2 ene 1900"
+  const newRow = sheet.getLastRow();
+  sheet.getRange(newRow, CLI.NUM_INT    + 1).setNumberFormat('0');
+  sheet.getRange(newRow, CLI.TOTAL_HIST + 1).setNumberFormat('#,##0');
 
   _log('upsertCliente', 'INSERT', tel || b.tipoDoc, clienteId);
   return { ok: true, clienteId, nuevo: true };
