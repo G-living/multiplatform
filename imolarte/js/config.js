@@ -28,7 +28,7 @@ const IMOLARTE_CONFIG = {
     wompiPublicKey: 'pub_test_rT7K8rzYnk2Ec8Lv25tRL3JIof6b6Lwp',
     wompiCheckoutUrl: 'https://checkout.wompi.co/p/',
     signatureWorkerUrl: 'https://imolarte-signature-generator.filippo-massara2016.workers.dev',
-    sheetsUrl: 'https://script.google.com/macros/s/AKfycbyCBndiUkqtVFIXXudzjuP-gXNlze4glEcXkyZiM1cGaY7E2RaWTlAG1k7z1USA7_ZG/exec',
+    sheetsUrl: 'https://script.google.com/macros/s/AKfycbx6-qPulIoXESSQdgINrcmIj_Yrgtt-T7FXd3XdR_mnuIeKx6MAz9Y45TPUAAxVNkIb/exec',
     checkoutUrl: 'https://g-living.github.io/multiplatform/imolarte/checkout.html',
     discountPayFull: 0.03,
   },
