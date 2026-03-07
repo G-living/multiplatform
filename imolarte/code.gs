@@ -342,11 +342,13 @@ function _confirmarPagoWompi(b) {
 
     // En APPROVED: contar interacción + acumular total en una sola llamada
     // _soloTotal omitido → _upsertCliente contará la interacción (pago real completado)
-    if (status === 'APPROVED' && total > 0) {
+    // BUG-SHEET-02: usar subtotal (valor completo del pedido) no total (solo parte Wompi con bono)
+    const totalParaHistorico = _roundCOP(subtotal || total);
+    if (status === 'APPROVED' && totalParaHistorico > 0) {
       const tel = String(data[i][header.indexOf('Teléfono')] || '');
       const doc = { tipoDoc: String(data[i][header.indexOf('Tipo_Doc')] || ''),
                     numDoc:  String(data[i][header.indexOf('Num_Doc')]  || '') };
-      _upsertCliente({ telefono: tel, ...doc, total,
+      _upsertCliente({ telefono: tel, ...doc, total: totalParaHistorico,
                        _pedidoRef: ref,
                        _pedidoProds: prods,
                        _pedidoTs: new Date() });
@@ -880,9 +882,9 @@ function _upsertCliente(b) {
     b.barrio   || '',   // J  Barrio
     b.ciudad   || '',   // K  Ciudad
     ts,                 // L  Primera_interacción
-    ts,                 // M  Última_interacción
-    1,                  // N  Num_interacciones
-    b.total    || 0,    // O  Total_histórico_COP
+    b._soloTotal ? '' : ts,           // M  Última_interacción — vacía si solo registro inicial
+    b._soloTotal ? 0   : 1,           // N  Num_interacciones — 0 si createPedido, 1 si pago confirmado
+    b._soloTotal ? 0   : (b.total || 0), // O  Total_histórico_COP — 0 hasta confirmar pago
     '',                 // P  Historial_cambios
     '',                 // Q  Productos_comprados
     clienteId,          // R  ClienteID
@@ -1313,9 +1315,18 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
         </tr>`;
     }
 
-    // Subtotal + bono + total pagado — todos redondeados a $1.000
+    // Subtotal + bono + descuento pago anticipado + total pagado — todos redondeados a $1.000
     const subtotalMostrar = _roundCOP(subtotal || total);
     const totalRedondeado = _roundCOP(total);
+
+    // Línea descuento pago anticipado (3%) — solo si aplica
+    const descRedondeado = _roundCOP(descuento || 0);
+    const descHTML = descRedondeado > 0 ? `
+        <tr>
+          <td style="padding:5px 8px;font-size:13px;color:#555">🏷️ Descuento pago anticipado</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(descRedondeado)}</td>
+        </tr>` : '';
+
     resumenHTML = `
       <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f5ee;border-radius:6px">
         <tr>
@@ -1323,6 +1334,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
           <td style="padding:5px 8px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
         </tr>
         ${bonoHTML}
+        ${descHTML}
         <tr style="border-top:2px solid #C4A05A">
           <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">Total pagado</td>
           <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(totalRedondeado)}</td>

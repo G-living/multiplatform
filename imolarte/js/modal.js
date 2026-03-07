@@ -50,6 +50,9 @@ const Modal = (() => {
     if (!anyOpen) document.body.style.overflow = '';
     if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
     if (_prevFocus) { _prevFocus.focus(); _prevFocus = null; }
+    // BUG-PLACES-WA: al cerrar modales con Places, limpiar pacInit para reinicializar correctamente
+    const pacInputs = modal.querySelectorAll('[data-pac-init]');
+    pacInputs.forEach(el => delete el.dataset.pacInit);
   }
 
   // -------------------------------------------------------
