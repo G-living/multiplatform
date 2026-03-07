@@ -18,7 +18,8 @@
 // ─ v20: emails — tono cálido, asunto wishlist corregido, saldo 60% texto tránsito
 // ─ v20: _emailWrapper fallback nombre → 'estimada clienta'
 // ─ v20: todos los valores COP en emails redondeados por exceso a $1.000
-// ─ v20: _fmtCOP usa _roundCOP internamente
+// ─ v20.1: BUG-B fix — String() forzado en _fmtTel y _upsertCliente (crash replace sobre número)
+// ─ v20.1: BUG-A fix — _skipEmail propagado correctamente desde api.js → code.gs
 // ============================================================
 
 'use strict';
@@ -342,9 +343,9 @@ function _confirmarPagoWompi(b) {
     // En APPROVED: contar interacción + acumular total en una sola llamada
     // _soloTotal omitido → _upsertCliente contará la interacción (pago real completado)
     if (status === 'APPROVED' && total > 0) {
-      const tel = data[i][header.indexOf('Teléfono')] || '';
-      const doc = { tipoDoc: data[i][header.indexOf('Tipo_Doc')] || '',
-                    numDoc:  data[i][header.indexOf('Num_Doc')]  || '' };
+      const tel = String(data[i][header.indexOf('Teléfono')] || '');
+      const doc = { tipoDoc: String(data[i][header.indexOf('Tipo_Doc')] || ''),
+                    numDoc:  String(data[i][header.indexOf('Num_Doc')]  || '') };
       _upsertCliente({ telefono: tel, ...doc, total,
                        _pedidoRef: ref,
                        _pedidoProds: prods,
@@ -490,7 +491,7 @@ function _confirmarPagoGiftCard(b) {
       if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, apellido, codigo, valor, vig, mensaje);
 
       if (telEmisor && valor > 0)
-        _upsertCliente({ telefono: telEmisor, tipoDoc: docTipo, numDoc: docNum, total: valor, _soloTotal: true });
+        _upsertCliente({ telefono: String(telEmisor), tipoDoc: String(docTipo), numDoc: String(docNum), total: valor, _soloTotal: true });
     }
 
     return { ok: true, referencia: ref, status, estado: estadoGift };
@@ -671,7 +672,7 @@ function _roundCOP(val) {
 function _upsertCliente(b) {
   const sheet = _getSheet(CFG.SHEETS.CLIENTES);
   const data  = sheet.getDataRange().getValues();
-  const tel   = (b.telefono || '').replace(/\s/g, '');
+  const tel   = String(b.telefono || '').replace(/\s/g, '');
   const ts    = new Date();
   const dtFmt = () => Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yy HH:mm');
 
@@ -1812,8 +1813,8 @@ function _jsonResponse(data) {
 }
 
 function _fmtTel(codigoPais, telefono) {
-  const cp  = (codigoPais || '+57').replace(/\s/g, '');
-  const tel = (telefono   || '').replace(/\D/g, '');
+  const cp  = (String(codigoPais  || '+57')).replace(/\s/g, '');
+  const tel = (String(telefono    || '')).replace(/\D/g, '');
   return tel ? cp + tel : '';
 }
 

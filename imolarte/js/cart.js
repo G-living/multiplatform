@@ -1,3 +1,4 @@
+// @version    v21.0  @file cart.js  @updated 2026-03-06  @session presale-campania
 /* ===== IMOLARTE V2 - cart.js =====
  * Carrito con persistencia LocalStorage
  * Fork final: [Enviar Wishlist WhatsApp] / [Pagar con Wompi]
@@ -151,7 +152,14 @@ const Cart = (() => {
           <p class="cart-item-name">${Utils.sanitize(item.productName)}</p>
           <span class="cart-item-collection">${Utils.sanitize(item.collection)}</span>
           <span class="cart-item-sku">${Utils.sanitize(item.sku)}</span>
-          <p class="cart-item-unit-price">${Utils.formatPrice(item.price)} / ud</p>
+          ${item.priceOriginal && item.priceOriginal !== item.price
+            ? `<p class="cart-item-unit-price">
+                <span class="cart-price-original">${Utils.formatPrice(item.priceOriginal)}</span>
+                <span class="cart-price-final">${Utils.formatPrice(item.price)}</span>
+                <span class="cart-price-badge">−${item.descPct}%</span>
+               </p>`
+            : `<p class="cart-item-unit-price">${Utils.formatPrice(item.price)} / ud</p>`
+          }
         </div>
 
         <div class="cart-item-controls">

@@ -571,6 +571,21 @@
     flex-direction: column;
 }
 
+/* Tablet: 768–1024px — más espacio para el formulario */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .modal-checkout-content {
+        width: 680px;
+    }
+}
+
+/* Desktop: >1024px — ancho cómodo sin ser excesivo */
+@media (min-width: 1025px) {
+    .modal-checkout-content {
+        width: 760px;
+        max-height: 88vh;
+    }
+}
+
 .modal-checkout-body {
     flex: 1;
     min-height: 0;

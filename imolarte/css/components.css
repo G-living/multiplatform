@@ -110,3 +110,66 @@
         top: 16px;
     }
 }
+
+
+/* ===== PRESALE / CAMPAÑA ===== */
+
+/* Badge en family-card */
+.presale-badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 3px 10px;
+    background: var(--color-accent, #b8860b);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    border-radius: 2px;
+    text-transform: uppercase;
+}
+
+/* Precio tachado + final en fila variante (modal familia) */
+.fv-price--presale {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+}
+.fv-price-original {
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #999);
+    text-decoration: line-through;
+    line-height: 1.2;
+}
+.fv-price-final {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-accent, #b8860b);
+    line-height: 1.2;
+}
+
+/* Precio tachado + final en carrito */
+.cart-item-unit-price {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.cart-price-original {
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #999);
+    text-decoration: line-through;
+}
+.cart-price-final {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent, #b8860b);
+}
+.cart-price-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--color-accent, #b8860b);
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 2px;
+}

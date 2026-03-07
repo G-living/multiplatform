@@ -1,3 +1,4 @@
+// @version    v21.0  @file modal.js  @updated 2026-03-06  @session presale-campania
 /* ===== IMOLARTE V2 - modal.js =====
  * Modales: familia, zoom, carrito, checkout WA/Wompi, gift card
  * Modal familia: navegación entre productos con flechas, 10 variantes comodín,
@@ -426,7 +427,16 @@ const Modal = (() => {
           <span class="fv-name">${Utils.sanitize(v.coleccion)}</span>
           <span class="fv-sku">${Utils.sanitize(v.sku)}</span>
         </div>
-        <span class="fv-price">${Utils.formatPrice(v.precio_cop)}</span>
+        ${(() => {
+          const ps = Utils.calcPresale(v.precio_cop);
+          if (ps.tieneDescuento) {
+            return `<span class="fv-price fv-price--presale">
+              <span class="fv-price-original">${Utils.formatPrice(ps.original)}</span>
+              <span class="fv-price-final">${Utils.formatPrice(ps.final)}</span>
+            </span>`;
+          }
+          return `<span class="fv-price">${Utils.formatPrice(ps.original)}</span>`;
+        })()}
         <div class="fv-qty">
           <button class="qty-btn" data-action="dec" data-sku="${Utils.sanitize(v.sku)}" aria-label="Reducir">−</button>
           <span class="qty-display" id="fqty-${Utils.sanitize(v.sku)}">0</span>
@@ -461,13 +471,14 @@ const Modal = (() => {
   }
 
   function _updateFamilyVariantRow(sku) {
-    const qty = _quantities[sku] || 0;
+    const qty    = _quantities[sku] || 0;
     const qtyEl  = document.getElementById(`fqty-${sku}`);
     const subEl  = document.getElementById(`fsub-${sku}`);
     if (qtyEl) qtyEl.textContent = qty;
     if (subEl) {
       const variant = (_currentProduct?.variants || []).find(v => v.sku === sku);
-      subEl.textContent = Utils.formatPrice((variant?.precio_cop || 0) * qty);
+      const ps = Utils.calcPresale(variant?.precio_cop || 0);
+      subEl.textContent = Utils.formatPrice(ps.final * qty);
     }
   }
 
@@ -485,7 +496,8 @@ const Modal = (() => {
   function _calculateFamilyTotal() {
     if (!_currentProduct) return 0;
     return (_currentProduct.variants || []).reduce((sum, v) => {
-      return sum + (v.precio_cop || 0) * (_quantities[v.sku] || 0);
+      const ps = Utils.calcPresale(v.precio_cop || 0);
+      return sum + ps.final * (_quantities[v.sku] || 0);
     }, 0);
   }
 
@@ -516,17 +528,22 @@ const Modal = (() => {
     if (!_currentProduct) return [];
     return (_currentProduct.variants || [])
       .filter(v => (_quantities[v.sku] || 0) > 0)
-      .map(v => ({
-        productId:   _currentProduct.id,
-        productName: _currentProduct.name,
-        familia:     _currentFamily,
-        collection:  v.coleccion,
-        sku:         v.sku,
-        comodin:     v.foto_comodin,
-        price:       v.precio_cop,
-        quantity:    _quantities[v.sku],
-        image:       _currentProduct.image,
-      }));
+      .map(v => {
+        const ps = Utils.calcPresale(v.precio_cop);
+        return {
+          productId:     _currentProduct.id,
+          productName:   _currentProduct.name,
+          familia:       _currentFamily,
+          collection:    v.coleccion,
+          sku:           v.sku,
+          comodin:       v.foto_comodin,
+          price:         ps.final,          // precio efectivo (con descuento si hay campaña)
+          priceOriginal: ps.original,       // precio pleno — para mostrar tachado en carrito
+          descPct:       ps.descPct,        // % descuento aplicado (0 si no hay campaña)
+          quantity:      _quantities[v.sku],
+          image:         _currentProduct.image,
+        };
+      });
   }
 
   // -------------------------------------------------------
@@ -776,26 +793,12 @@ const Modal = (() => {
     // Widget oficial google.maps.places.Autocomplete
     // — no usa AutocompleteService (deprecado desde mar 2025)
     // — genera su propio dropdown .pac-container gestionado por Google
+    // — z-index del .pac-container manejado por CSS (modals.css), no mover el nodo
     const ac = new google.maps.places.Autocomplete(input, {
       componentRestrictions: { country: 'co' },
       fields: ['address_components', 'formatted_address'],
       types:  ['address'],
     });
-
-    // El dropdown .pac-container de Google flota sobre el body por defecto.
-    // Para que aparezca dentro del modal (z-index correcto) movemos el container
-    // al parentNode del input después de que Google lo cree.
-    google.maps.event.addListenerOnce(ac, 'place_changed', () => {});
-    // Mover pac-container al grupo del input para heredar z-index del modal
-    const observer = new MutationObserver(() => {
-      const pac = document.querySelector('.pac-container');
-      if (pac && pac.parentNode === document.body) {
-        input.parentNode.style.position = 'relative';
-        input.parentNode.appendChild(pac);
-        observer.disconnect();
-      }
-    });
-    observer.observe(document.body, { childList: true });
 
     // Cuando el usuario selecciona una sugerencia
     ac.addListener('place_changed', () => {
@@ -871,7 +874,11 @@ const Modal = (() => {
     if (btn60)  btn60.disabled  = false;
     if (btn100) btn100.disabled = false;
     _openModal('modalCheckoutWompi');
-    _loadDraft();   // pre-rellenar con datos guardados si existen
+    // BUG-07: rAF garantiza que los selects están poblados antes de cargar el draft
+    requestAnimationFrame(() => {
+      _loadDraft();
+      _bindDraftListeners(); // idempotente — no duplica listeners
+    });
     _initPlacesAutocomplete('wpInputDir', 'wpInputBarrio', 'wpInputCiudad');
   }
 
@@ -1092,6 +1099,7 @@ const Modal = (() => {
   }
 
   function _bindDraftListeners() {
+    // Idempotente — evita duplicar listeners si se llama varias veces
     const campos = [
       'wpInputNombre','wpInputApellido','wpInputEmail','wpInputEmailConf',
       'wpInputCodPais','wpInputTel','wpInputTipoDoc','wpInputNumDoc',
@@ -1100,12 +1108,18 @@ const Modal = (() => {
     ];
     campos.forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('input', _saveDraft);
-      if (el && (el.tagName === 'SELECT')) el.addEventListener('change', _saveDraft);
+      if (!el || el.dataset.draftBound) return;
+      el.dataset.draftBound = '1';
+      el.addEventListener('input', _saveDraft);
+      if (el.tagName === 'SELECT') el.addEventListener('change', _saveDraft);
     });
-    // Radio tipo persona
-    document.querySelectorAll('input[name="wpInputTipoPersona"]')
-      .forEach(r => r.addEventListener('change', _saveDraft));
+    // Radio tipo persona — también idempotente
+    document.querySelectorAll('input[name="wpInputTipoPersona"]').forEach(r => {
+      if (!r.dataset.draftBound) {
+        r.dataset.draftBound = '1';
+        r.addEventListener('change', _saveDraft);
+      }
+    });
   }
 
   function _collectCMO(prefix) {
@@ -1324,9 +1338,33 @@ const Modal = (() => {
     const pay60     = Math.ceil(base * 0.6 / 1000) * 1000;
     const pay100    = base - disc100;
 
-    // Mostrar subtotal
+    // Mostrar subtotal (ya con descuento campaña si aplica)
     const subEl = document.getElementById('wpValSubtotal');
     if (subEl) subEl.textContent = Utils.formatPrice(subtotal);
+
+    // Línea descuento campaña — mostrar ahorro informativo
+    const campLine  = document.getElementById('wpLineCampania');
+    const campLabel = document.getElementById('wpLabelCampania');
+    const campVal   = document.getElementById('wpValCampania');
+    const descPct   = Campania.descuentoPct();
+    if (descPct > 0 && campLine) {
+      // Calcular ahorro = subtotal_pleno - subtotal_presale
+      // subtotal_pleno: reconstruir desde items originales
+      const ahorroTotal = Cart.getItems().reduce((s, i) => {
+        const orig = i.priceOriginal || i.price;
+        return s + (orig - i.price) * i.quantity;
+      }, 0);
+      const ahorro = Utils.roundCOP(ahorroTotal);
+      if (ahorro > 0) {
+        campLine.style.display = 'flex';
+        if (campLabel) campLabel.textContent = `Presale −${descPct}%`;
+        if (campVal)   campVal.textContent   = '− ' + Utils.formatPrice(ahorro);
+      } else {
+        campLine.style.display = 'none';
+      }
+    } else if (campLine) {
+      campLine.style.display = 'none';
+    }
 
     // Mostrar/ocultar línea bono con valor negativo
     const bonoLine = document.getElementById('wpLineBono');
@@ -1334,7 +1372,7 @@ const Modal = (() => {
     if (bonoLine) bonoLine.style.display = bonoDesc > 0 ? 'flex' : 'none';
     if (bonoVal)  bonoVal.textContent = '− ' + Utils.formatPrice(bonoDesc);
 
-    // Línea "Total" solo visible cuando hay bono — muestra base post-bono
+    // Línea "Total" visible cuando hay bono o campaña activa
     const totalFinalLine = document.getElementById('wpLineTotalFinal');
     const totalFinalVal  = document.getElementById('wpValTotalFinal');
     if (bonoDesc > 0) {
@@ -2128,11 +2166,17 @@ const Modal = (() => {
   // INIT
   // -------------------------------------------------------
   // Limpia estado residual del modal Wompi — usado por pageshow (bfcache)
+  // Restaura explícitamente botones de pago por si quedaron deshabilitados
   function resetState() {
     const modal = document.getElementById('modalCheckoutWompi');
     if (modal) modal.classList.remove('is-open');
     document.body.style.overflow = '';
     if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
+    // BUG-03: restaurar botones explícitamente — bfcache puede devolver DOM congelado
+    const btn60  = document.getElementById('btnPagar60');
+    const btn100 = document.getElementById('btnPagar100');
+    if (btn60)  { btn60.disabled = false; btn60.innerHTML  = '<span class="cmo-btn-pago-label">Pago Anticipo 60%</span><span class="cmo-btn-pago-amount" id="wpAmount60"></span>'; }
+    if (btn100) { btn100.disabled = false; btn100.innerHTML = '<span class="cmo-btn-pago-label">Pago Anticipado 100%</span><span class="cmo-btn-pago-amount" id="wpAmount100"></span>'; }
   }
 
   function init() {
@@ -2170,18 +2214,13 @@ window.addEventListener('pageshow', (e) => {
   try {
     if (sessionStorage.getItem('imolarte_wompi_redirect') === '1') {
       sessionStorage.removeItem('imolarte_wompi_redirect');
+      // BUG-03: 150ms — bfcache necesita más tiempo que 50ms para hidratar el DOM
       setTimeout(() => {
+        Modal.resetState(); // restaura botones + cierra modal residual
         if (typeof Cart !== 'undefined' && Cart.getItems().length > 0) {
-          Modal.resetState();          // limpia focus trap y clase is-open residual
-          Modal.openCheckoutWompi();   // reabre limpio con botones y labels correctos
-        } else {
-          // Sin carrito: solo desbloquear botones por si acaso
-          const b60  = document.getElementById('btnPagar60');
-          const b100 = document.getElementById('btnPagar100');
-          if (b60)  b60.disabled  = false;
-          if (b100) b100.disabled = false;
+          Modal.openCheckoutWompi(); // reabre limpio con totales y labels correctos
         }
-      }, 50);
+      }, 150);
     }
   } catch(e) {}
 });

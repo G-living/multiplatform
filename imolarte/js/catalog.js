@@ -1,3 +1,4 @@
+// @version    v21.0  @file catalog.js  @updated 2026-03-06  @session presale-campania
 /* ===== IMOLARTE V2 - catalog.js =====
  * Grid de 9 FAMILIAS (reemplaza grid de productos individuales)
  * Cada card → foto rotatoria aleatoria entre los productos de la familia
@@ -33,9 +34,18 @@ const Catalog = (() => {
       return;
     }
 
+    // Renderizar primero a precio pleno (inmediato)
     _render(grid);
     _bindEvents(grid);
     Logger.log(`catalog.js: ${Object.keys(_families).length} familias renderizadas ✓`);
+
+    // Luego cargar campaña — si hay descuento re-renderizar badges
+    Campania.cargar().then(() => {
+      if (Campania.activa()) {
+        _renderPresaleBadges();
+        Logger.log(`catalog.js: badges presale ${Campania.descuentoPct()}% aplicados`);
+      }
+    });
   }
 
   // -------------------------------------------------------
@@ -127,6 +137,28 @@ const Catalog = (() => {
     `;
 
     return card;
+  }
+
+  // -------------------------------------------------------
+  // BADGE PRESALE — agregar/quitar de las cards existentes
+  // Se llama después de que Campania.cargar() confirma descuento
+  // -------------------------------------------------------
+  function _renderPresaleBadges() {
+    const pct = Campania.descuentoPct();
+    document.querySelectorAll('.family-card').forEach(card => {
+      // Evitar duplicados
+      if (card.querySelector('.presale-badge')) return;
+      const body = card.querySelector('.family-card-body');
+      if (!body) return;
+      const badge = document.createElement('span');
+      badge.className   = 'presale-badge';
+      badge.textContent = `PRESALE −${pct}%`;
+      body.appendChild(badge);
+    });
+  }
+
+  function _removePresaleBadges() {
+    document.querySelectorAll('.presale-badge').forEach(b => b.remove());
   }
 
   // -------------------------------------------------------

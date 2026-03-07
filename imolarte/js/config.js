@@ -1,3 +1,4 @@
+// @version    v21.0  @file config.js  @updated 2026-03-06  @session presale-campania
 /* ===== IMOLARTE V2 - config.js ===== */
 /* Configuración global, utilidades y constantes */
 
@@ -42,6 +43,8 @@ const IMOLARTE_CONFIG = {
   // Campaña activa — actualizar por catálogo/temporada
   campania: {
     id: 'IMOLARTE-PRESALE-MARZO2026',
+    descuentoPct: 0,      // se carga dinámicamente desde Sheets al init
+    loaded: false,        // true una vez que se consultó Sheets
   },
 
   cart: {
@@ -69,6 +72,22 @@ const Utils = {
     if (val === 0) return 0;
     if (val > 0 && val <= 50000) return 0; // fecha serial corrupta de Sheets
     return Math.ceil(val / 1000) * 1000;
+  },
+
+  /**
+   * Retorna precio con descuento de campaña activa (redondeado a $1.000)
+   * Si no hay campaña activa devuelve el precio original redondeado.
+   * @param {number} precioCop — precio original sin redondear
+   * @returns {{ original: number, final: number, descPct: number, tieneDescuento: boolean }}
+   */
+  calcPresale(precioCop) {
+    const original  = this.roundCOP(precioCop);
+    const descPct   = IMOLARTE_CONFIG.campania.descuentoPct || 0;
+    if (!descPct || descPct <= 0) {
+      return { original, final: original, descPct: 0, tieneDescuento: false };
+    }
+    const final = this.roundCOP(original * (1 - descPct / 100));
+    return { original, final, descPct, tieneDescuento: true };
   },
 
   formatPrice(price) {
@@ -335,3 +354,74 @@ const Toast = (() => {
 
 window.Toast = Toast;
 Logger.log('Toast cargado ✓');
+
+// ===== MÓDULO CAMPAÑA =====
+// Consulta Sheets al cargar y activa descuento si hay campaña vigente.
+// Expuesto en window.Campania para uso en catalog.js, modal.js, cart.js
+const Campania = (() => {
+
+  let _callbacks = [];   // funciones a llamar cuando el descuento esté listo
+
+  /**
+   * Registra un callback a ejecutar cuando la campaña se haya cargado.
+   * Si ya está cargada, lo ejecuta inmediatamente.
+   */
+  function onReady(fn) {
+    if (IMOLARTE_CONFIG.campania.loaded) { fn(); return; }
+    _callbacks.push(fn);
+  }
+
+  /**
+   * Descuento activo en porcentaje (0 si no hay campaña)
+   */
+  function descuentoPct() {
+    return IMOLARTE_CONFIG.campania.descuentoPct || 0;
+  }
+
+  /**
+   * true si hay descuento activo
+   */
+  function activa() {
+    return descuentoPct() > 0;
+  }
+
+  /**
+   * Carga la campaña activa desde Sheets.
+   * Llamar una sola vez al inicio (catalog.js init).
+   */
+  async function cargar() {
+    try {
+      // Api puede no estar disponible si config.js carga antes que api.js
+      // Por eso usamos fetch directo al Apps Script
+      const url = IMOLARTE_CONFIG.checkout.sheetsUrl +
+        '?action=getCampanias';
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (data.ok && Array.isArray(data.campanias) && data.campanias.length > 0) {
+        // Buscar la campaña que coincide con el ID configurado
+        const match = data.campanias.find(
+          c => c['Campaña_ID'] === IMOLARTE_CONFIG.campania.id
+        );
+        if (match && Number(match['Descuento_Pct']) > 0) {
+          IMOLARTE_CONFIG.campania.descuentoPct = Number(match['Descuento_Pct']);
+          Logger.log(`Campania: "${IMOLARTE_CONFIG.campania.id}" activa — ${IMOLARTE_CONFIG.campania.descuentoPct}% dto.`);
+        } else {
+          Logger.log('Campania: sin descuento activo');
+        }
+      }
+    } catch(e) {
+      Logger.warn('Campania: no se pudo cargar desde Sheets', e.message);
+      // Fallback silencioso — sin descuento
+    } finally {
+      IMOLARTE_CONFIG.campania.loaded = true;
+      _callbacks.forEach(fn => { try { fn(); } catch(e) { Logger.warn('Campania callback error', e); } });
+      _callbacks = [];
+    }
+  }
+
+  return { cargar, onReady, descuentoPct, activa };
+})();
+
+window.Campania = Campania;
+Logger.log('Campania module cargado ✓');

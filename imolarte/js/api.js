@@ -121,6 +121,7 @@ const Api = (() => {
       porcentajePagado:   totales.porcentajePagado  || 100,
       referencia:         totales.referencia || '',
       wompiTransactionId: '',
+      _skipEmail:         totales._skipEmail        || false,
     });
     return result.ok
       ? { ok: true,  referencia: result.referencia || _genRef('WP'), clienteId: result.clienteId || '' }
