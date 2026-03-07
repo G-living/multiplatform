@@ -574,7 +574,7 @@
 .modal-checkout-body {
     flex: 1;
     min-height: 0;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
     scrollbar-width: thin;
     scrollbar-color: var(--color-accent-light) transparent;
@@ -830,7 +830,7 @@
 }
 
 .cmo-btn-pago-label {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     letter-spacing: var(--letter-spacing-wide);
     text-transform: uppercase;
     text-align: center;
@@ -1908,3 +1908,110 @@ gmp-placeautocomplete::part(input):focus {
   line-height: inherit;
 }
 .cmo-legal-link:hover { color: #a8863e; }
+
+/* ============================================================
+   GOOGLE PLACES — pac-container z-index sobre modales
+   El widget oficial genera .pac-container en el DOM del input parent
+   z-index debe superar el modal (1000) para aparecer encima
+   ============================================================ */
+.pac-container {
+    z-index: 1100 !important;
+    font-family: var(--font-body);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    margin-top: 2px;
+}
+.pac-item {
+    padding: 8px 12px;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    border-top: 1px solid var(--color-border-light, #f0ece4);
+    color: var(--color-text-primary);
+}
+.pac-item:hover,
+.pac-item-selected {
+    background: var(--color-bg-secondary, #f8f5ee);
+}
+.pac-item-query {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+.pac-matched { font-weight: 600; color: var(--color-accent); }
+.pac-icon { display: none; } /* quitar ícono Google por diseño limpio */
+
+/* ============================================================
+   BOTÓN Aa — TAMAÑO DE TEXTO
+   Posición: fixed esquina superior izquierda
+   Persiste en localStorage key 'helena_catalogo_prefs'
+   Tres niveles: normal (100%) → 110% → 125% → normal
+   ============================================================ */
+.btn-aa {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 900; /* debajo de modales (1000) pero sobre todo lo demás */
+    background: var(--color-bg-primary, #fff);
+    border: 1px solid var(--color-border, #e8e0d0);
+    border-radius: 20px;
+    padding: 5px 11px;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--color-text-secondary, #888);
+    cursor: pointer;
+    letter-spacing: .5px;
+    line-height: 1;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    transition: background .15s, color .15s, border-color .15s;
+    user-select: none;
+}
+.btn-aa:hover {
+    background: var(--color-bg-secondary, #f8f5ee);
+    border-color: var(--color-accent-light, #d4b06a);
+    color: var(--color-accent, #C4A05A);
+}
+.btn-aa:active { transform: scale(.96); }
+
+/* Nivel activo: resaltar que está en modo ampliado */
+.btn-aa[data-level="1"],
+.btn-aa[data-level="2"] {
+    border-color: var(--color-accent, #C4A05A);
+    color: var(--color-accent, #C4A05A);
+    background: var(--color-bg-secondary, #f8f5ee);
+}
+
+/* ── Escalado de fuente por nivel ──────────────────────────
+   Se aplica en <html> via JS: html.font-aa-1 o html.font-aa-2
+   Solo escala texto de contenido: nombres, precios, labels, descripciones
+   NO escala: logo, hero titles, headers de marca
+   ──────────────────────────────────────────────────────── */
+html.font-aa-1 {
+    --font-size-xs:   0.825rem;   /* 13.2px  (base 12px × 1.10) */
+    --font-size-sm:   0.935rem;   /* 14.96px (base 13.6px × 1.10) */
+    --font-size-base: 1.045rem;   /* 16.72px (base 15.2px × 1.10) */
+    --font-size-md:   1.155rem;   /* 18.48px */
+}
+html.font-aa-2 {
+    --font-size-xs:   0.9375rem;  /* 15px  (base 12px × 1.25) */
+    --font-size-sm:   1.0625rem;  /* 17px  (base 13.6px × 1.25) */
+    --font-size-base: 1.1875rem;  /* 19px  (base 15.2px × 1.25) */
+    --font-size-md:   1.3125rem;  /* 21px */
+}
+
+/* ============================================================
+   BLOQUE CUMPLEAÑOS — mensaje cálido antes de campos fecha
+   ============================================================ */
+.cmo-birthday-promo {
+    background: linear-gradient(135deg, #fff8e6 0%, #fdf5f0 100%);
+    border-left: 3px solid var(--color-accent, #C4A05A);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary, #666);
+    margin-bottom: var(--spacing-sm, 8px);
+    line-height: 1.5;
+}
+.cmo-birthday-promo strong {
+    color: var(--color-text-primary, #1a1610);
+}

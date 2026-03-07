@@ -23,6 +23,8 @@
   <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
+  <!-- Botón tamaño de texto — tres niveles: normal → 110% → 125% -->
+  <button class="btn-aa" id="btnAa" aria-label="Ajustar tamaño de texto" title="Tamaño de texto" data-level="0">Aa</button>
 
   <!-- HEADER -->
   <header class="site-header">
@@ -228,12 +230,54 @@
 
   <!-- SCRIPTS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.0/js/glightbox.min.js"></script>
-  <script src="js/config.js?v=20260305"></script>
-  <script src="js/catalog-data.js?v=20260305"></script>
-  <script src="js/cart.js?v=20260305"></script>
-  <script src="js/api.js?v=20260305"></script>
-  <script src="js/modal.js?v=20260305"></script>
-  <script src="js/catalog.js?v=20260305"></script>
+  <script src="js/config.js?v=20260306"></script>
+  <script src="js/catalog-data.js?v=20260306"></script>
+  <script src="js/cart.js?v=20260306"></script>
+  <script src="js/api.js?v=20260306"></script>
+  <script src="js/modal.js?v=20260306"></script>
+  <script src="js/catalog.js?v=20260306"></script>
+
+  <!-- BOTÓN Aa — tamaño de texto (3 niveles, persiste en localStorage) -->
+  <script>
+  (function() {
+    var PREFS_KEY = 'helena_catalogo_prefs';
+    var LEVELS = [0, 1, 2];
+
+    function _loadPrefs() {
+      try { return JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch(e) { return {}; }
+    }
+    function _savePrefs(obj) {
+      try { localStorage.setItem(PREFS_KEY, JSON.stringify(obj)); } catch(e) {}
+    }
+    function _applyLevel(level) {
+      var html = document.documentElement;
+      html.classList.remove('font-aa-1', 'font-aa-2');
+      if (level === 1) html.classList.add('font-aa-1');
+      if (level === 2) html.classList.add('font-aa-2');
+      var btn = document.getElementById('btnAa');
+      if (btn) btn.setAttribute('data-level', String(level));
+    }
+
+    // Restaurar nivel guardado
+    var prefs = _loadPrefs();
+    var savedLevel = parseInt(prefs.fontLevel || '0', 10);
+    if (savedLevel > 0) _applyLevel(savedLevel);
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var btn = document.getElementById('btnAa');
+      if (!btn) return;
+      btn.setAttribute('data-level', String(savedLevel));
+      btn.addEventListener('click', function() {
+        var current = parseInt(btn.getAttribute('data-level') || '0', 10);
+        var next = (current + 1) % 3; // 0 → 1 → 2 → 0
+        _applyLevel(next);
+        var p = _loadPrefs();
+        p.fontLevel = next;
+        _savePrefs(p);
+      });
+    });
+  })();
+  </script>
 
   <!-- CARRUSEL LIFESTYLE INIT -->
   <script>
@@ -470,6 +514,11 @@
             </div>
           </div>
 
+          <div class="cmo-birthday-promo">
+            🎂 <strong>¡Tu fecha especial nos importa!</strong> Regístrala para recibir sorpresas,
+            promociones exclusivas y un saludo personal de Helena en tu día.
+          </div>
+
           <div class="cmo-row-2">
             <div class="cmo-group">
               <label class="cmo-label" for="waInputCumpleDia">Día cumpleaños <span class="cmo-req">*</span></label>
@@ -671,6 +720,11 @@
             </div>
           </div>
 
+          <div class="cmo-birthday-promo">
+            🎂 <strong>¡Tu fecha especial nos importa!</strong> Regístrala para recibir sorpresas,
+            promociones exclusivas y un saludo personal de Helena en tu día.
+          </div>
+
           <div class="cmo-row-2">
             <div class="cmo-group">
               <label class="cmo-label" for="wpInputCumpleDia">Día cumpleaños <span class="cmo-req">*</span></label>
@@ -815,7 +869,7 @@
           <div class="gift-amount-wrap">
             <label class="cmo-label" for="giftAmount">
               Valor del Gift Card (COP) <span class="cmo-req">*</span>
-              <span class="cmo-hint"> — mínimo $200.000</span>
+              <span class="cmo-hint"> — mínimo $300.000</span>
             </label>
             <div class="gift-amount-input-wrap">
               <span class="gift-amount-prefix">$</span>
@@ -861,6 +915,10 @@
                 <input class="cmo-input" type="text" id="gfApellido" name="gfApellido" autocomplete="family-name" placeholder="García" required>
                 <span class="cmo-error" id="gfErrApellido"></span>
               </div>
+            </div>
+            <div class="cmo-birthday-promo">
+              🎂 <strong>¡Tu fecha especial nos importa!</strong> Regístrala para recibir sorpresas,
+              promociones exclusivas y un saludo personal de Helena en tu día.
             </div>
             <div class="cmo-row-2">
               <div class="cmo-group">

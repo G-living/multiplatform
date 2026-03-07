@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v19
+// IMOLARTE — Google Apps Script Backend v20
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -10,19 +10,15 @@
 // Trigger edit   : onSheetChange → On edit
 // ============================================================
 //
-// CAMBIOS v16
-// ─ v17: fix Historial_cambios, acumulación Total_histórico/Num_interacciones en vivo, spam Forma_pago
-// ─ v18: Dest_Email en GiftCards, email destinatario gift, Productos_comprados en Clientes
-// ─ v19: _skipEmail en createPedidoWompi, pedidos huérfanos via sessionStorage
-// ─ Clientes: PK dual TipoDoc+NumDoc (primero) / Teléfono (fallback)
-// ─ Clientes: sin Tipo_Persona, sin Dir_2, columna Historial_cambios
-// ─ Clientes: alerta identidad sospechosa → email admin MAYÚSCULA
-// ─ GiftCards: Valor_COP → Saldo_Gift_COP
-// ─ GiftCards: sin upsert destinatario como cliente
-// ─ GiftCards: Canjeado_En acumula ref+monto+fecha por línea
-// ─ Dashboard_Clientes: nueva sheet, 1 fila/cliente, rebuildDashboard()
-// ─ setupProtections(): protege cols calculadas, deja editables las operativas
-// ─ Places CSS: fix posición dropdown en modal gift
+// CAMBIOS v16–v19: ver historial anterior
+// ─ v20: _safeCount + _safeMoney + _roundCOP (reemplazan _safeInt)
+// ─ v20: interacciones solo en APPROVED (no en createPedidoWompi)
+// ─ v20: corrección cumpleaños permitida + log en Historial_cambios
+// ─ v20: _instruccionesGiftHTML() función compartida emisor/destinatario
+// ─ v20: emails — tono cálido, asunto wishlist corregido, saldo 60% texto tránsito
+// ─ v20: _emailWrapper fallback nombre → 'estimada clienta'
+// ─ v20: todos los valores COP en emails redondeados por exceso a $1.000
+// ─ v20: _fmtCOP usa _roundCOP internamente
 // ============================================================
 
 'use strict';
@@ -243,13 +239,8 @@ function _createPedidoWompi(b) {
     direccion : ent.direccion || '',
     barrio    : ent.barrio    || '',
     ciudad    : ent.ciudad    || '',
+    _soloTotal: true,   // no contar interacción — se cuenta solo en APPROVED
   }).clienteId;
-
-  sheet.appendRow([
-    campania,                            // A  Campaña_ID
-    ts,                                  // B  Timestamp
-    ref,                                 // C  Referencia
-    b.wompiTransactionId || '',          // D  Wompi_Transaction_ID
     'PENDING',                           // E  Estado_Pago_Wompi
     cliId,                               // F  ClienteID
     cli.nombre    || '',                 // G  Nombre
@@ -342,13 +333,13 @@ function _confirmarPagoWompi(b) {
         _emailPagoCancelado(email, nombre, ref, status);
     }
 
-    // Acumular total histórico y productos en cliente (sin contar como interacción)
+    // En APPROVED: contar interacción + acumular total en una sola llamada
+    // _soloTotal omitido → _upsertCliente contará la interacción (pago real completado)
     if (status === 'APPROVED' && total > 0) {
       const tel = data[i][header.indexOf('Teléfono')] || '';
       const doc = { tipoDoc: data[i][header.indexOf('Tipo_Doc')] || '',
                     numDoc:  data[i][header.indexOf('Num_Doc')]  || '' };
       _upsertCliente({ telefono: tel, ...doc, total,
-                       _soloTotal: true,
                        _pedidoRef: ref,
                        _pedidoProds: prods,
                        _pedidoTs: new Date() });
@@ -646,11 +637,29 @@ const CLI = {
   CLIENTE_ID   : 17,  // R  ← movido
 };
 
-// Convierte un valor de celda Sheets a entero seguro.
-// Evita el bug de celda con formato Fecha: Number(Date) = timestamp ms negativo.
-function _safeInt(val) {
-  if (typeof val === 'number' && !isNaN(val) && Math.abs(val) < 1e12) return val;
+// Convierte valor de celda Sheets a entero de conteo (0–9999).
+// Rechaza fechas seriales (1–50000) y valores imposibles.
+function _safeCount(val) {
+  if (typeof val !== 'number' || isNaN(val)) return 0;
+  if (val >= 0 && val < 10000) return Math.round(val);
   return 0;
+}
+
+// Convierte valor de celda Sheets a COP redondeado por exceso a $1.000.
+// Rechaza fechas seriales de Sheets (1–50000) → devuelve 0.
+// $0 = cliente nuevo → válido.
+function _safeMoney(val) {
+  if (typeof val !== 'number' || isNaN(val)) return 0;
+  if (val === 0) return 0;
+  if (val > 0 && val <= 50000) return 0;           // fecha serial corrupta
+  return Math.ceil(val / 1000) * 1000;             // redondeo por exceso a $1.000
+}
+
+// Redondea cualquier valor COP por exceso a la unidad $1.000
+function _roundCOP(val) {
+  const n = Number(val) || 0;
+  if (n <= 0) return 0;
+  return Math.ceil(n / 1000) * 1000;
 }
 
 function _upsertCliente(b) {
@@ -721,9 +730,25 @@ function _upsertCliente(b) {
       }
     }
 
-    // Cumpleaños: solo llenar si vacío (no cambian)
-    if (b.cumpleDia && !row[CLI.CUMPLE_DIA]) sheet.getRange(i + 1, CLI.CUMPLE_DIA + 1).setValue(b.cumpleDia);
-    if (b.cumpleMes && !row[CLI.CUMPLE_MES]) sheet.getRange(i + 1, CLI.CUMPLE_MES + 1).setValue(b.cumpleMes);
+    // Cumpleaños: se puede corregir (fecha especial merece exactitud), loggear el cambio
+    if (b.cumpleDia) {
+      const actual = String(row[CLI.CUMPLE_DIA] || '').trim();
+      if (!actual) {
+        sheet.getRange(i + 1, CLI.CUMPLE_DIA + 1).setValue(b.cumpleDia);
+      } else if (String(b.cumpleDia) !== actual) {
+        sheet.getRange(i + 1, CLI.CUMPLE_DIA + 1).setValue(b.cumpleDia);
+        _addHistorial(i, `[${dtFmt()}] Cumple_Día: ${actual} → ${b.cumpleDia}`);
+      }
+    }
+    if (b.cumpleMes) {
+      const actual = String(row[CLI.CUMPLE_MES] || '').trim();
+      if (!actual) {
+        sheet.getRange(i + 1, CLI.CUMPLE_MES + 1).setValue(b.cumpleMes);
+      } else if (String(b.cumpleMes) !== actual) {
+        sheet.getRange(i + 1, CLI.CUMPLE_MES + 1).setValue(b.cumpleMes);
+        _addHistorial(i, `[${dtFmt()}] Cumple_Mes: ${actual} → ${b.cumpleMes}`);
+      }
+    }
 
     // Dirección: actualizar la principal, loggear cambio si es diferente
     if (b.direccion && b.direccion.trim()) {
@@ -742,12 +767,12 @@ function _upsertCliente(b) {
       }
     }
 
-    // Acumular total histórico — leer en vivo para evitar stale snapshot
+    // Acumular total histórico — leer en vivo, redondear por exceso a $1.000
     if (b.total && b.total > 0) {
       const cellTotal = sheet.getRange(i + 1, CLI.TOTAL_HIST + 1);
       cellTotal.setNumberFormat('#,##0');
-      const prev = _safeInt(cellTotal.getValue());
-      cellTotal.setValue(prev + b.total);
+      const prev = _safeMoney(cellTotal.getValue());
+      cellTotal.setValue(prev + _roundCOP(b.total));
     }
 
     // Acumular productos comprados (solo cuando viene con _pedidoRef)
@@ -765,12 +790,13 @@ function _upsertCliente(b) {
       cell.setValue(prev ? prev + '\n' + linea : linea);
     }
 
-    // Interacciones — leer en vivo, solo si NO es llamada interna
+    // Interacciones — leer en vivo, solo si NO es llamada interna (_soloTotal)
+    // Solo se cuenta cuando el pago es APPROVED (no en createPedidoWompi)
     if (!b._soloTotal) {
       sheet.getRange(i + 1, CLI.ULTIMA_INT + 1).setValue(ts);
       const cellInt = sheet.getRange(i + 1, CLI.NUM_INT + 1);
       cellInt.setNumberFormat('0');
-      cellInt.setValue(_safeInt(cellInt.getValue()) + 1);
+      cellInt.setValue(_safeCount(cellInt.getValue()) + 1);
     }
 
     return String(row[CLI.CLIENTE_ID] || '');
@@ -1230,13 +1256,17 @@ function checkWishlistAbandonadas() {
 
 function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
-    const subject = `✅ ${CFG.NOMBRE_TIENDA} — Pedido ${ref} recibido`;
+    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>Hemos recibido tu pedido. Aquí está el resumen:</p>
+      <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. Helena o alguien de nuestro equipo te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
-      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total: ${_fmtCOP(total)}</p>
-      <p style="font-size:13px;color:#666;margin-top:16px">Tu pago está siendo procesado. Te confirmaremos en breve.</p>
+      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(_roundCOP(total))}</p>
+      <p style="font-size:13px;color:#666;margin-top:16px">
+        Cada pieza es única — hecha a mano en Italia, especialmente para ti.<br>
+        Si tienes preguntas, escríbenos por 
+        <a href="https://wa.me/${CFG.WHATSAPP}" style="color:#C4A05A">WhatsApp</a> con mucho gusto te atendemos.
+      </p>
     `);
     GmailApp.sendEmail(email, subject, '', { htmlBody: body });
     _log('emailPedidoRecibido', ref, email, 'OK');
@@ -1257,7 +1287,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
     let bonoHTML = '';
     let bonoDesc = 0;
     if (giftInfo && giftInfo.tipo === 'MIXTO') {
-      bonoDesc = giftInfo.monto;
+      bonoDesc = _roundCOP(giftInfo.monto);
       bonoHTML = `
         <tr>
           <td style="padding:5px 8px;font-size:13px;color:#555">
@@ -1268,7 +1298,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
           </td>
         </tr>`;
     } else if (giftInfo && giftInfo.tipo === 'TOTAL') {
-      bonoDesc = total;
+      bonoDesc = _roundCOP(total);
       bonoHTML = `
         <tr>
           <td style="padding:5px 8px;font-size:13px;color:#555">🎁 Pagado 100% con Gift Card</td>
@@ -1276,8 +1306,9 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
         </tr>`;
     }
 
-    // Subtotal + bono + total pagado
-    const subtotalMostrar = subtotal || total;
+    // Subtotal + bono + total pagado — todos redondeados a $1.000
+    const subtotalMostrar = _roundCOP(subtotal || total);
+    const totalRedondeado = _roundCOP(total);
     resumenHTML = `
       <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f5ee;border-radius:6px">
         <tr>
@@ -1287,7 +1318,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
         ${bonoHTML}
         <tr style="border-top:2px solid #C4A05A">
           <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">Total pagado</td>
-          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(total)}</td>
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(totalRedondeado)}</td>
         </tr>
       </table>`;
 
@@ -1295,27 +1326,27 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
     let saldoHTML = '';
     const pct = Number(pctPagado) || 100;
     if (pct === 60) {
-      const saldoPendiente = Math.round((subtotalMostrar - bonoDesc) * 0.4);
+      const saldoPendiente = _roundCOP((subtotalMostrar - bonoDesc) * 0.4);
       saldoHTML = `
         <div style="background:#fff8e6;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0">
           <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#7a5c00">Saldo pendiente: ${_fmtCOP(saldoPendiente)}</p>
           <p style="margin:0;font-size:13px;color:#555">
-            Es importante cancelarlo a tiempo para evitar incurrir en mayores costos o penalidades.
-            Te recordaremos y enviaremos la factura de compra una vez tu(s) producto(s) estén listos
-            para ser despachados desde Italia.
+            Te avisaremos cuando tu pedido esté en tránsito desde Italia, con tiempo suficiente
+            para completar el pago sin incurrir en sobrecostos o penalidades.
           </p>
         </div>`;
     }
 
     const body = _emailWrapper(nombre, `
-      <p>¡Gracias por tu compra! Tu pago ha sido confirmado exitosamente.</p>
+      <p>¡Qué alegría! Tu pago ha sido confirmado exitosamente. Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${tablaProductos}
       ${resumenHTML}
       ${saldoHTML}
       <p style="font-size:13px;color:#666;margin-top:16px">
-        Cada pieza es única — hecha a mano en Italia, especialmente para ti.<br>
-        Te mantendremos informado sobre el estado de tu pedido en cada etapa.
+        Te mantendremos informada sobre el estado de tu pedido en cada etapa del proceso.<br>
+        Si tienes alguna pregunta, escríbenos por 
+        <a href="https://wa.me/${CFG.WHATSAPP}" style="color:#C4A05A">WhatsApp</a>, con mucho gusto te atendemos.
       </p>
     `);
     GmailApp.sendEmail(email, subject, '', { htmlBody: body });
@@ -1350,28 +1381,33 @@ function _emailPagoCancelado(email, nombre, ref, status) {
   } catch(err) { _log('emailPagoCancelado_ERROR', ref, err.message); }
 }
 
+// Instrucciones de uso gift card — compartidas entre email emisor y destinatario
+function _instruccionesGiftHTML() {
+  return `
+    <p style="font-size:13px;color:#555;margin-top:16px">
+      <strong>¿Cómo usar la Gift Card?</strong><br>
+      Ingresa el código en el campo habilitado antes del checkout del carrito de compras.
+      Es válida para cualquier compra en nuestra tienda y tiene vigencia de 9 meses desde
+      la fecha de emisión.
+    </p>
+    <p style="font-size:13px;color:#555;margin-top:10px">
+      <strong>Recuerda:</strong> guarda este código en un lugar seguro.
+    </p>`;
+}
+
 function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido) {
   try {
     const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
     const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
-      <p>Hola ${nombre}, ¡la Gift Card que adquiriste ha sido activada y enviada a
-      <strong>${destCompleto}</strong> exitosamente!</p>
+      <p>¡Tu Gift Card ha sido activada exitosamente y enviada a <strong>${destCompleto}</strong>! 🎉</p>
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">CÓDIGO DE REGALO</p>
         <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
-        <p style="color:#C4A05A;font-size:18px;font-weight:bold;margin:0 0 8px">${_fmtCOP(valor)}</p>
+        <p style="color:#C4A05A;font-size:18px;font-weight:bold;margin:0 0 8px">${_fmtCOP(_roundCOP(valor))}</p>
         <p style="color:#888;font-size:12px;margin:0">Válido hasta: ${vigencia}</p>
       </div>
-      <p style="font-size:13px;color:#555;margin-top:16px">
-        <strong>¿Cómo usar la Gift Card?</strong><br>
-        Ingresando el código impreso en la tarjeta regalo en el campo habilitado antes del
-        check-out del carrito de compras. Es válida para compras en toda nuestra tienda
-        y tiene vigencia de 9 meses desde la fecha de emisión.
-      </p>
-      <p style="font-size:13px;color:#555;margin-top:12px">
-        <strong>Recuerda:</strong> guarda este código en un lugar seguro.
-      </p>
+      ${_instruccionesGiftHTML()}
       <p style="font-size:12px;color:#aaa;margin-top:16px">Referencia de pago: ${ref}</p>
       <div style="margin-top:20px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
@@ -1392,28 +1428,20 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
       ? `<div style="background:#f8f5ee;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0;font-style:italic;color:#555">
            "${mensaje}"<br><span style="font-size:12px;color:#888;font-style:normal">— ${emisorCompleto}</span>
          </div>`
-      : `<p style="font-size:13px;color:#666">${emisorCompleto} te envía este regalo con cariño.</p>`;
-    const body = _emailWrapper(destNombre || 'Querido destinatario', `
+      : `<p style="font-size:13px;color:#666">${emisorCompleto} te envía este regalo con todo el cariño.</p>`;
+    const body = _emailWrapper(destNombre || '', `
       <p><strong>${emisorCompleto}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}. 🎉</p>
       ${mensajeHTML}
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">TU CÓDIGO DE REGALO</p>
         <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
-        <p style="color:#C4A05A;font-size:18px;font-weight:bold;margin:0 0 8px">${_fmtCOP(valor)}</p>
+        <p style="color:#C4A05A;font-size:18px;font-weight:bold;margin:0 0 8px">${_fmtCOP(_roundCOP(valor))}</p>
         <p style="color:#888;font-size:12px;margin:0">Válido hasta: ${vigencia}</p>
       </div>
-      <p style="font-size:13px;color:#555;margin-top:16px">
-        <strong>¿Cómo usar tu Gift Card?</strong><br>
-        Ingresando el código impreso en la tarjeta regalo en el campo habilitado antes del
-        check-out del carrito de compras. Es válida para compras en toda nuestra tienda
-        y tiene vigencia de 9 meses desde la fecha de emisión.
-      </p>
-      <p style="font-size:13px;color:#555;margin-top:12px">
-        <strong>Recuerda:</strong> guarda este código en un lugar seguro.
-      </p>
+      ${_instruccionesGiftHTML()}
       <div style="margin-top:20px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
-          Explorar catálogo
+          Explorar el catálogo
         </a>
       </div>
     `);
@@ -1421,15 +1449,18 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
     _log('emailGiftCardDestinatario', codigo, destEmail, 'OK');
   } catch(err) { _log('emailGiftCardDestinatario_ERROR', codigo, err.message); }
 }
-
 function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
     const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>Hemos recibido tu lista de deseos. Nuestro equipo te contactará lo más pronto posible para brindarte asesoría especializada y coordinar los detalles de tu pedido.</p>
+      <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! Helena o alguien de nuestro equipo se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
-      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(total)}</p>
+      <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(_roundCOP(total))}</p>
+      <p style="font-size:13px;color:#666;margin-top:16px">
+        Si tienes preguntas, escríbenos por 
+        <a href="https://wa.me/${CFG.WHATSAPP}" style="color:#C4A05A">WhatsApp</a>, con mucho gusto te atendemos.
+      </p>
     `);
     GmailApp.sendEmail(email, subject, '', { htmlBody: body });
     _log('emailEnviadoWA', ref, email, 'OK');
@@ -1563,6 +1594,7 @@ function _emailIdentidadSospechosa(b, rowEncontrada) {
 // ============================================================
 
 function _emailWrapper(nombre, contenido) {
+  const saludo = (nombre || '').trim() || 'estimada clienta';
   return `
 <div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#1a1610">
   <div style="background:#1a1610;padding:28px 32px;border-radius:8px 8px 0 0">
@@ -1570,7 +1602,7 @@ function _emailWrapper(nombre, contenido) {
     <p style="color:#f5f0e8;font-size:13px;margin:6px 0 0">Cerámica artesanal italiana</p>
   </div>
   <div style="background:#faf8f4;padding:28px 32px;border:1px solid #e8e0d0;border-top:none">
-    <p style="font-size:16px">Hola <strong>${nombre}</strong>,</p>
+    <p style="font-size:16px">Hola <strong>${saludo}</strong>,</p>
     ${contenido}
   </div>
   <div style="background:#1a1610;padding:12px 32px;border-radius:0 0 8px 8px;text-align:center">
@@ -1780,8 +1812,9 @@ function _fmtTel(codigoPais, telefono) {
 }
 
 function _fmtCOP(valor) {
-  if (!valor) return '$0';
-  return '$' + Number(valor).toLocaleString('es-CO');
+  if (!valor && valor !== 0) return '$0';
+  const n = _roundCOP(Number(valor) || 0);
+  return '$' + n.toLocaleString('es-CO');
 }
 
 function _parseJSON(str) {
