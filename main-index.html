@@ -4,1005 +4,757 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>G-Living — Colecciones</title>
-  <meta name="description" content="Descubre nuestras colecciones exclusivas. Artesanías italianas, moda y diseño de alto nivel.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-
   <style>
-    /* ===================================================
-       RESET & VARIABLES
-    =================================================== */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     :root {
-      --wall:        #B8B4AE;
-      --wall-dark:   #A09C96;
-      --plank-top:   #D8D2CA;
-      --plank-front: #8A8278;
-      --plank-shadow:rgba(0,0,0,0.22);
-      --bg:          #C4BFB8;
-      --text-light:  rgba(255,255,255,0.92);
-      --text-muted:  rgba(255,255,255,0.55);
-      --accent:      #C9A961;
-      --font-display:'Cormorant Garamond', Georgia, serif;
-      --font-body:   'Lato', sans-serif;
-      --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+      --wall:   #C4BFB8;
+      --shelf-h: 28px;
+      --shelf-depth: 18px;
+      --accent: #C9A961;
+      --font-d: 'Cormorant Garamond', Georgia, serif;
+      --font-b: 'Lato', sans-serif;
+      --ease:   cubic-bezier(0.22, 1, 0.36, 1);
+      --shelf-bottom: 30%;   /* repisa: borde superior queda aquí */
     }
-
     html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      background: var(--bg);
-      font-family: var(--font-body);
+      width:100%; height:100%; overflow:hidden;
+      background: var(--wall);
+      font-family: var(--font-b);
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ===================================================
-       HEADER MINIMAL
-    =================================================== */
+    /* ══════════════════════════════
+       FONDO / PARED
+    ══════════════════════════════ */
+    .wall-bg {
+      position:fixed; inset:0; z-index:0;
+      background: linear-gradient(175deg, #CCC7BF 0%, #BAB5AE 55%, #B0ABA4 100%);
+    }
+    /* Textura sutil */
+    .wall-bg::after {
+      content:''; position:absolute; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='1' height='1' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E");
+      background-size:4px 4px;
+    }
+
+    /* ══════════════════════════════
+       HEADER
+    ══════════════════════════════ */
     .gl-header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.18), transparent);
-      pointer-events: none;
+      position:fixed; top:0; left:0; right:0; height:52px;
+      display:flex; align-items:center; justify-content:center;
+      z-index:200;
+      background: linear-gradient(to bottom,rgba(0,0,0,0.18),transparent);
+      pointer-events:none;
     }
-
     .gl-logo {
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 300;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--text-light);
-      text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+      font-family:var(--font-d); font-size:1rem; font-weight:300;
+      letter-spacing:0.3em; text-transform:uppercase;
+      color:rgba(255,255,255,0.9); text-shadow:0 1px 8px rgba(0,0,0,0.25);
     }
+    .gl-logo em { font-style:italic; color:var(--accent); }
 
-    .gl-logo span {
-      font-style: italic;
-      font-weight: 400;
-      color: var(--accent);
+    /* ══════════════════════════════
+       REPISA — siempre fija
+    ══════════════════════════════ */
+    .shelf {
+      position:fixed;
+      bottom: var(--shelf-bottom);
+      left:0; right:0;
+      height: calc(var(--shelf-h) + var(--shelf-depth));
+      z-index:50;
+      pointer-events:none;
     }
-
-    /* ===================================================
-       ESCENA PRINCIPAL
-    =================================================== */
-    .scene-wrap {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      cursor: grab;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    .scene-wrap.dragging { cursor: grabbing; }
-
-    /* Mundo — todo el contenido 3D, se transforma con pan+zoom */
-    .world {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 900px;
-      height: 520px;
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
-
-    /* Perspectiva aplicada al wrapper del mundo */
-    .perspective-wrap {
-      position: absolute;
-      inset: 0;
-      perspective: 1100px;
-      perspective-origin: 50% 52%;
-    }
-
-    /* ===================================================
-       PARED
-    =================================================== */
-    .wall {
-      position: absolute;
-      inset: -200px -400px 0 -400px;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 119px,
-          rgba(0,0,0,0.025) 120px
-        ),
-        linear-gradient(180deg, #C2BDB6 0%, #BAB5AE 60%, #B0ABA4 100%);
-      /* textura sutil de líneas verticales simula juntas de pared */
-    }
-
-    /* ===================================================
-       REPISA
-    =================================================== */
-    .shelf-container {
-      position: absolute;
-      bottom: 110px;
-      left: -280px;
-      right: -280px;
-      height: 28px;
-      transform-style: preserve-3d;
-    }
-
-    /* Cara superior — la profundidad de la repisa */
+    /* Cara superior */
     .shelf-top {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 38px;
-      background: linear-gradient(180deg, #D6D0C8 0%, #C2BCB4 100%);
-      transform-origin: top center;
-      transform: rotateX(-88deg) translateZ(1px);
-      box-shadow: inset 0 -2px 6px rgba(0,0,0,0.12);
+      position:absolute; top:0; left:0; right:0;
+      height: var(--shelf-h);
+      background: linear-gradient(180deg, #D6D0C8 0%, #C8C2BA 100%);
+      box-shadow: 0 -1px 0 rgba(255,255,255,0.3);
     }
-
-    /* Frente de la repisa */
+    /* Cara frontal (profundidad) */
     .shelf-front {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 28px;
-      background: linear-gradient(180deg, #9E9890 0%, #88827A 100%);
-      border-top: 1px solid rgba(255,255,255,0.15);
+      position:absolute;
+      top: var(--shelf-h); left:0; right:0;
+      height: var(--shelf-depth);
+      background: linear-gradient(180deg, #9A938B 0%, #857E76 100%);
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
-
-    /* Sombra debajo */
+    /* Sombra debajo del frente */
     .shelf-shadow {
-      position: absolute;
-      top: 28px; left: 20px; right: 20px;
-      height: 10px;
-      background: radial-gradient(ellipse, rgba(0,0,0,0.28) 0%, transparent 70%);
-      filter: blur(3px);
+      position:absolute;
+      top: calc(var(--shelf-h) + var(--shelf-depth));
+      left:0; right:0; height:12px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.18), transparent);
+    }
+    /* Sombra de la revista sobre la repisa */
+    .shelf-mag-shadow {
+      position:absolute;
+      top: calc(var(--shelf-h) - 6px);
+      left:50%; transform:translateX(-50%);
+      width:55%; height:10px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.28) 0%, transparent 70%);
+      filter:blur(4px);
     }
 
-    /* ===================================================
-       REVISTAS — contenedor general
-    =================================================== */
-    .magazines-row {
-      position: absolute;
-      bottom: 138px;           /* apoya sobre repisa */
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 48px;
-      align-items: flex-end;
-      transform-style: preserve-3d;
+    /* ══════════════════════════════
+       ZONA ACTIVA — revista sobre repisa
+    ══════════════════════════════ */
+    .active-zone {
+      position:fixed;
+      /* desde top:52px (header) hasta la repisa */
+      top: 52px;
+      bottom: calc(var(--shelf-bottom) + var(--shelf-h) + var(--shelf-depth));
+      left:0; right:0;
+      display:flex; align-items:flex-end; justify-content:center;
+      z-index:40;
+      /* Para pan: overflow visible */
+      overflow:visible;
+      pointer-events:none;
     }
 
-    /* ===================================================
-       REVISTA INDIVIDUAL
-    =================================================== */
-    .mag-wrap {
-      position: relative;
+    /* ── REVISTA ACTIVA ── */
+    .active-mag {
+      position:relative;
+      pointer-events:all;
+      cursor:grab;
+      touch-action:none;
+      user-select:none;
+      /* Inclinación 3D */
       transform-origin: bottom center;
-      /* inclinación 10° hacia atrás */
-      transform: rotateX(10deg);
-      transform-style: preserve-3d;
-      transition: filter 0.3s ease;
-      cursor: pointer;
+      transform: rotateX(10deg) translate(0px, 0px);
+      will-change: transform;
+      /* Ancho responsivo */
+      width: min(62vw, 320px);
+      /* Animación entrada */
+      animation: magIn 0.9s var(--ease) both;
+    }
+    .active-mag.dragging { cursor:grabbing; }
+    .active-mag.swapping { 
+      pointer-events:none;
+      transition: opacity 0.35s ease; 
+    }
+    .active-mag.fade-out { opacity:0; }
+    .active-mag.fade-in  { opacity:1; }
+
+    @keyframes magIn {
+      from { opacity:0; transform: rotateX(10deg) translateY(30px); }
+      to   { opacity:1; transform: rotateX(10deg) translate(0,0); }
     }
 
-    .mag-wrap:hover .mag-body {
-      transform: translateY(-8px) scale(1.025);
-      box-shadow:
-        4px 10px 28px rgba(0,0,0,0.38),
-        inset -3px 0 6px rgba(0,0,0,0.1);
-    }
-
-    /* Cuerpo de la revista */
     .mag-body {
-      position: relative;
+      width:100%;
+      aspect-ratio: 148 / 210;
       border-radius: 3px 6px 6px 3px;
-      overflow: hidden;
+      overflow:hidden;
+      position:relative;
       box-shadow:
-        2px 6px 16px rgba(0,0,0,0.3),
-        inset -2px 0 4px rgba(0,0,0,0.1);
-      transition: transform 0.35s var(--ease-out), box-shadow 0.35s ease;
-      background: #2a2a2a;
+        3px 8px 24px rgba(0,0,0,0.38),
+        inset -2px 0 6px rgba(0,0,0,0.12);
+      transition: box-shadow 0.3s ease;
+    }
+    .active-mag:hover .mag-body {
+      box-shadow:
+        5px 12px 32px rgba(0,0,0,0.45),
+        inset -2px 0 6px rgba(0,0,0,0.12);
     }
 
-    /* Lomo izquierdo */
-    .mag-body::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 9px;
-      background: linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15));
-      z-index: 10;
-      border-radius: 3px 0 0 3px;
+    /* Lomo */
+    .mag-spine {
+      position:absolute; left:0; top:0; bottom:0; width:10px;
+      background:linear-gradient(90deg, rgba(0,0,0,0.42), rgba(0,0,0,0.14));
+      z-index:5; border-radius:3px 0 0 3px;
     }
 
-    /* Sombra derecha de la revista sobre repisa */
-    .mag-wrap::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 10px; right: -4px;
-      height: 10px;
-      background: rgba(0,0,0,0.2);
-      filter: blur(4px);
-      border-radius: 50%;
-    }
-
-    /* Interior */
     .mag-inner {
-      position: absolute;
-      inset: 0;
-      left: 9px;          /* espacio del lomo */
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border-radius: 0 5px 5px 0;
-      background: #FAFAF8;
+      position:absolute; inset:0; left:10px;
+      display:flex; flex-direction:column;
+      overflow:hidden; border-radius:0 5px 5px 0;
+      background:#FAFAF8;
     }
-
-    /* Header */
-    .mag-header {
-      flex-shrink: 0;
-      padding: 10px 11px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    .mag-head {
+      flex-shrink:0; padding:11px 12px 8px;
+      display:flex; flex-direction:column; gap:3px;
     }
-
-    .mag-brand-name {
-      font-family: var(--font-display);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.96);
-      line-height: 1.1;
+    .mag-name {
+      font-family:var(--font-d); font-size:clamp(0.7rem,2.2vw,0.9rem);
+      font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+      color:rgba(255,255,255,0.96); line-height:1.1;
     }
-
-    .mag-subtitle {
-      font-family: var(--font-body);
-      font-size: 0.52rem;
-      font-weight: 300;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.6);
+    .mag-sub {
+      font-size:clamp(0.46rem,1.4vw,0.54rem); font-weight:300;
+      letter-spacing:0.1em; text-transform:uppercase;
+      color:rgba(255,255,255,0.58);
     }
-
-    /* Imagen portada */
     .mag-img-wrap {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-      background: #E8E4DE;
-      min-height: 0;
+      flex:1; position:relative; overflow:hidden;
+      background:#E8E4DE; min-height:0;
     }
-
     .mag-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: opacity 0.5s ease;
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; display:block;
+      transition: opacity 0.4s ease;
+    }
+    .mag-img.fading { opacity:0; }
+    .mag-foot {
+      flex-shrink:0; padding:7px 12px;
+      display:flex; justify-content:space-between; align-items:center;
+      border-top:1px solid rgba(0,0,0,0.07);
+      background:#F4F1ED;
+    }
+    .mag-foot-l {
+      font-size:clamp(0.44rem,1.3vw,0.52rem);
+      letter-spacing:0.07em; text-transform:uppercase; color:#999;
+    }
+    .mag-foot-r {
+      font-size:clamp(0.44rem,1.3vw,0.52rem);
+      letter-spacing:0.07em; text-transform:uppercase;
+      font-weight:700; color:var(--accent);
+    }
+    /* Badge próximamente sobre activa */
+    .mag-soon {
+      position:absolute; inset:0; left:10px;
+      background:rgba(0,0,0,0.48);
+      display:flex; align-items:center; justify-content:center;
+      border-radius:0 5px 5px 0; z-index:10;
+      opacity:0; transition:opacity 0.3s;
+    }
+    .mag-body:hover .mag-soon { opacity:1; }
+    .mag-soon span {
+      font-family:var(--font-d); font-size:clamp(0.58rem,1.8vw,0.72rem);
+      font-weight:300; letter-spacing:0.22em; text-transform:uppercase;
+      color:rgba(255,255,255,0.8);
     }
 
-    .mag-img.fading { opacity: 0; }
-
-    /* Footer */
-    .mag-footer {
-      flex-shrink: 0;
-      padding: 6px 11px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid rgba(0,0,0,0.08);
-      background: #F5F2EE;
-    }
-
-    .mag-footer-label {
-      font-size: 0.52rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #999;
-    }
-
-    .mag-footer-cta {
-      font-size: 0.52rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    /* Badge "Próximamente" */
-    .mag-coming {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-      border-radius: 0 5px 5px 0;
-    }
-
-    .mag-coming span {
-      font-family: var(--font-display);
-      font-size: 0.62rem;
-      font-weight: 300;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-    }
-
-    /* ===================================================
-       HINT + CONTROLES UI
-    =================================================== */
-    .hint {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 20px;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(6px);
-      border-radius: 100px;
-      color: rgba(255,255,255,0.75);
-      font-size: 0.68rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      z-index: 200;
-      pointer-events: none;
-      animation: hintLife 4s var(--ease-out) forwards;
-    }
-
-    @keyframes hintLife {
-      0%   { opacity: 0; transform: translateX(-50%) translateY(6px); }
-      12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-      75%  { opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    .btn-reset {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.35);
-      background: rgba(255,255,255,0.18);
-      backdrop-filter: blur(6px);
-      color: rgba(255,255,255,0.8);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .btn-reset:hover {
-      background: rgba(255,255,255,0.35);
-      color: #fff;
-    }
-
-    /* Indicador de marca activa (mobile) */
-    .brand-indicator {
-      position: fixed;
-      top: 56px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      z-index: 200;
-      pointer-events: none;
-    }
-
-    .brand-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.35);
-      transition: background 0.3s, transform 0.3s;
-    }
-
-    .brand-dot.active {
-      background: rgba(255,255,255,0.9);
-      transform: scale(1.4);
-    }
-
-    /* Botones prev/next (mobile) */
-    .nav-prev, .nav-next {
-      position: fixed;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 48px; height: 48px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(255,255,255,0.65);
-      backdrop-filter: blur(6px);
-      color: #555;
-      cursor: pointer;
-      display: none;      /* solo mobile */
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      transition: background 0.2s;
-    }
-
-    .nav-prev { left: 12px; }
-    .nav-next { right: 12px; }
-
-    .nav-prev:hover, .nav-next:hover { background: rgba(255,255,255,0.88); }
-
-    /* Tooltip doble-click */
+    /* Hint doble tap — aparece sobre la revista activa */
     .dbl-hint {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(8px);
-      color: #fff;
-      padding: 14px 28px;
-      border-radius: 8px;
-      font-family: var(--font-display);
-      font-size: 1rem;
-      font-weight: 300;
-      letter-spacing: 0.12em;
-      text-align: center;
-      z-index: 500;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s;
+      position:absolute; bottom:calc(100% + 12px); left:50%;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,0.32); backdrop-filter:blur(4px);
+      color:rgba(255,255,255,0.8); font-size:0.6rem;
+      letter-spacing:0.1em; text-transform:uppercase;
+      padding:5px 14px; border-radius:100px;
+      white-space:nowrap; pointer-events:none;
+      opacity:0; animation:hintPop 5s var(--ease) 1.2s forwards;
+    }
+    @keyframes hintPop {
+      0%  { opacity:0; transform:translateX(-50%) translateY(4px); }
+      15% { opacity:1; transform:translateX(-50%) translateY(0); }
+      75% { opacity:1; }
+      100%{ opacity:0; }
     }
 
-    .dbl-hint.show { opacity: 1; }
-
-    /* ===================================================
-       RESPONSIVE — mobile ≤700px
-       Estrategia: scene-wrap se convierte en flex column
-       centrado. Se abandona el sistema de coordenadas
-       absolutas del mundo desktop.
-    =================================================== */
-    @media (max-width: 700px) {
-
-      /* Toda la cadena de contenedores → flex column centrado */
-      .scene-wrap,
-      .perspective-wrap,
-      .world {
-        position: fixed !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        transform: none !important;
-        perspective: none !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: transparent;
-      }
-
-      /* Pared — fondo fijo */
-      .wall {
-        position: fixed !important;
-        inset: 0 !important;
-        z-index: 0;
-        transform: none !important;
-      }
-
-      /* Sombra ambiental — ocultar */
-      .floor-shadow { display: none !important; }
-
-      /* Revistas — flex centrado, sin posición absoluta */
-      .magazines-row {
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: flex-end !important;
-        z-index: 2;
-        margin-bottom: 0;
-      }
-
-      /* Repisa — debajo de la revista */
-      .shelf-container {
-        position: relative !important;
-        left: auto !important;
-        right: auto !important;
-        bottom: auto !important;
-        width: 100vw !important;
-        z-index: 1;
-        margin-top: 0;
-      }
-
-      /* Ocultar todas las revistas */
-      .mag-wrap {
-        display: none !important;
-        animation: none !important;
-      }
-
-      /* Solo mostrar la activa */
-      .mag-wrap.mobile-active {
-        display: block !important;
-        animation: magEntryMobile 0.55s var(--ease-out) both !important;
-      }
-
-      @keyframes magEntryMobile {
-        from { opacity: 0; transform: rotateX(10deg) translateY(28px); }
-        to   { opacity: 1; transform: rotateX(10deg) translateY(0); }
-      }
-
-      /* Revista más grande en mobile */
-      .mag-wrap.mobile-active .mag-body {
-        width: 178px !important;
-        height: 248px !important;
-      }
-
-      /* Botones nav */
-      .nav-prev, .nav-next { display: flex; }
+    /* ══════════════════════════════
+       ZONA GRID — miniaturas debajo repisa
+    ══════════════════════════════ */
+    .grid-zone {
+      position:fixed;
+      top: calc(100% - var(--shelf-bottom) + var(--shelf-h) + var(--shelf-depth) + 14px);
+      /* equivale a: justo debajo de la sombra de la repisa */
+      bottom: 0;
+      left:0; right:0;
+      display:flex; align-items:center; justify-content:center;
+      gap: clamp(10px, 3vw, 28px);
+      padding: 0 16px 10px;
+      z-index:40;
+      overflow:hidden;
     }
 
+    /* ── MINIATURA ── */
+    .mini-mag {
+      position:relative;
+      flex: 0 0 auto;
+      width: min(26vw, 110px);
+      cursor:pointer;
+      transform-origin: bottom center;
+      transform: rotateX(8deg);
+      transition: transform 0.28s var(--ease), filter 0.2s;
+      animation: miniIn 0.7s var(--ease) both;
+      filter: brightness(0.92);
+    }
+    .mini-mag:nth-child(1){animation-delay:0.1s}
+    .mini-mag:nth-child(2){animation-delay:0.2s}
+    .mini-mag:nth-child(3){animation-delay:0.3s}
+    @keyframes miniIn {
+      from { opacity:0; transform:rotateX(8deg) translateY(20px); }
+      to   { opacity:1; transform:rotateX(8deg) translateY(0); }
+    }
+    .mini-mag:hover {
+      transform: rotateX(8deg) translateY(-5px) scale(1.05);
+      filter: brightness(1);
+    }
+    .mini-mag:active {
+      transform: rotateX(8deg) scale(0.97);
+    }
+    .mini-body {
+      width:100%;
+      aspect-ratio: 148 / 200;
+      border-radius:2px 5px 5px 2px;
+      overflow:hidden; position:relative;
+      box-shadow:
+        2px 5px 14px rgba(0,0,0,0.3),
+        inset -1px 0 4px rgba(0,0,0,0.1);
+    }
+    .mini-spine {
+      position:absolute; left:0; top:0; bottom:0; width:7px;
+      background:linear-gradient(90deg,rgba(0,0,0,0.4),rgba(0,0,0,0.1));
+      z-index:5;
+    }
+    .mini-inner {
+      position:absolute; inset:0; left:7px;
+      display:flex; flex-direction:column;
+      overflow:hidden; border-radius:0 4px 4px 0;
+      background:#FAFAF8;
+    }
+    .mini-head {
+      flex-shrink:0; padding:7px 8px 5px;
+    }
+    .mini-name {
+      font-family:var(--font-d); font-size:clamp(0.55rem,1.7vw,0.68rem);
+      font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+      color:rgba(255,255,255,0.95); line-height:1.1;
+    }
+    .mini-img-wrap {
+      flex:1; overflow:hidden; position:relative; min-height:0;
+    }
+    .mini-img {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; display:block;
+    }
+    /* Badge próx en miniatura */
+    .mini-soon {
+      position:absolute; inset:0; left:7px;
+      background:rgba(0,0,0,0.38);
+      display:flex; align-items:center; justify-content:center;
+      z-index:10;
+    }
+    .mini-soon span {
+      font-family:var(--font-d); font-size:clamp(0.42rem,1.3vw,0.52rem);
+      letter-spacing:0.15em; text-transform:uppercase;
+      color:rgba(255,255,255,0.7);
+      writing-mode:vertical-rl;
+    }
+    /* Nombre debajo */
+    .mini-label {
+      text-align:center; margin-top:5px;
+      font-size:clamp(0.48rem,1.5vw,0.58rem);
+      letter-spacing:0.1em; text-transform:uppercase;
+      color:rgba(255,255,255,0.55);
+    }
+
+    /* Miniatura en estado "seleccionando" (fly up) */
+    .mini-mag.flying {
+      transition: transform 0.45s var(--ease), opacity 0.45s ease;
+      transform: rotateX(0deg) translateY(-120px) scale(1.1);
+      opacity:0;
+      pointer-events:none;
+    }
+    /* Miniatura que "baja" (activa anterior) */
+    .mini-mag.dropping {
+      animation: dropIn 0.5s var(--ease) both;
+    }
+    @keyframes dropIn {
+      from { opacity:0; transform:rotateX(8deg) translateY(-30px); }
+      to   { opacity:1; transform:rotateX(8deg) translateY(0); }
+    }
+
+    /* ══════════════════════════════
+       OVERLAY NAVEGACIÓN
+    ══════════════════════════════ */
+    .go-overlay {
+      position:fixed; inset:0; z-index:500;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(6px);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none;
+      transition:opacity 0.35s ease;
+    }
+    .go-overlay.show { opacity:1; }
+    .go-overlay span {
+      font-family:var(--font-d); font-size:1.1rem; font-weight:300;
+      letter-spacing:0.18em; color:#fff;
+    }
+
+    /* ══════════════════════════════
+       HINT GLOBAL
+    ══════════════════════════════ */
+    .global-hint {
+      position:fixed; bottom:14px; left:50%;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,0.26); backdrop-filter:blur(5px);
+      color:rgba(255,255,255,0.75); font-size:0.62rem;
+      letter-spacing:0.08em; text-transform:uppercase;
+      padding:6px 16px; border-radius:100px;
+      white-space:nowrap; pointer-events:none; z-index:300;
+      animation:ghFade 5s var(--ease) 0.5s forwards;
+    }
+    @keyframes ghFade {
+      0%  {opacity:0;transform:translateX(-50%) translateY(4px)}
+      10% {opacity:1;transform:translateX(-50%) translateY(0)}
+      75% {opacity:1}
+      100%{opacity:0;pointer-events:none}
+    }
+
+    /* ══════════════════════════════
+       RESPONSIVE TWEAKS
+    ══════════════════════════════ */
     @media (max-width: 480px) {
-      .nav-prev { left: 8px; }
-      .nav-next { right: 8px; }
-      .mag-wrap.mobile-active .mag-body {
-        width: 155px !important;
-        height: 218px !important;
-      }
+      :root { --shelf-bottom: 28%; }
+      .active-mag { width: min(72vw, 240px); }
+      .mini-mag   { width: min(24vw, 90px); }
     }
-
-    /* ===================================================
-       ANIMACIÓN ENTRADA
-    =================================================== */
-    .mag-wrap {
-      animation: magEntry 0.9s var(--ease-out) both;
-    }
-
-    .mag-wrap:nth-child(1) { animation-delay: 0.1s; }
-    .mag-wrap:nth-child(2) { animation-delay: 0.22s; }
-    .mag-wrap:nth-child(3) { animation-delay: 0.34s; }
-    .mag-wrap:nth-child(4) { animation-delay: 0.46s; }
-
-    @keyframes magEntry {
-      from {
-        opacity: 0;
-        transform: rotateX(10deg) translateY(40px);
-      }
-      to {
-        opacity: 1;
-        transform: rotateX(10deg) translateY(0);
-      }
-    }
-
-    /* Sombra ambiental en el suelo */
-    .floor-shadow {
-      position: absolute;
-      bottom: 100px;
-      left: 0; right: 0;
-      height: 40px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.12), transparent);
+    @media (min-width: 900px) {
+      :root { --shelf-bottom: 34%; }
+      .active-mag { width: min(52vw, 340px); }
+      .mini-mag   { width: min(18vw, 140px); }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="gl-header">
-    <div class="gl-logo">G-<span>Living</span> &nbsp;·&nbsp; Colecciones</div>
-  </header>
+<!-- Fondo pared -->
+<div class="wall-bg"></div>
 
-  <!-- Escena principal -->
-  <div class="scene-wrap" id="sceneWrap">
-    <div class="perspective-wrap">
-      <div class="world" id="world">
+<!-- Header -->
+<header class="gl-header">
+  <div class="gl-logo">G-<em>Living</em> &nbsp;·&nbsp; Colecciones</div>
+</header>
 
-        <!-- Pared -->
-        <div class="wall"></div>
+<!-- Repisa fija -->
+<div class="shelf">
+  <div class="shelf-mag-shadow"></div>
+  <div class="shelf-top"></div>
+  <div class="shelf-front"></div>
+  <div class="shelf-shadow"></div>
+</div>
 
-        <!-- Repisa -->
-        <div class="shelf-container">
-          <div class="shelf-top"></div>
-          <div class="shelf-front"></div>
-          <div class="shelf-shadow"></div>
+<!-- Zona revista activa (encima repisa) -->
+<div class="active-zone" id="activeZone">
+  <div class="active-mag" id="activeMag">
+    <!-- Hint doble tap — solo visible al inicio -->
+    <div class="dbl-hint" id="dblHint">Doble toque para entrar</div>
+    <div class="mag-body">
+      <div class="mag-spine"></div>
+      <div class="mag-inner">
+        <div class="mag-head" id="activeHead" style="background:#3A3228">
+          <div class="mag-name" id="activeName">Imolarte</div>
+          <div class="mag-sub"  id="activeSub">by Helena Caballero</div>
         </div>
-
-        <!-- Sombra ambiental -->
-        <div class="floor-shadow"></div>
-
-        <!-- Revistas -->
-        <div class="magazines-row" id="magazinesRow">
-
-          <!-- IMOLARTE — activa → link a sub-catálogo -->
-          <div class="mag-wrap mobile-active" id="mag-0" data-brand="Imolarte" data-url="imolarte/index.html" data-active="true">
-            <div class="mag-body" style="width:148px; height:210px; --mag-color:#3A3228;">
-              <div class="mag-inner">
-                <div class="mag-header" style="background:#3A3228;">
-                  <span class="mag-brand-name">Imolarte</span>
-                  <span class="mag-subtitle">by Helena Caballero</span>
-                </div>
-                <div class="mag-img-wrap">
-                  <img class="mag-img" id="img-0" src="" alt="Imolarte">
-                </div>
-                <div class="mag-footer">
-                  <span class="mag-footer-label">Cerámica italiana</span>
-                  <span class="mag-footer-cta">Ver →</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MLG -->
-          <div class="mag-wrap" id="mag-1" data-brand="MLG" data-url="#" data-active="false">
-            <div class="mag-body" style="width:148px; height:198px; --mag-color:#2C4A3E;">
-              <div class="mag-inner">
-                <div class="mag-header" style="background:#2C4A3E;">
-                  <span class="mag-brand-name">MLG</span>
-                  <span class="mag-subtitle">Colección</span>
-                </div>
-                <div class="mag-img-wrap">
-                  <img class="mag-img" id="img-1" src="" alt="MLG">
-                </div>
-                <div class="mag-footer">
-                  <span class="mag-footer-label">Moda · Lifestyle</span>
-                  <span class="mag-footer-cta">Ver →</span>
-                </div>
-              </div>
-              <div class="mag-coming"><span>Próximamente</span></div>
-            </div>
-          </div>
-
-          <!-- Tessitura Toscana -->
-          <div class="mag-wrap" id="mag-2" data-brand="Tessitura-Toscana" data-url="#" data-active="false">
-            <div class="mag-body" style="width:140px; height:220px; --mag-color:#4A3828;">
-              <div class="mag-inner">
-                <div class="mag-header" style="background:#4A3828;">
-                  <span class="mag-brand-name">Tessitura</span>
-                  <span class="mag-subtitle">Toscana</span>
-                </div>
-                <div class="mag-img-wrap">
-                  <img class="mag-img" id="img-2" src="" alt="Tessitura Toscana">
-                </div>
-                <div class="mag-footer">
-                  <span class="mag-footer-label">Textil · Toscana</span>
-                  <span class="mag-footer-cta">Ver →</span>
-                </div>
-              </div>
-              <div class="mag-coming"><span>Próximamente</span></div>
-            </div>
-          </div>
-
-          <!-- EME -->
-          <div class="mag-wrap" id="mag-3" data-brand="EME" data-url="#" data-active="false">
-            <div class="mag-body" style="width:148px; height:205px; --mag-color:#2C3A4A;">
-              <div class="mag-inner">
-                <div class="mag-header" style="background:#2C3A4A;">
-                  <span class="mag-brand-name">EME</span>
-                  <span class="mag-subtitle">Diseño · Colección</span>
-                </div>
-                <div class="mag-img-wrap">
-                  <img class="mag-img" id="img-3" src="" alt="EME">
-                </div>
-                <div class="mag-footer">
-                  <span class="mag-footer-label">Diseño · Arte</span>
-                  <span class="mag-footer-cta">Ver →</span>
-                </div>
-              </div>
-              <div class="mag-coming"><span>Próximamente</span></div>
-            </div>
-          </div>
-
-        </div><!-- /magazines-row -->
-      </div><!-- /world -->
-    </div><!-- /perspective-wrap -->
-  </div><!-- /scene-wrap -->
-
-  <!-- Dots indicadores -->
-  <div class="brand-indicator" id="brandIndicator"></div>
-
-  <!-- Nav mobile -->
-  <button class="nav-prev" id="navPrev" aria-label="Anterior">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-  </button>
-  <button class="nav-next" id="navNext" aria-label="Siguiente">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-  </button>
-
-  <!-- Hint -->
-  <div class="hint" id="hint">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 11a2 2 0 0 1 2 2v3a6 6 0 0 1-6 6h-2c-3.3 0-5-2-5-5v-3a2 2 0 0 1 2-2h.5"/></svg>
-    Arrastra · Scroll para zoom · Doble clic para entrar
+        <div class="mag-img-wrap">
+          <img class="mag-img" id="activeImg" src="" alt="">
+        </div>
+        <div class="mag-foot">
+          <span class="mag-foot-l" id="activeFootL">Cerámica italiana</span>
+          <span class="mag-foot-r" id="activeFootR">Ver →</span>
+        </div>
+        <!-- Badge próx (oculto si activa tiene link) -->
+        <div class="mag-soon" id="activeSoon" style="display:none">
+          <span>Próximamente</span>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <!-- Tooltip navegación -->
-  <div class="dbl-hint" id="dblHint">Abriendo catálogo…</div>
+<!-- Zona grid miniaturas (debajo repisa) -->
+<div class="grid-zone" id="gridZone"></div>
 
-  <!-- Reset -->
-  <button class="btn-reset" id="btnReset" title="Centrar vista">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 18 0A9 9 0 0 0 3 12"/><polyline points="12 8 12 12 14 14"/></svg>
-  </button>
+<!-- Overlay navegación -->
+<div class="go-overlay" id="goOverlay"><span>Abriendo catálogo…</span></div>
 
-  <script>
-  (function() {
-    'use strict';
+<!-- Hint global -->
+<div class="global-hint">Arrastra · Doble toque para entrar · Toca una colección abajo</div>
 
-    /* ── DATOS DE MARCAS ────────────────────────────── */
-    const BRANDS = [
-      {
-        id: 'Imolarte',
-        files: ['imolarte-portada1.jpg','imolarte-portada2.jpg','imolarte-portada3.jpg','imolarte-portada4.jpg','imolarte-portada5.jpg'],
-        url:  'imolarte/index.html',
-        active: true,
-      },
-      {
-        id: 'MLG',
-        files: ['MLG-portada1.jpg','MLG-portada2.jpg','MLG-portada3.jpg','MLG-portada4.jpg','MLG-portada5.jpg'],
-        url:  '#',
-        active: false,
-      },
-      {
-        id: 'Tessitura-Toscana',
-        files: ['Tessitura-Toscana-portada1.jpg','Tessitura-Toscana-portada2.jpg','Tessitura-Toscana-portada3.jpg','Tessitura-Toscana-portada4.jpg','Tessitura-Toscana-portada5.jpg'],
-        url:  '#',
-        active: false,
-      },
-      {
-        id: 'EME',
-        files: ['EME-portada-1.jpg','EME-portada-2.jpg','EME-portada-3.jpg','EME-portada-4.jpg','EME-portada-5.jpg'],
-        url:  '#',
-        active: false,
-      },
-    ];
+<script>
+(function(){
+'use strict';
 
-    const BASE = 'images-revista/';
-    const ROTATE_MS = 30000;  // 30 segundos
+/* ══════════════════════════════════════════════
+   DATOS DE MARCAS
+══════════════════════════════════════════════ */
+const BRANDS = [
+  {
+    id:      'imolarte',
+    name:    'Imolarte',
+    sub:     'by Helena Caballero',
+    foot:    'Cerámica italiana',
+    color:   '#3A3228',
+    url:     'imolarte/index.html',
+    live:    true,
+    folder:  'Imolarte',
+    files:   ['imolarte-portada1.jpg','imolarte-portada2.jpg','imolarte-portada3.jpg','imolarte-portada4.jpg','imolarte-portada5.jpg'],
+  },
+  {
+    id:      'mlg',
+    name:    'MLG',
+    sub:     'Colección',
+    foot:    'Moda · Lifestyle',
+    color:   '#2C4A3E',
+    url:     '#',
+    live:    false,
+    folder:  'MLG',
+    files:   ['MLG-portada1.jpg','MLG-portada2.jpg','MLG-portada3.jpg','MLG-portada4.jpg','MLG-portada5.jpg'],
+  },
+  {
+    id:      'tessitura',
+    name:    'Tessitura',
+    sub:     'Toscana',
+    foot:    'Textil · Toscana',
+    color:   '#4A3828',
+    url:     '#',
+    live:    false,
+    folder:  'Tessitura-Toscana',
+    files:   ['Tessitura-Toscana-portada1.jpg','Tessitura-Toscana-portada2.jpg','Tessitura-Toscana-portada3.jpg','Tessitura-Toscana-portada4.jpg','Tessitura-Toscana-portada5.jpg'],
+  },
+  {
+    id:      'eme',
+    name:    'EME',
+    sub:     'Diseño · Arte',
+    foot:    'Diseño · Arte',
+    color:   '#2C3A4A',
+    url:     '#',
+    live:    false,
+    folder:  'EME',
+    files:   ['EME-portada-1.jpg','EME-portada-2.jpg','EME-portada-3.jpg','EME-portada-4.jpg','EME-portada-5.jpg'],
+  },
+];
+const BASE = 'images-revista/';
+const COOKIE_DAYS = 7;
 
-    /* ── ESTADO ─────────────────────────────────────── */
-    let panX = 0, panY = 0;
-    let startX = 0, startY = 0, startPanX = 0, startPanY = 0;
-    let isDragging = false, didDrag = false;
-    let zoom = 1;
-    const ZOOM_MIN = 0.65, ZOOM_MAX = 1.6, ZOOM_STEP = 0.09;
-    const PAN_MAX_X = 200, PAN_MAX_Y = 110;
+/* ══════════════════════════════════════════════
+   COOKIES — portada por sesión
+══════════════════════════════════════════════ */
+function setCookie(name, val, days){
+  const d = new Date();
+  d.setTime(d.getTime() + days*24*60*60*1000);
+  document.cookie = name+'='+val+';expires='+d.toUTCString()+';path=/;SameSite=Lax';
+}
+function getCookie(name){
+  const v = document.cookie.match('(?:^|; )'+name+'=([^;]*)');
+  return v ? decodeURIComponent(v[1]) : null;
+}
+function getPortadaIdx(brand){
+  const raw = getCookie('gl_portada_'+brand.id);
+  const prev = raw !== null ? parseInt(raw, 10) : -1;
+  // Si hay cookie → siguiente portada; si no → aleatoria
+  if(prev >= 0) return (prev + 1) % brand.files.length;
+  return Math.floor(Math.random() * brand.files.length);
+}
+function savePortadas(){
+  // Guardar índice actual de cada brand
+  BRANDS.forEach(b => setCookie('gl_portada_'+b.id, portadaState[b.id], COOKIE_DAYS));
+}
+// Estado de índices actuales
+const portadaState = {};
+BRANDS.forEach(b => { portadaState[b.id] = getPortadaIdx(b); });
+// Guardar al salir
+window.addEventListener('pagehide', savePortadas);
+window.addEventListener('beforeunload', savePortadas);
 
-    // Mobile — índice visible
-    let mobileIdx = 0;
-    const isMobile = () => window.innerWidth <= 700;
+/* ══════════════════════════════════════════════
+   ESTADO
+══════════════════════════════════════════════ */
+let activeIdx = 0; // índice en BRANDS del activo
 
-    // Double tap
-    let lastTap = 0, lastTapEl = null;
+/* ══════════════════════════════════════════════
+   REFS DOM
+══════════════════════════════════════════════ */
+const activeMag  = document.getElementById('activeMag');
+const activeHead = document.getElementById('activeHead');
+const activeName = document.getElementById('activeName');
+const activeSub  = document.getElementById('activeSub');
+const activeImg  = document.getElementById('activeImg');
+const activeFootL= document.getElementById('activeFootL');
+const activeFootR= document.getElementById('activeFootR');
+const activeSoon = document.getElementById('activeSoon');
+const gridZone   = document.getElementById('gridZone');
+const goOverlay  = document.getElementById('goOverlay');
 
-    /* ── REFS ───────────────────────────────────────── */
-    const world      = document.getElementById('world');
-    const sceneWrap  = document.getElementById('sceneWrap');
-    const btnReset   = document.getElementById('btnReset');
-    const navPrev    = document.getElementById('navPrev');
-    const navNext    = document.getElementById('navNext');
-    const indicator  = document.getElementById('brandIndicator');
-    const dblHint    = document.getElementById('dblHint');
+/* ══════════════════════════════════════════════
+   RENDER ACTIVA
+══════════════════════════════════════════════ */
+function renderActive(brand){
+  activeHead.style.background = brand.color;
+  activeName.textContent = brand.name;
+  activeSub.textContent  = brand.sub;
+  activeFootL.textContent= brand.foot;
+  activeFootR.textContent= brand.live ? 'Ver →' : '';
+  activeSoon.style.display = brand.live ? 'none' : 'flex';
+  const img = brand.files[portadaState[brand.id]];
+  activeImg.src = BASE + brand.folder + '/' + img;
+  activeImg.alt = brand.name;
+  // Reset pan
+  panX=0; panY=0; applyPan();
+}
 
-    /* ── IMAGEN ALEATORIA INICIAL ───────────────────── */
-    BRANDS.forEach((b, i) => {
-      const img = document.getElementById('img-' + i);
-      if (!img) return;
-      const idx = Math.floor(Math.random() * b.files.length);
-      img.src = BASE + b.id + '/' + b.files[idx];
-      img._currentIdx = idx;
-      img._brand = b;
-    });
+/* ══════════════════════════════════════════════
+   RENDER GRID (3 miniaturas — las no-activas)
+══════════════════════════════════════════════ */
+function renderGrid(){
+  gridZone.innerHTML = '';
+  BRANDS.forEach((brand, idx) => {
+    if(idx === activeIdx) return; // saltar la activa
 
-    /* ── ROTACIÓN AUTOMÁTICA cada 30s ───────────────── */
-    BRANDS.forEach((b, i) => {
-      const img = document.getElementById('img-' + i);
-      if (!img) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'mini-mag';
+    wrap.dataset.idx = idx;
 
-      // Offset aleatorio para que no roten todas al mismo tiempo
-      const offset = Math.random() * ROTATE_MS;
-      setTimeout(function rotate() {
-        img.classList.add('fading');
+    const img = brand.files[portadaState[brand.id]];
+    wrap.innerHTML = `
+      <div class="mini-body">
+        <div class="mini-spine"></div>
+        <div class="mini-inner">
+          <div class="mini-head" style="background:${brand.color}">
+            <div class="mini-name">${brand.name}</div>
+          </div>
+          <div class="mini-img-wrap">
+            <img class="mini-img" src="${BASE}${brand.folder}/${img}" alt="${brand.name}" loading="lazy">
+          </div>
+        </div>
+        ${!brand.live ? '<div class="mini-soon"><span>Próx.</span></div>' : ''}
+      </div>
+      <div class="mini-label">${brand.name}</div>
+    `;
+
+    wrap.addEventListener('click', () => swapActive(idx, wrap));
+    gridZone.appendChild(wrap);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   SWAP — cambiar marca activa
+══════════════════════════════════════════════ */
+function swapActive(newIdx, miniEl){
+  if(newIdx === activeIdx) return;
+
+  // Animación miniatura: "vuela" hacia arriba
+  if(miniEl){
+    miniEl.classList.add('flying');
+  }
+
+  // Fade out revista activa
+  activeMag.classList.add('swapping','fade-out');
+
+  setTimeout(() => {
+    activeIdx = newIdx;
+    renderActive(BRANDS[activeIdx]);
+    renderGrid(); // actualiza miniaturas
+
+    // La nueva miniatura bajada tendrá clase dropping (añadida en renderGrid)
+    // El nuevo miniatura del prev activo: animarla como "drop"
+    // Buscar el elemento del ex-activo en el nuevo grid
+    const exEl = gridZone.querySelector(`[data-idx]`);
+    if(exEl) exEl.classList.add('dropping');
+
+    // Fade in revista activa
+    activeMag.style.opacity = '0';
+    activeMag.classList.remove('fade-out');
+    activeMag.style.animation = 'none';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        activeMag.style.transition = 'opacity 0.35s ease';
+        activeMag.style.opacity = '1';
         setTimeout(() => {
-          img._currentIdx = (img._currentIdx + 1) % b.files.length;
-          img.src = BASE + b.id + '/' + b.files[img._currentIdx];
-          img.classList.remove('fading');
-        }, 500);
-        setTimeout(rotate, ROTATE_MS);
-      }, offset);
-    });
-
-    /* ── DOTS INDICADORES ───────────────────────────── */
-    BRANDS.forEach((_, i) => {
-      const d = document.createElement('div');
-      d.className = 'brand-dot' + (i === 0 ? ' active' : '');
-      indicator.appendChild(d);
-    });
-
-    function updateDots(idx) {
-      document.querySelectorAll('.brand-dot').forEach((d, i) => {
-        d.classList.toggle('active', i === idx);
+          activeMag.style.transition = '';
+          activeMag.classList.remove('swapping');
+        }, 380);
       });
-    }
-
-    /* ── MOBILE NAV ─────────────────────────────────── */
-    function showMobile(idx) {
-      document.querySelectorAll('.mag-wrap').forEach((el, i) => {
-        el.classList.toggle('mobile-active', i === idx);
-      });
-      navPrev.disabled = idx === 0;
-      navNext.disabled = idx === BRANDS.length - 1;
-      updateDots(idx);
-      mobileIdx = idx;
-    }
-
-    navPrev.addEventListener('click', () => { if (mobileIdx > 0) showMobile(mobileIdx - 1); });
-    navNext.addEventListener('click', () => { if (mobileIdx < BRANDS.length - 1) showMobile(mobileIdx + 1); });
-
-    /* ── TRANSFORM ──────────────────────────────────── */
-    function applyTransform() {
-      if (isMobile()) return;  // mobile usa layout flex, no transform
-      world.style.transform =
-        'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px)) scale(' + zoom + ')';
-    }
-
-    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
-    /* ── NAVEGAR A MARCA ────────────────────────────── */
-    function openBrand(magWrap) {
-      const url = magWrap.dataset.url;
-      const active = magWrap.dataset.active === 'true';
-      if (!active || !url || url === '#') return;
-
-      dblHint.classList.add('show');
-      setTimeout(() => {
-        window.location.href = url;
-      }, 600);
-    }
-
-    /* ── EVENTOS MOUSE ──────────────────────────────── */
-    sceneWrap.addEventListener('mousedown', function(e) {
-      if (e.button !== 0) return;
-      if (e.target.closest('.btn-reset, .nav-prev, .nav-next')) return;
-      isDragging = true; didDrag = false;
-      startX = e.clientX; startY = e.clientY;
-      startPanX = panX; startPanY = panY;
-      sceneWrap.classList.add('dragging');
-      e.preventDefault();
     });
+  }, 420);
+}
 
-    window.addEventListener('mousemove', function(e) {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDrag = true;
-      panX = clamp(startPanX + dx, -PAN_MAX_X, PAN_MAX_X);
-      panY = clamp(startPanY + dy, -PAN_MAX_Y, PAN_MAX_Y);
-      applyTransform();
-    });
+/* ══════════════════════════════════════════════
+   PAN — drag de la revista activa
+══════════════════════════════════════════════ */
+let panX=0, panY=0;
+let dragging=false, didDrag=false;
+let startX=0, startY=0, startPX=0, startPY=0;
+const PAN_LIMIT_X = 160, PAN_LIMIT_Y = 100;
 
-    window.addEventListener('mouseup', function(e) {
-      if (!isDragging) return;
-      isDragging = false;
-      sceneWrap.classList.remove('dragging');
-    });
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 
-    /* Double click */
-    sceneWrap.addEventListener('dblclick', function(e) {
-      const mag = e.target.closest('.mag-wrap');
-      if (mag) openBrand(mag);
-    });
+function applyPan(){
+  activeMag.style.transform = `rotateX(10deg) translate(${panX}px, ${panY}px)`;
+}
 
-    /* ── SCROLL → ZOOM ──────────────────────────────── */
-    sceneWrap.addEventListener('wheel', function(e) {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
-      zoom = clamp(zoom + delta, ZOOM_MIN, ZOOM_MAX);
-      applyTransform();
-    }, { passive: false });
+// Mouse
+activeMag.addEventListener('mousedown', e => {
+  if(e.button !== 0) return;
+  dragging=true; didDrag=false;
+  startX=e.clientX; startY=e.clientY;
+  startPX=panX; startPY=panY;
+  activeMag.classList.add('dragging');
+  e.preventDefault();
+});
+window.addEventListener('mousemove', e => {
+  if(!dragging) return;
+  const dx=e.clientX-startX, dy=e.clientY-startY;
+  if(Math.abs(dx)>5||Math.abs(dy)>5) didDrag=true;
+  panX=clamp(startPX+dx,-PAN_LIMIT_X,PAN_LIMIT_X);
+  panY=clamp(startPY+dy,-PAN_LIMIT_Y,PAN_LIMIT_Y);
+  applyPan();
+});
+window.addEventListener('mouseup', () => {
+  dragging=false;
+  activeMag.classList.remove('dragging');
+});
 
-    /* ── TOUCH ──────────────────────────────────────── */
-    let touchStartX = 0, touchStartY = 0;
-    let pinchStartDist = 0, pinchStartZoom = 1;
-    let activeTouches = 0;
-    let touchMoved = false;
+// Double click
+activeMag.addEventListener('dblclick', e => {
+  if(didDrag) return;
+  openActive();
+});
 
-    function pinchDist(t) {
-      const dx = t[0].clientX - t[1].clientX;
-      const dy = t[0].clientY - t[1].clientY;
-      return Math.sqrt(dx*dx + dy*dy);
-    }
+// Touch — pan + double tap
+let touchStart={x:0,y:0}, touchPanStart={x:0,y:0};
+let tDragging=false, tDidMove=false;
+let lastTap=0;
 
-    sceneWrap.addEventListener('touchstart', function(e) {
-      activeTouches = e.touches.length;
-      touchMoved = false;
+activeMag.addEventListener('touchstart', e => {
+  if(e.touches.length!==1) return;
+  const t=e.touches[0];
+  touchStart={x:t.clientX,y:t.clientY};
+  touchPanStart={x:panX,y:panY};
+  tDragging=true; tDidMove=false;
+  // Double tap detect
+  const now=Date.now();
+  if(now-lastTap<340){ openActive(); lastTap=0; return; }
+  lastTap=now;
+  e.preventDefault();
+},{passive:false});
 
-      if (activeTouches === 1) {
-        isDragging = true;
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        startPanX = panX; startPanY = panY;
+activeMag.addEventListener('touchmove', e => {
+  if(!tDragging||e.touches.length!==1) return;
+  const t=e.touches[0];
+  const dx=t.clientX-touchStart.x, dy=t.clientY-touchStart.y;
+  if(Math.abs(dx)>5||Math.abs(dy)>5) tDidMove=true;
+  panX=clamp(touchPanStart.x+dx,-PAN_LIMIT_X,PAN_LIMIT_X);
+  panY=clamp(touchPanStart.y+dy,-PAN_LIMIT_Y,PAN_LIMIT_Y);
+  applyPan();
+  e.preventDefault();
+},{passive:false});
 
-        // Double tap
-        const now = Date.now();
-        const mag = e.target.closest('.mag-wrap');
-        if (mag && now - lastTap < 340 && lastTapEl === mag) {
-          openBrand(mag);
-          lastTap = 0;
-        } else {
-          lastTap = now;
-          lastTapEl = mag;
-        }
+activeMag.addEventListener('touchend', () => { tDragging=false; });
 
-        // Swipe mobile
-        if (isMobile()) {
-          startX = e.touches[0].clientX;
-        }
+/* ══════════════════════════════════════════════
+   ABRIR CATÁLOGO
+══════════════════════════════════════════════ */
+function openActive(){
+  const brand = BRANDS[activeIdx];
+  if(!brand.live) return;
+  savePortadas();
+  goOverlay.classList.add('show');
+  setTimeout(() => { window.location.href = brand.url; }, 600);
+}
 
-      } else if (activeTouches === 2) {
-        isDragging = false;
-        pinchStartDist = pinchDist(e.touches);
-        pinchStartZoom = zoom;
-        e.preventDefault();
-      }
-    }, { passive: false });
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+renderActive(BRANDS[activeIdx]);
+renderGrid();
 
-    sceneWrap.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-      touchMoved = true;
-
-      if (activeTouches === 1 && isDragging) {
-        const dx = e.touches[0].clientX - touchStartX;
-        const dy = e.touches[0].clientY - touchStartY;
-        panX = clamp(startPanX + dx, -PAN_MAX_X, PAN_MAX_X);
-        panY = clamp(startPanY + dy, -PAN_MAX_Y, PAN_MAX_Y);
-        applyTransform();
-      } else if (activeTouches === 2 && e.touches.length === 2) {
-        const dist = pinchDist(e.touches);
-        zoom = clamp(pinchStartZoom * (dist / pinchStartDist), ZOOM_MIN, ZOOM_MAX);
-        applyTransform();
-      }
-    }, { passive: false });
-
-    sceneWrap.addEventListener('touchend', function(e) {
-      // Swipe horizontal en mobile para cambiar revista
-      if (isMobile() && activeTouches === 1 && touchMoved) {
-        const endX = e.changedTouches[0].clientX;
-        const swipe = startX - endX;
-        if (Math.abs(swipe) > 50) {
-          if (swipe > 0 && mobileIdx < BRANDS.length - 1) showMobile(mobileIdx + 1);
-          if (swipe < 0 && mobileIdx > 0) showMobile(mobileIdx - 1);
-        }
-      }
-      isDragging = false;
-      activeTouches = 0;
-    });
-
-    /* ── RESET ──────────────────────────────────────── */
-    btnReset.addEventListener('click', function() {
-      panX = 0; panY = 0; zoom = 1;
-      applyTransform();
-    });
-
-    /* ── INIT ───────────────────────────────────────── */
-    applyTransform();
-    showMobile(0);
-
-    // Ocultar hint automáticamente
-    setTimeout(() => {
-      const h = document.getElementById('hint');
-      if (h) h.style.display = 'none';
-    }, 4200);
-
-  })();
-  </script>
+})();
+</script>
 </body>
 </html>
