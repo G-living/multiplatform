@@ -468,64 +468,89 @@
     .dbl-hint.show { opacity: 1; }
 
     /* ===================================================
-       RESPONSIVE — mobile
+       RESPONSIVE — mobile ≤700px
+       Estrategia: scene-wrap se convierte en flex column
+       centrado. Se abandona el sistema de coordenadas
+       absolutas del mundo desktop.
     =================================================== */
     @media (max-width: 700px) {
 
-      .perspective-wrap { perspective: none; }
-
+      /* Toda la cadena de contenedores → flex column centrado */
+      .scene-wrap,
+      .perspective-wrap,
       .world {
-        position: static;
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
         transform: none !important;
-        width: 100vw;
-        height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        perspective: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: transparent;
       }
 
-      .wall { position: fixed; inset: 0; z-index: 0; }
-
-      .shelf-container {
-        position: relative;
-        left: auto; right: auto;
-        width: 100vw;
-        z-index: 1;
-        order: 2;
-        margin-top: 6px;
+      /* Pared — fondo fijo */
+      .wall {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 0;
+        transform: none !important;
       }
 
+      /* Sombra ambiental — ocultar */
+      .floor-shadow { display: none !important; }
+
+      /* Revistas — flex centrado, sin posición absoluta */
       .magazines-row {
-        position: relative;
-        bottom: auto; left: auto;
-        transform: none;
-        display: flex;
-        justify-content: center;
-        align-items: flex-end;
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: flex-end !important;
         z-index: 2;
-        order: 1;
+        margin-bottom: 0;
       }
 
-      .mag-wrap { display: none !important; animation: none; }
+      /* Repisa — debajo de la revista */
+      .shelf-container {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 100vw !important;
+        z-index: 1;
+        margin-top: 0;
+      }
 
+      /* Ocultar todas las revistas */
+      .mag-wrap {
+        display: none !important;
+        animation: none !important;
+      }
+
+      /* Solo mostrar la activa */
       .mag-wrap.mobile-active {
         display: block !important;
-        animation: magEntryMobile 0.6s var(--ease-out) both;
+        animation: magEntryMobile 0.55s var(--ease-out) both !important;
       }
 
       @keyframes magEntryMobile {
-        from { opacity: 0; transform: rotateX(10deg) translateY(30px); }
+        from { opacity: 0; transform: rotateX(10deg) translateY(28px); }
         to   { opacity: 1; transform: rotateX(10deg) translateY(0); }
       }
 
+      /* Revista más grande en mobile */
       .mag-wrap.mobile-active .mag-body {
-        width: 175px !important;
-        height: 245px !important;
+        width: 178px !important;
+        height: 248px !important;
       }
 
-      .floor-shadow { display: none; }
-
+      /* Botones nav */
       .nav-prev, .nav-next { display: flex; }
     }
 
@@ -534,7 +559,7 @@
       .nav-next { right: 8px; }
       .mag-wrap.mobile-active .mag-body {
         width: 155px !important;
-        height: 220px !important;
+        height: 218px !important;
       }
     }
 
