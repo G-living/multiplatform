@@ -22,7 +22,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL072",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -30,7 +30,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP072",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -38,7 +38,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI072",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -46,7 +46,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT072",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -54,7 +54,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB072",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -62,7 +62,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG072",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 26.98,
-        precio_cop: 339958,
+        precio_cop: 340000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -70,7 +70,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG072",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 26.98,
-        precio_cop: 339958,
+        precio_cop: 340000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -78,7 +78,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF072",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -86,7 +86,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF072",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "MAZZETTO",
@@ -94,7 +94,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ072",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       }
     ],
   },
@@ -111,7 +111,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL038",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -119,7 +119,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP038",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -127,7 +127,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI038",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -135,7 +135,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT038",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -143,7 +143,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB038",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -151,7 +151,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG038",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 29.36,
-        precio_cop: 369896,
+        precio_cop: 370000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -159,7 +159,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG038",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 29.36,
-        precio_cop: 369896,
+        precio_cop: 370000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -167,7 +167,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF038",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -175,7 +175,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF038",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "MAZZETTO",
@@ -183,7 +183,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ038",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       }
     ],
   },
@@ -200,7 +200,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL039",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -208,7 +208,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP039",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -216,7 +216,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI039",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -224,7 +224,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT039",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -232,7 +232,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB039",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 51.94,
-        precio_cop: 654394,
+        precio_cop: 655000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -240,7 +240,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG039",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 65.06,
-        precio_cop: 819736,
+        precio_cop: 820000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -248,7 +248,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG039",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 65.06,
-        precio_cop: 819736,
+        precio_cop: 820000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -256,7 +256,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF039",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -264,7 +264,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF039",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       },
       {
         coleccion: "MAZZETTO",
@@ -272,7 +272,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ039",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       }
     ],
   },
@@ -289,7 +289,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL022",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -297,7 +297,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP022",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -305,7 +305,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI022",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -313,7 +313,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT022",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -321,7 +321,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB022",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -329,7 +329,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG022",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 31.74,
-        precio_cop: 399944,
+        precio_cop: 400000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -337,7 +337,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG022",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 31.74,
-        precio_cop: 399944,
+        precio_cop: 400000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -345,7 +345,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF022",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -353,7 +353,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF022",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "MAZZETTO",
@@ -361,7 +361,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ022",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       }
     ],
   },
@@ -378,7 +378,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL023",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -386,7 +386,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP023",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -394,7 +394,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI023",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -402,7 +402,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT023",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -410,7 +410,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB023",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -418,7 +418,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG023",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 34.91,
-        precio_cop: 439861,
+        precio_cop: 440000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -426,7 +426,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG023",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 34.91,
-        precio_cop: 439861,
+        precio_cop: 440000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -434,7 +434,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF023",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -442,7 +442,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF023",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       },
       {
         coleccion: "MAZZETTO",
@@ -450,7 +450,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ023",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       }
     ],
   },
@@ -467,7 +467,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL024",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -475,7 +475,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP024",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -483,7 +483,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI024",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -491,7 +491,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT024",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -499,7 +499,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB024",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -507,7 +507,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG024",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 45.22,
-        precio_cop: 569812,
+        precio_cop: 570000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -515,7 +515,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG024",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 45.22,
-        precio_cop: 569812,
+        precio_cop: 570000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -523,7 +523,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF024",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 15.14,
-        precio_cop: 190814,
+        precio_cop: 191000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -531,7 +531,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF024",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 15.14,
-        precio_cop: 190814,
+        precio_cop: 191000,
       },
       {
         coleccion: "MAZZETTO",
@@ -539,7 +539,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ024",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 20.92,
-        precio_cop: 263592,
+        precio_cop: 264000,
       }
     ],
   },
@@ -556,7 +556,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL052",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -564,7 +564,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP052",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -572,7 +572,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI052",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -580,7 +580,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT052",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -588,7 +588,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB052",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -596,7 +596,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG052",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -604,7 +604,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG052",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -612,7 +612,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF052",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -620,7 +620,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF052",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "MAZZETTO",
@@ -628,7 +628,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ052",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       }
     ],
   },
@@ -645,7 +645,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL110",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 71.41,
-        precio_cop: 899741,
+        precio_cop: 900000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -653,7 +653,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP110",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 71.41,
-        precio_cop: 899741,
+        precio_cop: 900000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -661,7 +661,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI110",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 71.41,
-        precio_cop: 899741,
+        precio_cop: 900000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -669,7 +669,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT110",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 71.41,
-        precio_cop: 899741,
+        precio_cop: 900000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -677,7 +677,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB110",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 64.2,
-        precio_cop: 808920,
+        precio_cop: 809000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -685,7 +685,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG110",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 78.55,
-        precio_cop: 989715,
+        precio_cop: 990000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -693,7 +693,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG110",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 78.55,
-        precio_cop: 989715,
+        precio_cop: 990000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -701,7 +701,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF110",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -709,7 +709,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF110",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "MAZZETTO",
@@ -717,7 +717,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ110",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 53.38,
-        precio_cop: 672538,
+        precio_cop: 673000,
       }
     ],
   },
@@ -734,7 +734,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL003",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -742,7 +742,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP003",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -750,7 +750,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI003",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -758,7 +758,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT003",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -766,7 +766,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB003",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -774,7 +774,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG003",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 89.66,
-        precio_cop: 1129756,
+        precio_cop: 1130000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -782,7 +782,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG003",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 89.66,
-        precio_cop: 1129756,
+        precio_cop: 1130000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -790,7 +790,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF003",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 64.2,
-        precio_cop: 808920,
+        precio_cop: 809000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -798,7 +798,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF003",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 64.2,
-        precio_cop: 808920,
+        precio_cop: 809000,
       },
       {
         coleccion: "MAZZETTO",
@@ -806,7 +806,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ003",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       }
     ],
   },
@@ -823,7 +823,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL004",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -831,7 +831,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP004",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -839,7 +839,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI004",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -847,7 +847,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT004",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -855,7 +855,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB004",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 79.34,
-        precio_cop: 999734,
+        precio_cop: 1000000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -863,7 +863,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG004",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 107.91,
-        precio_cop: 1359611,
+        precio_cop: 1360000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -871,7 +871,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG004",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 107.91,
-        precio_cop: 1359611,
+        precio_cop: 1360000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -879,7 +879,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF004",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 75.02,
-        precio_cop: 945202,
+        precio_cop: 946000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -887,7 +887,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF004",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 75.02,
-        precio_cop: 945202,
+        precio_cop: 946000,
       },
       {
         coleccion: "MAZZETTO",
@@ -895,7 +895,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ004",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 78.62,
-        precio_cop: 990662,
+        precio_cop: 991000,
       }
     ],
   },
@@ -912,7 +912,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL074",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 144.98,
-        precio_cop: 1826798,
+        precio_cop: 1827000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -920,7 +920,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP074",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 144.98,
-        precio_cop: 1826798,
+        precio_cop: 1827000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -928,7 +928,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI074",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 144.98,
-        precio_cop: 1826798,
+        precio_cop: 1827000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -936,7 +936,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT074",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 144.98,
-        precio_cop: 1826798,
+        precio_cop: 1827000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -944,7 +944,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB074",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 141.38,
-        precio_cop: 1781338,
+        precio_cop: 1782000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -952,7 +952,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG074",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 159.48,
-        precio_cop: 2009478,
+        precio_cop: 2010000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -960,7 +960,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG074",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 159.48,
-        precio_cop: 2009478,
+        precio_cop: 2010000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -968,7 +968,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF074",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 132.0,
-        precio_cop: 1663200,
+        precio_cop: 1664000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -976,7 +976,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF074",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 132.0,
-        precio_cop: 1663200,
+        precio_cop: 1664000,
       },
       {
         coleccion: "MAZZETTO",
@@ -984,7 +984,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ074",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 136.33,
-        precio_cop: 1717733,
+        precio_cop: 1718000,
       }
     ],
   },
@@ -1001,7 +1001,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL079",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1009,7 +1009,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP079",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1017,7 +1017,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI079",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1025,7 +1025,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT079",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1033,7 +1033,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB079",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1041,7 +1041,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG079",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1049,7 +1049,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG079",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1057,7 +1057,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF079",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1065,7 +1065,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF079",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1073,7 +1073,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ079",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       }
     ],
   },
@@ -1090,7 +1090,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL108",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1098,7 +1098,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP108",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1106,7 +1106,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI108",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1114,7 +1114,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT108",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1122,7 +1122,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB108",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1130,7 +1130,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG108",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 30.15,
-        precio_cop: 379875,
+        precio_cop: 380000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1138,7 +1138,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG108",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 30.15,
-        precio_cop: 379875,
+        precio_cop: 380000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1146,7 +1146,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF108",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1154,7 +1154,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF108",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1162,7 +1162,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ108",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       }
     ],
   },
@@ -1179,7 +1179,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL080",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1187,7 +1187,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP080",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1195,7 +1195,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI080",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1203,7 +1203,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT080",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1211,7 +1211,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB080",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 20.2,
-        precio_cop: 254520,
+        precio_cop: 255000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1219,7 +1219,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG080",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 24.6,
-        precio_cop: 309910,
+        precio_cop: 310000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1227,7 +1227,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG080",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 24.6,
-        precio_cop: 309910,
+        precio_cop: 310000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1235,7 +1235,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF080",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1243,7 +1243,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF080",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1251,7 +1251,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ080",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       }
     ],
   },
@@ -1268,7 +1268,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL081",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1276,7 +1276,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP081",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1284,7 +1284,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI081",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1292,7 +1292,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT081",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1300,7 +1300,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB081",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1308,7 +1308,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG081",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1316,7 +1316,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG081",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1324,7 +1324,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF081",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1332,7 +1332,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF081",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1340,7 +1340,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ081",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       }
     ],
   },
@@ -1357,7 +1357,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL082",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1365,7 +1365,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP082",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1373,7 +1373,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI082",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1381,7 +1381,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT082",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1389,7 +1389,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB082",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1397,7 +1397,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG082",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 65.06,
-        precio_cop: 819736,
+        precio_cop: 820000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1405,7 +1405,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG082",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 65.06,
-        precio_cop: 819736,
+        precio_cop: 820000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1413,7 +1413,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF082",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1421,7 +1421,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF082",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1429,7 +1429,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ082",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       }
     ],
   },
@@ -1446,7 +1446,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL083",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1454,7 +1454,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP083",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1462,7 +1462,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI083",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1470,7 +1470,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT083",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1478,7 +1478,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB083",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 48.33,
-        precio_cop: 608933,
+        precio_cop: 609000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1486,7 +1486,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG083",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 57.92,
-        precio_cop: 729812,
+        precio_cop: 730000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1494,7 +1494,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG083",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 57.92,
-        precio_cop: 729812,
+        precio_cop: 730000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1502,7 +1502,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF083",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1510,7 +1510,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF083",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1518,7 +1518,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ083",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       }
     ],
   },
@@ -1535,7 +1535,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL111",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1543,7 +1543,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP111",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1551,7 +1551,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI111",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1559,7 +1559,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT111",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1567,7 +1567,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB111",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1575,7 +1575,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG111",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 21.42,
-        precio_cop: 269882,
+        precio_cop: 270000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1583,7 +1583,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG111",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 21.42,
-        precio_cop: 269882,
+        precio_cop: 270000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1591,7 +1591,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF111",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1599,7 +1599,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF111",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1607,7 +1607,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ111",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       }
     ],
   },
@@ -1624,7 +1624,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL037",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1632,7 +1632,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP037",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1640,7 +1640,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI037",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1648,7 +1648,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT037",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1656,7 +1656,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB037",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1664,7 +1664,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG037",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 21.42,
-        precio_cop: 269882,
+        precio_cop: 270000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1672,7 +1672,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG037",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 21.42,
-        precio_cop: 269882,
+        precio_cop: 270000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1680,7 +1680,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF037",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1688,7 +1688,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF037",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1696,7 +1696,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ037",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       }
     ],
   },
@@ -1713,7 +1713,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL018",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1721,7 +1721,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP018",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1729,7 +1729,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI018",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1737,7 +1737,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT018",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1745,7 +1745,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB018",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1753,7 +1753,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG018",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 49.98,
-        precio_cop: 629798,
+        precio_cop: 630000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1761,7 +1761,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG018",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 49.98,
-        precio_cop: 629798,
+        precio_cop: 630000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1769,7 +1769,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF018",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1777,7 +1777,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF018",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1785,7 +1785,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ018",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       }
     ],
   },
@@ -1802,7 +1802,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL019",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1810,7 +1810,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP019",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1818,7 +1818,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI019",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1826,7 +1826,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT019",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1834,7 +1834,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB019",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1842,7 +1842,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG019",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1850,7 +1850,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG019",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1858,7 +1858,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF019",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1866,7 +1866,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF019",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1874,7 +1874,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ019",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       }
     ],
   },
@@ -1891,7 +1891,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL001",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1899,7 +1899,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP001",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1907,7 +1907,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI001",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -1915,7 +1915,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT001",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -1923,7 +1923,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB001",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 37.51,
-        precio_cop: 472651,
+        precio_cop: 473000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -1931,7 +1931,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG001",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 46.02,
-        precio_cop: 579902,
+        precio_cop: 580000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -1939,7 +1939,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG001",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 46.02,
-        precio_cop: 579902,
+        precio_cop: 580000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -1947,7 +1947,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF001",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -1955,7 +1955,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF001",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "MAZZETTO",
@@ -1963,7 +1963,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ001",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       }
     ],
   },
@@ -1980,7 +1980,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL002",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 49.05,
-        precio_cop: 618005,
+        precio_cop: 619000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -1988,7 +1988,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP002",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 49.05,
-        precio_cop: 618005,
+        precio_cop: 619000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -1996,7 +1996,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI002",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 49.05,
-        precio_cop: 618005,
+        precio_cop: 619000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2004,7 +2004,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT002",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 49.05,
-        precio_cop: 618005,
+        precio_cop: 619000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2012,7 +2012,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB002",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2020,7 +2020,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG002",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 53.95,
-        precio_cop: 679805,
+        precio_cop: 680000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2028,7 +2028,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG002",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 53.95,
-        precio_cop: 679805,
+        precio_cop: 680000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2036,7 +2036,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF002",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2044,7 +2044,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF002",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2052,7 +2052,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ002",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       }
     ],
   },
@@ -2069,7 +2069,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL005",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2077,7 +2077,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP005",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2085,7 +2085,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI005",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2093,7 +2093,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT005",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2101,7 +2101,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB005",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2109,7 +2109,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG005",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 38.09,
-        precio_cop: 479889,
+        precio_cop: 480000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2117,7 +2117,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG005",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 38.09,
-        precio_cop: 479889,
+        precio_cop: 480000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2125,7 +2125,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF005",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2133,7 +2133,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF005",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2141,7 +2141,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ005",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       }
     ],
   },
@@ -2158,7 +2158,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL006",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 83.67,
-        precio_cop: 1054267,
+        precio_cop: 1055000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2166,7 +2166,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP006",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 83.67,
-        precio_cop: 1054267,
+        precio_cop: 1055000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2174,7 +2174,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI006",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 83.67,
-        precio_cop: 1054267,
+        precio_cop: 1055000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2182,7 +2182,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT006",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 83.67,
-        precio_cop: 1054267,
+        precio_cop: 1055000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2190,7 +2190,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB006",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 77.18,
-        precio_cop: 972518,
+        precio_cop: 973000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2198,7 +2198,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG006",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 92.04,
-        precio_cop: 1159694,
+        precio_cop: 1160000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2206,7 +2206,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG006",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 92.04,
-        precio_cop: 1159694,
+        precio_cop: 1160000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2214,7 +2214,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF006",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2222,7 +2222,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF006",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2230,7 +2230,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ006",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 74.3,
-        precio_cop: 936130,
+        precio_cop: 937000,
       }
     ],
   },
@@ -2247,7 +2247,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL048",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2255,7 +2255,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP048",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2263,7 +2263,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI048",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2271,7 +2271,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT048",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2279,7 +2279,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB048",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2287,7 +2287,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG048",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 42.85,
-        precio_cop: 539875,
+        precio_cop: 540000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2295,7 +2295,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG048",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 42.85,
-        precio_cop: 539875,
+        precio_cop: 540000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2303,7 +2303,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF048",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2311,7 +2311,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF048",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2319,7 +2319,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ048",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       }
     ],
   },
@@ -2336,7 +2336,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL049",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2344,7 +2344,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP049",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2352,7 +2352,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI049",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2360,7 +2360,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT049",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 43.28,
-        precio_cop: 545328,
+        precio_cop: 546000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2368,7 +2368,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB049",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2376,7 +2376,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG049",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2384,7 +2384,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG049",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2392,7 +2392,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF049",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2400,7 +2400,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF049",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2408,7 +2408,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ049",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       }
     ],
   },
@@ -2425,7 +2425,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL050",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 51.22,
-        precio_cop: 645322,
+        precio_cop: 646000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2433,7 +2433,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP050",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 51.22,
-        precio_cop: 645322,
+        precio_cop: 646000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2441,7 +2441,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI050",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 51.22,
-        precio_cop: 645322,
+        precio_cop: 646000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2449,7 +2449,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT050",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 51.22,
-        precio_cop: 645322,
+        precio_cop: 646000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2457,7 +2457,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB050",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2465,7 +2465,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG050",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 56.34,
-        precio_cop: 709854,
+        precio_cop: 710000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2473,7 +2473,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG050",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 56.34,
-        precio_cop: 709854,
+        precio_cop: 710000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2481,7 +2481,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF050",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2489,7 +2489,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF050",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2497,7 +2497,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ050",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 37.51,
-        precio_cop: 472651,
+        precio_cop: 473000,
       }
     ],
   },
@@ -2514,7 +2514,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL051",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2522,7 +2522,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP051",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2530,7 +2530,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI051",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2538,7 +2538,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT051",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2546,7 +2546,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB051",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 51.22,
-        precio_cop: 645322,
+        precio_cop: 646000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2554,7 +2554,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG051",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 71.41,
-        precio_cop: 899791,
+        precio_cop: 900000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2562,7 +2562,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG051",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 71.41,
-        precio_cop: 899791,
+        precio_cop: 900000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2570,7 +2570,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF051",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2578,7 +2578,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF051",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2586,7 +2586,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ051",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       }
     ],
   },
@@ -2603,7 +2603,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL007",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 35.34,
-        precio_cop: 445334,
+        precio_cop: 446000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2611,7 +2611,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP007",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 35.34,
-        precio_cop: 445334,
+        precio_cop: 446000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2619,7 +2619,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI007",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 35.34,
-        precio_cop: 445334,
+        precio_cop: 446000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2627,7 +2627,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT007",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 35.34,
-        precio_cop: 445334,
+        precio_cop: 446000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2635,7 +2635,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB007",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2643,7 +2643,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG007",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 38.88,
-        precio_cop: 489868,
+        precio_cop: 490000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2651,7 +2651,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG007",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 38.88,
-        precio_cop: 489868,
+        precio_cop: 490000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2659,7 +2659,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF007",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2667,7 +2667,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF007",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2675,7 +2675,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ007",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       }
     ],
   },
@@ -2692,7 +2692,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL008",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2700,7 +2700,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP008",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2708,7 +2708,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI008",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2716,7 +2716,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT008",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2724,7 +2724,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB008",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2732,7 +2732,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG008",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 49.19,
-        precio_cop: 619819,
+        precio_cop: 620000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2740,7 +2740,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG008",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 49.19,
-        precio_cop: 619819,
+        precio_cop: 620000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2748,7 +2748,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF008",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2756,7 +2756,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF008",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2764,7 +2764,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ008",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       }
     ],
   },
@@ -2781,7 +2781,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL009",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2789,7 +2789,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP009",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2797,7 +2797,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI009",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2805,7 +2805,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT009",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2813,7 +2813,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB009",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 44.0,
-        precio_cop: 554400,
+        precio_cop: 555000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2821,7 +2821,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG009",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 57.92,
-        precio_cop: 729812,
+        precio_cop: 730000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2829,7 +2829,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG009",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 57.92,
-        precio_cop: 729812,
+        precio_cop: 730000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2837,7 +2837,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF009",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 35.34,
-        precio_cop: 445334,
+        precio_cop: 446000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2845,7 +2845,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF009",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 35.34,
-        precio_cop: 445334,
+        precio_cop: 446000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2853,7 +2853,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ009",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       }
     ],
   },
@@ -2870,7 +2870,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL010",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 56.26,
-        precio_cop: 708926,
+        precio_cop: 709000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2878,7 +2878,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP010",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 56.26,
-        precio_cop: 708926,
+        precio_cop: 709000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2886,7 +2886,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI010",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 56.26,
-        precio_cop: 708926,
+        precio_cop: 709000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2894,7 +2894,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT010",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 56.26,
-        precio_cop: 708926,
+        precio_cop: 709000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2902,7 +2902,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB010",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2910,7 +2910,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG010",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 61.89,
-        precio_cop: 779819,
+        precio_cop: 780000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -2918,7 +2918,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG010",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 61.89,
-        precio_cop: 779819,
+        precio_cop: 780000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -2926,7 +2926,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF010",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -2934,7 +2934,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF010",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "MAZZETTO",
@@ -2942,7 +2942,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ010",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       }
     ],
   },
@@ -2959,7 +2959,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL011",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -2967,7 +2967,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP011",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -2975,7 +2975,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI011",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -2983,7 +2983,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT011",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -2991,7 +2991,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB011",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 50.49,
-        precio_cop: 636149,
+        precio_cop: 637000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -2999,7 +2999,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG011",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 65.86,
-        precio_cop: 829826,
+        precio_cop: 830000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3007,7 +3007,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG011",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 65.86,
-        precio_cop: 829826,
+        precio_cop: 830000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3015,7 +3015,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF011",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3023,7 +3023,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF011",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3031,7 +3031,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ011",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       }
     ],
   },
@@ -3048,7 +3048,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL016",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3056,7 +3056,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP016",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3064,7 +3064,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI016",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3072,7 +3072,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT016",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 81.51,
-        precio_cop: 1027051,
+        precio_cop: 1028000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3080,7 +3080,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB016",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 63.47,
-        precio_cop: 799747,
+        precio_cop: 800000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3088,7 +3088,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG016",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 89.66,
-        precio_cop: 1129756,
+        precio_cop: 1130000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3096,7 +3096,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG016",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 89.66,
-        precio_cop: 1129756,
+        precio_cop: 1130000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3104,7 +3104,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF016",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3112,7 +3112,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF016",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3120,7 +3120,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ016",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       }
     ],
   },
@@ -3137,7 +3137,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL017",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 102.42,
-        precio_cop: 1290542,
+        precio_cop: 1291000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3145,7 +3145,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP017",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 102.42,
-        precio_cop: 1290542,
+        precio_cop: 1291000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3153,7 +3153,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI017",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 102.42,
-        precio_cop: 1290542,
+        precio_cop: 1291000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3161,7 +3161,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT017",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 102.42,
-        precio_cop: 1290542,
+        precio_cop: 1291000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3169,7 +3169,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB017",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 80.06,
-        precio_cop: 1008806,
+        precio_cop: 1009000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3177,7 +3177,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG017",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 112.67,
-        precio_cop: 1419597,
+        precio_cop: 1420000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3185,7 +3185,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG017",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 112.67,
-        precio_cop: 1419597,
+        precio_cop: 1420000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3193,7 +3193,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF017",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 71.41,
-        precio_cop: 899741,
+        precio_cop: 900000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3201,7 +3201,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF017",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 71.41,
-        precio_cop: 899741,
+        precio_cop: 900000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3209,7 +3209,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ017",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 75.02,
-        precio_cop: 945202,
+        precio_cop: 946000,
       }
     ],
   },
@@ -3226,7 +3226,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL041",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3234,7 +3234,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP041",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3242,7 +3242,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI041",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3250,7 +3250,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT041",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 64.92,
-        precio_cop: 817992,
+        precio_cop: 818000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3258,7 +3258,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB041",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3266,7 +3266,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG041",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 71.41,
-        precio_cop: 899791,
+        precio_cop: 900000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3274,7 +3274,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG041",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 71.41,
-        precio_cop: 899791,
+        precio_cop: 900000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3282,7 +3282,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF041",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3290,7 +3290,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF041",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3298,7 +3298,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ041",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       }
     ],
   },
@@ -3315,7 +3315,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL040",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3323,7 +3323,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP040",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3331,7 +3331,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI040",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3339,7 +3339,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT040",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3347,7 +3347,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB040",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 56.98,
-        precio_cop: 717998,
+        precio_cop: 718000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3355,7 +3355,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG040",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 76.96,
-        precio_cop: 969756,
+        precio_cop: 970000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3363,7 +3363,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG040",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 76.96,
-        precio_cop: 969756,
+        precio_cop: 970000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3371,7 +3371,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF040",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 49.77,
-        precio_cop: 627077,
+        precio_cop: 628000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3379,7 +3379,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF040",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 49.77,
-        precio_cop: 627077,
+        precio_cop: 628000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3387,7 +3387,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ040",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 53.38,
-        precio_cop: 672538,
+        precio_cop: 673000,
       }
     ],
   },
@@ -3404,7 +3404,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL028",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3412,7 +3412,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP028",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3420,7 +3420,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI028",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3428,7 +3428,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT028",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3436,7 +3436,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB028",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3444,7 +3444,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG028",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 30.94,
-        precio_cop: 389854,
+        precio_cop: 390000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3452,7 +3452,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG028",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 30.94,
-        precio_cop: 389854,
+        precio_cop: 390000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3460,7 +3460,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF028",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3468,7 +3468,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF028",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3476,7 +3476,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ028",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       }
     ],
   },
@@ -3493,7 +3493,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL020",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3501,7 +3501,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP020",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3509,7 +3509,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI020",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3517,7 +3517,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT020",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3525,7 +3525,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB020",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3533,7 +3533,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG020",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 31.74,
-        precio_cop: 399944,
+        precio_cop: 400000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3541,7 +3541,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG020",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 31.74,
-        precio_cop: 399944,
+        precio_cop: 400000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3549,7 +3549,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF020",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 15.14,
-        precio_cop: 190814,
+        precio_cop: 191000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3557,7 +3557,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF020",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 15.14,
-        precio_cop: 190814,
+        precio_cop: 191000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3565,7 +3565,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ020",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       }
     ],
   },
@@ -3582,7 +3582,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL021",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3590,7 +3590,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP021",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3598,7 +3598,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI021",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3606,7 +3606,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT021",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3614,7 +3614,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB021",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3622,7 +3622,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG021",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 37.29,
-        precio_cop: 469909,
+        precio_cop: 470000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3630,7 +3630,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG021",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 37.29,
-        precio_cop: 469909,
+        precio_cop: 470000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3638,7 +3638,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF021",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3646,7 +3646,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF021",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3654,7 +3654,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ021",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       }
     ],
   },
@@ -3671,7 +3671,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL025",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3679,7 +3679,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP025",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3687,7 +3687,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI025",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3695,7 +3695,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT025",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3703,7 +3703,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB025",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3711,7 +3711,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG025",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 33.33,
-        precio_cop: 419903,
+        precio_cop: 420000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3719,7 +3719,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG025",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 33.33,
-        precio_cop: 419903,
+        precio_cop: 420000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3727,7 +3727,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF025",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3735,7 +3735,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF025",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3743,7 +3743,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ025",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       }
     ],
   },
@@ -3760,7 +3760,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL026",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3768,7 +3768,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP026",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3776,7 +3776,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI026",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3784,7 +3784,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT026",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3792,7 +3792,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB026",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3800,7 +3800,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG026",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 44.43,
-        precio_cop: 559833,
+        precio_cop: 560000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3808,7 +3808,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG026",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 44.43,
-        precio_cop: 559833,
+        precio_cop: 560000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3816,7 +3816,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF026",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3824,7 +3824,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF026",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3832,7 +3832,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ026",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       }
     ],
   },
@@ -3849,7 +3849,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL027",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 51.94,
-        precio_cop: 654394,
+        precio_cop: 655000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3857,7 +3857,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP027",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 51.94,
-        precio_cop: 654394,
+        precio_cop: 655000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3865,7 +3865,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI027",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 51.94,
-        precio_cop: 654394,
+        precio_cop: 655000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3873,7 +3873,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT027",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 51.94,
-        precio_cop: 654394,
+        precio_cop: 655000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3881,7 +3881,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB027",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 48.33,
-        precio_cop: 608933,
+        precio_cop: 609000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3889,7 +3889,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG027",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 57.13,
-        precio_cop: 719833,
+        precio_cop: 720000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3897,7 +3897,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG027",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 57.13,
-        precio_cop: 719833,
+        precio_cop: 720000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3905,7 +3905,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF027",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -3913,7 +3913,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF027",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "MAZZETTO",
@@ -3921,7 +3921,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ027",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       }
     ],
   },
@@ -3938,7 +3938,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL029",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -3946,7 +3946,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP029",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -3954,7 +3954,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI029",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -3962,7 +3962,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT029",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -3970,7 +3970,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB029",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -3978,7 +3978,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG029",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -3986,7 +3986,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG029",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -3994,7 +3994,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF029",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4002,7 +4002,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF029",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4010,7 +4010,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ029",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       }
     ],
   },
@@ -4027,7 +4027,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL030",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4035,7 +4035,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP030",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4043,7 +4043,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI030",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4051,7 +4051,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT030",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4059,7 +4059,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB030",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4067,7 +4067,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG030",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 45.22,
-        precio_cop: 569812,
+        precio_cop: 570000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4075,7 +4075,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG030",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 45.22,
-        precio_cop: 569812,
+        precio_cop: 570000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4083,7 +4083,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF030",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4091,7 +4091,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF030",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4099,7 +4099,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ030",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       }
     ],
   },
@@ -4116,7 +4116,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL031",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4124,7 +4124,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP031",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4132,7 +4132,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI031",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4140,7 +4140,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT031",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4148,7 +4148,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB031",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4156,7 +4156,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG031",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 52.37,
-        precio_cop: 659847,
+        precio_cop: 660000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4164,7 +4164,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG031",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 52.37,
-        precio_cop: 659847,
+        precio_cop: 660000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4172,7 +4172,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF031",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4180,7 +4180,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF031",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4188,7 +4188,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ031",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       }
     ],
   },
@@ -4205,7 +4205,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL032",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4213,7 +4213,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP032",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4221,7 +4221,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI032",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4229,7 +4229,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT032",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4237,7 +4237,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB032",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4245,7 +4245,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG032",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 39.67,
-        precio_cop: 499847,
+        precio_cop: 500000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4253,7 +4253,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG032",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 39.67,
-        precio_cop: 499847,
+        precio_cop: 500000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4261,7 +4261,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF032",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4269,7 +4269,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF032",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4277,7 +4277,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ032",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       }
     ],
   },
@@ -4294,7 +4294,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL033",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4302,7 +4302,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP033",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4310,7 +4310,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI033",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4318,7 +4318,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT033",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4326,7 +4326,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB033",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4334,7 +4334,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG033",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 44.43,
-        precio_cop: 559833,
+        precio_cop: 560000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4342,7 +4342,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG033",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 44.43,
-        precio_cop: 559833,
+        precio_cop: 560000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4350,7 +4350,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF033",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4358,7 +4358,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF033",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4366,7 +4366,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ033",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       }
     ],
   },
@@ -4383,7 +4383,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL034",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4391,7 +4391,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP034",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4399,7 +4399,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI034",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4407,7 +4407,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT034",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4415,7 +4415,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB034",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 37.51,
-        precio_cop: 472651,
+        precio_cop: 473000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4423,7 +4423,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG034",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 50.78,
-        precio_cop: 639778,
+        precio_cop: 640000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4431,7 +4431,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG034",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 50.78,
-        precio_cop: 639778,
+        precio_cop: 640000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4439,7 +4439,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF034",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4447,7 +4447,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF034",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4455,7 +4455,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ034",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       }
     ],
   },
@@ -4472,7 +4472,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL035",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4480,7 +4480,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP035",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4488,7 +4488,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI035",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4496,7 +4496,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT035",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4504,7 +4504,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB035",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4512,7 +4512,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG035",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 49.98,
-        precio_cop: 629798,
+        precio_cop: 630000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4520,7 +4520,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG035",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 49.98,
-        precio_cop: 629798,
+        precio_cop: 630000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4528,7 +4528,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF035",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4536,7 +4536,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF035",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4544,7 +4544,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ035",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       }
     ],
   },
@@ -4561,7 +4561,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL036",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4569,7 +4569,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP036",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4577,7 +4577,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI036",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4585,7 +4585,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT036",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4593,7 +4593,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB036",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 63.47,
-        precio_cop: 799747,
+        precio_cop: 800000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4601,7 +4601,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG036",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 73.79,
-        precio_cop: 929729,
+        precio_cop: 930000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4609,7 +4609,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG036",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 73.79,
-        precio_cop: 929729,
+        precio_cop: 930000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4617,7 +4617,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF036",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4625,7 +4625,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF036",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4633,7 +4633,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ036",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       }
     ],
   },
@@ -4650,7 +4650,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL042",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4658,7 +4658,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP042",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4666,7 +4666,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI042",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4674,7 +4674,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT042",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4682,7 +4682,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB042",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4690,7 +4690,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG042",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 68.24,
-        precio_cop: 859764,
+        precio_cop: 860000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4698,7 +4698,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG042",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 68.24,
-        precio_cop: 859764,
+        precio_cop: 860000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4706,7 +4706,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF042",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4714,7 +4714,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF042",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4722,7 +4722,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ042",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       }
     ],
   },
@@ -4739,7 +4739,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL047",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 48.33,
-        precio_cop: 608933,
+        precio_cop: 609000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4747,7 +4747,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP047",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 48.33,
-        precio_cop: 608933,
+        precio_cop: 609000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4755,7 +4755,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI047",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 48.33,
-        precio_cop: 608933,
+        precio_cop: 609000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4763,7 +4763,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT047",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 48.33,
-        precio_cop: 608933,
+        precio_cop: 609000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4771,7 +4771,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB047",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4779,7 +4779,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG047",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 53.16,
-        precio_cop: 669826,
+        precio_cop: 670000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4787,7 +4787,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG047",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 53.16,
-        precio_cop: 669826,
+        precio_cop: 670000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4795,7 +4795,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF047",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4803,7 +4803,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF047",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4811,7 +4811,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ047",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       }
     ],
   },
@@ -4828,7 +4828,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL046",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 87.28,
-        precio_cop: 1099728,
+        precio_cop: 1100000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4836,7 +4836,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP046",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 87.28,
-        precio_cop: 1099728,
+        precio_cop: 1100000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4844,7 +4844,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI046",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 87.28,
-        precio_cop: 1099728,
+        precio_cop: 1100000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4852,7 +4852,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT046",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 87.28,
-        precio_cop: 1099728,
+        precio_cop: 1100000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4860,7 +4860,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB046",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 77.9,
-        precio_cop: 981590,
+        precio_cop: 982000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4868,7 +4868,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG046",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 96.01,
-        precio_cop: 1209701,
+        precio_cop: 1210000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4876,7 +4876,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG046",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 96.01,
-        precio_cop: 1209701,
+        precio_cop: 1210000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4884,7 +4884,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF046",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4892,7 +4892,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF046",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4900,7 +4900,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ046",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       }
     ],
   },
@@ -4917,7 +4917,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL109",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -4925,7 +4925,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP109",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -4933,7 +4933,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI109",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -4941,7 +4941,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT109",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -4949,7 +4949,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB109",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -4957,7 +4957,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG109",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 73.79,
-        precio_cop: 929729,
+        precio_cop: 930000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -4965,7 +4965,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG109",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 73.79,
-        precio_cop: 929729,
+        precio_cop: 930000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -4973,7 +4973,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF109",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 44.0,
-        precio_cop: 554400,
+        precio_cop: 555000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -4981,7 +4981,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF109",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 44.0,
-        precio_cop: 554400,
+        precio_cop: 555000,
       },
       {
         coleccion: "MAZZETTO",
@@ -4989,7 +4989,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ109",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 48.33,
-        precio_cop: 608933,
+        precio_cop: 609000,
       }
     ],
   },
@@ -5006,7 +5006,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL044",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 66.36,
-        precio_cop: 836136,
+        precio_cop: 837000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5014,7 +5014,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP044",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 66.36,
-        precio_cop: 836136,
+        precio_cop: 837000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5022,7 +5022,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI044",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 66.36,
-        precio_cop: 836136,
+        precio_cop: 837000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5030,7 +5030,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT044",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 66.36,
-        precio_cop: 836136,
+        precio_cop: 837000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5038,7 +5038,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB044",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5046,7 +5046,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG044",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 73.0,
-        precio_cop: 919750,
+        precio_cop: 920000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5054,7 +5054,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG044",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 73.0,
-        precio_cop: 919750,
+        precio_cop: 920000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5062,7 +5062,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF044",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5070,7 +5070,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF044",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5078,7 +5078,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ044",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       }
     ],
   },
@@ -5095,7 +5095,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL045",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 88.0,
-        precio_cop: 1108800,
+        precio_cop: 1109000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5103,7 +5103,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP045",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 88.0,
-        precio_cop: 1108800,
+        precio_cop: 1109000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5111,7 +5111,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI045",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 88.0,
-        precio_cop: 1108800,
+        precio_cop: 1109000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5119,7 +5119,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT045",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 88.0,
-        precio_cop: 1108800,
+        precio_cop: 1109000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5127,7 +5127,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB045",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 74.3,
-        precio_cop: 936130,
+        precio_cop: 937000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5135,7 +5135,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG045",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 96.8,
-        precio_cop: 1219680,
+        precio_cop: 1220000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5143,7 +5143,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG045",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 96.8,
-        precio_cop: 1219680,
+        precio_cop: 1220000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5151,7 +5151,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF045",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5159,7 +5159,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF045",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5167,7 +5167,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ045",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       }
     ],
   },
@@ -5184,7 +5184,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL053",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5192,7 +5192,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP053",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5200,7 +5200,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI053",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5208,7 +5208,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT053",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5216,7 +5216,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB053",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5224,7 +5224,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG053",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5232,7 +5232,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG053",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5240,7 +5240,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF053",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 18.75,
-        precio_cop: 236275,
+        precio_cop: 237000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5248,7 +5248,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF053",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 18.75,
-        precio_cop: 236275,
+        precio_cop: 237000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5256,7 +5256,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ053",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       }
     ],
   },
@@ -5273,7 +5273,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL054",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5281,7 +5281,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP054",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5289,7 +5289,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI054",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5297,7 +5297,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT054",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5305,7 +5305,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB054",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5313,7 +5313,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG054",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 49.19,
-        precio_cop: 619819,
+        precio_cop: 620000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5321,7 +5321,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG054",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 49.19,
-        precio_cop: 619819,
+        precio_cop: 620000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5329,7 +5329,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF054",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5337,7 +5337,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF054",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5345,7 +5345,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ054",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       }
     ],
   },
@@ -5362,7 +5362,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL055",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5370,7 +5370,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP055",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5378,7 +5378,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI055",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5386,7 +5386,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT055",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5394,7 +5394,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB055",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5402,7 +5402,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG055",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 52.37,
-        precio_cop: 659847,
+        precio_cop: 660000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5410,7 +5410,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG055",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 52.37,
-        precio_cop: 659847,
+        precio_cop: 660000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5418,7 +5418,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF055",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5426,7 +5426,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF055",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5434,7 +5434,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ055",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       }
     ],
   },
@@ -5451,7 +5451,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL056",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 57.7,
-        precio_cop: 727070,
+        precio_cop: 728000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5459,7 +5459,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP056",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 57.7,
-        precio_cop: 727070,
+        precio_cop: 728000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5467,7 +5467,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI056",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 57.7,
-        precio_cop: 727070,
+        precio_cop: 728000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5475,7 +5475,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT056",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 57.7,
-        precio_cop: 727070,
+        precio_cop: 728000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5483,7 +5483,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB056",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5491,7 +5491,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG056",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 63.47,
-        precio_cop: 799777,
+        precio_cop: 800000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5499,7 +5499,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG056",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 63.47,
-        precio_cop: 799777,
+        precio_cop: 800000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5507,7 +5507,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF056",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5515,7 +5515,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF056",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5523,7 +5523,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ056",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       }
     ],
   },
@@ -5540,7 +5540,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL057",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5548,7 +5548,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP057",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5556,7 +5556,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI057",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5564,7 +5564,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT057",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 69.97,
-        precio_cop: 881597,
+        precio_cop: 882000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5572,7 +5572,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB057",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5580,7 +5580,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG057",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 76.96,
-        precio_cop: 969756,
+        precio_cop: 970000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5588,7 +5588,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG057",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 76.96,
-        precio_cop: 969756,
+        precio_cop: 970000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5596,7 +5596,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF057",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5604,7 +5604,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF057",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5612,7 +5612,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ057",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       }
     ],
   },
@@ -5629,7 +5629,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL058",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5637,7 +5637,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP058",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5645,7 +5645,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI058",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5653,7 +5653,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT058",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 47.61,
-        precio_cop: 599861,
+        precio_cop: 600000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5661,7 +5661,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB058",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 40.39,
-        precio_cop: 508939,
+        precio_cop: 509000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5669,7 +5669,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG058",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 52.37,
-        precio_cop: 659847,
+        precio_cop: 660000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5677,7 +5677,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG058",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 52.37,
-        precio_cop: 659847,
+        precio_cop: 660000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5685,7 +5685,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF058",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5693,7 +5693,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF058",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5701,7 +5701,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ058",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       }
     ],
   },
@@ -5718,7 +5718,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL059",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5726,7 +5726,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP059",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5734,7 +5734,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI059",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5742,7 +5742,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT059",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 98.1,
-        precio_cop: 1236010,
+        precio_cop: 1237000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5750,7 +5750,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB059",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 93.05,
-        precio_cop: 1172405,
+        precio_cop: 1173000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5758,7 +5758,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG059",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 107.91,
-        precio_cop: 1359611,
+        precio_cop: 1360000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5766,7 +5766,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG059",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 107.91,
-        precio_cop: 1359611,
+        precio_cop: 1360000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5774,7 +5774,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF059",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 62.75,
-        precio_cop: 790675,
+        precio_cop: 791000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5782,7 +5782,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF059",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 62.75,
-        precio_cop: 790675,
+        precio_cop: 791000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5790,7 +5790,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ059",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 66.36,
-        precio_cop: 836136,
+        precio_cop: 837000,
       }
     ],
   },
@@ -5807,7 +5807,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL084",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5815,7 +5815,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP084",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5823,7 +5823,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI084",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5831,7 +5831,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT084",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5839,7 +5839,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB084",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5847,7 +5847,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG084",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 32.53,
-        precio_cop: 409923,
+        precio_cop: 410000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5855,7 +5855,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG084",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 32.53,
-        precio_cop: 409923,
+        precio_cop: 410000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5863,7 +5863,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF084",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 20.92,
-        precio_cop: 263592,
+        precio_cop: 264000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5871,7 +5871,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF084",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 20.92,
-        precio_cop: 263592,
+        precio_cop: 264000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5879,7 +5879,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ084",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       }
     ],
   },
@@ -5896,7 +5896,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL085",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5904,7 +5904,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP085",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -5912,7 +5912,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI085",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -5920,7 +5920,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT085",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -5928,7 +5928,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB085",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -5936,7 +5936,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG085",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -5944,7 +5944,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG085",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -5952,7 +5952,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF085",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -5960,7 +5960,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF085",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       },
       {
         coleccion: "MAZZETTO",
@@ -5968,7 +5968,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ085",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       }
     ],
   },
@@ -5985,7 +5985,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL086",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 44.0,
-        precio_cop: 554400,
+        precio_cop: 555000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -5993,7 +5993,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP086",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 44.0,
-        precio_cop: 554400,
+        precio_cop: 555000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6001,7 +6001,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI086",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 44.0,
-        precio_cop: 554400,
+        precio_cop: 555000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6009,7 +6009,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT086",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 44.0,
-        precio_cop: 554400,
+        precio_cop: 555000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6017,7 +6017,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB086",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 35.34,
-        precio_cop: 445334,
+        precio_cop: 446000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6025,7 +6025,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG086",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 48.4,
-        precio_cop: 609840,
+        precio_cop: 610000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6033,7 +6033,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG086",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 48.4,
-        precio_cop: 609840,
+        precio_cop: 610000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6041,7 +6041,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF086",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6049,7 +6049,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF086",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6057,7 +6057,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ086",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       }
     ],
   },
@@ -6074,7 +6074,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL087",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6082,7 +6082,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP087",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6090,7 +6090,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI087",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6098,7 +6098,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT087",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6106,7 +6106,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB087",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6114,7 +6114,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG087",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6122,7 +6122,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG087",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6130,7 +6130,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF087",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6138,7 +6138,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF087",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6146,7 +6146,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ087",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       }
     ],
   },
@@ -6163,7 +6163,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL089",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6171,7 +6171,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP089",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6179,7 +6179,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI089",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6187,7 +6187,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT089",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6195,7 +6195,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB089",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6203,7 +6203,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG089",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 42.06,
-        precio_cop: 529896,
+        precio_cop: 530000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6211,7 +6211,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG089",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 42.06,
-        precio_cop: 529896,
+        precio_cop: 530000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6219,7 +6219,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF089",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6227,7 +6227,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF089",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 25.97,
-        precio_cop: 327197,
+        precio_cop: 328000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6235,7 +6235,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ089",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       }
     ],
   },
@@ -6252,7 +6252,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL090",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6260,7 +6260,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP090",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6268,7 +6268,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI090",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6276,7 +6276,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT090",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6284,7 +6284,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB090",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 56.98,
-        precio_cop: 717998,
+        precio_cop: 718000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6292,7 +6292,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG090",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 77.76,
-        precio_cop: 979736,
+        precio_cop: 980000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6300,7 +6300,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG090",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 77.76,
-        precio_cop: 979736,
+        precio_cop: 980000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6308,7 +6308,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF090",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 49.77,
-        precio_cop: 627077,
+        precio_cop: 628000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6316,7 +6316,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF090",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 49.77,
-        precio_cop: 627077,
+        precio_cop: 628000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6324,7 +6324,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ090",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       }
     ],
   },
@@ -6341,7 +6341,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL091",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 80.78,
-        precio_cop: 1017878,
+        precio_cop: 1018000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6349,7 +6349,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP091",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 80.78,
-        precio_cop: 1017878,
+        precio_cop: 1018000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6357,7 +6357,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI091",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 80.78,
-        precio_cop: 1017878,
+        precio_cop: 1018000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6365,7 +6365,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT091",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 80.78,
-        precio_cop: 1017878,
+        precio_cop: 1018000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6373,7 +6373,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB091",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6381,7 +6381,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG091",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 88.86,
-        precio_cop: 1119666,
+        precio_cop: 1120000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6389,7 +6389,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG091",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 88.86,
-        precio_cop: 1119666,
+        precio_cop: 1120000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6397,7 +6397,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF091",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 58.42,
-        precio_cop: 736142,
+        precio_cop: 737000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6405,7 +6405,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF091",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 58.42,
-        precio_cop: 736142,
+        precio_cop: 737000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6413,7 +6413,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ091",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 63.47,
-        precio_cop: 799747,
+        precio_cop: 800000,
       }
     ],
   },
@@ -6430,7 +6430,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL092",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 85.11,
-        precio_cop: 1072411,
+        precio_cop: 1073000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6438,7 +6438,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP092",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 85.11,
-        precio_cop: 1072411,
+        precio_cop: 1073000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6446,7 +6446,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI092",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 85.11,
-        precio_cop: 1072411,
+        precio_cop: 1073000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6454,7 +6454,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT092",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 85.11,
-        precio_cop: 1072411,
+        precio_cop: 1073000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6462,7 +6462,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB092",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 72.13,
-        precio_cop: 908813,
+        precio_cop: 909000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6470,7 +6470,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG092",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 93.62,
-        precio_cop: 1179652,
+        precio_cop: 1180000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6478,7 +6478,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG092",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 93.62,
-        precio_cop: 1179652,
+        precio_cop: 1180000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6486,7 +6486,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF092",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 58.42,
-        precio_cop: 736142,
+        precio_cop: 737000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6494,7 +6494,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF092",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 58.42,
-        precio_cop: 736142,
+        precio_cop: 737000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6502,7 +6502,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ092",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 60.59,
-        precio_cop: 763459,
+        precio_cop: 764000,
       }
     ],
   },
@@ -6519,7 +6519,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL093",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 108.92,
-        precio_cop: 1372392,
+        precio_cop: 1373000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6527,7 +6527,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP093",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 108.92,
-        precio_cop: 1372392,
+        precio_cop: 1373000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6535,7 +6535,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI093",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 108.92,
-        precio_cop: 1372392,
+        precio_cop: 1373000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6543,7 +6543,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT093",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 108.92,
-        precio_cop: 1372392,
+        precio_cop: 1373000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6551,7 +6551,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB093",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 80.06,
-        precio_cop: 1008806,
+        precio_cop: 1009000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6559,7 +6559,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG093",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 119.81,
-        precio_cop: 1509631,
+        precio_cop: 1510000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6567,7 +6567,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG093",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 119.81,
-        precio_cop: 1509631,
+        precio_cop: 1510000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6575,7 +6575,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF093",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 69.25,
-        precio_cop: 872525,
+        precio_cop: 873000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6583,7 +6583,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF093",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 69.25,
-        precio_cop: 872525,
+        precio_cop: 873000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6591,7 +6591,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ093",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 69.25,
-        precio_cop: 872525,
+        precio_cop: 873000,
       }
     ],
   },
@@ -6608,7 +6608,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL060",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6616,7 +6616,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP060",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6624,7 +6624,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI060",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6632,7 +6632,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT060",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6640,7 +6640,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB060",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 20.92,
-        precio_cop: 263592,
+        precio_cop: 264000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6648,7 +6648,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG060",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 25.39,
-        precio_cop: 319889,
+        precio_cop: 320000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6656,7 +6656,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG060",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 25.39,
-        precio_cop: 319889,
+        precio_cop: 320000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6664,7 +6664,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF060",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 11.54,
-        precio_cop: 145454,
+        precio_cop: 146000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6672,7 +6672,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF060",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 11.54,
-        precio_cop: 145454,
+        precio_cop: 146000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6680,7 +6680,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ060",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 15.14,
-        precio_cop: 190814,
+        precio_cop: 191000,
       }
     ],
   },
@@ -6697,7 +6697,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL061",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6705,7 +6705,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP061",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6713,7 +6713,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI061",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6721,7 +6721,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT061",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6729,7 +6729,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB061",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6737,7 +6737,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG061",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 31.74,
-        precio_cop: 399944,
+        precio_cop: 400000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6745,7 +6745,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG061",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 31.74,
-        precio_cop: 399944,
+        precio_cop: 400000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6753,7 +6753,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF061",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 12.98,
-        precio_cop: 163598,
+        precio_cop: 164000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6761,7 +6761,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF061",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 12.98,
-        precio_cop: 163598,
+        precio_cop: 164000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6769,7 +6769,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ061",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 17.31,
-        precio_cop: 218131,
+        precio_cop: 219000,
       }
     ],
   },
@@ -6786,7 +6786,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL062",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6794,7 +6794,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP062",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6802,7 +6802,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI062",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6810,7 +6810,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT062",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6818,7 +6818,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB062",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6826,7 +6826,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG062",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 36.5,
-        precio_cop: 459930,
+        precio_cop: 460000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6834,7 +6834,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG062",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 36.5,
-        precio_cop: 459930,
+        precio_cop: 460000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6842,7 +6842,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF062",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6850,7 +6850,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF062",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6858,7 +6858,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ062",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 18.75,
-        precio_cop: 236275,
+        precio_cop: 237000,
       }
     ],
   },
@@ -6875,7 +6875,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL063",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6883,7 +6883,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP063",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6891,7 +6891,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI063",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6899,7 +6899,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT063",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6907,7 +6907,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB063",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -6915,7 +6915,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG063",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 36.5,
-        precio_cop: 459930,
+        precio_cop: 460000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -6923,7 +6923,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG063",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 36.5,
-        precio_cop: 459930,
+        precio_cop: 460000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -6931,7 +6931,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF063",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -6939,7 +6939,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF063",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "MAZZETTO",
@@ -6947,7 +6947,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ063",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 18.75,
-        precio_cop: 236275,
+        precio_cop: 237000,
       }
     ],
   },
@@ -6964,7 +6964,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL064",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -6972,7 +6972,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP064",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -6980,7 +6980,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI064",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -6988,7 +6988,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT064",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -6996,7 +6996,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB064",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7004,7 +7004,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG064",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 39.67,
-        precio_cop: 499847,
+        precio_cop: 500000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7012,7 +7012,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG064",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 39.67,
-        precio_cop: 499847,
+        precio_cop: 500000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7020,7 +7020,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF064",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7028,7 +7028,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF064",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7036,7 +7036,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ064",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 20.92,
-        precio_cop: 263592,
+        precio_cop: 264000,
       }
     ],
   },
@@ -7053,7 +7053,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL065",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 50.49,
-        precio_cop: 636149,
+        precio_cop: 637000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7061,7 +7061,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP065",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 50.49,
-        precio_cop: 636149,
+        precio_cop: 637000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7069,7 +7069,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI065",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 50.49,
-        precio_cop: 636149,
+        precio_cop: 637000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7077,7 +7077,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT065",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 50.49,
-        precio_cop: 636149,
+        precio_cop: 637000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7085,7 +7085,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB065",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7093,7 +7093,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG065",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 55.54,
-        precio_cop: 699764,
+        precio_cop: 700000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7101,7 +7101,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG065",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 55.54,
-        precio_cop: 699764,
+        precio_cop: 700000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7109,7 +7109,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF065",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7117,7 +7117,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF065",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 22.36,
-        precio_cop: 281736,
+        precio_cop: 282000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7125,7 +7125,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ065",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       }
     ],
   },
@@ -7142,7 +7142,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL066",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7150,7 +7150,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP066",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7158,7 +7158,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI066",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7166,7 +7166,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT066",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 36.78,
-        precio_cop: 463478,
+        precio_cop: 464000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7174,7 +7174,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB066",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 28.13,
-        precio_cop: 354413,
+        precio_cop: 355000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7182,7 +7182,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG066",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7190,7 +7190,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG066",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 40.46,
-        precio_cop: 509826,
+        precio_cop: 510000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7198,7 +7198,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF066",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7206,7 +7206,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF066",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 13.7,
-        precio_cop: 172670,
+        precio_cop: 173000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7214,7 +7214,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ066",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       }
     ],
   },
@@ -7231,7 +7231,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL067",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7239,7 +7239,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP067",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7247,7 +7247,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI067",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7255,7 +7255,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT067",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 38.23,
-        precio_cop: 481723,
+        precio_cop: 482000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7263,7 +7263,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB067",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7271,7 +7271,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG067",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 42.06,
-        precio_cop: 529896,
+        precio_cop: 530000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7279,7 +7279,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG067",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 42.06,
-        precio_cop: 529896,
+        precio_cop: 530000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7287,7 +7287,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF067",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7295,7 +7295,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF067",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 15.87,
-        precio_cop: 199987,
+        precio_cop: 200000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7303,7 +7303,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ067",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 24.53,
-        precio_cop: 309053,
+        precio_cop: 310000,
       }
     ],
   },
@@ -7320,7 +7320,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL068",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7328,7 +7328,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP068",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7336,7 +7336,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI068",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7344,7 +7344,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT068",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7352,7 +7352,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB068",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 31.02,
-        precio_cop: 390802,
+        precio_cop: 391000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7360,7 +7360,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG068",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7368,7 +7368,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG068",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7376,7 +7376,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF068",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7384,7 +7384,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF068",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 19.47,
-        precio_cop: 245347,
+        precio_cop: 246000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7392,7 +7392,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ068",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 27.41,
-        precio_cop: 345341,
+        precio_cop: 346000,
       }
     ],
   },
@@ -7409,7 +7409,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL069",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7417,7 +7417,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP069",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7425,7 +7425,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI069",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7433,7 +7433,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT069",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7441,7 +7441,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB069",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 36.06,
-        precio_cop: 454406,
+        precio_cop: 455000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7449,7 +7449,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG069",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 49.19,
-        precio_cop: 619819,
+        precio_cop: 620000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7457,7 +7457,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG069",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 49.19,
-        precio_cop: 619819,
+        precio_cop: 620000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7465,7 +7465,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF069",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 20.2,
-        precio_cop: 254520,
+        precio_cop: 255000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7473,7 +7473,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF069",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 20.2,
-        precio_cop: 254520,
+        precio_cop: 255000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7481,7 +7481,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ069",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       }
     ],
   },
@@ -7498,7 +7498,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL094",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7506,7 +7506,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP094",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7514,7 +7514,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI094",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7522,7 +7522,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT094",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 54.82,
-        precio_cop: 690682,
+        precio_cop: 691000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7530,7 +7530,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB094",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 41.11,
-        precio_cop: 518011,
+        precio_cop: 519000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7538,7 +7538,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG094",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 60.3,
-        precio_cop: 759750,
+        precio_cop: 760000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7546,7 +7546,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG094",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 60.3,
-        precio_cop: 759750,
+        precio_cop: 760000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7554,7 +7554,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF094",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7562,7 +7562,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF094",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 29.58,
-        precio_cop: 372658,
+        precio_cop: 373000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7570,7 +7570,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ094",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 31.74,
-        precio_cop: 399874,
+        precio_cop: 400000,
       }
     ],
   },
@@ -7587,7 +7587,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL095",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7595,7 +7595,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP095",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7603,7 +7603,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI095",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7611,7 +7611,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT095",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 59.14,
-        precio_cop: 745214,
+        precio_cop: 746000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7619,7 +7619,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB095",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 50.49,
-        precio_cop: 636149,
+        precio_cop: 637000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7627,7 +7627,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG095",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 65.06,
-        precio_cop: 819736,
+        precio_cop: 820000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7635,7 +7635,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG095",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 65.06,
-        precio_cop: 819736,
+        precio_cop: 820000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7643,7 +7643,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF095",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7651,7 +7651,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF095",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 34.62,
-        precio_cop: 436262,
+        precio_cop: 437000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7659,7 +7659,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ095",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 37.51,
-        precio_cop: 472651,
+        precio_cop: 473000,
       }
     ],
   },
@@ -7676,7 +7676,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL096",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 82.95,
-        precio_cop: 1045195,
+        precio_cop: 1046000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7684,7 +7684,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP096",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 82.95,
-        precio_cop: 1045195,
+        precio_cop: 1046000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7692,7 +7692,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI096",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 82.95,
-        precio_cop: 1045195,
+        precio_cop: 1046000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7700,7 +7700,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT096",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 82.95,
-        precio_cop: 1045195,
+        precio_cop: 1046000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7708,7 +7708,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB096",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 71.41,
-        precio_cop: 899741,
+        precio_cop: 900000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7716,7 +7716,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG096",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 91.25,
-        precio_cop: 1149715,
+        precio_cop: 1150000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7724,7 +7724,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG096",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 91.25,
-        precio_cop: 1149715,
+        precio_cop: 1150000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7732,7 +7732,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF096",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 57.7,
-        precio_cop: 727070,
+        precio_cop: 728000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7740,7 +7740,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF096",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 57.7,
-        precio_cop: 727070,
+        precio_cop: 728000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7748,7 +7748,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ096",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       }
     ],
   },
@@ -7765,7 +7765,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL070",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7773,7 +7773,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP070",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7781,7 +7781,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI070",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7789,7 +7789,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT070",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 46.16,
-        precio_cop: 581616,
+        precio_cop: 582000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7797,7 +7797,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB070",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 38.95,
-        precio_cop: 490795,
+        precio_cop: 491000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7805,7 +7805,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG070",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 50.78,
-        precio_cop: 639778,
+        precio_cop: 640000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7813,7 +7813,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG070",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 50.78,
-        precio_cop: 639778,
+        precio_cop: 640000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7821,7 +7821,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF070",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7829,7 +7829,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF070",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 21.64,
-        precio_cop: 272664,
+        precio_cop: 273000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7837,7 +7837,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ070",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 30.3,
-        precio_cop: 381730,
+        precio_cop: 382000,
       }
     ],
   },
@@ -7854,7 +7854,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL071",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 55.54,
-        precio_cop: 699854,
+        precio_cop: 700000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7862,7 +7862,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP071",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 55.54,
-        precio_cop: 699854,
+        precio_cop: 700000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7870,7 +7870,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI071",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 55.54,
-        precio_cop: 699854,
+        precio_cop: 700000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7878,7 +7878,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT071",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 55.54,
-        precio_cop: 699854,
+        precio_cop: 700000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7886,7 +7886,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB071",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 44.72,
-        precio_cop: 563472,
+        precio_cop: 564000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7894,7 +7894,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG071",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 61.1,
-        precio_cop: 769840,
+        precio_cop: 770000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7902,7 +7902,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG071",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 61.1,
-        precio_cop: 769840,
+        precio_cop: 770000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7910,7 +7910,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF071",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -7918,7 +7918,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF071",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 28.86,
-        precio_cop: 363586,
+        precio_cop: 364000,
       },
       {
         coleccion: "MAZZETTO",
@@ -7926,7 +7926,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ071",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       }
     ],
   },
@@ -7943,7 +7943,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL073",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 196.92,
-        precio_cop: 2481192,
+        precio_cop: 2482000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -7951,7 +7951,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP073",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 196.92,
-        precio_cop: 2481192,
+        precio_cop: 2482000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -7959,7 +7959,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI073",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 196.92,
-        precio_cop: 2481192,
+        precio_cop: 2482000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -7967,7 +7967,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT073",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 196.92,
-        precio_cop: 2481192,
+        precio_cop: 2482000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -7975,7 +7975,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB073",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 183.22,
-        precio_cop: 2308522,
+        precio_cop: 2309000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -7983,7 +7983,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG073",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 216.61,
-        precio_cop: 2729311,
+        precio_cop: 2730000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -7991,7 +7991,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG073",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 216.61,
-        precio_cop: 2729311,
+        precio_cop: 2730000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -7999,7 +7999,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF073",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 148.59,
-        precio_cop: 1872259,
+        precio_cop: 1873000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8007,7 +8007,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF073",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 148.59,
-        precio_cop: 1872259,
+        precio_cop: 1873000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8015,7 +8015,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ073",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 152.92,
-        precio_cop: 1926792,
+        precio_cop: 1927000,
       }
     ],
   },
@@ -8032,7 +8032,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL097",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8040,7 +8040,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP097",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8048,7 +8048,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI097",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8056,7 +8056,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT097",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 42.56,
-        precio_cop: 536256,
+        precio_cop: 537000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8064,7 +8064,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB097",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 33.9,
-        precio_cop: 427190,
+        precio_cop: 428000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8072,7 +8072,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG097",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8080,7 +8080,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG097",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 46.82,
-        precio_cop: 589882,
+        precio_cop: 590000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8088,7 +8088,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF097",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8096,7 +8096,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF097",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 23.08,
-        precio_cop: 290808,
+        precio_cop: 291000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8104,7 +8104,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ097",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 26.69,
-        precio_cop: 336269,
+        precio_cop: 337000,
       }
     ],
   },
@@ -8121,7 +8121,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL098",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 53.38,
-        precio_cop: 672538,
+        precio_cop: 673000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8129,7 +8129,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP098",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 53.38,
-        precio_cop: 672538,
+        precio_cop: 673000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8137,7 +8137,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI098",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 53.38,
-        precio_cop: 672538,
+        precio_cop: 673000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8145,7 +8145,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT098",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 53.38,
-        precio_cop: 672538,
+        precio_cop: 673000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8153,7 +8153,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB098",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8161,7 +8161,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG098",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 58.71,
-        precio_cop: 739791,
+        precio_cop: 740000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8169,7 +8169,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG098",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 58.71,
-        precio_cop: 739791,
+        precio_cop: 740000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8177,7 +8177,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF098",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8185,7 +8185,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF098",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8193,7 +8193,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ098",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 37.51,
-        precio_cop: 472651,
+        precio_cop: 473000,
       }
     ],
   },
@@ -8210,7 +8210,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL099",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8218,7 +8218,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP099",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8226,7 +8226,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI099",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8234,7 +8234,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT099",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 33.18,
-        precio_cop: 418118,
+        precio_cop: 419000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8242,7 +8242,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB099",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 23.8,
-        precio_cop: 299880,
+        precio_cop: 300000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8250,7 +8250,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG099",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 36.5,
-        precio_cop: 459930,
+        precio_cop: 460000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8258,7 +8258,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG099",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 36.5,
-        precio_cop: 459930,
+        precio_cop: 460000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8266,7 +8266,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF099",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8274,7 +8274,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF099",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 16.59,
-        precio_cop: 209059,
+        precio_cop: 210000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8282,7 +8282,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ099",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 20.2,
-        precio_cop: 254520,
+        precio_cop: 255000,
       }
     ],
   },
@@ -8299,7 +8299,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL107",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 176.0,
-        precio_cop: 2217600,
+        precio_cop: 2218000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8307,7 +8307,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP107",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 176.0,
-        precio_cop: 2217600,
+        precio_cop: 2218000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8315,7 +8315,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI107",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 176.0,
-        precio_cop: 2217600,
+        precio_cop: 2218000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8323,7 +8323,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT107",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 176.0,
-        precio_cop: 2217600,
+        precio_cop: 2218000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8331,7 +8331,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB107",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 158.69,
-        precio_cop: 1999469,
+        precio_cop: 2000000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8339,7 +8339,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG107",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 193.6,
-        precio_cop: 2439360,
+        precio_cop: 2440000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8347,7 +8347,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG107",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 193.6,
-        precio_cop: 2439360,
+        precio_cop: 2440000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8355,7 +8355,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF107",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 122.62,
-        precio_cop: 1545062,
+        precio_cop: 1546000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8363,7 +8363,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF107",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 122.62,
-        precio_cop: 1545062,
+        precio_cop: 1546000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8371,7 +8371,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ107",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 136.33,
-        precio_cop: 1717733,
+        precio_cop: 1718000,
       }
     ],
   },
@@ -8388,7 +8388,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL101",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 63.47,
-        precio_cop: 799747,
+        precio_cop: 800000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8396,7 +8396,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP101",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 63.47,
-        precio_cop: 799747,
+        precio_cop: 800000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8404,7 +8404,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI101",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 63.47,
-        precio_cop: 799747,
+        precio_cop: 800000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8412,7 +8412,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT101",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 63.47,
-        precio_cop: 799747,
+        precio_cop: 800000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8420,7 +8420,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB101",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 55.54,
-        precio_cop: 699854,
+        precio_cop: 700000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8428,7 +8428,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG101",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 69.82,
-        precio_cop: 879722,
+        precio_cop: 880000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8436,7 +8436,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG101",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 69.82,
-        precio_cop: 879722,
+        precio_cop: 880000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8444,7 +8444,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF101",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8452,7 +8452,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF101",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 41.84,
-        precio_cop: 527184,
+        precio_cop: 528000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8460,7 +8460,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ101",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 51.22,
-        precio_cop: 645322,
+        precio_cop: 646000,
       }
     ],
   },
@@ -8477,7 +8477,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL102",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8485,7 +8485,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP102",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8493,7 +8493,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI102",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8501,7 +8501,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT102",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 70.69,
-        precio_cop: 890669,
+        precio_cop: 891000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8509,7 +8509,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB102",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 59.87,
-        precio_cop: 754387,
+        precio_cop: 755000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8517,7 +8517,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG102",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 77.76,
-        precio_cop: 979736,
+        precio_cop: 980000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8525,7 +8525,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG102",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 77.76,
-        precio_cop: 979736,
+        precio_cop: 980000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8533,7 +8533,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF102",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8541,7 +8541,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF102",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 45.44,
-        precio_cop: 572544,
+        precio_cop: 573000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8549,7 +8549,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ102",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 55.54,
-        precio_cop: 699854,
+        precio_cop: 700000,
       }
     ],
   },
@@ -8566,7 +8566,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL103",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 79.34,
-        precio_cop: 999734,
+        precio_cop: 1000000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8574,7 +8574,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP103",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 79.34,
-        precio_cop: 999734,
+        precio_cop: 1000000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8582,7 +8582,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI103",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 79.34,
-        precio_cop: 999734,
+        precio_cop: 1000000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8590,7 +8590,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT103",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 79.34,
-        precio_cop: 999734,
+        precio_cop: 1000000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8598,7 +8598,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB103",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 67.08,
-        precio_cop: 845208,
+        precio_cop: 846000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8606,7 +8606,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG103",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 87.28,
-        precio_cop: 1099708,
+        precio_cop: 1100000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8614,7 +8614,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG103",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 87.28,
-        precio_cop: 1099708,
+        precio_cop: 1100000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8622,7 +8622,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF103",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8630,7 +8630,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF103",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 52.66,
-        precio_cop: 663466,
+        precio_cop: 664000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8638,7 +8638,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ103",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 62.03,
-        precio_cop: 781603,
+        precio_cop: 782000,
       }
     ],
   },
@@ -8655,7 +8655,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL104",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 172.39,
-        precio_cop: 2172139,
+        precio_cop: 2173000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8663,7 +8663,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP104",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 172.39,
-        precio_cop: 2172139,
+        precio_cop: 2173000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8671,7 +8671,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI104",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 172.39,
-        precio_cop: 2172139,
+        precio_cop: 2173000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8679,7 +8679,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT104",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 172.39,
-        precio_cop: 2172139,
+        precio_cop: 2173000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8687,7 +8687,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB104",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 158.69,
-        precio_cop: 1999469,
+        precio_cop: 2000000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8695,7 +8695,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG104",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 189.63,
-        precio_cop: 2389353,
+        precio_cop: 2390000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8703,7 +8703,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG104",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 189.63,
-        precio_cop: 2389353,
+        precio_cop: 2390000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8711,7 +8711,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF104",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 132.0,
-        precio_cop: 1663200,
+        precio_cop: 1664000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8719,7 +8719,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF104",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 132.0,
-        precio_cop: 1663200,
+        precio_cop: 1664000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8727,7 +8727,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ104",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 141.38,
-        precio_cop: 1781338,
+        precio_cop: 1782000,
       }
     ],
   },
@@ -8744,7 +8744,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL105",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 217.84,
-        precio_cop: 2744784,
+        precio_cop: 2745000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8752,7 +8752,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP105",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 217.84,
-        precio_cop: 2744784,
+        precio_cop: 2745000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8760,7 +8760,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI105",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 217.84,
-        precio_cop: 2744784,
+        precio_cop: 2745000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8768,7 +8768,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT105",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 217.84,
-        precio_cop: 2744784,
+        precio_cop: 2745000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8776,7 +8776,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB105",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 196.2,
-        precio_cop: 2472120,
+        precio_cop: 2473000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8784,7 +8784,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG105",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 239.62,
-        precio_cop: 3019262,
+        precio_cop: 3020000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8792,7 +8792,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG105",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 239.62,
-        precio_cop: 3019262,
+        precio_cop: 3020000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8800,7 +8800,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF105",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 165.18,
-        precio_cop: 2081318,
+        precio_cop: 2082000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8808,7 +8808,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF105",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 165.18,
-        precio_cop: 2081318,
+        precio_cop: 2082000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8816,7 +8816,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ105",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 173.84,
-        precio_cop: 2190384,
+        precio_cop: 2191000,
       }
     ],
   },
@@ -8833,7 +8833,7 @@ const CATALOG_PRODUCTS = [
         sku: "GL106",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
         precio_eur: 259.67,
-        precio_cop: 3271867,
+        precio_cop: 3272000,
       },
       {
         coleccion: "GAROFANO ROSA",
@@ -8841,7 +8841,7 @@ const CATALOG_PRODUCTS = [
         sku: "GP106",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Rosa.png",
         precio_eur: 259.67,
-        precio_cop: 3271867,
+        precio_cop: 3272000,
       },
       {
         coleccion: "GAROFANO IMOLA",
@@ -8849,7 +8849,7 @@ const CATALOG_PRODUCTS = [
         sku: "GI106",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Imola.png",
         precio_eur: 259.67,
-        precio_cop: 3271867,
+        precio_cop: 3272000,
       },
       {
         coleccion: "GAROFANO TIFFANY",
@@ -8857,7 +8857,7 @@ const CATALOG_PRODUCTS = [
         sku: "GT106",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Tiffany.png",
         precio_eur: 259.67,
-        precio_cop: 3271867,
+        precio_cop: 3272000,
       },
       {
         coleccion: "GAROFANO BLU",
@@ -8865,7 +8865,7 @@ const CATALOG_PRODUCTS = [
         sku: "GB106",
         foto_comodin: "images/comodines-imolarte/C_Garofano_Blu.png",
         precio_eur: 224.33,
-        precio_cop: 2826533,
+        precio_cop: 2827000,
       },
       {
         coleccion: "ROSSO E ORO",
@@ -8873,7 +8873,7 @@ const CATALOG_PRODUCTS = [
         sku: "GRG106",
         foto_comodin: "images/comodines-imolarte/C_Rosso_E_Oro.png",
         precio_eur: 285.64,
-        precio_cop: 3599054,
+        precio_cop: 3600000,
       },
       {
         coleccion: "AVORIO E ORO",
@@ -8881,7 +8881,7 @@ const CATALOG_PRODUCTS = [
         sku: "GIG106",
         foto_comodin: "images/comodines-imolarte/C_Avorio_E_Oro.png",
         precio_eur: 285.64,
-        precio_cop: 3599054,
+        precio_cop: 3600000,
       },
       {
         coleccion: "GIALLO FIORE",
@@ -8889,7 +8889,7 @@ const CATALOG_PRODUCTS = [
         sku: "GF106",
         foto_comodin: "images/comodines-imolarte/C_Giallo_Fiore.png",
         precio_eur: 197.64,
-        precio_cop: 2490264,
+        precio_cop: 2491000,
       },
       {
         coleccion: "BIANCO FIORE",
@@ -8897,7 +8897,7 @@ const CATALOG_PRODUCTS = [
         sku: "BF106",
         foto_comodin: "images/comodines-imolarte/C_Bianco_Fiore.png",
         precio_eur: 197.64,
-        precio_cop: 2490264,
+        precio_cop: 2491000,
       },
       {
         coleccion: "MAZZETTO",
@@ -8905,7 +8905,7 @@ const CATALOG_PRODUCTS = [
         sku: "MZ106",
         foto_comodin: "images/comodines-imolarte/C_Mazzetto.png",
         precio_eur: 207.02,
-        precio_cop: 2608402,
+        precio_cop: 2609000,
       }
     ],
   }

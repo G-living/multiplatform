@@ -58,6 +58,19 @@ const Utils = {
    * @param {number} price
    * @returns {string} "$1.250.000"
    */
+  /**
+   * Redondea valor COP por exceso a la unidad $1.000
+   * Rechaza fechas seriales de Sheets (1–50.000) retornando 0
+   * @param {number} val
+   * @returns {number}
+   */
+  roundCOP(val) {
+    if (typeof val !== 'number' || isNaN(val)) return 0;
+    if (val === 0) return 0;
+    if (val > 0 && val <= 50000) return 0; // fecha serial corrupta de Sheets
+    return Math.ceil(val / 1000) * 1000;
+  },
+
   formatPrice(price) {
     if (!price && price !== 0) return '';
     return IMOLARTE_CONFIG.checkout.currencySymbol +

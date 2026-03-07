@@ -748,217 +748,108 @@ const Modal = (() => {
   // ═══════════════════════════════════════════════════
 
   // ═══════════════════════════════════════════════════
-  // GOOGLE PLACES — AutocompleteService (manual, sin shadow DOM)
+  // GOOGLE PLACES — widget oficial Autocomplete (Places API New, importLibrary)
   // Input normal → debounce → getPlacePredictions → dropdown
   // → getDetails → rellena barrio y ciudad
   // ═══════════════════════════════════════════════════
 
   // Estado por instancia de autocomplete activa
-  const _pacState = {};
+  // Places: estado de instancias activas por inputId
+  const _pacInstances = {};
 
-  function _initPlacesAutocomplete(dirInputId, barrioInputId, ciudadInputId) {
-    // Guard: SDK no cargado — reintentar
-    if (typeof google === 'undefined' || !google.maps?.places?.AutocompleteService) {
-      setTimeout(() => _initPlacesAutocomplete(dirInputId, barrioInputId, ciudadInputId), 400);
+  async function _initPlacesAutocomplete(dirInputId, barrioInputId, ciudadInputId) {
+    // Cargar librería Places con el nuevo loader (importLibrary)
+    // Evita el deprecation warning de AutocompleteService
+    try {
+      await google.maps.importLibrary('places');
+    } catch(e) {
+      Logger.warn('modal.js: google.maps.importLibrary no disponible, reintentando…');
+      setTimeout(() => _initPlacesAutocomplete(dirInputId, barrioInputId, ciudadInputId), 500);
       return;
     }
 
     const input = document.getElementById(dirInputId);
     if (!input || input.dataset.pacInit) return;
     input.dataset.pacInit = '1';
+    input.setAttribute('autocomplete', 'off');
 
-    // Crear dropdown container justo después del input
-    const dropdown = document.createElement('ul');
-    dropdown.className  = 'pac-dropdown';
-    dropdown.id         = dirInputId + 'Dropdown';
-    dropdown.setAttribute('role', 'listbox');
-    dropdown.setAttribute('aria-label', 'Sugerencias de dirección');
-    dropdown.style.display = 'none';
-    input.parentNode.insertBefore(dropdown, input.nextSibling);
-
-    // Servicios Google
-    const svc     = new google.maps.places.AutocompleteService();
-    const detSvc  = new google.maps.places.PlacesService(
-      document.createElement('div')   // PlacesService requiere un elemento DOM
-    );
-
-    // Estado local
-    let debounceTimer = null;
-    let activeIdx     = -1;
-    let predictions   = [];
-
-    // ── Helpers ──
-    function showDropdown(items) {
-      predictions = items;
-      activeIdx   = -1;
-      dropdown.innerHTML = '';
-
-      items.forEach((pred, i) => {
-        const li = document.createElement('li');
-        li.className = 'pac-item';
-        li.setAttribute('role', 'option');
-        li.setAttribute('id', dirInputId + 'Opt' + i);
-        li.setAttribute('aria-selected', 'false');
-
-        // Texto principal + secundario
-        const main = document.createElement('span');
-        main.className   = 'pac-item-main';
-        main.textContent = pred.structured_formatting?.main_text || pred.description;
-
-        const sub = document.createElement('span');
-        sub.className   = 'pac-item-sub';
-        sub.textContent = pred.structured_formatting?.secondary_text || '';
-
-        li.appendChild(main);
-        if (sub.textContent) li.appendChild(sub);
-
-        li.addEventListener('mousedown', e => {
-          e.preventDefault(); // evitar blur en input antes de click
-          selectPrediction(pred);
-        });
-
-        dropdown.appendChild(li);
-      });
-
-      dropdown.style.display = items.length ? 'block' : 'none';
-      input.setAttribute('aria-expanded', items.length ? 'true' : 'false');
-      input.setAttribute('aria-owns', dropdown.id);
-    }
-
-    function hideDropdown() {
-      dropdown.style.display = 'none';
-      dropdown.innerHTML     = '';
-      activeIdx              = -1;
-      predictions            = [];
-      input.setAttribute('aria-expanded', 'false');
-      input.removeAttribute('aria-activedescendant');
-    }
-
-    function setActive(idx) {
-      const items = dropdown.querySelectorAll('.pac-item');
-      items.forEach((li, i) => {
-        li.classList.toggle('is-active', i === idx);
-        li.setAttribute('aria-selected', i === idx ? 'true' : 'false');
-      });
-      activeIdx = idx;
-      if (idx >= 0) input.setAttribute('aria-activedescendant', dirInputId + 'Opt' + idx);
-    }
-
-    function selectPrediction(pred) {
-      // Mostrar texto en el input mientras carga
-      input.value = pred.description;
-      hideDropdown();
-
-      // Obtener detalles del lugar
-      detSvc.getDetails(
-        { placeId: pred.place_id, fields: ['address_components', 'formatted_address'] },
-        (place, status) => {
-          if (status !== google.maps.places.PlacesServiceStatus.OK || !place) {
-            Logger.warn('modal.js: Places getDetails error', status);
-            return;
-          }
-
-          const components = place.address_components || [];
-          let via    = '';
-          let numero = '';
-          let barrio = '';
-          let ciudad = '';
-
-          components.forEach(comp => {
-            const types = comp.types || [];
-            const txt   = comp.long_name || '';
-
-            if (types.includes('route'))                              via    = txt;
-            if (types.includes('street_number'))                     numero = txt;
-            if (!barrio && (
-              types.includes('neighborhood')        ||
-              types.includes('sublocality_level_1') ||
-              types.includes('sublocality_level_2') ||
-              types.includes('sublocality')
-            )) barrio = txt;
-            if (!ciudad && (
-              types.includes('locality') ||
-              types.includes('administrative_area_level_2')
-            )) ciudad = txt;
-          });
-
-          // Dirección en el input
-          const dirFormatted = via
-            ? via + (numero ? ' # ' + numero : '')
-            : (place.formatted_address || '').split(',')[0].trim();
-          input.value = dirFormatted;
-
-          // Barrio
-          const barrioEl = document.getElementById(barrioInputId);
-          if (barrioEl) {
-            if (barrio && !barrioEl.value) {
-              barrioEl.value = barrio;
-            } else if (!barrio && !barrioEl.value) {
-              const parts = (place.formatted_address || '').split(',');
-              if (parts.length >= 2) barrioEl.value = parts[1].trim();
-            }
-          }
-
-          // Ciudad
-          const ciudadEl = document.getElementById(ciudadInputId);
-          if (ciudadEl && ciudad) ciudadEl.value = ciudad;
-
-          Logger.log('Places→', dirFormatted, '|', barrio, '|', ciudad);
-        }
-      );
-    }
-
-    // ── Eventos input ──
-    input.setAttribute('aria-autocomplete', 'list');
-    input.setAttribute('aria-expanded', 'false');
-    input.setAttribute('autocomplete', 'off'); // desactivar autocomplete nativo
-
-    input.addEventListener('input', () => {
-      clearTimeout(debounceTimer);
-      const q = input.value.trim();
-      if (q.length < 3) { hideDropdown(); return; }
-
-      debounceTimer = setTimeout(() => {
-        svc.getPlacePredictions(
-          { input: q, componentRestrictions: { country: 'co' }, types: ['address'] },
-          (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results?.length) {
-              showDropdown(results);
-            } else {
-              hideDropdown();
-            }
-          }
-        );
-      }, 300);
+    // Widget oficial google.maps.places.Autocomplete
+    // — no usa AutocompleteService (deprecado desde mar 2025)
+    // — genera su propio dropdown .pac-container gestionado por Google
+    const ac = new google.maps.places.Autocomplete(input, {
+      componentRestrictions: { country: 'co' },
+      fields: ['address_components', 'formatted_address'],
+      types:  ['address'],
     });
 
-    // Teclado: ↑↓ navegan, Enter selecciona, Esc cierra
-    input.addEventListener('keydown', e => {
-      const items = dropdown.querySelectorAll('.pac-item');
-      if (!items.length) return;
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setActive(Math.min(activeIdx + 1, items.length - 1));
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setActive(Math.max(activeIdx - 1, 0));
-      } else if (e.key === 'Enter' && activeIdx >= 0) {
-        e.preventDefault();
-        selectPrediction(predictions[activeIdx]);
-      } else if (e.key === 'Escape') {
-        hideDropdown();
+    // El dropdown .pac-container de Google flota sobre el body por defecto.
+    // Para que aparezca dentro del modal (z-index correcto) movemos el container
+    // al parentNode del input después de que Google lo cree.
+    google.maps.event.addListenerOnce(ac, 'place_changed', () => {});
+    // Mover pac-container al grupo del input para heredar z-index del modal
+    const observer = new MutationObserver(() => {
+      const pac = document.querySelector('.pac-container');
+      if (pac && pac.parentNode === document.body) {
+        input.parentNode.style.position = 'relative';
+        input.parentNode.appendChild(pac);
+        observer.disconnect();
       }
     });
+    observer.observe(document.body, { childList: true });
 
-    // Cerrar al hacer click fuera
-    document.addEventListener('click', e => {
-      if (!input.contains(e.target) && !dropdown.contains(e.target)) hideDropdown();
-    });
+    // Cuando el usuario selecciona una sugerencia
+    ac.addListener('place_changed', () => {
+      const place = ac.getPlace();
+      if (!place || !place.address_components) {
+        Logger.warn('modal.js: Places place_changed sin address_components');
+        return;
+      }
 
-    // Cerrar al perder foco (con pequeño delay para permitir click en item)
-    input.addEventListener('blur', () => {
-      setTimeout(hideDropdown, 150);
+      const components = place.address_components;
+      let via    = '';
+      let numero = '';
+      let barrio = '';
+      let ciudad = '';
+
+      components.forEach(comp => {
+        const types = comp.types || [];
+        const txt   = comp.long_name || '';
+        if (types.includes('route'))          via    = txt;
+        if (types.includes('street_number'))  numero = txt;
+        if (!barrio && (
+          types.includes('neighborhood')        ||
+          types.includes('sublocality_level_1') ||
+          types.includes('sublocality_level_2') ||
+          types.includes('sublocality')
+        )) barrio = txt;
+        if (!ciudad && (
+          types.includes('locality') ||
+          types.includes('administrative_area_level_2')
+        )) ciudad = txt;
+      });
+
+      // Formatear dirección: "Calle 80 # 10-25"
+      const dirFormatted = via
+        ? via + (numero ? ' # ' + numero : '')
+        : (place.formatted_address || '').split(',')[0].trim();
+      input.value = dirFormatted;
+
+      // Auto-rellenar barrio solo si está vacío
+      const barrioEl = document.getElementById(barrioInputId);
+      if (barrioEl && !barrioEl.value) {
+        if (barrio) {
+          barrioEl.value = barrio;
+        } else {
+          const parts = (place.formatted_address || '').split(',');
+          if (parts.length >= 2) barrioEl.value = parts[1].trim();
+        }
+      }
+
+      // Auto-rellenar ciudad
+      const ciudadEl = document.getElementById(ciudadInputId);
+      if (ciudadEl && ciudad && !ciudadEl.value) ciudadEl.value = ciudad;
+
+      Logger.log('Places→', dirFormatted, '|', barrio, '|', ciudad);
     });
   }
 
@@ -975,12 +866,12 @@ const Modal = (() => {
     _ckBono     = null;
     _ckSubtotal = Cart.getTotal();
     _updateWompiTotals();
-    // Restaurar botones por si se vuelve de Wompi o de un intento fallido
     const btn60  = document.getElementById('btnPagar60');
     const btn100 = document.getElementById('btnPagar100');
     if (btn60)  btn60.disabled  = false;
     if (btn100) btn100.disabled = false;
     _openModal('modalCheckoutWompi');
+    _loadDraft();   // pre-rellenar con datos guardados si existen
     _initPlacesAutocomplete('wpInputDir', 'wpInputBarrio', 'wpInputCiudad');
   }
 
@@ -1125,6 +1016,98 @@ const Modal = (() => {
   // ═══════════════════════════════════════════════════
   // RECOLECTAR DATOS
   // ═══════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════
+  // PERSISTENCIA FORMULARIO WOMPI — localStorage 30 días
+  // Key compartida entre catálogos Helena Caballero
+  // ═══════════════════════════════════════════════════
+  const _DRAFT_KEY    = 'imolarte_checkout_draft';
+  const _DRAFT_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 días
+
+  function _saveDraft() {
+    try {
+      const g = id => document.getElementById(id)?.value || '';
+      const draft = {
+        ts: Date.now(),
+        nombre:    g('wpInputNombre'),
+        apellido:  g('wpInputApellido'),
+        email:     g('wpInputEmail'),
+        emailConf: g('wpInputEmailConf'),
+        codPais:   g('wpInputCodPais'),
+        tel:       g('wpInputTel'),
+        tipoPersona: document.querySelector('input[name="wpInputTipoPersona"]:checked')?.value || 'natural',
+        tipoDoc:   g('wpInputTipoDoc'),
+        numDoc:    g('wpInputNumDoc'),
+        cumpleDia: g('wpInputCumpleDia'),
+        cumpleMes: g('wpInputCumpleMes'),
+        dir:       g('wpInputDir'),
+        barrio:    g('wpInputBarrio'),
+        ciudad:    g('wpInputCiudad'),
+        notas:     g('wpInputNotas'),
+        bono:      g('wpInputBono'),
+      };
+      localStorage.setItem(_DRAFT_KEY, JSON.stringify(draft));
+    } catch(e) {}
+  }
+
+  function _loadDraft() {
+    try {
+      const raw = localStorage.getItem(_DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (!draft.ts || (Date.now() - draft.ts) > _DRAFT_TTL_MS) {
+        localStorage.removeItem(_DRAFT_KEY);
+        return;
+      }
+      const s = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+      s('wpInputNombre',   draft.nombre);
+      s('wpInputApellido', draft.apellido);
+      s('wpInputEmail',    draft.email);
+      s('wpInputEmailConf',draft.emailConf);
+      s('wpInputCodPais',  draft.codPais);
+      s('wpInputTel',      draft.tel);
+      s('wpInputTipoDoc',  draft.tipoDoc);
+      s('wpInputNumDoc',   draft.numDoc);
+      s('wpInputCumpleDia',draft.cumpleDia);
+      s('wpInputCumpleMes',draft.cumpleMes);
+      s('wpInputDir',      draft.dir);
+      s('wpInputBarrio',   draft.barrio);
+      s('wpInputCiudad',   draft.ciudad);
+      s('wpInputNotas',    draft.notas);
+      if (draft.bono) s('wpInputBono', draft.bono);
+      // Radio tipo persona
+      if (draft.tipoPersona) {
+        const radio = document.querySelector(`input[name="wpInputTipoPersona"][value="${draft.tipoPersona}"]`);
+        if (radio) radio.checked = true;
+      }
+      // Mostrar ✓ email si coinciden
+      if (draft.email && draft.email === draft.emailConf) {
+        const okEl = document.getElementById('wpOkEmailConf');
+        if (okEl) okEl.style.display = 'block';
+      }
+    } catch(e) {}
+  }
+
+  function _clearDraft() {
+    try { localStorage.removeItem(_DRAFT_KEY); } catch(e) {}
+  }
+
+  function _bindDraftListeners() {
+    const campos = [
+      'wpInputNombre','wpInputApellido','wpInputEmail','wpInputEmailConf',
+      'wpInputCodPais','wpInputTel','wpInputTipoDoc','wpInputNumDoc',
+      'wpInputCumpleDia','wpInputCumpleMes','wpInputDir','wpInputBarrio',
+      'wpInputCiudad','wpInputNotas','wpInputBono',
+    ];
+    campos.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', _saveDraft);
+      if (el && (el.tagName === 'SELECT')) el.addEventListener('change', _saveDraft);
+    });
+    // Radio tipo persona
+    document.querySelectorAll('input[name="wpInputTipoPersona"]')
+      .forEach(r => r.addEventListener('change', _saveDraft));
+  }
+
   function _collectCMO(prefix) {
     const g = id => document.getElementById(id)?.value.trim() || '';
     const gr = name => document.querySelector(`input[name="${name}"]:checked`)?.value || '';
@@ -1334,12 +1317,12 @@ const Modal = (() => {
 
   function _updateWompiTotals() {
     const cfg       = IMOLARTE_CONFIG.checkout;
-    const subtotal  = _ckSubtotal;
-    const bonoDesc  = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
-    const base      = subtotal - bonoDesc;                     // total tras descontar bono
-    const disc100   = Math.round(base * cfg.discountPayFull);  // 3% sobre base
-    const pay60     = Math.round(base * 0.6);                  // W3: 60% sobre base post-bono
-    const pay100    = base - disc100;                          // W1: neto con 3% incluido
+    const subtotal  = Utils.roundCOP(_ckSubtotal);
+    const bonoDesc  = _ckBono ? Math.min(Utils.roundCOP(_ckBono.available), subtotal) : 0;
+    const base      = subtotal - bonoDesc;
+    const disc100   = Math.ceil(base * cfg.discountPayFull / 1000) * 1000;
+    const pay60     = Math.ceil(base * 0.6 / 1000) * 1000;
+    const pay100    = base - disc100;
 
     // Mostrar subtotal
     const subEl = document.getElementById('wpValSubtotal');
@@ -1397,8 +1380,8 @@ const Modal = (() => {
 
     const btn60  = document.getElementById('btnPagar60');
     const btn100 = document.getElementById('btnPagar100');
-    if (btn60)  { btn60.disabled  = true; btn60.textContent  = 'Procesando…'; }
-    if (btn100) { btn100.disabled = true; btn100.textContent = 'Procesando…'; }
+    if (btn60)  { btn60.disabled  = true; btn60.innerHTML  = '<span class="cmo-btn-pago-label">Pago Anticipo 60%</span><span class="cmo-btn-pago-amount">Procesando…</span>'; }
+    if (btn100) { btn100.disabled = true; btn100.innerHTML = '<span class="cmo-btn-pago-label">Pago Anticipado 100%</span><span class="cmo-btn-pago-amount">Procesando…</span>'; }
     const errGenEl = document.getElementById('wpErrGeneral');
     if (errGenEl) errGenEl.style.display = 'none';
 
@@ -2144,15 +2127,25 @@ const Modal = (() => {
   // -------------------------------------------------------
   // INIT
   // -------------------------------------------------------
+  // Limpia estado residual del modal Wompi — usado por pageshow (bfcache)
+  function resetState() {
+    const modal = document.getElementById('modalCheckoutWompi');
+    if (modal) modal.classList.remove('is-open');
+    document.body.style.overflow = '';
+    if (_focusTrapCleanup) { _focusTrapCleanup(); _focusTrapCleanup = null; }
+  }
+
   function init() {
     _bindEvents();
     _bindGiftEvents();
+    _bindDraftListeners();
     _startInactivityWatch();
     Logger.log('modal.js inicializado ✓');
   }
 
   return {
     init,
+    resetState,
     openProduct,
     openFamily,
     openZoom,
@@ -2173,20 +2166,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // Detectar vuelta desde Wompi vía bfcache (back/forward cache)
 // DOMContentLoaded NO se dispara en este caso — pageshow con persisted=true sí
 window.addEventListener('pageshow', (e) => {
-  if (!e.persisted) return; // carga normal, ya manejada por DOMContentLoaded
-  // Reabrir modal con botones y labels restaurados si venimos de Wompi
+  if (!e.persisted) return;
   try {
     if (sessionStorage.getItem('imolarte_wompi_redirect') === '1') {
       sessionStorage.removeItem('imolarte_wompi_redirect');
       setTimeout(() => {
         if (typeof Cart !== 'undefined' && Cart.getItems().length > 0) {
-          Modal.openCheckoutWompi(); // restaura disabled=false y labels vía _updateWompiTotals
+          Modal.resetState();          // limpia focus trap y clase is-open residual
+          Modal.openCheckoutWompi();   // reabre limpio con botones y labels correctos
         } else {
-          // Sin carrito: al menos desbloquear botones
-          const btn60  = document.getElementById('btnPagar60');
-          const btn100 = document.getElementById('btnPagar100');
-          if (btn60)  btn60.disabled  = false;
-          if (btn100) btn100.disabled = false;
+          // Sin carrito: solo desbloquear botones por si acaso
+          const b60  = document.getElementById('btnPagar60');
+          const b100 = document.getElementById('btnPagar100');
+          if (b60)  b60.disabled  = false;
+          if (b100) b100.disabled = false;
         }
       }, 50);
     }
