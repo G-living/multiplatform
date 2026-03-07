@@ -25,8 +25,13 @@ const Api = (() => {
       return { ok: false, error: 'URL no configurada' };
     }
     try {
+      // Inyectar token de autorización en cada payload
+      const secured = {
+        _token: IMOLARTE_CONFIG?.checkout?.apiToken || '',
+        ...payload,
+      };
       const params = new URLSearchParams();
-      params.append('data', JSON.stringify(payload));
+      params.append('data', JSON.stringify(secured));
 
       const resp = await fetch(url, {
         method:   'POST',

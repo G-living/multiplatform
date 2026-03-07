@@ -29,10 +29,13 @@ const CFG = {
   NOMBRE_TIENDA   : 'IMOLARTE by Helena Caballero',
   EMAIL_ADMIN     : 'filippo.massara2016@gmail.com',
   EMAIL_REMITENTE : 'filippo.massara2016@gmail.com',
-  WHATSAPP        : '+573004257367',
+  WHATSAPP        : '+573004267367',
   WEBSITE         : 'https://www.helenacaballero.com',
   CATALOGO        : 'https://g-living.github.io/multiplatform/imolarte/',
   WISHLIST_ABANDON_MIN: 30,
+  // ── Seguridad: token compartido con frontend (config.js → Api.TOKEN)
+  // Cambiar por uno propio antes de pasar a producción
+  API_TOKEN       : 'e_Z9in_KWciZdhVjoKl6ps471XOrlJi5lzV55WalUBA',
   SHEETS: {
     WISHLIST      : 'Wishlist',
     PEDIDOS_WOMPI : 'Pedidos_Wompi',
@@ -63,6 +66,13 @@ function doPost(e) {
     } else {
       body = JSON.parse(e.postData.contents);
     }
+
+    // ── Validación de token — rechazar requests sin token válido
+    if (body.action !== 'ping' && body._token !== CFG.API_TOKEN) {
+      _log('doPost_AUTH_FAIL', body.action || 'unknown', 'token inválido o ausente');
+      return _jsonResponse({ ok: false, error: 'Unauthorized' });
+    }
+
     const action = body.action || '';
     _log('doPost', action, JSON.stringify(body).slice(0, 200));
     let result;
@@ -1265,7 +1275,7 @@ function checkWishlistAbandonadas() {
 
 function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
-    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `&#128203; ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. Helena o alguien de nuestro equipo te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1284,7 +1294,7 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
 
 function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento) {
   try {
-    const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
+    const subject = `&#127881; ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
 
     // ── Tabla de ítems ──────────────────────────────────────
     const tablaProductos = _productosHTML(productos);
@@ -1300,7 +1310,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
       bonoHTML = `
         <tr>
           <td style="padding:5px 8px;font-size:13px;color:#555">
-            🎁 Bono <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>
+            &#127873; Bono <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>
           </td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">
             − ${_fmtCOP(bonoDesc)}
@@ -1310,7 +1320,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
       bonoDesc = _roundCOP(total);
       bonoHTML = `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">🎁 Pagado 100% con Gift Card</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">&#127873; Pagado 100% con Gift Card</td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(bonoDesc)}</td>
         </tr>`;
     }
@@ -1323,7 +1333,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
     const descRedondeado = _roundCOP(descuento || 0);
     const descHTML = descRedondeado > 0 ? `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">🏷️ Descuento pago anticipado</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. Descuento pago anticipado</td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(descRedondeado)}</td>
         </tr>` : '';
 
@@ -1375,7 +1385,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
 
 function _emailPagoCancelado(email, nombre, ref, status) {
   try {
-    const subject = `❌ ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
+    const subject = `&#10060; ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
     const msgs = {
       'DECLINED' : 'Tu pago fue declinado por la entidad bancaria. Por favor verifica tus datos o intenta con otro medio de pago.',
       'VOIDED'   : 'Tu transacción fue anulada.',
@@ -1416,10 +1426,10 @@ function _instruccionesGiftHTML() {
 
 function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido) {
   try {
-    const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
+    const subject = `&#127873; ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
     const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
-      <p>¡Tu Gift Card ha sido activada exitosamente y enviada a <strong>${destCompleto}</strong>! 🎉</p>
+      <p>¡Tu Gift Card ha sido activada exitosamente y enviada a <strong>${destCompleto}</strong>! &#127881;</p>
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">CÓDIGO DE REGALO</p>
         <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
@@ -1441,7 +1451,7 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, des
 
 function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorApellido, codigo, valor, vigencia, mensaje) {
   try {
-    const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tienes un regalo esperándote!`;
+    const subject = `&#127873; ${CFG.NOMBRE_TIENDA} — ¡Tienes un regalo esperándote!`;
     const emisorCompleto = [emisorNombre, emisorApellido].filter(Boolean).join(' ');
     const mensajeHTML = mensaje
       ? `<div style="background:#f8f5ee;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0;font-style:italic;color:#555">
@@ -1449,7 +1459,7 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
          </div>`
       : `<p style="font-size:13px;color:#666">${emisorCompleto} te envía este regalo con todo el cariño.</p>`;
     const body = _emailWrapper(destNombre || '', `
-      <p><strong>${emisorCompleto}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}. 🎉</p>
+      <p><strong>${emisorCompleto}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}. &#127881;</p>
       ${mensajeHTML}
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">TU CÓDIGO DE REGALO</p>
@@ -1470,7 +1480,7 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
 }
 function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
-    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `&#128203; ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! Helena o alguien de nuestro equipo se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1488,7 +1498,7 @@ function _emailEnviadoWA(email, nombre, ref, productos, total) {
 
 function _emailCarritoAbandonado(email, nombre, ref, productos, total) {
   try {
-    const subject = `🛒 ${CFG.NOMBRE_TIENDA} — ¿Olvidaste algo?`;
+    const subject = `&#128722; ${CFG.NOMBRE_TIENDA} — ¿Olvidaste algo?`;
     const enlace  = `${CFG.CATALOGO}?ref=${ref}`;
     const body = _emailWrapper(nombre, `
       <p>Notamos que seleccionaste algunas piezas pero no completaste el proceso.</p>
@@ -1520,7 +1530,7 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
       'DISPONIBLE_TIENDA'  : 'Tu pedido está disponible para retirar en nuestra tienda en Bogotá.',
       'DESPACHADO'         : 'Tu pedido ha sido despachado. Pronto recibirás la información de seguimiento.',
     };
-    const subject = `📦 ${CFG.NOMBRE_TIENDA} — Actualización pedido ${ref}`;
+    const subject = `&#128230; ${CFG.NOMBRE_TIENDA} — Actualización pedido ${ref}`;
     const body = _emailWrapper(nombre, `
       <p>${MENSAJES[estado] || 'El estado de tu pedido ha sido actualizado: ' + estado}</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1537,12 +1547,12 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
 // ── Alerta identidad sospechosa → admin ─────────────────────
 function _emailIdentidadSospechosa(b, rowEncontrada) {
   try {
-    const subject = '🚨⚠️ ALERTA IDENTIDAD SOSPECHOSA — IMOLARTE — REVISAR DE INMEDIATO ⚠️🚨';
+    const subject = '&#128680;⚠️ ALERTA IDENTIDAD SOSPECHOSA — IMOLARTE — REVISAR DE INMEDIATO ⚠️&#128680;';
     const body = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
   <div style="background:#8b0000;padding:20px 24px;border-radius:8px 8px 0 0">
     <h1 style="color:#fff;font-size:20px;margin:0;letter-spacing:1px">
-      🚨 ALERTA DE SEGURIDAD — IMOLARTE
+      &#128680; ALERTA DE SEGURIDAD — IMOLARTE
     </h1>
     <p style="color:#ffcccc;font-size:13px;margin:6px 0 0">
       Se detectó una posible inconsistencia de identidad en una transacción
@@ -1778,7 +1788,7 @@ function setupProtections() {
       // Solo el admin puede editar sin advertencia
       prot.addEditor(email);
       prot.setWarningOnly(true); // advertencia pero no bloqueo total
-      Logger.log('🔒 Protección: ' + sheetName + ' → ' + colName);
+      Logger.log('[LOCK] Protección: ' + sheetName + ' → ' + colName);
     });
   }
 

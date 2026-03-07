@@ -8908,7 +8908,28 @@ const CATALOG_PRODUCTS = [
         precio_cop: 2609000,
       }
     ],
-  }
+  },
+
+  // ── PRODUCTO DE PRUEBA — solo para testear transacciones reales con Wompi producción
+  // Eliminar o desactivar después del test. Precio mínimo Wompi: $1.500 COP.
+  {
+    id: "prod_test",
+    codigo: 999,
+    name: "Taza de prueba (TEST)",
+    familia: "TAZAS, TAZONES, TETERAS",
+    image: "images/products/084.jpg",
+    _testOnly: true,
+    variants: [
+      {
+        coleccion: "GAROFANO LAVI",
+        prefijo: "GL",
+        sku: "GL999",
+        foto_comodin: "images/comodines-imolarte/C_Garofano_Lavi.png",
+        precio_eur: 0.00,
+        precio_cop: 1500,
+      },
+    ],
+  },
 ];
 
 const CATALOG_FAMILIES = {
