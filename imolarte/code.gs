@@ -241,6 +241,12 @@ function _createPedidoWompi(b) {
     ciudad    : ent.ciudad    || '',
     _soloTotal: true,   // no contar interacción — se cuenta solo en APPROVED
   }).clienteId;
+
+  sheet.appendRow([
+    campania,                            // A  Campaña_ID
+    ts,                                  // B  Timestamp
+    ref,                                 // C  Referencia
+    b.wompiTransactionId || '',          // D  Wompi_Transaction_ID
     'PENDING',                           // E  Estado_Pago_Wompi
     cliId,                               // F  ClienteID
     cli.nombre    || '',                 // G  Nombre
@@ -260,7 +266,7 @@ function _createPedidoWompi(b) {
     b.porcentajePagado || 100,           // U  Pct_Pagado
     b.formaPago   || 'WOMPI_100',        // V  Forma_pago
     // Saldo pendiente: total × (1 - pct/100), 0 si pago completo o gift
-    Math.round((b.total || 0) * (1 - ((b.porcentajePagado || 100) / 100))), // W Saldo_Pendiente_COP
+    _roundCOP((b.total || 0) * (1 - ((b.porcentajePagado || 100) / 100))), // W Saldo_Pendiente_COP
     'PENDIENTE',                         // X  Estado_Pedido
     '',                                  // Y  Fecha_despacho
     '',                                  // Z  Notas_internas
