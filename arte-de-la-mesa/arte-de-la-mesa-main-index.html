@@ -21,8 +21,27 @@
     }
     html, body { width:100%; height:100%; overflow:hidden; font-family:var(--font-b); -webkit-font-smoothing:antialiased; }
 
-    .wall-bg { position:fixed; inset:0; z-index:0; background:linear-gradient(175deg,#CCC7BF 0%,#BAB5AE 55%,#B0ABA4 100%); }
-    .wall-bg::after { content:''; position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='1' height='1' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E"); background-size:4px 4px; }
+    /* WALLPAPER MISSONI */
+    .wall-bg {
+      position:fixed; inset:0; z-index:0;
+      background-color:#C8B89A; /* fallback cálido si la imagen no carga */
+      background-image: url('images-wall/wall-missoni.jpg');
+      background-size:cover;
+      background-position:center center;
+      background-repeat:no-repeat;
+    }
+    /* overlay muy sutil para que el header y los textos se lean bien */
+    .wall-bg::after {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.18) 0%,
+        rgba(0,0,0,0.04) 30%,
+        rgba(0,0,0,0.04) 70%,
+        rgba(0,0,0,0.20) 100%
+      );
+    }
 
     /* HEADER */
     .gl-header { position:fixed; top:0; left:0; right:0; z-index:200; pointer-events:none; }
@@ -51,12 +70,61 @@
 
     /* welcome bar eliminado — ver landing.html */
 
-    /* REPISA */
+    /* REPISA REALISTA — madera blanca */
     .shelf { position:fixed; bottom:var(--shelf-bottom); left:0; right:0; height:calc(var(--shelf-h) + var(--shelf-depth)); z-index:50; pointer-events:none; }
-    .shelf-top { position:absolute; top:0; left:0; right:0; height:var(--shelf-h); background:linear-gradient(180deg,#D6D0C8 0%,#C8C2BA 100%); box-shadow:0 -1px 0 rgba(255,255,255,0.28); }
-    .shelf-front { position:absolute; top:var(--shelf-h); left:0; right:0; height:var(--shelf-depth); background:linear-gradient(180deg,#9A938B 0%,#857E76 100%); }
-    .shelf-shadow { position:absolute; top:calc(var(--shelf-h) + var(--shelf-depth)); left:0; right:0; height:7px; background:linear-gradient(180deg,rgba(0,0,0,0.13),transparent); }
-    .shelf-mag-shadow { position:absolute; top:calc(var(--shelf-h) - 6px); left:50%; transform:translateX(-50%); width:48%; height:10px; background:radial-gradient(ellipse at center,rgba(0,0,0,0.22) 0%,transparent 70%); filter:blur(3px); }
+    /* Tablero superior: blanco marfil con veta sutil y borde iluminado */
+    .shelf-top {
+      position:absolute; top:0; left:0; right:0; height:var(--shelf-h);
+      background: linear-gradient(180deg,
+        #F5F2EC 0%,
+        #EDE9E0 35%,
+        #E4E0D6 70%,
+        #D8D3C8 100%
+      );
+      box-shadow:
+        0 -2px 0 rgba(255,255,255,0.90),   /* luz cenital */
+        0 -1px 6px rgba(255,255,255,0.55),  /* halo superior */
+        inset 0 1px 0 rgba(255,255,255,0.80); /* borde arriba */
+    }
+    /* Efecto veta de madera pintada blanca — rayas muy tenues */
+    .shelf-top::before {
+      content:'';
+      position:absolute; inset:0;
+      background-image: repeating-linear-gradient(
+        88deg,
+        transparent 0px,
+        transparent 18px,
+        rgba(0,0,0,0.022) 18px,
+        rgba(0,0,0,0.022) 19px,
+        transparent 19px,
+        transparent 34px,
+        rgba(0,0,0,0.016) 34px,
+        rgba(0,0,0,0.016) 35px
+      );
+    }
+    /* Frente de la repisa: profundidad con gradiente oscuro */
+    .shelf-front {
+      position:absolute; top:var(--shelf-h); left:0; right:0; height:var(--shelf-depth);
+      background: linear-gradient(180deg,
+        #B8B2A6 0%,
+        #9E9890 55%,
+        #8A8478 100%
+      );
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.30);
+    }
+    /* Sombra debajo */
+    .shelf-shadow {
+      position:absolute; top:calc(var(--shelf-h) + var(--shelf-depth)); left:0; right:0;
+      height:9px;
+      background: linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.06) 60%,transparent);
+    }
+    /* Sombra de la revista sobre la repisa */
+    .shelf-mag-shadow {
+      position:absolute; top:calc(var(--shelf-h) - 7px); left:50%;
+      transform:translateX(-50%); width:44%; height:12px;
+      background:radial-gradient(ellipse at center,rgba(0,0,0,0.28) 0%,transparent 72%);
+      filter:blur(4px);
+    }
 
     /* WORLD-STAGE */
     .world-stage { position:fixed; inset:0; z-index:30; pointer-events:none; perspective:900px; perspective-origin:50% 50%; }
@@ -98,13 +166,44 @@
     .dbl-hint { position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.28); backdrop-filter:blur(4px); color:rgba(255,255,255,0.8); font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; padding:5px 14px; border-radius:100px; white-space:nowrap; pointer-events:none; opacity:0; animation:hintPop 5s var(--ease) 1.5s forwards; }
     @keyframes hintPop { 0%{opacity:0;transform:translateX(-50%) translateY(4px)} 15%{opacity:1;transform:translateX(-50%)} 75%{opacity:1} 100%{opacity:0} }
 
-    /* GRID MINIATURAS */
+    /* GRID MINIATURAS — nicho tipo cajón */
     .grid-zone {
       position:fixed;
-      top:calc(100% - var(--shelf-bottom) + var(--shelf-h) + var(--shelf-depth) + 8px);
+      top:calc(100% - var(--shelf-bottom) + var(--shelf-h) + var(--shelf-depth) + 0px);
       bottom:0; left:0; right:0;
       display:flex; align-items:center; justify-content:center;
       gap:clamp(8px,2.5vw,22px); padding:0 12px 6px; z-index:40;
+      /* Panel nicho */
+      background: linear-gradient(180deg,
+        #DDD8CF 0%,
+        #D4CFC6 40%,
+        #CAC4BB 100%
+      );
+      box-shadow:
+        inset 0 3px 8px rgba(0,0,0,0.18),   /* sombra superior inset */
+        inset 0 1px 2px rgba(0,0,0,0.12),
+        inset 2px 0 6px rgba(0,0,0,0.08),
+        inset -2px 0 6px rgba(0,0,0,0.08);
+    }
+    /* Línea de borde superior del nicho */
+    .grid-zone::before {
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0,0,0,0.14) 15%,
+        rgba(0,0,0,0.18) 50%,
+        rgba(0,0,0,0.14) 85%,
+        transparent 100%
+      );
+    }
+    /* Etiqueta "NUESTRAS MARCAS" */
+    .grid-zone::after {
+      content: 'NUESTRAS MARCAS';
+      position:absolute; top:5px; left:50%; transform:translateX(-50%);
+      font-family: var(--font-b); font-size:0.44rem; font-weight:700;
+      letter-spacing:0.22em; color:rgba(80,70,60,0.45);
+      white-space:nowrap; pointer-events:none;
     }
     .mini-mag { flex:0 0 auto; cursor:pointer; width:min(24vw,100px); transform-origin:bottom center; transform:rotateX(8deg); transition:transform 0.28s var(--ease),filter 0.2s; animation:miniIn 0.7s var(--ease) both; filter:brightness(0.90); }
     .mini-mag:nth-child(1){animation-delay:0.1s} .mini-mag:nth-child(2){animation-delay:0.2s} .mini-mag:nth-child(3){animation-delay:0.3s}
