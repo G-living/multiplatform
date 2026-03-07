@@ -44,9 +44,9 @@
     }
     .hc-avatar img { width:100%; height:100%; object-fit:cover; object-position:50% 18%; display:block; }
     .welcome-text { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
-    .welcome-title { font-family:var(--font-d); font-size:clamp(0.85rem,2.2vw,1.06rem); font-weight:400; font-style:italic; color:rgba(28,22,16,0.86); letter-spacing:0.02em; line-height:1.2; }
+    .welcome-title { font-family:var(--font-d); font-size:clamp(0.88rem,2.5vw,1.28rem); font-weight:400; font-style:italic; color:rgba(28,22,16,0.86); letter-spacing:0.02em; line-height:1.2; }
     .welcome-title em { font-style:normal; font-weight:600; color:var(--accent); }
-    .welcome-body { font-size:clamp(0.47rem,1.2vw,0.56rem); font-weight:300; line-height:1.6; color:rgba(28,22,16,0.52); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .welcome-body { font-size:clamp(0.50rem,1.35vw,0.70rem); font-weight:300; line-height:1.6; color:rgba(28,22,16,0.52); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
     @media(min-width:600px){ .welcome-body { -webkit-line-clamp:3; } }
 
     /* REPISA */
@@ -134,11 +134,17 @@
       .mini-mag   { width:min(22vw,82px); }
     }
     @media(min-width:500px) and (max-width:899px){
-      .active-mag { width:min(52vw,270px); }
+      .active-mag { width:min(55vw,300px); }
     }
     @media(min-width:900px){
-      :root{ --shelf-bottom:30%; --welcome-bar-h:88px; }
-      .active-mag { width:min(42vw,300px); }
+      :root{ --shelf-bottom:26%; --welcome-bar-h:106px; }
+      /* Limitar height de revista: espacio = 100vh - header(152px) - shelf - margen */
+      /* max-height en % de viewport height, convertido a width por aspect-ratio 148/210 */
+      .active-mag {
+        width:min(46vw, 310px);
+        /* Evitar desbordamiento cuando zoom>100%: limitar altura implícitamente */
+        max-height:calc(100vh - var(--header-h) - (100vh * 0.26) - var(--shelf-h) - var(--shelf-depth) - 30px);
+      }
       .mini-mag   { width:min(15vw,115px); }
     }
   </style>
