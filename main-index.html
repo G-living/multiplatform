@@ -471,37 +471,71 @@
        RESPONSIVE — mobile
     =================================================== */
     @media (max-width: 700px) {
+
+      .perspective-wrap { perspective: none; }
+
       .world {
+        position: static;
+        transform: none !important;
         width: 100vw;
         height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .wall { position: fixed; inset: 0; z-index: 0; }
+
+      .shelf-container {
+        position: relative;
+        left: auto; right: auto;
+        width: 100vw;
+        z-index: 1;
+        order: 2;
+        margin-top: 6px;
       }
 
       .magazines-row {
-        gap: 0;
+        position: relative;
+        bottom: auto; left: auto;
+        transform: none;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        z-index: 2;
+        order: 1;
       }
 
-      /* En mobile mostramos 1 sola revista centrada */
-      .mag-wrap {
-        display: none;
-      }
+      .mag-wrap { display: none !important; animation: none; }
 
       .mag-wrap.mobile-active {
-        display: block;
+        display: block !important;
+        animation: magEntryMobile 0.6s var(--ease-out) both;
       }
 
-      .nav-prev, .nav-next {
-        display: flex;
+      @keyframes magEntryMobile {
+        from { opacity: 0; transform: rotateX(10deg) translateY(30px); }
+        to   { opacity: 1; transform: rotateX(10deg) translateY(0); }
       }
 
-      .shelf-container {
-        left: -100vw;
-        right: -100vw;
+      .mag-wrap.mobile-active .mag-body {
+        width: 175px !important;
+        height: 245px !important;
       }
+
+      .floor-shadow { display: none; }
+
+      .nav-prev, .nav-next { display: flex; }
     }
 
     @media (max-width: 480px) {
       .nav-prev { left: 8px; }
       .nav-next { right: 8px; }
+      .mag-wrap.mobile-active .mag-body {
+        width: 155px !important;
+        height: 220px !important;
+      }
     }
 
     /* ===================================================
@@ -790,6 +824,7 @@
 
     /* ── TRANSFORM ──────────────────────────────────── */
     function applyTransform() {
+      if (isMobile()) return;  // mobile usa layout flex, no transform
       world.style.transform =
         'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px)) scale(' + zoom + ')';
     }
