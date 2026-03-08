@@ -8518,4 +8518,7 @@ const MLG_CATALOG = [
 // Totales al cierre de sprint:
 // 749 SKUs · 284 con imagen (37%) · 465 pendientes (62%)
 
+// Exponer globalmente para catalog-mlg.js y modal-mlg.js
+window.MLG_CATALOG = MLG_CATALOG;
+
 if (typeof module !== "undefined") module.exports = { MLG_CATALOG };
