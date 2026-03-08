@@ -77,8 +77,9 @@
     .active-mag.dragging { cursor:grabbing; }
     .active-mag.swapping { pointer-events:none; }
     @keyframes magIn { from{opacity:0;transform:rotateX(10deg) translateY(24px)} to{opacity:1;transform:rotateX(10deg)} }
+    @keyframes magSwapIn { 0%{opacity:0;transform:rotateX(10deg) translateY(48px) scale(0.92)} 60%{opacity:1;transform:rotateX(10deg) translateY(-6px) scale(1.02)} 100%{opacity:1;transform:rotateX(10deg) translateY(0) scale(1)} }
 
-    .mag-body { width:100%; aspect-ratio:148/210; border-radius:3px 6px 6px 3px; overflow:hidden; position:relative; box-shadow:3px 8px 24px rgba(0,0,0,0.36),inset -2px 0 6px rgba(0,0,0,0.10); transition:box-shadow 0.3s,aspect-ratio 0.3s; }
+    .mag-body { width:100%; aspect-ratio:148/210; border-radius:3px 6px 6px 3px; overflow:hidden; position:relative; box-shadow:2px 6px 0 rgba(0,0,0,0.08),4px 12px 28px rgba(0,0,0,0.40),8px 20px 48px rgba(0,0,0,0.18),inset -2px 0 6px rgba(0,0,0,0.10); transition:box-shadow 0.3s,aspect-ratio 0.3s; }
     .mag-spine { position:absolute; left:0; top:0; bottom:0; width:10px; background:linear-gradient(90deg,rgba(0,0,0,0.40),rgba(0,0,0,0.12)); z-index:5; border-radius:3px 0 0 3px; }
     .mag-inner { position:absolute; inset:0; left:10px; display:flex; flex-direction:column; overflow:hidden; border-radius:0 5px 5px 0; background:#FAFAF8; }
     .mag-head  { flex-shrink:0; padding:10px 12px 7px; display:flex; flex-direction:column; gap:3px; }
@@ -107,7 +108,7 @@
     .mini-mag:nth-child(1){animation-delay:0.1s} .mini-mag:nth-child(2){animation-delay:0.2s} .mini-mag:nth-child(3){animation-delay:0.3s}
     @keyframes miniIn { from{opacity:0;transform:rotateX(8deg) translateY(18px)} to{opacity:1;transform:rotateX(8deg)} }
     .mini-mag:hover { transform:rotateX(8deg) translateY(-4px) scale(1.04); filter:brightness(1); }
-    .mini-body { width:100%; aspect-ratio:148/200; border-radius:2px 5px 5px 2px; overflow:hidden; position:relative; box-shadow:2px 5px 12px rgba(0,0,0,0.28),inset -1px 0 4px rgba(0,0,0,0.09); }
+    .mini-body { width:100%; aspect-ratio:148/200; border-radius:2px 5px 5px 2px; overflow:hidden; position:relative; box-shadow:1px 3px 0 rgba(0,0,0,0.06),2px 6px 14px rgba(0,0,0,0.32),4px 10px 24px rgba(0,0,0,0.14),inset -1px 0 4px rgba(0,0,0,0.09); }
     .mini-spine { position:absolute; left:0; top:0; bottom:0; width:6px; background:linear-gradient(90deg,rgba(0,0,0,0.38),rgba(0,0,0,0.08)); z-index:5; }
     .mini-inner { position:absolute; inset:0; left:6px; display:flex; flex-direction:column; overflow:hidden; border-radius:0 4px 4px 0; background:#FAFAF8; }
     .mini-head  { flex-shrink:0; padding:6px 7px 4px; }
@@ -216,7 +217,7 @@ const BRANDS = [
     color:'#3A3228', url:'imolarte/index.html', live:true, folder:'Imolarte',
     files:['imolarte-portada1.jpg','imolarte-portada2.jpg','imolarte-portada3.jpg','imolarte-portada4.jpg','imolarte-portada5.jpg'] },
   { id:'mlg', name:'Mario Luca Giusti', sub:'Synthetic Crystal', foot:'Arte de la Mesa',
-    color:'#2C4A3E', url:'MLG/index-mlg.html', live:true, folder:'MLG',
+    color:'#2C4A3E', url:'MLG/mlg-index.html', live:true, folder:'MLG',
     files:['MLG-portada1.jpg','MLG-portada2.jpg','MLG-portada3.jpg','MLG-portada4.jpg','MLG-portada5.jpg'] },
   { id:'tessitura', name:'Tessitura', sub:'Toscana', foot:'Textil · Toscana',
     color:'#4A3828', url:'#', live:false, folder:'Tessitura-Toscana',
@@ -362,7 +363,8 @@ function swapActive(newIdx,miniEl){
     activeMag.style.opacity='0';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       activeMag.style.opacity='1';
-      setTimeout(()=>{ activeMag.style.transition='';activeMag.classList.remove('swapping'); },340);
+      activeMag.style.animation='magSwapIn 0.55s cubic-bezier(0.22,1,0.36,1) both';
+      setTimeout(()=>{ activeMag.style.transition='';activeMag.style.animation='';activeMag.classList.remove('swapping'); },560);
     }));
   },360);
 }
