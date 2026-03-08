@@ -76,9 +76,8 @@ function _handleStatus(status, reference, txId) {
   const btnReintentar = '<a href="imolarte-index.html" class="btn btn-secondary">Volver al catálogo</a>';
 
   if (status === 'APPROVED') {
-    // Vaciar carrito y draft del formulario solo en pago exitoso
+    // Vaciar carrito en pago exitoso
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
-
 
     setContent(
       '🏺', '¡Gracias por tu compra!',
@@ -89,7 +88,7 @@ function _handleStatus(status, reference, txId) {
       reference, btnCatalogo, 'confirm-title--success'
     );
 
-    // Recuperar payload guardado por modal.js antes de redirigir
+    // Recuperar payload guardado por modal.js antes de redirigir a Wompi
     let pedidoPayload = null;
     try {
       const raw = sessionStorage.getItem('imolarte_pending_pedido');
@@ -100,36 +99,46 @@ function _handleStatus(status, reference, txId) {
     } catch(e) { console.warn('checkout.js: error leyendo payload', e); }
 
     if (pedidoPayload && pedidoPayload.referencia === reference) {
-      // Crear pedido en Sheets ahora que el pago es confirmado
-      Api.createPedidoWompi(
-        { cliente: pedidoPayload.cliente, entrega: pedidoPayload.entrega },
-        pedidoPayload.productos,
-        {
-          formaPago:        pedidoPayload.formaPago,
-          subtotal:         pedidoPayload.subtotal,
-          descuento:        pedidoPayload.descuento,
-          total:            pedidoPayload.total,
-          porcentajePagado: pedidoPayload.porcentajePagado,
-          referencia:       reference,
-          campaniaId:       pedidoPayload.campaniaId || '',
-          _skipEmail:       true,   // no enviar email de "pedido recibido" — solo el de pago confirmado
+      // ── Flujo Wompi (60% o 100%, con o sin bono parcial) ──────────
+      // Secuencia encadenada con await para garantizar que todas las
+      // llamadas HTTP completan antes de que el browser descargue la página.
+      (async () => {
+        try {
+          await Api.createPedidoWompi(
+            { cliente: pedidoPayload.cliente, entrega: pedidoPayload.entrega },
+            pedidoPayload.productos,
+            {
+              formaPago:        pedidoPayload.formaPago,
+              subtotal:         pedidoPayload.subtotal,
+              descuento:        pedidoPayload.descuento,
+              total:            pedidoPayload.total,
+              porcentajePagado: pedidoPayload.porcentajePagado,
+              referencia:       reference,
+              campaniaId:       pedidoPayload.campaniaId || '',
+              _skipEmail:       true,
+            }
+          );
+        } catch(err) {
+          console.warn('checkout.js: error createPedidoWompi', err);
         }
-      ).then(() => {
-        // Redimir bono si aplica
+        // Redimir bono si aplica — await para que no se pierda
         if (pedidoPayload.bono?.code) {
-          Api.redeemDono(pedidoPayload.bono.code, pedidoPayload.bono.monto, reference);
+          try { await Api.redeemDono(pedidoPayload.bono.code, pedidoPayload.bono.monto, reference); }
+          catch(err) { console.warn('checkout.js: error redeemDono', err); }
         }
-        // Confirmar pago en Sheets (graba APPROVED, envía email de pago confirmado)
-        Api.confirmarPagoWompi(reference, status, txId);
-      }).catch(err => {
-        console.warn('checkout.js: error creando pedido post-pago', err);
-        // Igual intentar confirmar para no perder el registro
-        Api.confirmarPagoWompi(reference, status, txId);
-      });
-    } else {
-      // Fallback: no hay payload (raro) — solo confirmar
+        // Confirmar pago — await garantiza que llega a Sheets antes de cualquier navegación
+        try { await Api.confirmarPagoWompi(reference, status, txId); }
+        catch(err) { console.warn('checkout.js: error confirmarPagoWompi', err); }
+      })();
+
+    } else if (txId) {
+      // ── Fallback Wompi: no hay payload pero hay txId — solo confirmar ──
       Api.confirmarPagoWompi(reference, status, txId);
+
     }
+    // ── Flujo Gift Card total: pedido ya procesado en modal.js ──────
+    // No hacer nada — create + redeem + confirmar ya ocurrieron antes
+    // del redirect. Solo mostrar pantalla de agradecimiento (ya hecho arriba).
 
   } else if (status === 'DECLINED' || status === 'ERROR') {
     setContent(
