@@ -1413,19 +1413,27 @@ const Modal = (() => {
     if (bonoLine) bonoLine.style.display = bonoDesc > 0 ? 'flex' : 'none';
     if (bonoVal)  bonoVal.textContent = '− ' + Utils.formatPrice(bonoDesc);
 
-    // Línea "Total" visible cuando hay bono o campaña activa
+    // Línea descuento 3% pago anticipado — visible solo cuando hay bono activo
+    // (sin bono el 3% ya está incluido en el label del botón 100%)
+    const disc100Line  = document.getElementById('wpLineDisc100');
+    const disc100Val   = document.getElementById('wpValDisc100');
+    if (bonoDesc > 0 && disc100Line) {
+      disc100Line.style.display = 'flex';
+      if (disc100Val) disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
+    } else if (disc100Line) {
+      disc100Line.style.display = 'none';
+    }
+
+    // Línea "Total a pagar" visible cuando hay bono (muestra base − 3% si aplica)
     const totalFinalLine = document.getElementById('wpLineTotalFinal');
     const totalFinalVal  = document.getElementById('wpValTotalFinal');
     if (bonoDesc > 0) {
       if (totalFinalLine) totalFinalLine.style.display = 'flex';
-      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(base);
+      // Mostrar pay100 (base − 3%) como referencia del total más bajo posible
+      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(pay100);
     } else {
       if (totalFinalLine) totalFinalLine.style.display = 'none';
     }
-
-    // Ocultar siempre la línea de descuento 3% separada (queda en label del botón)
-    const disc100Line = document.getElementById('wpLineDisc100');
-    if (disc100Line) disc100Line.style.display = 'none';
 
     // ── Bono cubre el total → botón Gift Card, sin Wompi ──
     const bonoCobreTotal = bonoDesc >= subtotal;
