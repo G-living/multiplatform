@@ -303,7 +303,9 @@ function _createPedidoWompi(b) {
   _log('createPedidoWompi', ref, cliId, 'OK');
   // _skipEmail: true cuando el pedido se crea post-pago desde checkout.js
   // En ese caso solo se envía el email de pago confirmado, no el de "pedido recibido"
-  if (!b._skipEmail && cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
+  // No enviar email de lista de deseos si es pago Gift Card (ya recibirá email de pago confirmado)
+  const _esGift = String(b.formaPago || '').startsWith('GIFT_CARD');
+  if (!b._skipEmail && !_esGift && cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
   return { ok: true, referencia: ref, clienteId: cliId };
 }
 
@@ -349,19 +351,25 @@ function _confirmarPagoWompi(b) {
     // Extraer info del bono si aplica
     // Forma_pago puede ser: GIFT_CARD | WOMPI_60+GIFT:HC-XXXXX | WOMPI_100+GIFT:HC-XXXXX
     let giftInfo = null;
-    const giftMatch = formaPago.match(/GIFT:([A-Z0-9-]+)/);
+    const giftMatch  = formaPago.match(/GIFT:([A-Z0-9-]+)/);   // WOMPI_xx+GIFT:HC-xxx
+    const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/); // GIFT_CARD:HC-xxx
     if (giftMatch) {
       // pago mixto wompi + gift
       const montoWompi = total * (pctPagado / 100);
-      const montoGift  = total - montoWompi;
-      giftInfo = { codigo: giftMatch[1], monto: montoGift, tipo: 'MIXTO', montoWompi };
+      const montoGift  = subtotal - montoWompi - _roundCOP((subtotal - (data[i][header.indexOf('Descuento_COP')] || 0)) * 0);
+      // montoGift = descuento registrado en Sheets
+      const montoGiftReal = data[i][header.indexOf('Descuento_COP')] || (subtotal - total);
+      giftInfo = { codigo: giftMatch[1], monto: _roundCOP(montoGiftReal), tipo: 'MIXTO', montoWompi };
+    } else if (giftTotMatch) {
+      // pago 100% gift con código
+      giftInfo = { codigo: giftTotMatch[1], monto: _roundCOP(subtotal), tipo: 'TOTAL' };
     } else if (formaPago === 'GIFT_CARD') {
-      // pago 100% gift
-      giftInfo = { codigo: '', monto: total, tipo: 'TOTAL' };
+      // pago 100% gift sin código explícito (legacy)
+      giftInfo = { codigo: '', monto: _roundCOP(subtotal), tipo: 'TOTAL' };
     }
 
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
@@ -1291,7 +1299,7 @@ function checkWishlistAbandonadas() {
 
 function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
-    const subject = `&#128203; ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. Helena o alguien de nuestro equipo te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1308,89 +1316,103 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   } catch(err) { _log('emailPedidoRecibido_ERROR', ref, err.message); }
 }
 
-function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento) {
+function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento, txId) {
   try {
-    const subject = `&#127881; ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
+    const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
 
-    // ── Tabla de ítems ──────────────────────────────────────
-    const tablaProductos = _productosHTML(productos);
+    const tablaProductos  = _productosHTML(productos);
+    const pct             = Number(pctPagado) || 100;
+    const subtotalMostrar = _roundCOP(subtotal || total);
 
-    // ── Bloque resumen financiero ───────────────────────────
-    let resumenHTML = '';
-
-    // Línea bono si aplica
-    let bonoHTML = '';
+    // ── Bono Gift Card ──────────────────────────────────────
     let bonoDesc = 0;
-    if (giftInfo && giftInfo.tipo === 'MIXTO') {
-      bonoDesc = _roundCOP(giftInfo.monto);
+    let bonoHTML = '';
+    if (giftInfo) {
+      bonoDesc = _roundCOP(giftInfo.monto || 0);
+      const codigoLabel = giftInfo.codigo
+        ? `Gift Card <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>`
+        : 'Gift Card';
       bonoHTML = `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">
-            &#127873; Bono <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>
-          </td>
-          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">
-            − ${_fmtCOP(bonoDesc)}
-          </td>
-        </tr>`;
-    } else if (giftInfo && giftInfo.tipo === 'TOTAL') {
-      bonoDesc = _roundCOP(total);
-      bonoHTML = `
-        <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">&#127873; Pagado 100% con Gift Card</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">🎁 ${codigoLabel}</td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(bonoDesc)}</td>
         </tr>`;
     }
 
-    // Subtotal + bono + descuento pago anticipado + total pagado — todos redondeados a $1.000
-    const subtotalMostrar = _roundCOP(subtotal || total);
-    const totalRedondeado = _roundCOP(total);
-
-    // Línea descuento pago anticipado (3%) — solo si aplica
+    // ── Descuento 3% pago anticipado (solo Wompi 100%) ─────
     const descRedondeado = _roundCOP(descuento || 0);
-    const descHTML = descRedondeado > 0 ? `
+    const descHTML = (descRedondeado > 0 && pct === 100 && giftInfo?.tipo !== 'TOTAL') ? `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. Descuento pago anticipado</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. pago anticipado (3%)</td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(descRedondeado)}</td>
         </tr>` : '';
 
-    resumenHTML = `
+    // ── Total a pagar (subtotal − bono − descuento) ────────
+    const totalAPagar    = _roundCOP(subtotalMostrar - bonoDesc - descRedondeado);
+    const totalRedondeado = _roundCOP(total);
+
+    // ── Línea "Total a pagar" — solo si hay bono ───────────
+    const totalAPagarHTML = bonoDesc > 0 ? `
+        <tr style="border-top:1px solid #ddd">
+          <td style="padding:6px 8px;font-size:13px;color:#555">Total a pagar</td>
+          <td style="padding:6px 8px;font-size:13px;text-align:right;color:#1a1610">${_fmtCOP(totalAPagar)}</td>
+        </tr>` : '';
+
+    // ── Total pagado hoy ───────────────────────────────────
+    const pagadoLabel = pct === 60 ? `Total pagado hoy (60%)` : `Total pagado`;
+    const pagadoValor = pct === 60 ? _roundCOP(totalAPagar * 0.6) : totalRedondeado;
+
+    // ── Transacción ────────────────────────────────────────
+    const txLabel  = (giftInfo?.tipo === 'TOTAL') ? 'GIFT_CARD' : (txId || '—');
+    const txHTML   = `
+        <tr>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Transacción</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#888;font-size:12px">${txLabel}</td>
+        </tr>`;
+
+    // ── Saldo pendiente ────────────────────────────────────
+    const saldoPendiente = pct === 60 ? _roundCOP(totalAPagar * 0.4) : 0;
+    const saldoValor     = _fmtCOP(saldoPendiente);
+
+    // ── Aviso saldo 40% (solo pct=60) ─────────────────────
+    const saldoAvisoHTML = pct === 60 ? `
+      <div style="background:#fff8e6;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#7a5c00">Saldo pendiente (40%): ${saldoValor}</p>
+        <p style="margin:0;font-size:13px;color:#555">
+          Te avisaremos cuando tu pedido esté en tránsito desde Italia, con tiempo suficiente
+          para completar el pago sin incurrir en sobrecostos o penalidades.
+        </p>
+      </div>` : '';
+
+    const resumenHTML = `
       <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f5ee;border-radius:6px">
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">Subtotal</td>
-          <td style="padding:5px 8px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
+          <td style="padding:8px 8px 5px;font-size:13px;color:#555">Subtotal</td>
+          <td style="padding:8px 8px 5px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
         </tr>
         ${bonoHTML}
         ${descHTML}
+        ${totalAPagarHTML}
         <tr style="border-top:2px solid #C4A05A">
-          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">Total pagado</td>
-          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(totalRedondeado)}</td>
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">${pagadoLabel}</td>
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(pagadoValor)}</td>
+        </tr>
+        ${txHTML}
+        <tr>
+          <td style="padding:5px 8px 8px;font-size:13px;color:#555">Saldo pendiente</td>
+          <td style="padding:5px 8px 8px;font-size:13px;text-align:right;color:#555">${pct === 60 ? saldoValor : _fmtCOP(0)}</td>
         </tr>
       </table>`;
-
-    // ── Bloque saldo pendiente (solo pct=60) ────────────────
-    let saldoHTML = '';
-    const pct = Number(pctPagado) || 100;
-    if (pct === 60) {
-      const saldoPendiente = _roundCOP((subtotalMostrar - bonoDesc) * 0.4);
-      saldoHTML = `
-        <div style="background:#fff8e6;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0">
-          <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#7a5c00">Saldo pendiente: ${_fmtCOP(saldoPendiente)}</p>
-          <p style="margin:0;font-size:13px;color:#555">
-            Te avisaremos cuando tu pedido esté en tránsito desde Italia, con tiempo suficiente
-            para completar el pago sin incurrir en sobrecostos o penalidades.
-          </p>
-        </div>`;
-    }
 
     const body = _emailWrapper(nombre, `
       <p>¡Qué alegría! Tu pago ha sido confirmado exitosamente. Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${tablaProductos}
       ${resumenHTML}
-      ${saldoHTML}
+      ${saldoAvisoHTML}
       <p style="font-size:13px;color:#666;margin-top:16px">
         Te mantendremos informada sobre el estado de tu pedido en cada etapa del proceso.<br>
-        Si tienes alguna pregunta, escríbenos por 
+        Si tienes alguna pregunta, escríbenos por
         <a href="https://wa.me/${CFG.WHATSAPP}" style="color:#C4A05A">WhatsApp</a>, con mucho gusto te atendemos.
       </p>
     `);
@@ -1401,7 +1423,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
 
 function _emailPagoCancelado(email, nombre, ref, status) {
   try {
-    const subject = `&#10060; ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
+    const subject = `❌ ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
     const msgs = {
       'DECLINED' : 'Tu pago fue declinado por la entidad bancaria. Por favor verifica tus datos o intenta con otro medio de pago.',
       'VOIDED'   : 'Tu transacción fue anulada.',
@@ -1442,7 +1464,7 @@ function _instruccionesGiftHTML() {
 
 function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido) {
   try {
-    const subject = `&#127873; ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
+    const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
     const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
       <p>¡Tu Gift Card ha sido activada exitosamente y enviada a <strong>${destCompleto}</strong>! &#127881;</p>
@@ -1496,7 +1518,7 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
 }
 function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
-    const subject = `&#128203; ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! Helena o alguien de nuestro equipo se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>

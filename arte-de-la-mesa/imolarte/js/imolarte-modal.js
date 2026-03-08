@@ -1565,7 +1565,7 @@ const Modal = (() => {
     let reference = '';
     try {
       const result = await Api.createPedidoWompi(data, items, {
-        formaPago:        'GIFT_CARD',
+        formaPago:        _ckBono?.code ? `GIFT_CARD:${_ckBono.code}` : 'GIFT_CARD',
         subtotal,
         descuento:        bonoDesc,
         total,
