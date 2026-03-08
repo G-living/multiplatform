@@ -1492,19 +1492,21 @@ const Modal = (() => {
     const formaPago = _ckBono?.code
       ? (pct === '60' ? 'WOMPI_60' : 'WOMPI_100') + '+GIFT:' + _ckBono.code
       : (pct === '60' ? 'WOMPI_60' : 'WOMPI_100');
-    try {
-      sessionStorage.setItem('imolarte_pending_pedido', JSON.stringify({
-        formaPago,
-        subtotal, descuento, total,
-        porcentajePagado: pct === '60' ? 60 : 100,
-        referencia:       reference,
-        cliente:          data.cliente,
-        entrega:          data.entrega,
-        productos:        items,
-        bono:             _ckBono ? { code: _ckBono.code, monto: bonoDesc } : null,
-        campaniaId:       IMOLARTE_CONFIG?.campania?.id || '',
-      }));
-    } catch(e) { Logger.warn('modal.js: no se pudo guardar payload en sessionStorage', e); }
+    // Guardar en sessionStorage Y localStorage — el redirect cross-origin de Wompi
+    // puede limpiar sessionStorage; localStorage persiste como backup garantizado.
+    const _pendingPayload = JSON.stringify({
+      formaPago,
+      subtotal, descuento, total,
+      porcentajePagado: pct === '60' ? 60 : 100,
+      referencia:       reference,
+      cliente:          data.cliente,
+      entrega:          data.entrega,
+      productos:        items,
+      bono:             _ckBono ? { code: _ckBono.code, monto: bonoDesc } : null,
+      campaniaId:       IMOLARTE_CONFIG?.campania?.id || '',
+    });
+    try { sessionStorage.setItem('imolarte_pending_pedido', _pendingPayload); } catch(e) { Logger.warn('modal.js: sessionStorage write error', e); }
+    try { localStorage.setItem('imolarte_pending_pedido', _pendingPayload); }   catch(e) { Logger.warn('modal.js: localStorage write error', e); }
 
     // ── Obtener firma de integridad Wompi ──────────────────
     let signature = null;

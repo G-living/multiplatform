@@ -88,15 +88,22 @@ function _handleStatus(status, reference, txId) {
       reference, btnCatalogo, 'confirm-title--success'
     );
 
-    // Recuperar payload guardado por modal.js antes de redirigir a Wompi
+    // Recuperar payload guardado por modal.js antes de redirigir a Wompi.
+    // Se guarda en sessionStorage (primario) y localStorage (backup).
+    // El redirect cross-origin de Wompi puede limpiar sessionStorage — en ese caso
+    // se usa localStorage. Ambos se borran después de leer para evitar reutilización.
     let pedidoPayload = null;
     try {
-      const raw = sessionStorage.getItem('imolarte_pending_pedido');
+      const rawSession = sessionStorage.getItem('imolarte_pending_pedido');
+      const rawLocal   = localStorage.getItem('imolarte_pending_pedido');
+      const raw = rawSession || rawLocal;
       if (raw) {
         pedidoPayload = JSON.parse(raw);
-        sessionStorage.removeItem('imolarte_pending_pedido');
       }
     } catch(e) { console.warn('checkout.js: error leyendo payload', e); }
+    // Limpiar ambos storages siempre — independientemente de si había payload
+    try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
+    try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
 
     if (pedidoPayload && pedidoPayload.referencia === reference) {
       // ── Flujo Wompi (60% o 100%, con o sin bono parcial) ──────────
