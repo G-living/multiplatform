@@ -30,7 +30,7 @@ const IMOLARTE_CONFIG = {
     wompiCheckoutUrl: 'https://checkout.wompi.co/p/',
     signatureWorkerUrl: 'https://imolarte-signature-generator.filippo-massara2016.workers.dev',
     sheetsUrl: 'https://script.google.com/macros/s/AKfycbx6-qPulIoXESSQdgINrcmIj_Yrgtt-T7FXd3XdR_mnuIeKx6MAz9Y45TPUAAxVNkIb/exec',
-    checkoutUrl: 'https://g-living.github.io/multiplatform/imolarte/checkout.html',
+    checkoutUrl: 'https://g-living.github.io/multiplatform/imolarte/imolarte-checkout.html',
     discountPayFull: 0.03,
     // ── Token de autorización — debe coincidir con CFG.API_TOKEN en code.gs
     apiToken: 'e_Z9in_KWciZdhVjoKl6ps471XOrlJi5lzV55WalUBA',
