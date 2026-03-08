@@ -8,6 +8,7 @@
 
 'use strict';
 
+
 // ===== MODAL MANAGER =====
 const Modal = (() => {
 
@@ -755,6 +756,7 @@ const Modal = (() => {
     });
   }
 
+
   // ═══════════════════════════════════════════════════
   // CHECKOUT — ESTADO COMPARTIDO
   // ═══════════════════════════════════════════════════
@@ -856,6 +858,7 @@ const Modal = (() => {
       Logger.log('Places→', dirFormatted, '|', barrio, '|', ciudad);
     });
   }
+
 
   function openCheckoutWA() {
     _populateDias('waInputCumpleDia');
@@ -1024,31 +1027,43 @@ const Modal = (() => {
   // RECOLECTAR DATOS
   // ═══════════════════════════════════════════════════
   // ═══════════════════════════════════════════════════
-  // PERSISTENCIA FORMULARIO CHECKOUT — localStorage indefinido (por dispositivo)
-  // Mejora UX: el cliente no repite datos en compras sucesivas
+  // PERSISTENCIA FORMULARIO — localStorage indefinido
+  // Draft compartido entre modal Wompi (wp*), WhatsApp (wa*)
+  // y Gift Card emisor (gf*). El cliente no repite sus datos
+  // en compras futuras desde el mismo dispositivo.
+  // Nunca se borra — solo se actualiza con cada keystroke.
   // ═══════════════════════════════════════════════════
-  const _DRAFT_KEY    = 'imolarte_checkout_draft';
+  const _DRAFT_KEY = 'imolarte_checkout_draft';
+
+  // Lee el primer valor no vacío entre los IDs dados (prioridad izquierda→derecha)
+  function _draftRead(...ids) {
+    for (const id of ids) {
+      const v = (document.getElementById(id)?.value || '').trim();
+      if (v) return v;
+    }
+    return '';
+  }
 
   function _saveDraft() {
     try {
-      const g = id => document.getElementById(id)?.value || '';
       const draft = {
-        nombre:    g('wpInputNombre'),
-        apellido:  g('wpInputApellido'),
-        email:     g('wpInputEmail'),
-        emailConf: g('wpInputEmailConf'),
-        codPais:   g('wpInputCodPais'),
-        tel:       g('wpInputTel'),
-        tipoPersona: document.querySelector('input[name="wpInputTipoPersona"]:checked')?.value || 'natural',
-        tipoDoc:   g('wpInputTipoDoc'),
-        numDoc:    g('wpInputNumDoc'),
-        cumpleDia: g('wpInputCumpleDia'),
-        cumpleMes: g('wpInputCumpleMes'),
-        dir:       g('wpInputDir'),
-        barrio:    g('wpInputBarrio'),
-        ciudad:    g('wpInputCiudad'),
-        notas:     g('wpInputNotas'),
-        bono:      g('wpInputBono'),
+        nombre:     _draftRead('wpInputNombre',   'waInputNombre',   'gfNombre'),
+        apellido:   _draftRead('wpInputApellido', 'waInputApellido', 'gfApellido'),
+        email:      _draftRead('wpInputEmail',    'waInputEmail',    'gfEmail'),
+        emailConf:  _draftRead('wpInputEmailConf','waInputEmailConf','gfEmailConf'),
+        codPais:    _draftRead('wpInputCodPais',  'waInputCodPais',  'gfPais'),
+        tel:        _draftRead('wpInputTel',      'waInputTel',      'gfTel'),
+        tipoDoc:    _draftRead('wpInputTipoDoc',  'waInputTipoDoc',  'gfTipoDoc'),
+        numDoc:     _draftRead('wpInputNumDoc',   'waInputNumDoc',   'gfNumDoc'),
+        cumpleDia:  _draftRead('wpInputCumpleDia','waInputCumpleDia','gfCumpleDia'),
+        cumpleMes:  _draftRead('wpInputCumpleMes','waInputCumpleMes','gfCumpleMes'),
+        dir:        _draftRead('wpInputDir',      'waInputDir',      'gfDir'),
+        barrio:     _draftRead('wpInputBarrio',   'waInputBarrio',   'gfBarrio'),
+        ciudad:     _draftRead('wpInputCiudad',   'waInputCiudad',   'gfCiudad'),
+        notas:      _draftRead('wpInputNotas',    'waInputNotas'),
+        tipoPersona: document.querySelector('input[name="wpInputTipoPersona"]:checked')?.value
+                  || document.querySelector('input[name="waInputTipoPersona"]:checked')?.value
+                  || 'natural',
       };
       localStorage.setItem(_DRAFT_KEY, JSON.stringify(draft));
     } catch(e) {}
@@ -1060,46 +1075,69 @@ const Modal = (() => {
       if (!raw) return;
       const draft = JSON.parse(raw);
 
-      const s = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
-      s('wpInputNombre',   draft.nombre);
-      s('wpInputApellido', draft.apellido);
-      s('wpInputEmail',    draft.email);
-      s('wpInputEmailConf',draft.emailConf);
-      s('wpInputCodPais',  draft.codPais);
-      s('wpInputTel',      draft.tel);
-      s('wpInputTipoDoc',  draft.tipoDoc);
-      s('wpInputNumDoc',   draft.numDoc);
-      s('wpInputCumpleDia',draft.cumpleDia);
-      s('wpInputCumpleMes',draft.cumpleMes);
-      s('wpInputDir',      draft.dir);
-      s('wpInputBarrio',   draft.barrio);
-      s('wpInputCiudad',   draft.ciudad);
-      s('wpInputNotas',    draft.notas);
-      if (draft.bono) s('wpInputBono', draft.bono);
-      // Radio tipo persona
-      if (draft.tipoPersona) {
-        const radio = document.querySelector(`input[name="wpInputTipoPersona"][value="${draft.tipoPersona}"]`);
-        if (radio) radio.checked = true;
-      }
-      // Mostrar ✓ email si coinciden
+      // Escribe en los tres conjuntos de campos simultáneamente
+      const s = (val, ...ids) => {
+        if (!val) return;
+        ids.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = val;
+        });
+      };
+      s(draft.nombre,    'wpInputNombre',   'waInputNombre',   'gfNombre');
+      s(draft.apellido,  'wpInputApellido', 'waInputApellido', 'gfApellido');
+      s(draft.email,     'wpInputEmail',    'waInputEmail',    'gfEmail');
+      s(draft.emailConf, 'wpInputEmailConf','waInputEmailConf','gfEmailConf');
+      s(draft.codPais,   'wpInputCodPais',  'waInputCodPais',  'gfPais');
+      s(draft.tel,       'wpInputTel',      'waInputTel',      'gfTel');
+      s(draft.tipoDoc,   'wpInputTipoDoc',  'waInputTipoDoc',  'gfTipoDoc');
+      s(draft.numDoc,    'wpInputNumDoc',   'waInputNumDoc',   'gfNumDoc');
+      s(draft.cumpleDia, 'wpInputCumpleDia','waInputCumpleDia','gfCumpleDia');
+      s(draft.cumpleMes, 'wpInputCumpleMes','waInputCumpleMes','gfCumpleMes');
+      s(draft.dir,       'wpInputDir',      'waInputDir',      'gfDir');
+      s(draft.barrio,    'wpInputBarrio',   'waInputBarrio',   'gfBarrio');
+      s(draft.ciudad,    'wpInputCiudad',   'waInputCiudad',   'gfCiudad');
+      s(draft.notas,     'wpInputNotas',    'waInputNotas');
+
+      // Radios tipo persona — wp y wa
+      ['wp', 'wa'].forEach(prefix => {
+        if (draft.tipoPersona) {
+          const radio = document.querySelector(`input[name="${prefix}InputTipoPersona"][value="${draft.tipoPersona}"]`);
+          if (radio) radio.checked = true;
+        }
+      });
+
+      // Mostrar ✓ email si coinciden — wp y wa y gf
       if (draft.email && draft.email === draft.emailConf) {
-        const okEl = document.getElementById('wpOkEmailConf');
-        if (okEl) okEl.style.display = 'block';
+        ['wpOkEmailConf', 'waOkEmailConf', 'gfOkEmailConf'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'block';
+        });
       }
     } catch(e) {}
   }
 
+  // _clearDraft disponible pero nunca invocada — el draft persiste indefinidamente
   function _clearDraft() {
     try { localStorage.removeItem(_DRAFT_KEY); } catch(e) {}
   }
 
   function _bindDraftListeners() {
-    // Idempotente — evita duplicar listeners si se llama varias veces
+    // Idempotente — no duplica listeners si se llama varias veces
     const campos = [
+      // Wompi
       'wpInputNombre','wpInputApellido','wpInputEmail','wpInputEmailConf',
       'wpInputCodPais','wpInputTel','wpInputTipoDoc','wpInputNumDoc',
       'wpInputCumpleDia','wpInputCumpleMes','wpInputDir','wpInputBarrio',
-      'wpInputCiudad','wpInputNotas','wpInputBono',
+      'wpInputCiudad','wpInputNotas',
+      // WhatsApp
+      'waInputNombre','waInputApellido','waInputEmail','waInputEmailConf',
+      'waInputCodPais','waInputTel','waInputTipoDoc','waInputNumDoc',
+      'waInputCumpleDia','waInputCumpleMes','waInputDir','waInputBarrio',
+      'waInputCiudad','waInputNotas',
+      // Gift Card — solo datos del emisor (no destinatario)
+      'gfNombre','gfApellido','gfEmail','gfEmailConf',
+      'gfPais','gfTel','gfTipoDoc','gfNumDoc',
+      'gfCumpleDia','gfCumpleMes','gfDir','gfBarrio','gfCiudad',
     ];
     campos.forEach(id => {
       const el = document.getElementById(id);
@@ -1108,12 +1146,14 @@ const Modal = (() => {
       el.addEventListener('input', _saveDraft);
       if (el.tagName === 'SELECT') el.addEventListener('change', _saveDraft);
     });
-    // Radio tipo persona — también idempotente
-    document.querySelectorAll('input[name="wpInputTipoPersona"]').forEach(r => {
-      if (!r.dataset.draftBound) {
-        r.dataset.draftBound = '1';
-        r.addEventListener('change', _saveDraft);
-      }
+    // Radios tipo persona — wp y wa
+    ['wpInputTipoPersona', 'waInputTipoPersona'].forEach(name => {
+      document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+        if (!r.dataset.draftBound) {
+          r.dataset.draftBound = '1';
+          r.addEventListener('change', _saveDraft);
+        }
+      });
     });
   }
 
@@ -1549,6 +1589,7 @@ const Modal = (() => {
     window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED`;
   }
 
+
   // ═══════════════════════════════════════════════════
   // MODAL GIFT — canvas tarjeta + código + vigencia
   // ═══════════════════════════════════════════════════
@@ -1795,6 +1836,12 @@ const Modal = (() => {
 
     _giftShowStep(1);
     _openModal('modalGift');
+
+    // Cargar draft del cliente en campos del emisor (idempotente)
+    requestAnimationFrame(() => {
+      _loadDraft();
+      _bindDraftListeners();
+    });
 
     setTimeout(() => _drawGiftCard(500000), 80);
   }
