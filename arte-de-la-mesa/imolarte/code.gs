@@ -232,6 +232,22 @@ function _createPedidoWompi(b) {
   // Usar referencia del payload si viene (caso: pago ya confirmado por Wompi)
   // Si no viene, generar nueva (caso legacy / fallback)
   const ref      = (b.referencia && b.referencia !== '') ? b.referencia : ('WP-' + Date.now());
+
+  // IDEMPOTENCIA — si ya existe una fila con esta referencia, no crear duplicado
+  if (b.referencia && b.referencia !== '') {
+    const existing = sheet.getDataRange().getValues();
+    const colRef   = existing[0].indexOf('Referencia');
+    if (colRef >= 0) {
+      for (let i = 1; i < existing.length; i++) {
+        if (existing[i][colRef] === ref) {
+          _log('createPedidoWompi', ref, 'DUPLICATE_SKIPPED');
+          const colCli = existing[0].indexOf('ClienteID');
+          return { ok: true, referencia: ref, clienteId: colCli >= 0 ? existing[i][colCli] : '' };
+        }
+      }
+    }
+  }
+
   const ts       = new Date();
   const cli      = b.cliente || {};
   const ent      = b.entrega || {};

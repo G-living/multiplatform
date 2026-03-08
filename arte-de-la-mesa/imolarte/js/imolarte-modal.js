@@ -869,7 +869,7 @@ const Modal = (() => {
 
   function openCheckoutWompi() {
     _populateDias('wpInputCumpleDia');
-    _ckBono     = null;
+    _ckBono     = null;   // reset siempre — se revalida automáticamente si hay código
     _ckSubtotal = Cart.getTotal();
     _updateWompiTotals();
     const btn60  = document.getElementById('btnPagar60');
@@ -881,6 +881,12 @@ const Modal = (() => {
     requestAnimationFrame(() => {
       _loadDraft();
       _bindDraftListeners(); // idempotente — no duplica listeners
+      // Auto-revalidar bono si el campo tiene un código (ej: cliente volvió con "Regresar")
+      // Así el descuento se restaura sin que el cliente tenga que presionar "Aplicar" de nuevo
+      const bonoInput = document.getElementById('wpInputBono');
+      if (bonoInput && bonoInput.value.trim()) {
+        _applyBono();
+      }
     });
     _initPlacesAutocomplete('wpInputDir', 'wpInputBarrio', 'wpInputCiudad');
   }
