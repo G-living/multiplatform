@@ -1554,7 +1554,7 @@ const Modal = (() => {
     // 4. Vaciar carrito y redirigir a checkout con estado aprobado
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
     Logger.log('modal.js: compra con gift card confirmada', reference);
-    window.location.href = `checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED`;
+    window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED`;
   }
 
 

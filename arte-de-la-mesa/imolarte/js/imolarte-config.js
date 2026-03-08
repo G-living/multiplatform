@@ -1,4 +1,4 @@
-// @version    v21.1  @file imolarte-config.js  @updated 2026-03-08  @session fix-checkoutUrl
+// @version    v21.1  @file imolarte-config.js  @updated 2026-03-08  @session fix-paths
 /* ===== IMOLARTE V2 - config.js ===== */
 /* Configuración global, utilidades y constantes */
 

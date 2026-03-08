@@ -15,14 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const closeBtn = document.getElementById('confirmClose');
   if (closeBtn) {
-    closeBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+    closeBtn.addEventListener('click', () => { window.location.href = 'imolarte-index.html'; });
   }
 
   // Limpiar URL sin recargar
   window.history.replaceState({}, '', window.location.pathname);
 
   // Sin parámetros de Wompi → index
-  if (!status && !txId) { window.location.replace('index.html'); return; }
+  if (!status && !txId) { window.location.replace('imolarte-index.html'); return; }
 
   // Si viene status en URL → procesar directo
   if (status) {
@@ -72,8 +72,8 @@ function _handleStatus(status, reference, txId) {
     if (card) card.classList.add('is-visible');
   }
 
-  const btnCatalogo   = '<a href="index.html" class="btn btn-primary">Explorar catálogo</a>';
-  const btnReintentar = '<a href="index.html" class="btn btn-secondary">Volver al catálogo</a>';
+  const btnCatalogo   = '<a href="imolarte-index.html" class="btn btn-primary">Explorar catálogo</a>';
+  const btnReintentar = '<a href="imolarte-index.html" class="btn btn-secondary">Volver al catálogo</a>';
 
   if (status === 'APPROVED') {
     // Vaciar carrito y draft del formulario solo en pago exitoso
