@@ -8,11 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
 
-  <!-- CSS — mismo sistema de diseño que Imolarte (paths desde MLG/) -->
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/modals.css">
-  <link rel="stylesheet" href="css/components.css">
+  <!-- CSS base — reutiliza directamente los de Imolarte (sin duplicar) -->
+  <link rel="stylesheet" href="../../imolarte/variables.css">
+  <link rel="stylesheet" href="../../imolarte/layout.css">
+  <link rel="stylesheet" href="../../imolarte/modals.css">
+  <link rel="stylesheet" href="../../imolarte/components.css">
+  <!-- CSS propio MLG -->
   <link rel="stylesheet" href="css/mlg.css">
 
   <style>
@@ -188,9 +189,11 @@
          5. catalog-mlg.js  — grid de familias
          6. modal-mlg.js    — modal de producto
        ══════════════════════════════════════════════════════ -->
-  <script src="js/config.js"></script>
+  <!-- JS base — reutiliza directamente los de Imolarte -->
+  <script src="../../imolarte/config.js"></script>
+  <script src="../../imolarte/cart.js"></script>
+  <!-- JS propio MLG -->
   <script src="js/config-mlg-patch.js"></script>
-  <script src="js/cart.js"></script>
   <script src="js/catalog-data-mlg.js"></script>
   <script src="js/catalog-mlg.js"></script>
   <script src="js/modal-mlg.js"></script>
