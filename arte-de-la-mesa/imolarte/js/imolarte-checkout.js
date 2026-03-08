@@ -78,7 +78,7 @@ function _handleStatus(status, reference, txId) {
   if (status === 'APPROVED') {
     // Vaciar carrito y draft del formulario solo en pago exitoso
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
-    try { localStorage.removeItem('imolarte_checkout_draft'); } catch(e) {}
+
 
     setContent(
       '🏺', '¡Gracias por tu compra!',

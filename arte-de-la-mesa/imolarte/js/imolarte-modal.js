@@ -8,7 +8,6 @@
 
 'use strict';
 
-
 // ===== MODAL MANAGER =====
 const Modal = (() => {
 
@@ -756,7 +755,6 @@ const Modal = (() => {
     });
   }
 
-
   // ═══════════════════════════════════════════════════
   // CHECKOUT — ESTADO COMPARTIDO
   // ═══════════════════════════════════════════════════
@@ -858,7 +856,6 @@ const Modal = (() => {
       Logger.log('Places→', dirFormatted, '|', barrio, '|', ciudad);
     });
   }
-
 
   function openCheckoutWA() {
     _populateDias('waInputCumpleDia');
@@ -1027,17 +1024,15 @@ const Modal = (() => {
   // RECOLECTAR DATOS
   // ═══════════════════════════════════════════════════
   // ═══════════════════════════════════════════════════
-  // PERSISTENCIA FORMULARIO WOMPI — localStorage 30 días
-  // Key compartida entre catálogos Helena Caballero
+  // PERSISTENCIA FORMULARIO CHECKOUT — localStorage indefinido (por dispositivo)
+  // Mejora UX: el cliente no repite datos en compras sucesivas
   // ═══════════════════════════════════════════════════
   const _DRAFT_KEY    = 'imolarte_checkout_draft';
-  const _DRAFT_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 días
 
   function _saveDraft() {
     try {
       const g = id => document.getElementById(id)?.value || '';
       const draft = {
-        ts: Date.now(),
         nombre:    g('wpInputNombre'),
         apellido:  g('wpInputApellido'),
         email:     g('wpInputEmail'),
@@ -1064,10 +1059,7 @@ const Modal = (() => {
       const raw = localStorage.getItem(_DRAFT_KEY);
       if (!raw) return;
       const draft = JSON.parse(raw);
-      if (!draft.ts || (Date.now() - draft.ts) > _DRAFT_TTL_MS) {
-        localStorage.removeItem(_DRAFT_KEY);
-        return;
-      }
+
       const s = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
       s('wpInputNombre',   draft.nombre);
       s('wpInputApellido', draft.apellido);
@@ -1556,7 +1548,6 @@ const Modal = (() => {
     Logger.log('modal.js: compra con gift card confirmada', reference);
     window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED`;
   }
-
 
   // ═══════════════════════════════════════════════════
   // MODAL GIFT — canvas tarjeta + código + vigencia
