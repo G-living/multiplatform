@@ -1467,8 +1467,8 @@ const Modal = (() => {
 
     const btn60  = document.getElementById('btnPagar60');
     const btn100 = document.getElementById('btnPagar100');
-    if (btn60)  { btn60.disabled  = true; btn60.innerHTML  = '<span class="cmo-btn-pago-label">Pago Anticipo 60%</span><span class="cmo-btn-pago-amount">Procesando…</span>'; }
-    if (btn100) { btn100.disabled = true; btn100.innerHTML = '<span class="cmo-btn-pago-label">Pago Anticipado 100%</span><span class="cmo-btn-pago-amount">Procesando…</span>'; }
+    if (btn60)  { btn60.disabled  = true; btn60.innerHTML  = '<span class="cmo-btn-pago-label">Pago Anticipo 60%</span><span class="cmo-btn-pago-amount" id="wpAmount60">Procesando…</span>'; }
+    if (btn100) { btn100.disabled = true; btn100.innerHTML = '<span class="cmo-btn-pago-label">Pago Anticipado 100%</span><span class="cmo-btn-pago-amount" id="wpAmount100">Procesando…</span>'; }
     const errGenEl = document.getElementById('wpErrGeneral');
     if (errGenEl) errGenEl.style.display = 'none';
 
