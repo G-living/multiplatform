@@ -1373,7 +1373,9 @@ const Modal = (() => {
   function _updateWompiTotals() {
     const cfg       = IMOLARTE_CONFIG.checkout;
     const subtotal  = Utils.roundCOP(_ckSubtotal);
-    const bonoDesc  = _ckBono ? Math.min(Utils.roundCOP(_ckBono.available), subtotal) : 0;
+    // Usar saldo directamente — Utils.roundCOP() filtra valores ≤$50k como "fechas Sheets",
+    // lo que anula el display cuando el saldo remanente de una GC cae por debajo de ese umbral.
+    const bonoDesc  = _ckBono ? Math.min(_ckBono.available || 0, subtotal) : 0;
     const base      = subtotal - bonoDesc;
     // Floor al millar: el cliente siempre paga menos o igual al valor calculado
     // _submitWompi usa la misma fórmula → display = cobro = email (sin sorpresas)
