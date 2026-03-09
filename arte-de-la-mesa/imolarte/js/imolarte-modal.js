@@ -2289,8 +2289,40 @@ const Modal = (() => {
   // Restaura el paso 2 del Gift modal después de volver de Wompi sin pagar
   // El formulario queda intacto (el draft lo preserva), solo restaura el botón
   function restoreGiftStep2() {
+    // Restaurar estado desde el payload guardado antes del redirect a Wompi
+    let savedPayload = null;
+    try {
+      const raw = localStorage.getItem('imolarte_gift_payload')
+               || sessionStorage.getItem('imolarte_gift_payload');
+      if (raw) savedPayload = JSON.parse(raw);
+    } catch(e) {}
+
+    if (savedPayload) {
+      _giftValue      = savedPayload.valor    || _giftValue    || 500000;
+      _giftCode       = savedPayload.codigo   || _giftCode     || _generateGiftCode();
+      _giftValidUntil = savedPayload.vigencia || _giftValidUntil || _giftVigencia();
+    }
+
     _giftShowStep(2);
     _openModal('modalGift');
+
+    requestAnimationFrame(() => {
+      _loadDraft();          // Pre-carga campos emisor (gfNombre, gfEmail, etc.)
+      _bindDraftListeners(); // Idempotente
+      // Pre-cargar campos destinatario y mensaje desde payload
+      if (savedPayload) {
+        const dest = savedPayload.destinatario || {};
+        const s = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+        s('gfRecNombre',   dest.nombre   || '');
+        s('gfRecApellido', dest.apellido || '');
+        s('gfRecEmail',    dest.email    || '');
+        // telefono guardado como "+57XXXXXXXXXX" — mostrar solo los últimos 10 dígitos
+        if (dest.telefono) s('gfRecTel', dest.telefono.replace(/^\+\d{1,3}/, ''));
+        s('gfMensaje', savedPayload.mensaje || '');
+      }
+    });
+
+    setTimeout(() => _drawGiftCard(_giftValue || 500000), 80);
     const btn = document.getElementById('giftBtnPagar');
     if (btn) { btn.disabled = false; btn.textContent = 'Pagar con Wompi'; }
   }
