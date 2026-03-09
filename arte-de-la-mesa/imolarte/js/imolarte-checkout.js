@@ -110,9 +110,13 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
                  || localStorage.getItem('imolarte_gift_' + reference);
         if (raw) giftPayload = JSON.parse(raw);
       } catch(e) { console.warn('checkout.js: error leyendo gift payload', e); }
-      try { sessionStorage.removeItem('imolarte_gift_payload'); } catch(e) {}
-      try { localStorage.removeItem('imolarte_gift_payload'); }   catch(e) {}
+      try { sessionStorage.removeItem('imolarte_gift_payload'); }     catch(e) {}
+      try { localStorage.removeItem('imolarte_gift_payload'); }       catch(e) {}
       try { localStorage.removeItem('imolarte_gift_' + reference); } catch(e) {}
+      // Limpiar flag de redirect Gift: si Wompi redirigió a checkout.html (flujo feliz),
+      // el pageshow de index.html nunca limpia este flag → queda huérfano y restaura
+      // el modal Gift incorrectamente en la próxima compra de carrito.
+      try { sessionStorage.removeItem('imolarte_gift_redirect'); }    catch(e) {}
 
       // Leer vigencia para mostrar en pantalla
       const vigencia     = giftPayload?.vigencia     || '';

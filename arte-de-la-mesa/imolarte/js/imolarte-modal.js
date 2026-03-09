@@ -1586,6 +1586,9 @@ const Modal = (() => {
     if (data.cliente.telefono) params.set('customer-data:phone-number', `${data.cliente.codigoPais}${data.cliente.telefono}`);
 
     Logger.log('modal.js: redirigiendo a Wompi', { reference, amountCents, pct });
+    // Limpiar flag Gift huérfano — evita que pageshow restaure el modal de Gift Card
+    // en lugar del carrito al regresar de Wompi con el botón «Atrás» del browser.
+    try { sessionStorage.removeItem('imolarte_gift_redirect'); } catch(e) {}
     // Flag para detectar vuelta con «Regresar» — restaura modal con botones activos
     try { sessionStorage.setItem('imolarte_wompi_redirect', '1'); } catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
@@ -2173,6 +2176,8 @@ const Modal = (() => {
     if (tel)       params.set('customer-data:phone-number', `${pais}${tel}`);
 
     Logger.log('modal.js: gift card → Wompi', { reference, amountCts });
+    // Limpiar flag de carrito — evita interferencia si el usuario alterna flujos
+    try { sessionStorage.removeItem('imolarte_wompi_redirect'); } catch(e) {}
     // Flag específico para Gift — pageshow lo usará para reabrir el modal Gift
     try { sessionStorage.setItem('imolarte_gift_redirect', reference); } catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
