@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.05
+// IMOLARTE — Google Apps Script Backend v20.06
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -23,6 +23,7 @@
 // ─ v20.02: SpreadsheetApp.flush() incondicional en _confirmarPagoWompi
 // ─ v20.03: SpreadsheetApp.flush() incondicional en _confirmarPagoGiftCard
 // ─ v20.04: flush() MOVIDO al final de _createPedidoWompi y _createGiftCard (mismo scope de appendRow)
+// ─ v20.06: _createGiftCard con idempotencia — evita duplicados si se llama más de una vez
 //           BUG-1 fix definitivo: NOT_FOUND resuelto
 //           BUG-4 fix: catalogoId propagado en flujo lean de _confirmarPagoWompi
 // ============================================================
@@ -448,6 +449,24 @@ function _confirmarPagoWompi(b) {
 function _createGiftCard(b) {
   const sheet = _getSheet(CFG.SHEETS.GIFT_CARDS);
   const ref   = b.referencia || 'GC-' + Date.now();
+
+  // IDEMPOTENCIA — si ya existe una fila con esta referencia, no crear duplicado
+  const existData   = sheet.getDataRange().getValues();
+  const existHeader = existData[0];
+  const existColRef = existHeader.indexOf('Referencia');
+  if (existColRef >= 0) {
+    for (let i = 1; i < existData.length; i++) {
+      if (existData[i][existColRef] === ref) {
+        _log('createGiftCard', ref, 'YA_EXISTE — idempotente');
+        const existColCli  = existHeader.indexOf('ClienteID_Emisor');
+        const existColCode = existHeader.indexOf('Código_Gift');
+        return { ok: true, referencia: ref,
+                 codigo:    existColCode >= 0 ? existData[i][existColCode] : (b.codigo || ''),
+                 clienteId: existColCli  >= 0 ? existData[i][existColCli]  : '' };
+      }
+    }
+  }
+
   const ts    = new Date();
   const em    = b.emisor       || {};
   const dest  = b.destinatario || {};

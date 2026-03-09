@@ -2108,8 +2108,6 @@ const Modal = (() => {
     const recTel   = document.getElementById('gfRecTel')?.value.trim() || '';
     const mensaje  = document.getElementById('gfMensaje')?.value.trim() || '';
 
-    // LEAN: NO escribir en Sheets aquí — guardar payload para checkout.js post-APPROVED
-    // checkout.js lo leerá y llamará Api.createGiftCard + Api.confirmarPagoWompi
     const _giftPayload = {
       referencia:   reference,
       codigo:       _giftCode,
@@ -2121,12 +2119,29 @@ const Modal = (() => {
       destinatario: { nombre: recNom, apellido: recApe, email: recEmail, telefono: recPais + recTel },
       mensaje,
     };
+    // Guardar en storage como fallback (útil para restaurar el modal si el usuario vuelve atrás)
     const _giftPayloadStr = JSON.stringify(_giftPayload);
     try { sessionStorage.setItem('imolarte_gift_payload', _giftPayloadStr); } catch(e) {}
     try { localStorage.setItem('imolarte_gift_payload',   _giftPayloadStr); } catch(e) {}
-    // Clave indexada por referencia — fallback robusto si storage se limpia entre redirects
     try { localStorage.setItem('imolarte_gift_' + reference, _giftPayloadStr); } catch(e) {}
-    Logger.log('modal.js: gift payload guardado en storage (3 claves)', reference);
+
+    // Crear fila en GiftCards ANTES del redirect — garantiza que _confirmarPagoGiftCard
+    // siempre encuentre la fila, independientemente de si el storage sobrevive el redirect.
+    try {
+      const gcResult = await Api.createGiftCard(_giftPayload);
+      if (!gcResult.ok) {
+        Logger.warn('modal.js: createGiftCard falló', gcResult.error);
+        if (btn) { btn.disabled = false; btn.textContent = 'Pagar'; }
+        alert('Hubo un error al registrar tu gift card. Por favor intenta de nuevo.');
+        return;
+      }
+      Logger.log('modal.js: gift card registrada en Sheets', reference);
+    } catch(err) {
+      Logger.warn('modal.js: error creando gift card', err);
+      if (btn) { btn.disabled = false; btn.textContent = 'Pagar'; }
+      alert('Error de conexión al registrar tu gift card. Por favor intenta de nuevo.');
+      return;
+    }
 
     // Obtener firma Wompi
     let signature = null;
