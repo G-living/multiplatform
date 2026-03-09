@@ -109,6 +109,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       } catch(e) { console.warn('checkout.js: error leyendo gift payload', e); }
       try { sessionStorage.removeItem('imolarte_gift_payload'); } catch(e) {}
       try { localStorage.removeItem('imolarte_gift_payload'); }   catch(e) {}
+      try { localStorage.removeItem('imolarte_gift_' + reference); } catch(e) {}
 
       // Leer vigencia para mostrar en pantalla
       const vigencia     = giftPayload?.vigencia     || '';
@@ -140,9 +141,33 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
           .then(() => Api.confirmarPagoWompi(reference, 'APPROVED', txId))
           .catch(err => console.warn('checkout.js: error procesando gift card', err));
       } else {
-        // Fallback: solo confirmar (sin payload — GC ya podría estar en Sheets de intento previo)
-        Api.confirmarPagoWompi(reference, 'APPROVED', txId)
-          .catch(err => console.warn('checkout.js: fallback confirmar gift', err));
+        // Payload perdido (storage bloqueado o limpiado por redirect cross-origin)
+        // Intentar recuperar por clave indexada con referencia
+        let recoveredPayload = null;
+        try {
+          const rk = localStorage.getItem('imolarte_gift_' + reference);
+          if (rk) recoveredPayload = JSON.parse(rk);
+        } catch(e) {}
+
+        if (recoveredPayload) {
+          // Recuperado por clave indexada
+          Api.createGiftCard(recoveredPayload)
+            .then(() => Api.confirmarPagoWompi(reference, 'APPROVED', txId))
+            .catch(err => console.warn('checkout.js: fallback indexado gift', err));
+        } else {
+          // Sin payload: mostrar pantalla con instrucción de contacto
+          setContent(
+            '🎁', '¡Pago recibido!',
+            `Tu pago fue procesado exitosamente.<br><br>
+             Estamos activando tu Gift Card — recibirás el código por <strong>email</strong> en los próximos minutos.<br><br>
+             Si no recibes el email en 10 minutos, escríbenos por WhatsApp con tu referencia y te lo enviamos de inmediato.`,
+            reference,
+            btnCatalogo + btnWA,
+            'confirm-title--success'
+          );
+          Api.confirmarPagoWompi(reference, 'APPROVED', txId)
+            .catch(err => console.warn('checkout.js: fallback sin payload gift', err));
+        }
       }
       return;
     }

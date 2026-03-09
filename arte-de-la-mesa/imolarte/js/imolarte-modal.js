@@ -2117,9 +2117,12 @@ const Modal = (() => {
       destinatario: { nombre: recNom, apellido: recApe, email: recEmail, telefono: recPais + recTel },
       mensaje,
     };
-    try { sessionStorage.setItem('imolarte_gift_payload', JSON.stringify(_giftPayload)); } catch(e) {}
-    try { localStorage.setItem('imolarte_gift_payload',   JSON.stringify(_giftPayload)); } catch(e) {}
-    Logger.log('modal.js: gift payload guardado en storage', reference);
+    const _giftPayloadStr = JSON.stringify(_giftPayload);
+    try { sessionStorage.setItem('imolarte_gift_payload', _giftPayloadStr); } catch(e) {}
+    try { localStorage.setItem('imolarte_gift_payload',   _giftPayloadStr); } catch(e) {}
+    // Clave indexada por referencia — fallback robusto si storage se limpia entre redirects
+    try { localStorage.setItem('imolarte_gift_' + reference, _giftPayloadStr); } catch(e) {}
+    Logger.log('modal.js: gift payload guardado en storage (3 claves)', reference);
 
     // Obtener firma Wompi
     let signature = null;
