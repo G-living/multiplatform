@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.08
+// IMOLARTE — Google Apps Script Backend v20.09
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -33,6 +33,9 @@
 //           Wompi sin pagar y edita el formulario (evita acumulación de filas huérfanas).
 //           BUG-1 fix definitivo: NOT_FOUND resuelto
 //           BUG-4 fix: catalogoId propagado en flujo lean de _confirmarPagoWompi
+// ─ v20.09: _createGiftCard — idempotencia cambia de referencia→codigo. Si existe fila
+//           PENDIENTE con mismo código, actualiza la referencia en lugar de insertar nueva.
+//           Evita filas huérfanas cuando el usuario reintenta el pago (nueva referencia/timestamp).
 // ============================================================
 
 'use strict';
@@ -521,20 +524,35 @@ function _createGiftCard(b) {
   const sheet = _getSheet(CFG.SHEETS.GIFT_CARDS);
   const ref   = b.referencia || 'GC-' + Date.now();
 
-  // IDEMPOTENCIA — si ya existe una fila con esta referencia, no crear duplicado
-  const existData   = sheet.getDataRange().getValues();
-  const existHeader = existData[0];
-  const existColRef = existHeader.indexOf('Referencia');
-  if (existColRef >= 0) {
+  // IDEMPOTENCIA v20.09 — busca por Código_Gift (no referencia) para soportar reintentos de pago.
+  // Cada reintento genera una referencia nueva (GIFT-timestamp) pero el código es el mismo.
+  // Si hay una fila PENDIENTE con el mismo código: actualizar referencia en lugar de insertar nueva.
+  // Si hay una fila ya procesada (ACTIVA/CANCELADA): retornar sin crear duplicado.
+  const existData    = sheet.getDataRange().getValues();
+  const existHeader  = existData[0];
+  const existColCode = existHeader.indexOf('Código_Gift');
+  const existColRef  = existHeader.indexOf('Referencia');
+  const existColEst  = existHeader.indexOf('Estado_Gift');
+  const existColCli  = existHeader.indexOf('ClienteID_Emisor');
+  if (existColCode >= 0 && b.codigo) {
     for (let i = 1; i < existData.length; i++) {
-      if (existData[i][existColRef] === ref) {
-        _log('createGiftCard', ref, 'YA_EXISTE — idempotente');
-        const existColCli  = existHeader.indexOf('ClienteID_Emisor');
-        const existColCode = existHeader.indexOf('Código_Gift');
+      if (existData[i][existColCode] !== b.codigo) continue;
+      const estadoGift = existColEst >= 0 ? String(existData[i][existColEst] || '') : '';
+      if (estadoGift === 'INACTIVA') {
+        // Reintento de pago: actualizar referencia con la nueva y reutilizar la fila
+        if (existColRef >= 0) sheet.getRange(i + 1, existColRef + 1).setValue(ref);
+        SpreadsheetApp.flush();
+        _log('createGiftCard', ref, b.codigo, 'REINTENTO — referencia actualizada');
         return { ok: true, referencia: ref,
-                 codigo:    existColCode >= 0 ? existData[i][existColCode] : (b.codigo || ''),
-                 clienteId: existColCli  >= 0 ? existData[i][existColCli]  : '' };
+                 codigo:    b.codigo,
+                 clienteId: existColCli >= 0 ? existData[i][existColCli] : '' };
       }
+      // Ya procesada (ACTIVA, CANCELADA, etc.) — devolver sin tocar
+      _log('createGiftCard', ref, b.codigo, 'YA_PROCESADA — estado:', estadoGift);
+      const refExistente = existColRef >= 0 ? existData[i][existColRef] : ref;
+      return { ok: true, referencia: refExistente,
+               codigo:    b.codigo,
+               clienteId: existColCli >= 0 ? existData[i][existColCli] : '' };
     }
   }
 
