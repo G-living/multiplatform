@@ -99,8 +99,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
 
     // ── Flujo B: Compra de Gift Card con Wompi ─────────────
-    // La fila ya fue creada en Sheets por modal.js ANTES del redirect.
-    // Solo necesitamos confirmarPagoWompi para actualizar estado y enviar emails.
+    // Flujo lean: igual que pedidos normales, la fila se crea en Sheets ahora (APPROVED).
     if (isGiftCard && !giftPaid) {
       // Leer payload del storage (para mostrar código/vigencia en pantalla)
       let giftPayload = null;
@@ -142,9 +141,15 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
         'confirm-title--success'
       );
 
-      // La fila ya fue creada por modal.js antes del redirect. Solo confirmar.
-      Api.confirmarPagoWompi(reference, 'APPROVED', txId)
+      // Crear fila en Sheets (primer y único write) y luego confirmar/activar.
+      const _confirmGift = () => Api.confirmarPagoWompi(reference, 'APPROVED', txId)
         .catch(err => console.warn('checkout.js: error confirmarPagoWompi gift', err));
+      if (giftPayload) {
+        Api.createGiftCard(giftPayload).then(_confirmGift)
+          .catch(err => console.warn('checkout.js: error createGiftCard', err));
+      } else {
+        _confirmGift();
+      }
       return;
     }
 
