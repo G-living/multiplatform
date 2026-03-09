@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.10
+// IMOLARTE — Google Apps Script Backend v20.11
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -39,6 +39,9 @@
 // ─ v20.10: _createGiftCard reintento — además de referencia, actualiza valor, destinatario y
 //           mensaje. Evita que cambios del usuario (nombre receptor, monto) queden desincronizados
 //           entre el frontend y la fila en Sheets al reintentar el pago.
+// ─ v20.11: emailResumenHuerfanos — resumen diario 6am al admin con todas las filas
+//           INACTIVA (GiftCards) y PENDIENTE_PAGO (Pedidos_Wompi) detectadas como huérfanas.
+//           setupTriggerResumenDiario() crea el trigger (ejecutar una vez desde Apps Script UI).
 // ============================================================
 
 'use strict';
@@ -2169,6 +2172,191 @@ function _productosHTML(productos) {
       </thead>
       <tbody>${rows}</tbody>
     </table>`;
+}
+
+// ============================================================
+// MONITOREO — resumen diario de transacciones huérfanas
+// ============================================================
+
+/**
+ * Escanea GiftCards y Pedidos_Wompi buscando filas huérfanas/pendientes
+ * y envía un resumen al admin. Disparado por trigger diario a las 6am.
+ * Para crear el trigger una sola vez: ejecutar setupTriggerResumenDiario()
+ */
+function emailResumenHuerfanos() {
+  const ahora    = new Date();
+  const fechaStr = Utilities.formatDate(ahora, 'America/Bogota', 'dd/MM/yyyy HH:mm');
+  const urlSheet = 'https://docs.google.com/spreadsheets/d/' + CFG.SPREADSHEET_ID;
+
+  // ── GiftCards INACTIVA ───────────────────────────────────
+  const gcSheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  const gcData   = gcSheet.getDataRange().getValues();
+  const gcH      = gcData[0];
+  const gcColRef = gcH.indexOf('Referencia');
+  const gcColCod = gcH.indexOf('Código_Gift');
+  const gcColVal = gcH.indexOf('Saldo_Gift_COP');
+  const gcColTs  = gcH.indexOf('Timestamp');
+  const gcColEst = gcH.indexOf('Estado_Gift');
+  const gcColEmi = gcH.indexOf('Emisor_Email');
+  const gcColNom = gcH.indexOf('Emisor_Nombre');
+  const gcColApe = gcH.indexOf('Emisor_Apellido');
+
+  const gcHuerfanas = [];
+  for (let i = 1; i < gcData.length; i++) {
+    if (String(gcData[i][gcColEst] || '') !== 'INACTIVA') continue;
+    const ts = gcData[i][gcColTs];
+    gcHuerfanas.push({
+      ref:    gcData[i][gcColRef]  || '—',
+      codigo: gcData[i][gcColCod]  || '—',
+      valor:  gcData[i][gcColVal]  || 0,
+      emisor: [gcData[i][gcColNom], gcData[i][gcColApe]].filter(Boolean).join(' ') || '—',
+      email:  gcData[i][gcColEmi]  || '—',
+      fecha:  ts instanceof Date ? Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yyyy HH:mm') : String(ts || '—'),
+    });
+  }
+
+  // ── Pedidos_Wompi PENDIENTE_PAGO ─────────────────────────
+  const pwSheet   = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+  const pwData    = pwSheet.getDataRange().getValues();
+  const pwH       = pwData[0];
+  const pwColRef  = pwH.indexOf('Referencia');
+  const pwColEst  = pwH.indexOf('Estado_Pago_Wompi');
+  const pwColTs   = pwH.indexOf('Timestamp');
+  const pwColNom  = pwH.indexOf('Nombre');
+  const pwColApe  = pwH.indexOf('Apellido');
+  const pwColEml  = pwH.indexOf('Email');
+  const pwColTot  = pwH.indexOf('Total_COP');
+
+  const pwHuerfanos = [];
+  for (let i = 1; i < pwData.length; i++) {
+    const est = String(pwData[i][pwColEst] || '');
+    if (est === 'APPROVED' || est === 'DECLINED' || est === 'ERROR' || est === 'CANCELADO') continue;
+    if (!est) continue;
+    const ts = pwData[i][pwColTs];
+    pwHuerfanos.push({
+      ref:    pwData[i][pwColRef] || '—',
+      nombre: [pwData[i][pwColNom], pwData[i][pwColApe]].filter(Boolean).join(' ') || '—',
+      email:  pwData[i][pwColEml] || '—',
+      total:  pwData[i][pwColTot] || 0,
+      estado: est,
+      fecha:  ts instanceof Date ? Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yyyy HH:mm') : String(ts || '—'),
+    });
+  }
+
+  const totalHuerfanos = gcHuerfanas.length + pwHuerfanos.length;
+
+  // ── Construir tabla HTML ─────────────────────────────────
+  function _tdStyle(extra) { return `style="padding:7px 10px;border-bottom:1px solid #e8e0d0;font-size:12px;${extra || ''}`; }
+  function _thStyle(extra) { return `style="padding:7px 10px;font-size:11px;text-align:left;background:#f0ece4;color:#555;${extra || ''}`; }
+
+  let gcTabla = '';
+  if (gcHuerfanas.length) {
+    const filas = gcHuerfanas.map(r => `
+      <tr>
+        <td ${_tdStyle('')}>${r.fecha}</td>
+        <td ${_tdStyle('')}>${r.ref}</td>
+        <td ${_tdStyle('font-family:monospace;letter-spacing:2px;color:#C4A05A')}>${r.codigo}</td>
+        <td ${_tdStyle('text-align:right')}>${_fmtCOP(r.valor)}</td>
+        <td ${_tdStyle('')}>${r.emisor}</td>
+        <td ${_tdStyle('color:#888')}>${r.email}</td>
+      </tr>`).join('');
+    gcTabla = `
+      <h3 style="color:#c0392b;margin:24px 0 8px;font-size:14px">
+        🎁 Gift Cards INACTIVAS — ${gcHuerfanas.length} fila(s)
+      </h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        <thead><tr>
+          <th ${_thStyle('')}>Fecha</th>
+          <th ${_thStyle('')}>Referencia</th>
+          <th ${_thStyle('')}>Código</th>
+          <th ${_thStyle('text-align:right')}>Valor</th>
+          <th ${_thStyle('')}>Emisor</th>
+          <th ${_thStyle('')}>Email</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>`;
+  }
+
+  let pwTabla = '';
+  if (pwHuerfanos.length) {
+    const filas = pwHuerfanos.map(r => `
+      <tr>
+        <td ${_tdStyle('')}>${r.fecha}</td>
+        <td ${_tdStyle('')}>${r.ref}</td>
+        <td ${_tdStyle('')}>${r.nombre}</td>
+        <td ${_tdStyle('text-align:right')}>${_fmtCOP(r.total)}</td>
+        <td ${_tdStyle('color:#e67e22')}>${r.estado}</td>
+        <td ${_tdStyle('color:#888')}>${r.email}</td>
+      </tr>`).join('');
+    pwTabla = `
+      <h3 style="color:#e67e22;margin:24px 0 8px;font-size:14px">
+        🛒 Pedidos Wompi pendientes — ${pwHuerfanos.length} fila(s)
+      </h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        <thead><tr>
+          <th ${_thStyle('')}>Fecha</th>
+          <th ${_thStyle('')}>Referencia</th>
+          <th ${_thStyle('')}>Cliente</th>
+          <th ${_thStyle('text-align:right')}>Total</th>
+          <th ${_thStyle('')}>Estado</th>
+          <th ${_thStyle('')}>Email</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>`;
+  }
+
+  const cuerpo = totalHuerfanos === 0
+    ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay transacciones huérfanas ni pendientes.</p>`
+    : `${gcTabla}${pwTabla}
+       <p style="margin:16px 0 0;font-size:12px;color:#888">
+         Total detectado: <strong>${totalHuerfanos}</strong> fila(s) —
+         <a href="${urlSheet}" style="color:#C4A05A">Ver Spreadsheet</a>
+       </p>`;
+
+  const asunto = totalHuerfanos === 0
+    ? `[IMOLARTE] ✅ Sin pendientes — ${fechaStr}`
+    : `[IMOLARTE] ⚠️ ${totalHuerfanos} transacción(es) huérfana(s) — ${fechaStr}`;
+
+  const html = `
+<div style="font-family:Georgia,serif;max-width:680px;margin:auto;color:#1a1610">
+  <div style="background:#1a1610;padding:20px 28px;border-radius:8px 8px 0 0">
+    <h1 style="color:#C4A05A;font-size:18px;margin:0;letter-spacing:2px">HELENA CABALLERO</h1>
+    <p style="color:#f5f0e8;font-size:12px;margin:4px 0 0">Monitoreo diario · ${fechaStr} (Bogotá)</p>
+  </div>
+  <div style="background:#faf8f4;padding:24px 28px;border:1px solid #e8e0d0;border-top:none">
+    <p style="margin:0 0 16px;font-size:14px">Hola <strong>Filippo</strong>, este es el resumen automático de transacciones incompletas detectadas en el sistema al corte de hoy:</p>
+    ${cuerpo}
+  </div>
+  <div style="background:#1a1610;padding:10px 28px;border-radius:0 0 8px 8px;text-align:center">
+    <p style="color:#888;font-size:10px;margin:0">
+      Generado automáticamente · IMOLARTE v20.11 · <a href="${urlSheet}" style="color:#C4A05A">Abrir Sheets</a>
+    </p>
+  </div>
+</div>`;
+
+  GmailApp.sendEmail(CFG.EMAIL_ADMIN, asunto, '', { htmlBody: html });
+  _log('emailResumenHuerfanos', 'gcHuerfanas:' + gcHuerfanas.length, 'pwHuerfanos:' + pwHuerfanos.length);
+}
+
+/**
+ * Crea el trigger diario a las 6am hora Bogotá.
+ * Ejecutar UNA SOLA VEZ desde Apps Script UI → Ejecutar → setupTriggerResumenDiario
+ * Verificar en Triggers (reloj) que quedó registrado.
+ */
+function setupTriggerResumenDiario() {
+  // Eliminar triggers previos con el mismo nombre para evitar duplicados
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'emailResumenHuerfanos')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+
+  ScriptApp.newTrigger('emailResumenHuerfanos')
+    .timeBased()
+    .atHour(6)
+    .everyDays(1)
+    .inTimezone('America/Bogota')
+    .create();
+
+  Logger.log('✅ Trigger diario 6am creado para emailResumenHuerfanos');
 }
 
 function _log(fn, a1='', a2='', a3='', a4='') {

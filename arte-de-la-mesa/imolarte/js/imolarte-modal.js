@@ -1373,15 +1373,18 @@ const Modal = (() => {
   function _updateWompiTotals() {
     const cfg       = IMOLARTE_CONFIG.checkout;
     const subtotal  = Utils.roundCOP(_ckSubtotal);
-    // Usar saldo directamente — Utils.roundCOP() filtra valores ≤$50k como "fechas Sheets",
-    // lo que anula el display cuando el saldo remanente de una GC cae por debajo de ese umbral.
-    const bonoDesc  = _ckBono ? Math.min(_ckBono.available || 0, subtotal) : 0;
-    const base      = subtotal - bonoDesc;
-    // Floor al millar: el cliente siempre paga menos o igual al valor calculado
-    // _submitWompi usa la misma fórmula → display = cobro = email (sin sorpresas)
-    const disc100   = Math.floor(base * cfg.discountPayFull / 1000) * 1000;
-    const pay60     = Math.floor(base * 0.6 / 1000) * 1000;
-    const pay100    = base - disc100;
+    // 3% se calcula sobre el subtotal COMPLETO, antes de descontar el bono.
+    // Orden correcto: subtotal → −3% → −bono → total.
+    // Floor al millar: el cliente siempre paga menos o igual al valor calculado.
+    // _submitWompi usa la misma fórmula → display = cobro = email (sin sorpresas).
+    const disc100   = Math.floor(subtotal * cfg.discountPayFull / 1000) * 1000;
+    const afterDisc = subtotal - disc100;
+    // Bono: para pago 100% se aplica sobre el valor post-3%; para 60% sobre subtotal pleno.
+    // Usar saldo directamente — Utils.roundCOP() filtra valores ≤$50k como "fechas Sheets".
+    const bonoDesc  = _ckBono ? Math.min(_ckBono.available || 0, afterDisc) : 0;
+    const bonoDesc60= _ckBono ? Math.min(_ckBono.available || 0, subtotal)  : 0;
+    const pay100    = afterDisc - bonoDesc;
+    const pay60     = Math.floor((subtotal - bonoDesc60) * 0.6 / 1000) * 1000;
 
     // Mostrar subtotal (ya con descuento campaña si aplica)
     const subEl = document.getElementById('wpValSubtotal');
@@ -1422,7 +1425,9 @@ const Modal = (() => {
     const disc100Line  = document.getElementById('wpLineDisc100');
     const disc100Val   = document.getElementById('wpValDisc100');
     const bonoLine3    = document.getElementById('wpLineBono');
-    if (bonoDesc > 0 && disc100Line) {
+    // Mostrar línea 3% solo si el descuento resultante es > 0 tras el floor al millar.
+    // Cuando base es pequeño (ej. $19k con bono grande), 3% = $570 → floor → $0 → no mostrar.
+    if (bonoDesc > 0 && disc100 > 0 && disc100Line) {
       disc100Line.style.display = 'flex';
       if (disc100Val) disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
       // Asegurar orden: disc100 aparece ANTES de bono en el DOM
@@ -1447,7 +1452,8 @@ const Modal = (() => {
     }
 
     // ── Bono cubre el total → botón Gift Card, sin Wompi ──
-    const bonoCobreTotal = bonoDesc >= subtotal;
+    // Con 3% aplicado primero: bono cubre si afterDisc - bonoDesc <= 0
+    const bonoCobreTotal = pay100 <= 0;
     const wpPayActions   = document.getElementById('wpPayActions');
     const wpPayGift      = document.getElementById('wpPayGift');
 
@@ -1486,7 +1492,9 @@ const Modal = (() => {
       if (btn60El)
         btn60El.textContent = Utils.formatPrice(pay60);
       if (btn100El)
-        btn100El.textContent = Utils.formatPrice(pay100) + '  —  3% dto. incl.';
+        btn100El.textContent = disc100 > 0
+          ? Utils.formatPrice(pay100) + '  —  3% dto. incl.'
+          : Utils.formatPrice(pay100);
     }
   }
 
@@ -1507,12 +1515,13 @@ const Modal = (() => {
     const items       = Cart.getItems();
     const subtotal    = _ckSubtotal;
     const cfg         = IMOLARTE_CONFIG.checkout;
-    const bonoDesc    = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
-    const base        = subtotal - bonoDesc;
-    // Floor al millar — misma fórmula que _updateWompiTotals para que display = cobro
-    const disc100     = pct === '100' ? Math.floor(base * cfg.discountPayFull / 1000) * 1000 : 0;
-    const total       = pct === '60'  ? Math.floor(base * 0.6 / 1000) * 1000 : base - disc100;
-    const descuento   = bonoDesc + disc100;
+    // Misma fórmula que _updateWompiTotals: 3% sobre subtotal completo, bono después.
+    const disc100raw  = pct === '100' ? Math.floor(subtotal * cfg.discountPayFull / 1000) * 1000 : 0;
+    const afterDisc   = subtotal - disc100raw;
+    const bonoDesc    = _ckBono ? Math.min(_ckBono.available, pct === '100' ? afterDisc : subtotal) : 0;
+    const base        = (pct === '100' ? afterDisc : subtotal) - bonoDesc;
+    const total       = pct === '60' ? Math.floor(base * 0.6 / 1000) * 1000 : base;
+    const descuento   = bonoDesc + disc100raw;
     const amountCents = total * 100;  // ya es múltiplo de $1.000 → sin pérdida de centavos
 
     // Generar referencia local — NO grabar en Sheets todavía.
