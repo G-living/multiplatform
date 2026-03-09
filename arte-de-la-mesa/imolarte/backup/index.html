@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IMOLARTE by Helena Caballero — Cerámicas Artesanales Italianas</title>
+  <meta name="description" content="Cerámicas artesanales importadas directamente desde Italia. Diseño clásico, calidad excepcional.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- Favicon -->
+  <link rel="icon" href="images/favicon/001.jpg" type="image/jpeg">
+  <!-- Google Maps + Places API -->
+  <!-- Google Maps — nuevo bootstrap loader (Places API New, sin deprecation warning) -->
+  <script>
+    (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.googleapis.com/maps/api/js?`+e;a.onerror=()=>n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a);d[q]=f}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+    ({key: "AIzaSyBCHhJjFYCVJ-Yq_nX0VY326Kt-_Khu7r0", v: "weekly"});
+  </script>
+  <!-- GLightbox -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.0/css/glightbox.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <!-- Botón tamaño de texto — tres niveles: normal → 110% → 125% -->
+  <button class="btn-aa" id="btnAa" aria-label="Ajustar tamaño de texto" title="Tamaño de texto" data-level="0">Aa</button>
+
+  <!-- HEADER -->
+  <header class="site-header">
+
+    <!-- ── GALLERY SLIDER ── -->
+    <div class="header-slider" id="headerSlider" aria-label="Galería de imágenes">
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-slide" aria-hidden="false">
+          <img src="images/gallery/bodas/boda.png"
+               alt="Lista de bodas — Helena Caballero"
+               class="slider-img">
+        </div>
+        <div class="slider-slide" aria-hidden="true">
+          <img src="images/gallery/visitanos/visitanos.png"
+               alt="Visítanos — Calle 70 # 9-87 Bogotá"
+               class="slider-img">
+        </div>
+        <div class="slider-slide" aria-hidden="true">
+          <img src="images/gallery/prodcutobrand/producto.png"
+               alt="Nuestros productos artesanales"
+               class="slider-img">
+        </div>
+      </div>
+      <div class="slider-dots" role="tablist" aria-label="Navegar galería">
+        <button class="slider-dot is-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-idx="0"></button>
+        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 2" data-idx="1"></button>
+        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 3" data-idx="2"></button>
+      </div>
+    </div>
+
+    <!-- ── BRAND INFO ── -->
+    <div class="header-brand">
+      <img src="images/branding/Logo-HC.jpeg"
+           alt="Helena Caballero"
+           class="header-logo-img"
+           onerror="this.style.display='none';document.getElementById('headerBrandFallback').style.display='block'">
+      <h1 class="brand-name" id="headerBrandFallback" style="display:none">Helena Caballero</h1>
+      <p class="brand-description">
+        Cerámicas artesanales importadas directamente desde Italia.
+        Cada pieza única representa siglos de tradición cerámica, combinando
+        diseño clásico con calidad excepcional para elevar tus espacios.
+      </p>
+    </div>
+
+    <script>
+    (function() {
+      var current  = 0;
+      var total    = 3;
+      var interval = null;
+
+      function goTo(idx) {
+        var slides = document.querySelectorAll('.slider-slide');
+        var dots   = document.querySelectorAll('.slider-dot');
+        slides.forEach(function(s, i) {
+          s.classList.toggle('is-active', i === idx);
+          s.setAttribute('aria-hidden', i !== idx);
+        });
+        dots.forEach(function(d, i) {
+          d.classList.toggle('is-active', i === idx);
+          d.setAttribute('aria-selected', i === idx);
+        });
+        current = idx;
+      }
+
+      function next() { goTo((current + 1) % total); }
+      function startAuto() { interval = setInterval(next, 4000); }
+      function stopAuto()  { clearInterval(interval); }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        goTo(0);
+        startAuto();
+        document.querySelectorAll('.slider-dot').forEach(function(dot) {
+          dot.addEventListener('click', function() {
+            stopAuto();
+            goTo(parseInt(this.dataset.idx));
+            startAuto();
+          });
+        });
+      });
+    })();
+    </script>
+
+  </header>
+
+  <!-- CARRUSEL LIFESTYLE -->
+  <section class="lifestyle-section" aria-label="Galería lifestyle">
+    <div class="lifestyle-track-wrap">
+      <div class="lifestyle-track" id="lifestyleTrack"></div>
+    </div>
+    <button class="lifestyle-nav lifestyle-nav--prev" id="lifestylePrev" aria-label="Anterior">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="lifestyle-nav lifestyle-nav--next" id="lifestyleNext" aria-label="Siguiente">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <main class="main-content">
+    <div class="products-grid" id="productsGrid"></div>
+  </main>
+
+  <!-- BOTONES FLOTANTES -->
+  <div class="float-buttons-stack">
+    <button class="gift-float" id="giftButton" aria-label="Bonos de regalo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+        <rect x="3" y="10" width="18" height="11" rx="1"/>
+        <rect x="1" y="6"  width="22" height="4"  rx="1"/>
+        <line x1="12" y1="6" x2="12" y2="21"/>
+        <path d="M12 6 C12 6 8 6 8 3 C8 1 12 1 12 6"/>
+        <path d="M12 6 C12 6 16 6 16 3 C16 1 12 1 12 6"/>
+      </svg>
+      <span class="gift-label">BONO</span>
+    </button>
+    <button class="cart-float" id="cartButton" aria-label="Ver carrito">
+      <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+    </button>
+  </div>
+
+  <!-- MODAL PRODUCTO -->
+  <div class="modal" id="modalProduct" role="dialog" aria-modal="true" aria-labelledby="productTitle">
+    <div class="modal-overlay" id="modalProductOverlay"></div>
+    <div class="modal-content modal-product-content">
+      <button class="modal-close" id="closeProduct" aria-label="Cerrar">×</button>
+      <div class="modal-product-body">
+        <div class="product-image-section" id="productImageSection" title="Clic para ampliar">
+          <img src="" alt="" class="product-main-image" id="productMainImage">
+        </div>
+        <div class="product-header">
+          <h2 class="product-title" id="productTitle"></h2>
+          <p class="product-collection-label" id="productCollection"></p>
+        </div>
+        <div class="variants-list" id="variantsList" role="radiogroup" aria-label="Selecciona colección"></div>
+        <div class="product-footer">
+          <button class="btn btn-primary btn-add-cart" id="btnAddToCart" disabled>
+            Selecciona una colección
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ZOOM -->
+  <div class="modal" id="modalZoom" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+    <div class="modal-overlay modal-zoom-overlay" id="modalZoomOverlay"></div>
+    <div class="modal-zoom-content">
+      <button class="modal-close modal-close-zoom" id="closeZoom" aria-label="Cerrar">×</button>
+      <img src="" alt="" class="zoom-image" id="zoomImage">
+    </div>
+  </div>
+
+  <!-- MODAL CARRITO -->
+  <div class="modal" id="modalCart" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <div class="modal-overlay" id="modalCartOverlay"></div>
+    <div class="modal-content modal-cart-content">
+      <div class="modal-cart-header">
+        <h2 class="cart-title" id="cartTitle">Mi Carrito</h2>
+        <button class="modal-close" id="closeCart" aria-label="Cerrar">×</button>
+      </div>
+      <div class="modal-cart-body">
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-empty" id="cartEmpty" style="display:none">
+          <p class="cart-empty-title">Tu carrito está vacío</p>
+          <button class="btn btn-secondary" id="btnContinueShopping">Continuar explorando</button>
+        </div>
+      </div>
+      <div class="modal-cart-footer" id="cartFooter" style="display:none">
+        <div class="cart-total">
+          <span class="cart-total-label">Total:</span>
+          <span class="cart-total-amount" id="cartTotalAmount">$0</span>
+        </div>
+        <div class="cart-actions">
+          <button class="btn btn-secondary" id="btnWishlist">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+            Enviar Wishlist
+          </button>
+          <button class="btn btn-primary" id="btnPayment">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
+              <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            Pagar con Wompi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-notification" id="toast" style="display:none" role="alert" aria-live="polite">
+    <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span class="toast-message" id="toastMessage"></span>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.0/js/glightbox.min.js"></script>
+  <script src="js/config.js?v=21.0"></script>
+  <script src="js/catalog-data.js?v=21.0"></script>
+  <script src="js/cart.js?v=21.0"></script>
+  <script src="js/api.js?v=21.0"></script>
+  <script src="js/modal.js?v=21.0"></script>
+  <script src="js/catalog.js?v=21.0"></script>
+
+  <!-- BOTÓN Aa — tamaño de texto (3 niveles, persiste en localStorage) -->
+  <script>
+  (function() {
+    var PREFS_KEY = 'helena_catalogo_prefs';
+    var LEVELS = [0, 1, 2];
+
+    function _loadPrefs() {
+      try { return JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch(e) { return {}; }
+    }
+    function _savePrefs(obj) {
+      try { localStorage.setItem(PREFS_KEY, JSON.stringify(obj)); } catch(e) {}
+    }
+    function _applyLevel(level) {
+      var html = document.documentElement;
+      html.classList.remove('font-aa-1', 'font-aa-2');
+      if (level === 1) html.classList.add('font-aa-1');
+      if (level === 2) html.classList.add('font-aa-2');
+      var btn = document.getElementById('btnAa');
+      if (btn) btn.setAttribute('data-level', String(level));
+    }
+
+    // Restaurar nivel guardado
+    var prefs = _loadPrefs();
+    var savedLevel = parseInt(prefs.fontLevel || '0', 10);
+    if (savedLevel > 0) _applyLevel(savedLevel);
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var btn = document.getElementById('btnAa');
+      if (!btn) return;
+      btn.setAttribute('data-level', String(savedLevel));
+      btn.addEventListener('click', function() {
+        var current = parseInt(btn.getAttribute('data-level') || '0', 10);
+        var next = (current + 1) % 3; // 0 → 1 → 2 → 0
+        _applyLevel(next);
+        var p = _loadPrefs();
+        p.fontLevel = next;
+        _savePrefs(p);
+      });
+    });
+  })();
+  </script>
+
+  <!-- CARRUSEL LIFESTYLE INIT -->
+  <script>
+  (function() {
+    var LIFESTYLE_MEDIA = [
+      { name: '1',  type: 'image' },
+      { name: '2',  type: 'image' },
+      { name: '3',  type: 'video' },
+      { name: '4',  type: 'video' },
+      { name: '5',  type: 'image' },
+      { name: '6',  type: 'image' },
+      { name: '7',  type: 'image' },
+      { name: '8',  type: 'image' },
+      { name: '9',  type: 'image' },
+      { name: '10', type: 'image' },
+      { name: '11', type: 'image' },
+      { name: '12', type: 'image' },
+      { name: '13', type: 'video' },
+    ];
+
+    var BASE   = 'images/lifestyle/';
+    var offset = 0;
+    var lgb    = null;
+
+    function buildTrack() {
+      var track = document.getElementById('lifestyleTrack');
+      if (!track) return;
+      var html = LIFESTYLE_MEDIA.map(function(m, i) {
+        var ext = m.type === 'video' ? '.mp4' : '.jpg';
+        var src = BASE + m.name + ext;
+        if (m.type === 'video') {
+          return '<a class="lifestyle-item lifestyle-item--video glightbox"' +
+                 ' href="' + src + '" data-type="video" data-source="local"' +
+                 ' aria-label="Ver video ' + (i+1) + '">' +
+                 '<video class="lifestyle-img lifestyle-video" src="' + src + '"' +
+                 ' muted playsinline loop preload="metadata"' +
+                 ' onerror="this.closest(\'.lifestyle-item\').style.display=\'none\'"></video>' +
+                 '<div class="lifestyle-play-btn" aria-hidden="true">' +
+                 '<svg width="32" height="32" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>' +
+                 '</div></a>';
+        } else {
+          return '<a class="lifestyle-item glightbox"' +
+                 ' href="' + src + '" data-type="image"' +
+                 ' aria-label="Ver foto ' + (i+1) + '">' +
+                 '<img class="lifestyle-img" src="' + src + '" alt="Lifestyle ' + (i+1) + '" loading="lazy"' +
+                 ' onerror="this.closest(\'.lifestyle-item\').style.display=\'none\'"></a>';
+        }
+      }).join('');
+      track.innerHTML = html;
+
+      track.querySelectorAll('.lifestyle-video').forEach(function(vid) {
+        var card = vid.closest('.lifestyle-item');
+        card.addEventListener('mouseenter', function() { vid.play(); });
+        card.addEventListener('mouseleave', function() { vid.pause(); vid.currentTime = 0; });
+        var tapped = false;
+        card.addEventListener('click', function(e) {
+          if (!tapped) {
+            e.preventDefault();
+            tapped = true;
+            vid.play();
+            setTimeout(function() { tapped = false; }, 2500);
+          }
+        });
+      });
+
+      if (lgb) lgb.destroy();
+      lgb = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        loop: true,
+        zoomable: true,
+        autoplayVideos: true,
+      });
+    }
+
+    function getVisible() {
+      var w = window.innerWidth;
+      if (w < 600)  return 1;
+      if (w < 900)  return 2;
+      if (w < 1200) return 3;
+      return 4;
+    }
+
+    function getItemWidth() {
+      var track = document.getElementById('lifestyleTrack');
+      if (!track) return 0;
+      var items = Array.from(track.querySelectorAll('.lifestyle-item'))
+                       .filter(function(el) { return el.style.display !== 'none'; });
+      if (!items.length) return 0;
+      var rect = items[0].getBoundingClientRect();
+      var gap  = parseFloat(getComputedStyle(track).gap) || 0;
+      return rect.width + gap;
+    }
+
+    function scrollTo(newOffset) {
+      var track = document.getElementById('lifestyleTrack');
+      if (!track) return;
+      var items = Array.from(track.querySelectorAll('.lifestyle-item'))
+                       .filter(function(el) { return el.style.display !== 'none'; });
+      var vis = getVisible();
+      offset = Math.max(0, Math.min(newOffset, items.length - vis));
+      track.style.transform = 'translateX(-' + (offset * getItemWidth()) + 'px)';
+      var prev = document.getElementById('lifestylePrev');
+      var next = document.getElementById('lifestyleNext');
+      if (prev) prev.disabled = offset === 0;
+      if (next) next.disabled = offset >= items.length - vis;
+    }
+
+    var touchStartX = 0;
+    function initSwipe() {
+      var wrap = document.querySelector('.lifestyle-track-wrap');
+      if (!wrap) return;
+      wrap.addEventListener('touchstart', function(e) {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      wrap.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 40) scrollTo(offset + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      buildTrack();
+      initSwipe();
+      document.getElementById('lifestylePrev')?.addEventListener('click', function() { scrollTo(offset - 1); });
+      document.getElementById('lifestyleNext')?.addEventListener('click', function() { scrollTo(offset + 1); });
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() { scrollTo(0); });
+      });
+      window.addEventListener('resize', function() { scrollTo(offset); });
+    });
+  })();
+  </script>
+
+
+  <!-- ==========================================
+       MODAL CHECKOUT — WHATSAPP / WISHLIST
+  =========================================== -->
+  <div class="modal is-checkout" id="modalCheckoutWA" role="dialog" aria-modal="true" aria-labelledby="checkoutWATitle">
+    <div class="modal-overlay" id="modalCheckoutWAOverlay"></div>
+    <div class="modal-content modal-checkout-content">
+      <button class="modal-close" id="closeCheckoutWA" aria-label="Cerrar">×</button>
+      <div class="modal-checkout-body">
+
+        <div class="checkout-modal-header">
+          <h2 class="checkout-modal-title" id="checkoutWATitle">Datos para tu lista de deseos</h2>
+          <p class="checkout-modal-subtitle">Completa tus datos y te contactaremos para atención personalizada</p>
+        </div>
+
+        <form id="formCheckoutWA" novalidate autocomplete="on">
+
+          <div class="cmo-section-label">Datos personales</div>
+
+          <div class="cmo-row-2">
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputNombre">Nombre <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="waInputNombre" name="waInputNombre" autocomplete="given-name" placeholder="María" required>
+              <span class="cmo-error" id="waErrNombre"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputApellido">Apellido <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="waInputApellido" name="waInputApellido" autocomplete="family-name" placeholder="González" required>
+              <span class="cmo-error" id="waErrApellido"></span>
+            </div>
+          </div>
+
+          <div class="cmo-group">
+            <label class="cmo-label" for="waInputEmail">Email <span class="cmo-req">*</span></label>
+            <input class="cmo-input" type="email" id="waInputEmail" name="waInputEmail" autocomplete="email" placeholder="maria@ejemplo.com" required>
+            <span class="cmo-error" id="waErrEmail"></span>
+          </div>
+
+          <div class="cmo-group">
+            <label class="cmo-label" for="waInputEmailConf">Confirmar email <span class="cmo-req">*</span></label>
+            <input class="cmo-input" type="email" id="waInputEmailConf" name="waInputEmailConf" autocomplete="off" placeholder="maria@ejemplo.com" required>
+            <span class="cmo-error"   id="waErrEmailConf"></span>
+            <span class="cmo-success" id="waOkEmailConf"  style="display:none">✓ Emails coinciden</span>
+          </div>
+
+          <div class="cmo-row-phone">
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputCodPais">País</label>
+              <select class="cmo-input cmo-select" id="waInputCodPais" autocomplete="tel-country-code">
+                <option value="+57">🇨🇴 +57</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+34">🇪🇸 +34</option>
+                <option value="+39">🇮🇹 +39</option>
+                <option value="+52">🇲🇽 +52</option>
+                <option value="+54">🇦🇷 +54</option>
+                <option value="+56">🇨🇱 +56</option>
+                <option value="+51">🇵🇪 +51</option>
+              </select>
+            </div>
+            <div class="cmo-group cmo-group-tel">
+              <label class="cmo-label" for="waInputTel">Teléfono <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="tel" id="waInputTel" name="waInputTel" autocomplete="tel-national" placeholder="3001234567" required>
+              <span class="cmo-error" id="waErrTel"></span>
+            </div>
+          </div>
+
+          <!-- Identificación -->
+          <div class="cmo-group">
+            <label class="cmo-label">Tipo de persona</label>
+            <div class="cmo-radio-group">
+              <label class="cmo-radio-label">
+                <input type="radio" name="waInputTipoPersona" id="waInputTipoPersona" value="natural" checked>
+                <span>Natural</span>
+              </label>
+              <label class="cmo-radio-label">
+                <input type="radio" name="waInputTipoPersona" value="juridica">
+                <span>Jurídica</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="cmo-row-2">
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputTipoDoc">Tipo de documento <span class="cmo-req">*</span></label>
+              <select class="cmo-input cmo-select" id="waInputTipoDoc" name="waInputTipoDoc" required>
+                <option value="">— Selecciona —</option>
+                <option value="CC">C.C. — Cédula de ciudadanía</option>
+                <option value="CE">C.E. — Cédula de extranjería</option>
+                <option value="NIT">NIT</option>
+                <option value="PAS">Pasaporte</option>
+                <option value="TI">T.I. — Tarjeta de identidad</option>
+              </select>
+              <span class="cmo-error" id="waErrTipoDoc"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputNumDoc">Número de documento <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="waInputNumDoc" name="waInputNumDoc"
+                     inputmode="numeric" placeholder="1234567890" required>
+              <span class="cmo-error" id="waErrNumDoc"></span>
+            </div>
+          </div>
+
+          <div class="cmo-birthday-promo">
+            🎂 <strong>¡Tu fecha especial nos importa!</strong> Regístrala para recibir sorpresas,
+            promociones exclusivas y un saludo personal de Helena en tu día.
+          </div>
+
+          <div class="cmo-row-2">
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputCumpleDia">Día cumpleaños <span class="cmo-req">*</span></label>
+              <select class="cmo-input cmo-select" id="waInputCumpleDia" required>
+                <option value="">—</option>
+              </select>
+              <span class="cmo-error" id="waErrCumpleDia"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputCumpleMes">Mes cumpleaños <span class="cmo-req">*</span></label>
+              <select class="cmo-input cmo-select" id="waInputCumpleMes" required>
+                <option value="">—</option>
+                <option value="1">Enero</option><option value="2">Febrero</option>
+                <option value="3">Marzo</option><option value="4">Abril</option>
+                <option value="5">Mayo</option><option value="6">Junio</option>
+                <option value="7">Julio</option><option value="8">Agosto</option>
+                <option value="9">Septiembre</option><option value="10">Octubre</option>
+                <option value="11">Noviembre</option><option value="12">Diciembre</option>
+              </select>
+              <span class="cmo-error" id="waErrCumpleMes"></span>
+            </div>
+          </div>
+
+          <!-- Entrega -->
+          <div class="cmo-section-label">Dirección de entrega</div>
+
+          <div id="waAddressFields">
+            <div class="cmo-group">
+              <label class="cmo-label" for="waInputDir">Dirección <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="waInputDir" name="waInputDir" autocomplete="street-address" placeholder="Calle 80 # 10-25 Apto 301" required>
+              <span class="cmo-error" id="waErrDir"></span>
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="waInputBarrio">Barrio <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="waInputBarrio" name="waInputBarrio" placeholder="El Poblado" required>
+                <span class="cmo-error" id="waErrBarrio"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="waInputCiudad">Ciudad <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="waInputCiudad" name="waInputCiudad" autocomplete="address-level2" placeholder="Medellín" required>
+                <span class="cmo-error" id="waErrCiudad"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cmo-group" id="waNotasGroup">
+            <label class="cmo-label" for="waInputNotas">Notas de entrega <span class="cmo-hint">(apto, piso, instrucciones)</span></label>
+            <textarea class="cmo-input cmo-textarea" id="waInputNotas" name="waInputNotas"
+                      placeholder="Ej: Apto 301, timbre no funciona, llamar al llegar" rows="2"></textarea>
+          </div>
+
+          <!-- Legal WA — TyC + Datos almacenamiento -->
+          <div class="cmo-check-wrap">
+            <input type="checkbox" id="waCheckTyC" required>
+            <label for="waCheckTyC" class="cmo-check-label">
+              He leído y acepto los <span class="cmo-legal-link" id="btnOpenTyCWA" role="button" tabindex="0">términos y condiciones generales</span> de IMOLARTE. <span class="cmo-req">*</span>
+            </label>
+          </div>
+          <span class="cmo-error" id="waErrTyC"></span>
+
+          <div class="cmo-check-wrap">
+            <input type="checkbox" id="waCheckDatos" required>
+            <label for="waCheckDatos" class="cmo-check-label">
+              Autorizo el almacenamiento de mis datos de contacto por parte de <span class="cmo-legal-link" id="btnOpenDatosWA" role="button" tabindex="0">HELENA CABALLERO SAS</span> conforme a la Ley 1581/2012. <span class="cmo-req">*</span>
+            </label>
+          </div>
+          <span class="cmo-error" id="waErrDatos"></span>
+
+          <!-- CTA -->
+          <div class="cmo-footer">
+            <button type="submit" class="btn btn-primary cmo-btn-submit" id="btnSubmitWA">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              Enviar por WhatsApp
+            </button>
+          </div>
+
+        </form>
+
+        <!-- PANTALLA CONFIRMACIÓN WA -->
+        <div id="waConfirmScreen" style="display:none">
+          <div class="cmo-confirm-icon">💬</div>
+          <h3 class="cmo-confirm-title">¿Ya enviaste tu mensaje por WhatsApp?</h3>
+          <p class="cmo-confirm-desc">Tu pedido quedará registrado como enviado una vez confirmes.</p>
+          <div class="cmo-confirm-actions">
+            <button class="btn btn-primary cmo-btn-submit" id="btnConfirmWASent" disabled>
+              ⏳ Registrando pedido…
+            </button>
+            <button class="btn btn-secondary cmo-btn-cancel" id="btnConfirmWAClose" disabled>
+              Cerrar sin confirmar
+            </button>
+          </div>
+          <p class="cmo-confirm-note" id="waConfirmRef"></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL CHECKOUT — WOMPI / PAGO
+  =========================================== -->
+  <div class="modal is-checkout" id="modalCheckoutWompi" role="dialog" aria-modal="true" aria-labelledby="checkoutWompiTitle">
+    <div class="modal-overlay" id="modalCheckoutWompiOverlay"></div>
+    <div class="modal-content modal-checkout-content">
+      <button class="modal-close" id="closeCheckoutWompi" aria-label="Cerrar">×</button>
+      <div class="modal-checkout-body">
+
+        <div class="checkout-modal-header">
+          <h2 class="checkout-modal-title" id="checkoutWompiTitle">Datos para el pago</h2>
+          <p class="checkout-modal-subtitle">Completa tus datos para procesar tu pedido</p>
+        </div>
+
+        <form id="formCheckoutWompi" novalidate autocomplete="on">
+
+          <div class="cmo-section-label">Datos personales</div>
+
+          <div class="cmo-row-2">
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputNombre">Nombre <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="wpInputNombre" name="wpInputNombre" autocomplete="given-name" placeholder="María" required>
+              <span class="cmo-error" id="wpErrNombre"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputApellido">Apellido <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="wpInputApellido" name="wpInputApellido" autocomplete="family-name" placeholder="González" required>
+              <span class="cmo-error" id="wpErrApellido"></span>
+            </div>
+          </div>
+
+          <div class="cmo-group">
+            <label class="cmo-label" for="wpInputEmail">Email <span class="cmo-req">*</span></label>
+            <input class="cmo-input" type="email" id="wpInputEmail" name="wpInputEmail" autocomplete="email" placeholder="maria@ejemplo.com" required>
+            <span class="cmo-error" id="wpErrEmail"></span>
+          </div>
+
+          <div class="cmo-group">
+            <label class="cmo-label" for="wpInputEmailConf">Confirmar email <span class="cmo-req">*</span></label>
+            <input class="cmo-input" type="email" id="wpInputEmailConf" name="wpInputEmailConf" autocomplete="off" placeholder="maria@ejemplo.com" required>
+            <span class="cmo-error"   id="wpErrEmailConf"></span>
+            <span class="cmo-success" id="wpOkEmailConf"  style="display:none">✓ Emails coinciden</span>
+          </div>
+
+          <div class="cmo-row-phone">
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputCodPais">País</label>
+              <select class="cmo-input cmo-select" id="wpInputCodPais" autocomplete="tel-country-code">
+                <option value="+57">🇨🇴 +57</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+34">🇪🇸 +34</option>
+                <option value="+39">🇮🇹 +39</option>
+                <option value="+52">🇲🇽 +52</option>
+                <option value="+54">🇦🇷 +54</option>
+                <option value="+56">🇨🇱 +56</option>
+                <option value="+51">🇵🇪 +51</option>
+              </select>
+            </div>
+            <div class="cmo-group cmo-group-tel">
+              <label class="cmo-label" for="wpInputTel">Teléfono <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="tel" id="wpInputTel" name="wpInputTel" autocomplete="tel-national" placeholder="3001234567" required>
+              <span class="cmo-error" id="wpErrTel"></span>
+            </div>
+          </div>
+
+          <!-- Identificación -->
+          <div class="cmo-group">
+            <label class="cmo-label">Tipo de persona</label>
+            <div class="cmo-radio-group">
+              <label class="cmo-radio-label">
+                <input type="radio" name="wpInputTipoPersona" id="wpInputTipoPersona" value="natural" checked>
+                <span>Natural</span>
+              </label>
+              <label class="cmo-radio-label">
+                <input type="radio" name="wpInputTipoPersona" value="juridica">
+                <span>Jurídica</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="cmo-row-2">
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputTipoDoc">Tipo de documento <span class="cmo-req">*</span></label>
+              <select class="cmo-input cmo-select" id="wpInputTipoDoc" name="wpInputTipoDoc" required>
+                <option value="">— Selecciona —</option>
+                <option value="CC">C.C. — Cédula de ciudadanía</option>
+                <option value="CE">C.E. — Cédula de extranjería</option>
+                <option value="NIT">NIT</option>
+                <option value="PAS">Pasaporte</option>
+                <option value="TI">T.I. — Tarjeta de identidad</option>
+              </select>
+              <span class="cmo-error" id="wpErrTipoDoc"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputNumDoc">Número de documento <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="wpInputNumDoc" name="wpInputNumDoc"
+                     inputmode="numeric" placeholder="1234567890" required>
+              <span class="cmo-error" id="wpErrNumDoc"></span>
+            </div>
+          </div>
+
+          <div class="cmo-birthday-promo">
+            🎂 <strong>¡Tu fecha especial nos importa!</strong> Regístrala para recibir sorpresas,
+            promociones exclusivas y un saludo personal de Helena en tu día.
+          </div>
+
+          <div class="cmo-row-2">
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputCumpleDia">Día cumpleaños <span class="cmo-req">*</span></label>
+              <select class="cmo-input cmo-select" id="wpInputCumpleDia" required>
+                <option value="">—</option>
+              </select>
+              <span class="cmo-error" id="wpErrCumpleDia"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputCumpleMes">Mes cumpleaños <span class="cmo-req">*</span></label>
+              <select class="cmo-input cmo-select" id="wpInputCumpleMes" required>
+                <option value="">—</option>
+                <option value="1">Enero</option><option value="2">Febrero</option>
+                <option value="3">Marzo</option><option value="4">Abril</option>
+                <option value="5">Mayo</option><option value="6">Junio</option>
+                <option value="7">Julio</option><option value="8">Agosto</option>
+                <option value="9">Septiembre</option><option value="10">Octubre</option>
+                <option value="11">Noviembre</option><option value="12">Diciembre</option>
+              </select>
+              <span class="cmo-error" id="wpErrCumpleMes"></span>
+            </div>
+          </div>
+
+          <!-- Entrega -->
+          <div class="cmo-section-label">Dirección de entrega</div>
+
+          <div id="wpAddressFields">
+            <div class="cmo-group">
+              <label class="cmo-label" for="wpInputDir">Dirección <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="wpInputDir" name="wpInputDir" autocomplete="street-address" placeholder="Calle 80 # 10-25 Apto 301" required>
+              <span class="cmo-error" id="wpErrDir"></span>
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="wpInputBarrio">Barrio <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="wpInputBarrio" name="wpInputBarrio" placeholder="El Poblado" required>
+                <span class="cmo-error" id="wpErrBarrio"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="wpInputCiudad">Ciudad <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="wpInputCiudad" name="wpInputCiudad" autocomplete="address-level2" placeholder="Medellín" required>
+                <span class="cmo-error" id="wpErrCiudad"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cmo-group" id="wpNotasGroup">
+            <label class="cmo-label" for="wpInputNotas">Notas de entrega <span class="cmo-hint">(apto, piso, instrucciones)</span></label>
+            <textarea class="cmo-input cmo-textarea" id="wpInputNotas" name="wpInputNotas"
+                      placeholder="Ej: Apto 301, timbre no funciona, llamar al llegar" rows="2"></textarea>
+          </div>
+
+          <!-- Pago -->
+          <div class="cmo-section-label">Pago</div>
+
+          <div class="cmo-group">
+            <label class="cmo-label" for="wpInputBono">Código de bono <span class="cmo-hint">(opcional)</span></label>
+            <div class="cmo-bono-row">
+              <input class="cmo-input" type="text" id="wpInputBono" placeholder="ABCD1234EF"
+                     maxlength="12" style="text-transform:uppercase">
+              <button type="button" class="btn btn-secondary cmo-btn-bono" id="wpBtnApplyBono">Aplicar</button>
+            </div>
+            <span class="cmo-error"   id="wpErrBono"></span>
+            <span class="cmo-success" id="wpSuccessBono" style="display:none"></span>
+          </div>
+
+          <div class="cmo-total-box" id="wpTotalBox">
+            <div class="cmo-total-line" id="wpLineSubtotal">
+              <span>Subtotal</span><span id="wpValSubtotal"></span>
+            </div>
+            <div class="cmo-total-line cmo-line-discount" id="wpLineCampania" style="display:none">
+              <span id="wpLabelCampania">Presale</span><span id="wpValCampania" class="cmo-discount-val"></span>
+            </div>
+            <div class="cmo-total-line cmo-line-discount" id="wpLineBono" style="display:none">
+              <span>Bono descuento</span><span id="wpValBono" class="cmo-discount-val"></span>
+            </div>
+            <div class="cmo-total-line cmo-line-discount" id="wpLineDisc100" style="display:none">
+              <span>Descuento 3% (pago total)</span><span id="wpValDisc100" class="cmo-discount-val"></span>
+            </div>
+            <div class="cmo-total-line cmo-line-total" id="wpLineTotalFinal" style="display:none">
+              <span><strong>Total a pagar</strong></span><span id="wpValTotalFinal" class="cmo-total-val"></span>
+            </div>
+          </div>
+
+          <!-- Legal Wompi — TyC + Datos personales completo -->
+          <div class="cmo-check-wrap">
+            <input type="checkbox" id="wpCheckTyC" required>
+            <label for="wpCheckTyC" class="cmo-check-label">
+              He leído y acepto los <span class="cmo-legal-link" id="btnOpenTyC" role="button" tabindex="0">términos y condiciones generales</span> de IMOLARTE. <span class="cmo-req">*</span>
+            </label>
+          </div>
+          <span class="cmo-error" id="wpErrTyC"></span>
+
+          <div class="cmo-check-wrap">
+            <input type="checkbox" id="wpCheckDatos" required>
+            <label for="wpCheckDatos" class="cmo-check-label">
+              He leído y acepto el tratamiento de <span class="cmo-legal-link" id="btnOpenDatos" role="button" tabindex="0">datos personales</span> acorde a ley Habeas Data. <span class="cmo-req">*</span>
+            </label>
+          </div>
+          <span class="cmo-error" id="wpErrDatos"></span>
+          <span class="cmo-error" id="wpErrGeneral" style="display:none;margin-bottom:8px"></span>
+
+          <div class="cmo-footer cmo-footer-wompi" id="wpPayActions">
+            <button type="button" class="btn btn-secondary cmo-btn-pago" id="btnPagar60">
+              <span class="cmo-btn-pago-label">Pago Anticipo 60%</span>
+              <span class="cmo-btn-pago-amount" id="wpAmount60"></span>
+            </button>
+            <button type="button" class="btn btn-primary cmo-btn-pago" id="btnPagar100">
+              <span class="cmo-btn-pago-label">Pago Anticipado 100%</span>
+              <span class="cmo-btn-pago-amount" id="wpAmount100"></span>
+            </button>
+          </div>
+
+          <div class="cmo-footer" id="wpPayGift" style="display:none">
+            <button type="button" class="btn btn-primary cmo-btn-pago" id="btnPagarGift" style="width:100%">
+              <span class="cmo-btn-pago-label">🎁 Confirmar compra con Gift Card</span>
+              <span class="cmo-btn-pago-amount" id="wpAmountGift">$0</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL GIFT
+  =========================================== -->
+  <div class="modal" id="modalGift" role="dialog" aria-modal="true" aria-labelledby="giftModalTitle">
+    <div class="modal-overlay" id="modalGiftOverlay"></div>
+    <div class="modal-content modal-gift">
+      <button class="modal-close" id="closeGift" aria-label="Cerrar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="modal-gift-body">
+        <div id="giftStep1">
+          <h2 class="modal-gift-title" id="giftModalTitle">Gift Card</h2>
+          <p class="modal-gift-subtitle">Elige el valor — tu tarjeta se genera al instante</p>
+          <div class="gift-card-preview">
+            <canvas id="giftCanvas" width="540" height="340" aria-label="Preview Gift Card Helena Caballero"></canvas>
+          </div>
+          <div class="gift-amount-wrap">
+            <label class="cmo-label" for="giftAmount">
+              Valor del Gift Card (COP) <span class="cmo-req">*</span>
+              <span class="cmo-hint"> — mínimo $300.000</span>
+            </label>
+            <div class="gift-amount-input-wrap">
+              <span class="gift-amount-prefix">$</span>
+              <input class="cmo-input gift-amount-input" type="text" id="giftAmount" name="giftAmount"
+                     inputmode="numeric" autocomplete="off" placeholder="500.000">
+            </div>
+            <span class="cmo-error" id="giftErrAmount"></span>
+          </div>
+          <div class="gift-card-info" id="giftCardInfo" style="display:none">
+            <div class="gift-info-row">
+              <span class="gift-info-label">Código:</span>
+              <span class="gift-info-value gift-code-display" id="giftCodeDisplay">—</span>
+            </div>
+            <div class="gift-info-row">
+              <span class="gift-info-label">Válido hasta:</span>
+              <span class="gift-info-value" id="giftValidUntil">—</span>
+            </div>
+          </div>
+          <button class="btn btn-primary gift-next-btn" id="giftBtnNext" disabled>
+            Continuar con el pago →
+          </button>
+        </div>
+
+        <div id="giftStep2" style="display:none">
+          <button class="gift-back-btn" id="giftBtnBack">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver
+          </button>
+          <h2 class="modal-gift-title">Datos del regalo</h2>
+          <p class="modal-gift-subtitle">Gift Card por <strong id="giftSelectedLabel"></strong></p>
+          <form id="formGift" novalidate>
+            <div class="cmo-section-label">Quien regala</div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfNombre">Nombre <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfNombre" name="gfNombre" autocomplete="given-name" placeholder="María" required>
+                <span class="cmo-error" id="gfErrNombre"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfApellido">Apellido <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfApellido" name="gfApellido" autocomplete="family-name" placeholder="García" required>
+                <span class="cmo-error" id="gfErrApellido"></span>
+              </div>
+            </div>
+            <div class="cmo-birthday-promo">
+              🎂 <strong>¡Tu fecha especial nos importa!</strong> Regístrala para recibir sorpresas,
+              promociones exclusivas y un saludo personal de Helena en tu día.
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCumpleDia">Día de cumpleaños <span class="cmo-req">*</span></label>
+                <select class="cmo-input cmo-select" id="gfCumpleDia" name="gfCumpleDia" required>
+                  <option value="">— Día —</option>
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                  <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                  <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                  <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                  <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+                  <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+                  <option value="19">19</option><option value="20">20</option><option value="21">21</option>
+                  <option value="22">22</option><option value="23">23</option><option value="24">24</option>
+                  <option value="25">25</option><option value="26">26</option><option value="27">27</option>
+                  <option value="28">28</option><option value="29">29</option><option value="30">30</option>
+                  <option value="31">31</option>
+                </select>
+                <span class="cmo-error" id="gfErrCumpleDia"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCumpleMes">Mes de cumpleaños <span class="cmo-req">*</span></label>
+                <select class="cmo-input cmo-select" id="gfCumpleMes" name="gfCumpleMes" required>
+                  <option value="">— Mes —</option>
+                  <option value="1">Enero</option>
+                  <option value="2">Febrero</option>
+                  <option value="3">Marzo</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Mayo</option>
+                  <option value="6">Junio</option>
+                  <option value="7">Julio</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+                <span class="cmo-error" id="gfErrCumpleMes"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfEmail">Email <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="email" id="gfEmail" name="gfEmail" autocomplete="email" placeholder="maria@ejemplo.com" required>
+              <span class="cmo-error" id="gfErrEmail"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfEmailConf">Confirmar email <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="email" id="gfEmailConf" name="gfEmailConf" autocomplete="off" placeholder="maria@ejemplo.com" required>
+              <span class="cmo-error"   id="gfErrEmailConf"></span>
+              <span class="cmo-success" id="gfOkEmailConf" style="display:none">✓ Emails coinciden</span>
+            </div>
+            <div class="cmo-row-phone">
+              <div class="cmo-group cmo-group-prefix">
+                <label class="cmo-label" for="gfPais">País</label>
+                <select class="cmo-input cmo-select" id="gfPais" name="gfPais">
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+              </div>
+              <div class="cmo-group cmo-group-tel">
+                <label class="cmo-label" for="gfTel">Teléfono <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="tel" id="gfTel" name="gfTel" autocomplete="tel" placeholder="3001234567" required>
+                <span class="cmo-error" id="gfErrTel"></span>
+              </div>
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfTipoDoc">Tipo de documento <span class="cmo-req">*</span></label>
+                <select class="cmo-input cmo-select" id="gfTipoDoc" name="gfTipoDoc" required>
+                  <option value="">— Selecciona —</option>
+                  <option value="CC">C.C. — Cédula de ciudadanía</option>
+                  <option value="CE">C.E. — Cédula de extranjería</option>
+                  <option value="NIT">NIT</option>
+                  <option value="PAS">Pasaporte</option>
+                  <option value="TI">T.I. — Tarjeta de identidad</option>
+                </select>
+                <span class="cmo-error" id="gfErrTipoDoc"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfNumDoc">Número de documento <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfNumDoc" name="gfNumDoc" inputmode="numeric" placeholder="1234567890" required>
+                <span class="cmo-error" id="gfErrNumDoc"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfDir">Dirección <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="text" id="gfDir" name="gfDir" autocomplete="street-address" placeholder="Calle 70 # 9-87, Bogotá" required>
+              <span class="cmo-error" id="gfErrDir"></span>
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfBarrio">Barrio <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfBarrio" name="gfBarrio" placeholder="El Chico" required>
+                <span class="cmo-error" id="gfErrBarrio"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCiudad">Ciudad <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfCiudad" name="gfCiudad" placeholder="Bogotá" required>
+                <span class="cmo-error" id="gfErrCiudad"></span>
+              </div>
+            </div>
+            <div class="cmo-section-label">Para quién es el regalo</div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfRecNombre">Nombre(s) destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="María" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecNombre"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfRecApellido">Apellido(s) destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecApellido" name="gfRecApellido" placeholder="García" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecApellido"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfRecEmail">Email destinatario <span class="cmo-req">*</span></label>
+              <span class="cmo-hint-block" style="margin-bottom:6px">Enviaremos el código de regalo por email y WhatsApp</span>
+              <input class="cmo-input" type="email" id="gfRecEmail" name="gfRecEmail" placeholder="email@ejemplo.com" required autocomplete="off">
+              <span class="cmo-error" id="gfErrRecEmail"></span>
+            </div>
+            <div class="cmo-row-phone">
+              <div class="cmo-group cmo-group-prefix">
+                <label class="cmo-label" for="gfRecPais">País</label>
+                <select class="cmo-input cmo-select" id="gfRecPais" name="gfRecPais">
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+              </div>
+              <div class="cmo-group cmo-group-tel">
+                <label class="cmo-label" for="gfRecTel">WhatsApp destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="tel" id="gfRecTel" name="gfRecTel" placeholder="3001234567" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecTel"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfMensaje">Mensaje personalizado</label>
+              <textarea class="cmo-input cmo-textarea" id="gfMensaje" name="gfMensaje" rows="2" placeholder="Ej: Con cariño para tu cumpleaños…"></textarea>
+            </div>
+            <div class="cmo-check-wrap" style="margin-top:16px">
+              <input type="checkbox" id="gfCheckTyC" name="gfCheckTyC" required>
+              <label for="gfCheckTyC" class="cmo-check-label">
+                Acepto los <span class="cmo-legal-link" id="btnOpenTyCGift" role="button" tabindex="0">términos y condiciones</span> y la <span class="cmo-legal-link" id="btnOpenDatosGift" role="button" tabindex="0">política de privacidad</span>. <span class="cmo-req">*</span>
+              </label>
+            </div>
+            <span class="cmo-error" id="gfErrTyC"></span>
+            <div class="cmo-gift-total">
+              <span class="cmo-gift-total-label">Total a pagar:</span>
+              <span class="cmo-gift-total-amount" id="giftTotalDisplay">$0</span>
+            </div>
+            <button type="submit" class="btn btn-primary cmo-btn-full" id="giftBtnPagar">
+              Pagar con Wompi — 100%
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL LEGAL — TyC y Datos Personales
+  =========================================== -->
+  <div class="modal-legal-overlay" id="modalLegal" role="dialog" aria-modal="true" aria-labelledby="modalLegalTitle" style="display:none">
+    <div class="modal-legal-box">
+      <div class="modal-legal-header">
+        <h2 class="modal-legal-title" id="modalLegalTitle">Términos y Condiciones</h2>
+        <button class="modal-legal-close" id="btnCloseLegal" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-legal-body" id="modalLegalContent"></div>
+    </div>
+  </div>
+
+  <!-- TyC — compartido WA y Wompi -->
+  <template id="tplTyC">
+    <div class="legal-doc">
+      <p class="legal-entity">IMOLARTE by Helena Caballero SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2c4d48414542455f585e4d4f4543426c44494049424d4f4d4e4d4040495e43024f4341">[email&#160;protected]</a></p>
+      <h3>1. Objeto</h3>
+      <p>Estos términos regulan la compra de productos de cerámica artesanal italiana a través del catálogo en línea de IMOLARTE by Helena Caballero SAS.</p>
+      <h3>2. Productos a pedido</h3>
+      <p>Todos los productos son fabricados a pedido en Italia por artesanos especializados con certificación ISO 9001 vigente. Por su naturaleza artesanal, pueden existir variaciones mínimas de color, textura o dimensión respecto a las fotografías del catálogo; dichas variaciones son inherentes al proceso de manufactura y no constituyen defecto. El tiempo de entrega estimado es de hasta 5 meses desde la confirmación del pago.</p>
+      <h3>3. Precios, IVA y envío</h3>
+      <p>Los precios están expresados en pesos colombianos (COP) e incluyen IVA de venta del 19%. No incluyen costo de envío a domicilio. El retiro en almacén no genera costo adicional.</p>
+      <h3>4. Modalidades de pago</h3>
+      <p>El pago se procesa exclusivamente de forma electrónica mediante enlace WOMPI de Bancolombia S.A.</p>
+      <ul>
+        <li><strong>Anticipo 60%:</strong> reserva el pedido. El saldo del 40% es exigible antes de la entrega.</li>
+        <li><strong>Pago total 100%:</strong> aplica descuento del 3% sobre el valor neto.</li>
+      </ul>
+      <h3>5. Cancelaciones</h3>
+      <p>Una vez confirmado el pago, no es posible cancelar el pedido, ya que se fabrica específicamente a solicitud del cliente.</p>
+      <h3>6. Devoluciones</h3>
+      <p>Se aceptan devoluciones siempre que: (a) el producto se entregue físicamente en nuestro almacén en Bogotá D.C.; (b) se presente en empaque original sin señales de uso; (c) la solicitud se realice dentro de los 10 días calendario contados desde la fecha de entrega.</p>
+      <h3>7. Garantía</h3>
+      <p>Un (1) año contado desde la fecha de entrega. Cubre exclusivamente defectos de producción comprobables.</p>
+      <h3>8. Cuidado y mantenimiento</h3>
+      <ul>
+        <li>Lavar a mano con agua tibia y jabón suave.</li>
+        <li>Apto para lavavajillas en ciclo suave (máx. 55 °C).</li>
+        <li>No exponer a cambios bruscos de temperatura.</li>
+        <li>El craquelado superficial del esmalte es una característica estética, no un defecto.</li>
+      </ul>
+      <h3>9. Facturación</h3>
+      <p>Se emitirá recibo de caja al momento del pago. La factura electrónica se expedirá cuando la mercancía esté en tránsito o disponible en bodega.</p>
+      <h3>10. Fuerza mayor</h3>
+      <p>IMOLARTE no será responsable por retrasos derivados de causas de fuerza mayor, incluyendo desastres naturales, pandemias, bloqueos portuarios, restricciones aduaneras o decisiones gubernamentales.</p>
+      <h3>11. Propiedad intelectual</h3>
+      <p>Las imágenes, textos y diseños del catálogo son propiedad de IMOLARTE by Helena Caballero SAS y no pueden reproducirse sin autorización escrita.</p>
+      <h3>12. Ley aplicable</h3>
+      <p>Este contrato se rige por las leyes de la República de Colombia. Controversias ante jueces competentes de Bogotá D.C.</p>
+      <h3>13. Contacto</h3>
+      <p>Para consultas: <a href="/cdn-cgi/l/email-protection#4726232a2e292e34333526242e2829072f222b222926242625262b2b2235286924282a"><span class="__cf_email__" data-cfemail="c4a5a0a9adaaadb7b0b6a5a7adabaa84aca1a8a1aaa5a7a5a6a5a8a8a1b6abeaa7aba9">[email&#160;protected]</span></a></p>
+    </div>
+  </template>
+
+  <!-- Datos Personales — Wompi (transacción comercial completa) -->
+  <template id="tplDatos">
+    <div class="legal-doc">
+      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b1d0d5dcd8dfd8c2c5c3d0d2d8dedff1d9d4ddd4dfd0d2d0d3d0ddddd4c3de9fd2dedc">[email&#160;protected]</a></p>
+      <p>Autorizo de manera libre, previa, expresa, informada e inequívoca a HELENA CABALLERO SAS para tratar mis datos personales recolectados en esta compra, incluyendo:</p>
+      <h3>Datos recolectados</h3>
+      <p>Nombre completo, documento de identidad, correo electrónico, teléfono, dirección de entrega, datos de pago (procesados por pasarela segura, sin almacenamiento directo), comportamiento de compra y pago.</p>
+      <h3>Finalidades principales</h3>
+      <ul>
+        <li>Ejecutar la venta, generar y enviar factura electrónica, gestionar envío/entrega y atención postventa.</li>
+        <li>En caso de incumplimiento o mora: cesión del crédito derivado de la factura emitida a agencias de cobranza o terceros adquirentes de cartera, conforme al Código de Comercio y Código General del Proceso.</li>
+        <li>Consultar, reportar y circular datos personales, financieros y crediticios ante operadores de bases de datos crediticias (DataCrédito, Cifin/TransUnion u otros autorizados), incluyendo reporte negativo por mora.</li>
+      </ul>
+      <h3>Finalidades secundarias</h3>
+      <p>Análisis estadístico interno, mejora de servicios y comunicaciones comerciales sobre productos similares. Puedes revocar esta parte en cualquier momento.</p>
+      <h3>Duración</h3>
+      <p>Los datos se conservarán el tiempo necesario para cumplir la finalidad, incluyendo prescripción de obligaciones comerciales y crediticias (mínimo 5-10 años según normas tributarias y civiles).</p>
+      <h3>Transmisión y transferencia</h3>
+      <p>Los datos podrán transmitirse a proveedores de logística, pasarelas de pago, entidades financieras, cesionarios de cartera o autoridades judiciales/legales cuando sea requerido.</p>
+      <h3>Derechos como titular — Art. 8 Ley 1581/2012</h3>
+      <p>Conocer, actualizar, rectificar y suprimir sus datos; revocar la autorización; solicitar prueba de la autorización; presentar queja ante la SIC una vez agotado el trámite interno; acceder gratuitamente a sus datos.</p>
+      <h3>Canales para ejercer sus derechos</h3>
+      <p>Envíe solicitud a <a href="/cdn-cgi/l/email-protection#b4d5d0d9dddaddc7c0c6d5d7dddbdaf4dcd1d8d1dad5d7d5d6d5d8d8d1c6db9ad7dbd9"><span class="__cf_email__" data-cfemail="b6d7d2dbdfd8dfc5c2c4d7d5dfd9d8f6ded3dad3d8d7d5d7d4d7dadad3c4d998d5d9db">[email&#160;protected]</span></a> indicando nombre, documento, derecho a ejercer y hechos. Responderemos en máximo 15 días hábiles.</p>
+      <p class="legal-consent">Al marcar esta casilla confirmo haber leído y entendido este texto, y otorgo la autorización de forma voluntaria.</p>
+    </div>
+  </template>
+
+  <!-- Datos Personales WA — almacenamiento de contacto (sin pago) -->
+  <template id="tplDatosWA">
+    <div class="legal-doc">
+      <p class="legal-entity">Responsable: HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5d3c39303433342e292f3c3e3432331d35383138333c3e3c3f3c3131382f32733e3230">[email&#160;protected]</a></p>
+      <p>Al enviar tu lista de deseos, autorizas de manera libre, previa, expresa e informada a <strong>HELENA CABALLERO SAS</strong> para recolectar y tratar los datos personales que proporcionas en este formulario, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p>
+      <h3>Datos recolectados</h3>
+      <p>Nombre completo, documento de identidad, correo electrónico, número de teléfono y dirección de contacto.</p>
+      <h3>Finalidades</h3>
+      <ul>
+        <li>Atender tu solicitud de información sobre productos y disponibilidad.</li>
+        <li>Contactarte vía WhatsApp o email para coordinar tu pedido.</li>
+        <li>Registrar tu historial de interacciones con la marca para brindarte un servicio personalizado.</li>
+        <li>Enviarte comunicaciones comerciales sobre productos, colecciones y eventos (puedes revocar esto en cualquier momento).</li>
+      </ul>
+      <h3>Duración</h3>
+      <p>Los datos se conservarán mientras exista una relación comercial activa o hasta que solicites su eliminación, salvo obligación legal de conservación.</p>
+      <h3>Tus derechos — Art. 8 Ley 1581/2012</h3>
+      <p>Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos; revocar esta autorización; y presentar queja ante la Superintendencia de Industria y Comercio (SIC).</p>
+      <h3>Contacto</h3>
+      <p>Escríbenos a <a href="/cdn-cgi/l/email-protection#6203060f0b0c0b11161003010b0d0c220a070e070c03010300030e0e07100d4c010d0f"><span class="__cf_email__" data-cfemail="a6c7c2cbcfc8cfd5d2d4c7c5cfc9c8e6cec3cac3c8c7c5c7c4c7cacac3d4c988c5c9cb">[email&#160;protected]</span></a> indicando tu nombre, documento y el derecho que deseas ejercer. Responderemos en máximo 15 días hábiles.</p>
+    </div>
+  </template>
+
+  <!-- TyC Gift Card -->
+  <template id="tplTyCGift">
+    <div class="legal-doc">
+      <p class="legal-entity">HELENA CABALLERO SAS · NIT 901.066.592 · Bogotá D.C., Colombia<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="aecfcac3c7c0c7dddadccfcdc7c1c0eec6cbc2cbc0cfcdcfcccfc2c2cbdcc180cdc1c3">[email&#160;protected]</a></p>
+      <h3>1. Valor e IVA</h3>
+      <p>El valor cargado a la Gift Card incluye el IVA del 19% vigente en Colombia. La persona que adquiere la tarjeta recibirá una factura electrónica por el valor total de la recarga, expedida a nombre del comprador registrado en el formulario.</p>
+      <h3>2. Vigencia</h3>
+      <p>Cada Gift Card tiene una vigencia de nueve (9) meses contados a partir de la fecha de emisión. Transcurrido dicho plazo sin que la tarjeta haya sido canjeada total o parcialmente, será anulada automáticamente y su valor o saldo eventual quedarán en favor de HELENA CABALLERO SAS, sin posibilidad de reembolso.</p>
+      <h3>3. Cesibilidad</h3>
+      <p>Las Gift Cards son cedibles a terceros. El código único de la tarjeta puede ser transferido libremente por su titular a cualquier persona, quien podrá utilizarlo en las mismas condiciones.</p>
+      <h3>4. Canje</h3>
+      <p>El código de la Gift Card deberá ingresarse en el espacio habilitado para bonos en el paso de pago del carri
