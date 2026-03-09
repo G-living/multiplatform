@@ -183,27 +183,25 @@ function _createWishlist(b) {
     ciudad    : ent.ciudad    || '',
   }).clienteId;
 
-  const catalogoId = b.catalogoId || '';
   sheet.appendRow([
     campania,                            // A  Campaña_ID
-    catalogoId,                          // B  Catalogo_ID
-    ts,                                  // C  Timestamp
-    ref,                                 // D  Referencia
-    cliId,                               // E  ClienteID
-    cli.nombre    || '',                 // F  Nombre
-    cli.apellido  || '',                 // G  Apellido
-    cli.email     || '',                 // H  Email
-    tel,                                 // I  Teléfono
-    cli.tipoDoc   || '',                 // J  Tipo_Doc
-    cli.numDoc    || '',                 // K  Num_Doc
-    ent.direccion || '',                 // L  Dirección_Wishlist
-    ent.barrio    || '',                 // M  Barrio_Wishlist
-    ent.ciudad    || '',                 // N  Ciudad_Wishlist
-    ent.notas     || '',                 // O  Notas
-    JSON.stringify(b.productos || []),   // P  Productos_JSON
-    b.total       || 0,                  // Q  Total_COP
-    'PENDIENTE',                         // R  Estado_Wishlist
-    '',                                  // S  Notas_internas
+    ts,                                  // B  Timestamp
+    ref,                                 // C  Referencia
+    cliId,                               // D  ClienteID
+    cli.nombre    || '',                 // E  Nombre
+    cli.apellido  || '',                 // F  Apellido
+    cli.email     || '',                 // G  Email
+    tel,                                 // H  Teléfono
+    cli.tipoDoc   || '',                 // I  Tipo_Doc
+    cli.numDoc    || '',                 // J  Num_Doc
+    ent.direccion || '',                 // K  Dirección_Wishlist
+    ent.barrio    || '',                 // L  Barrio_Wishlist
+    ent.ciudad    || '',                 // M  Ciudad_Wishlist
+    ent.notas     || '',                 // N  Notas
+    JSON.stringify(b.productos || []),   // O  Productos_JSON
+    b.total       || 0,                  // P  Total_COP
+    'PENDIENTE',                         // Q  Estado_Wishlist
+    '',                                  // R  Notas_internas
   ]);
 
   // v20.05: email "Lista de deseos recibida" inmediato al crear wishlist (manual §1)
@@ -1946,7 +1944,7 @@ function _emailWrapper(nombre, contenido) {
 function setupSheets() {
   const HEADERS = {
     [CFG.SHEETS.WISHLIST]: [
-      'Campaña_ID','Catalogo_ID','Timestamp','Referencia','ClienteID',
+      'Campaña_ID','Timestamp','Referencia','ClienteID',
       'Nombre','Apellido','Email','Teléfono',
       'Tipo_Doc','Num_Doc',
       'Dirección_Wishlist','Barrio_Wishlist','Ciudad_Wishlist','Notas',
