@@ -2130,24 +2130,6 @@ const Modal = (() => {
     try { localStorage.setItem('imolarte_gift_payload',   _giftPayloadStr); } catch(e) {}
     try { localStorage.setItem('imolarte_gift_' + reference, _giftPayloadStr); } catch(e) {}
 
-    // Crear fila en GiftCards ANTES del redirect — garantiza que _confirmarPagoGiftCard
-    // siempre encuentre la fila, independientemente de si el storage sobrevive el redirect.
-    try {
-      const gcResult = await Api.createGiftCard(_giftPayload);
-      if (!gcResult.ok) {
-        Logger.warn('modal.js: createGiftCard falló', gcResult.error);
-        if (btn) { btn.disabled = false; btn.textContent = 'Pagar'; }
-        alert('Hubo un error al registrar tu gift card. Por favor intenta de nuevo.');
-        return;
-      }
-      Logger.log('modal.js: gift card registrada en Sheets', reference);
-    } catch(err) {
-      Logger.warn('modal.js: error creando gift card', err);
-      if (btn) { btn.disabled = false; btn.textContent = 'Pagar'; }
-      alert('Error de conexión al registrar tu gift card. Por favor intenta de nuevo.');
-      return;
-    }
-
     // Obtener firma Wompi
     let signature = null;
     try {
@@ -2394,7 +2376,7 @@ window.addEventListener('pageshow', (e) => {
   try {
     const giftRef = sessionStorage.getItem('imolarte_gift_redirect');
     if (giftRef) {
-      // Usuario volvió de Wompi sin pagar — volver al paso 2 con formulario intacto
+      // Usuario volvió de Wompi sin pagar — no hay fila en Sheets que cancelar (flujo lean).
       sessionStorage.removeItem('imolarte_gift_redirect');
       setTimeout(() => {
         Modal.resetState();
