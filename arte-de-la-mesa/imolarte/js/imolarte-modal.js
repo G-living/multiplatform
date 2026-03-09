@@ -2130,19 +2130,28 @@ const Modal = (() => {
     try { localStorage.setItem('imolarte_gift_payload',   _giftPayloadStr); } catch(e) {}
     try { localStorage.setItem('imolarte_gift_' + reference, _giftPayloadStr); } catch(e) {}
 
-    // Obtener firma Wompi
+    // Grabar fila en Sheets Y obtener firma Wompi en paralelo.
+    // createGiftCard ANTES del redirect garantiza que la fila existe cuando Wompi confirma,
+    // incluso si el storage no está disponible en checkout.js (cross-tab, storage pressure, etc.).
+    // v20.09: si ya existe fila PENDIENTE con el mismo código, actualiza la referencia (reintento).
     let signature = null;
-    try {
-      const resp = await fetch(cfg.signatureWorkerUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reference, amountInCents: amountCts, currency: cfg.currency }),
-      });
-      if (resp.ok) {
-        const r = await resp.json();
-        signature = r.integritySignature || null;
-      }
-    } catch(err) { Logger.warn('modal.js: error firma gift', err); }
+    await Promise.all([
+      Api.createGiftCard(_giftPayload)
+        .catch(err => Logger.warn('modal.js: createGiftCard pre-redirect error', err)),
+      (async () => {
+        try {
+          const resp = await fetch(cfg.signatureWorkerUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference, amountInCents: amountCts, currency: cfg.currency }),
+          });
+          if (resp.ok) {
+            const r = await resp.json();
+            signature = r.integritySignature || null;
+          }
+        } catch(err) { Logger.warn('modal.js: error firma gift', err); }
+      })(),
+    ]);
 
     // Redirigir a Wompi
     const params = new URLSearchParams({
