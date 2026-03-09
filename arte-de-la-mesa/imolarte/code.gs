@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20
+// IMOLARTE — Google Apps Script Backend v20.03
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -20,6 +20,8 @@
 // ─ v20: todos los valores COP en emails redondeados por exceso a $1.000
 // ─ v20.1: BUG-B fix — String() forzado en _fmtTel y _upsertCliente (crash replace sobre número)
 // ─ v20.1: BUG-A fix — _skipEmail propagado correctamente desde api.js → code.gs
+// ─ v20.02: SpreadsheetApp.flush() incondicional en _confirmarPagoWompi
+// ─ v20.03: SpreadsheetApp.flush() incondicional en _confirmarPagoGiftCard
 // ============================================================
 
 'use strict';
@@ -343,13 +345,10 @@ function _confirmarPagoWompi(b) {
     if (p.bono && p.bono.code && p.bono.monto > 0) {
       _redeemDono({ code: p.bono.code, amount: p.bono.monto, referencia: ref });
     }
-    // 3. Flush obligatorio: garantiza que appendRow de _createPedidoWompi sea
-    //    visible para el getDataRange() inmediato que sigue abajo.
-    //    Sin esto, Sheets devuelve el snapshot anterior → NOT_FOUND siempre.
-    SpreadsheetApp.flush();
   }
 
   const sheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+  SpreadsheetApp.flush(); // v20.02: garantiza que appendRow ya está escrito antes de leer
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
 
@@ -506,6 +505,7 @@ function _createGiftCard(b) {
 
 function _confirmarPagoGiftCard(b) {
   const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  SpreadsheetApp.flush(); // garantiza que appendRow de _createGiftCard ya está escrito
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
 

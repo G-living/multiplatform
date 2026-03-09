@@ -871,11 +871,15 @@ const Modal = (() => {
     _populateDias('wpInputCumpleDia');
     _ckBono     = null;   // reset siempre — se revalida automáticamente si hay código
     _ckSubtotal = Cart.getTotal();
-    _updateWompiTotals();
+    // Restaurar innerHTML de botones antes de _updateWompiTotals
+    // (evita que queden con "Procesando…" si el usuario abre el modal por segunda vez)
     const btn60  = document.getElementById('btnPagar60');
     const btn100 = document.getElementById('btnPagar100');
+    if (btn60)  btn60.innerHTML  = '<span class="cmo-btn-pago-label">Pago Anticipo 60%</span><span class="cmo-btn-pago-amount" id="wpAmount60"></span>';
+    if (btn100) btn100.innerHTML = '<span class="cmo-btn-pago-label">Pago Anticipado 100%</span><span class="cmo-btn-pago-amount" id="wpAmount100"></span>';
     if (btn60)  btn60.disabled  = false;
     if (btn100) btn100.disabled = false;
+    _updateWompiTotals();
     _openModal('modalCheckoutWompi');
     // BUG-07: rAF garantiza que los selects están poblados antes de cargar el draft
     requestAnimationFrame(() => {
@@ -1352,11 +1356,6 @@ const Modal = (() => {
         if (succEl) { succEl.textContent = `✓ Bono válido — ${Utils.formatPrice(data.available)} disponible`; succEl.style.display = 'block'; }
         _updateWompiTotals();
         Toast.show(`Bono aplicado: ${Utils.formatPrice(data.available)} de descuento`, 'success');
-        // Scroll automático al resumen de totales para que el usuario vea el desglose
-        requestAnimationFrame(() => {
-          const totalsEl = document.getElementById('wpLineBono') || document.getElementById('wpPayActions');
-          if (totalsEl) totalsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        });
       } else {
         _resetBono();
         if (errEl) errEl.textContent = data.reason || 'Código inválido';
@@ -1606,42 +1605,32 @@ const Modal = (() => {
     const cfg2     = IMOLARTE_CONFIG.checkout;
     // El 3% aplica también cuando el bono cubre el total (pago anticipado 100%)
     const disc3    = Math.floor(subtotal * cfg2.discountPayFull / 1000) * 1000;
-    const netTotal = subtotal - disc3;           // lo que debe cubrir el bono
+    const netTotal = subtotal - disc3;  // lo que debe cubrir el bono
     const bonoDesc = _ckBono ? Math.min(_ckBono.available, netTotal) : 0;
-    const total    = 0;  // cubierto por gift card (bono >= netTotal)
+    const total    = 0;  // cubierto por gift card
 
-    // 1. Registrar pedido en Sheets
-    let reference = '';
-    try {
-      const result = await Api.createPedidoWompi(data, items, {
-        formaPago:        _ckBono?.code ? `GIFT_CARD:${_ckBono.code}` : 'GIFT_CARD',
-        subtotal,
-        descuento:        bonoDesc + disc3,
-        total,
-        porcentajePagado: 100,
-        referencia:       '',
-      });
-      reference = (result.ok && result.referencia) ? result.referencia : `WP-${Date.now()}`;
-    } catch(err) {
-      reference = `WP-${Date.now()}`;
-      Logger.warn('modal.js: error registrando pedido gift', err);
-    }
+    // Arquitectura lean: NO escribir en Sheets aquí.
+    // Guardar payload completo en sessionStorage — checkout.js lo procesa tras APPROVED.
+    const reference = `WP-${Date.now()}`;
+    const pendingPayload = JSON.stringify({
+      formaPago:        _ckBono?.code ? `GIFT_CARD:${_ckBono.code}` : 'GIFT_CARD',
+      subtotal,
+      descuento:        bonoDesc + disc3,
+      total,
+      porcentajePagado: 100,
+      referencia:       reference,
+      cliente:          data.cliente,
+      entrega:          data.entrega,
+      productos:        items,
+      bono:             _ckBono ? { code: _ckBono.code, monto: bonoDesc } : null,
+      campaniaId:       IMOLARTE_CONFIG?.campania?.id || '',
+      _giftPaid:        true,  // flag para checkout.js
+    });
+    try { sessionStorage.setItem('imolarte_pending_pedido', pendingPayload); } catch(e) {}
+    try { localStorage.setItem('imolarte_pending_pedido', pendingPayload); }   catch(e) {}
 
-    // 2. Redimir bono
-    if (_ckBono?.code) {
-      try { await Api.redeemDono(_ckBono.code, bonoDesc, reference); }
-      catch(err) { Logger.warn('modal.js: error redimiendo bono gift', err); }
-    }
-
-    // 3. Confirmar pedido directamente (sin Wompi)
-    try {
-      await Api.confirmarPagoWompi(reference, 'APPROVED', 'GIFT_CARD');
-    } catch(err) { Logger.warn('modal.js: error confirmando pedido gift', err); }
-
-    // 4. Vaciar carrito y redirigir a checkout con estado aprobado
-    // giftPaid=1 → checkout.js no hace segunda llamada a confirmarPagoWompi (ya la hizo modal.js)
-    try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
-    Logger.log('modal.js: compra con gift card confirmada', reference);
+    Logger.log('modal.js: gift card pago — redirigiendo a checkout', reference);
+    // Redirigir directamente a checkout con APPROVED — sin pasar por Wompi
     window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED&giftPaid=1`;
   }
 
@@ -2113,19 +2102,21 @@ const Modal = (() => {
     const recTel   = document.getElementById('gfRecTel')?.value.trim() || '';
     const mensaje  = document.getElementById('gfMensaje')?.value.trim() || '';
 
-    // Registrar en Sheets vía Api.js
-    try {
-      await Api.createGiftCard({
-        referencia:   reference,
-        codigo:       _giftCode,
-        vigencia:     _giftValidUntil,
-        valor:        amount,
-        campaniaId:   IMOLARTE_CONFIG?.campania?.id || '',
-        emisor:       { nombre, apellido, cumpleDia, cumpleMes, tipoDoc, numDoc, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
-        destinatario: { nombre: recNom, apellido: recApe, email: recEmail, telefono: recPais + recTel },
-        mensaje,
-      });
-    } catch(err) { Logger.warn('modal.js: error registrando gift card', err); }
+    // Guardar payload completo en sessionStorage — NO escribir en Sheets todavía.
+    // Sheets solo se escribe en checkout.js cuando Wompi confirma APPROVED.
+    // Si el usuario abandona la pasarela, Sheets queda limpio.
+    const giftPayload = JSON.stringify({
+      referencia:   reference,
+      codigo:       _giftCode,
+      vigencia:     _giftValidUntil,
+      valor:        amount,
+      campaniaId:   IMOLARTE_CONFIG?.campania?.id || '',
+      emisor:       { nombre, apellido, cumpleDia, cumpleMes, tipoDoc, numDoc, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
+      destinatario: { nombre: recNom, apellido: recApe, email: recEmail, telefono: recPais + recTel },
+      mensaje,
+    });
+    try { sessionStorage.setItem('imolarte_gift_payload', giftPayload); } catch(e) { Logger.warn('modal.js: sessionStorage gift error', e); }
+    try { localStorage.setItem('imolarte_gift_payload', giftPayload); }   catch(e) {}
 
     // Obtener firma Wompi
     let signature = null;
@@ -2155,9 +2146,8 @@ const Modal = (() => {
     if (tel)       params.set('customer-data:phone-number', `${pais}${tel}`);
 
     Logger.log('modal.js: gift card → Wompi', { reference, amountCts });
-    // Flags para checkout.js: referencia del pedido y vigencia para el mensaje de agradecimiento
-    try { sessionStorage.setItem('imolarte_gift_redirect',  reference); } catch(e) {}
-    try { sessionStorage.setItem('imolarte_gift_vigencia',  _giftValidUntil || ''); } catch(e) {}
+    // Flag específico para Gift — pageshow lo usará para reabrir el modal Gift
+    try { sessionStorage.setItem('imolarte_gift_redirect', reference); } catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 
