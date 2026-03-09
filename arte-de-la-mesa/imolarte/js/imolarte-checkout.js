@@ -104,7 +104,8 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       let giftPayload = null;
       try {
         const raw = sessionStorage.getItem('imolarte_gift_payload')
-                 || localStorage.getItem('imolarte_gift_payload');
+                 || localStorage.getItem('imolarte_gift_payload')
+                 || localStorage.getItem('imolarte_gift_' + reference);
         if (raw) giftPayload = JSON.parse(raw);
       } catch(e) { console.warn('checkout.js: error leyendo gift payload', e); }
       try { sessionStorage.removeItem('imolarte_gift_payload'); } catch(e) {}
@@ -288,11 +289,10 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
     }
 
   } else if (status === 'DECLINED' || status === 'ERROR') {
-    // Limpiar payloads huérfanos
+    // Limpiar payloads huérfanos de pedidos normales
     try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
     try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
-    try { sessionStorage.removeItem('imolarte_gift_payload'); }   catch(e) {}
-    try { localStorage.removeItem('imolarte_gift_payload'); }     catch(e) {}
+    // Gift payload se conserva para que restoreGiftStep2 pueda pre-cargar el formulario en retry
 
     if (isGiftCard) {
       const btnRetryGift = `<a href="imolarte-index.html?retryGift=1" class="btn btn-primary">Reintentar pago</a>`;
