@@ -1532,7 +1532,9 @@ const Modal = (() => {
       cliente:          data.cliente,
       entrega:          data.entrega,
       productos:        items,
-      bono:             _ckBono ? { code: _ckBono.code, monto: bonoDesc } : null,
+      bono:             _ckBono
+        ? { code: _ckBono.code, monto: bonoDesc, available: _ckBono.available }
+        : null,
       campaniaId:       IMOLARTE_CONFIG?.campania?.id  || '',
       catalogoId:       IMOLARTE_CONFIG?.catalogo?.id  || '',
     });
@@ -1601,13 +1603,13 @@ const Modal = (() => {
     const subtotal = _ckSubtotal;
     const cfg2     = IMOLARTE_CONFIG.checkout;
 
-    // BUG-3C fix: calcular bonoDisp PRIMERO, luego disc3 sobre base neta (subtotal − bono)
-    // Base incorrecta anterior: disc3 sobre subtotal completo cuando hay bono parcial
-    const bonoDisp = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
-    const base3    = subtotal - bonoDisp;
-    const disc3    = Math.floor(base3 * cfg2.discountPayFull / 1000) * 1000;
-    // total = 0 cuando bono cubre todo (saldo GC ≥ subtotal después del 3%)
-    const totalFinal = Math.max(0, base3 - disc3 - bonoDisp);
+    // BUG-3C fix v21.1: GC cubre 100% — disc3 se aplica sobre el subtotal completo,
+    // bono cubre el remanente (subtotal − disc3), NO el subtotal entero.
+    // Antes: disc3 = floor(0 * 0.03) = 0 porque base3 = subtotal − subtotal = 0.
+    // Ahora: disc3 = floor(subtotal * 0.03), bonoActual = subtotal − disc3.
+    const disc3      = Math.floor(subtotal * cfg2.discountPayFull / 1000) * 1000;
+    const bonoActual = subtotal - disc3;   // importe que cubre la GC (≤ GC.available)
+    const totalFinal = 0;                  // bono cubre el total después del descuento
 
     // Generar referencia
     const reference = `WP-${Date.now()}`;
@@ -1617,14 +1619,16 @@ const Modal = (() => {
     const _pendingGiftPayload = JSON.stringify({
       formaPago:        _ckBono?.code ? `GIFT_CARD:${_ckBono.code}` : 'GIFT_CARD',
       subtotal,
-      descuento:        bonoDisp + disc3,
+      descuento:        disc3 + bonoActual,  // = subtotal (disc3 + bonoActual)
       total:            totalFinal,
       porcentajePagado: 100,
       referencia:       reference,
       cliente:          data.cliente,
       entrega:          data.entrega,
       productos:        items,
-      bono:             _ckBono ? { code: _ckBono.code, monto: bonoDisp } : null,
+      bono:             _ckBono
+        ? { code: _ckBono.code, monto: bonoActual, available: _ckBono.available }
+        : null,
       campaniaId:       IMOLARTE_CONFIG?.campania?.id || '',
       catalogoId:       IMOLARTE_CONFIG?.catalogo?.id || '',
     });

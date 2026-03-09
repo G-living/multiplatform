@@ -184,11 +184,16 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
       try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
 
-      // Info del bono para pantalla
-      const _bonoCode  = pedidoPayload?.bono?.code  || '';
-      const _bonoMonto = pedidoPayload?.bono?.monto || 0;
-      const _bonoLine  = _bonoCode
-        ? `<br>Tu <strong>Gift Card ${_bonoCode}</strong> fue aplicada exitosamente${_bonoMonto ? ' por <strong>$' + _bonoMonto.toLocaleString('es-CO') + '</strong>' : ''}.<br>`
+      // Info del bono para pantalla — BUG-3C fix: mostrar saldo restante
+      const _bonoCode      = pedidoPayload?.bono?.code      || '';
+      const _bonoMonto     = pedidoPayload?.bono?.monto     || 0;
+      const _bonoAvailable = pedidoPayload?.bono?.available || 0;
+      const _saldoRest     = _bonoAvailable > 0 ? Math.max(0, _bonoAvailable - _bonoMonto) : 0;
+      const _saldoLine     = _saldoRest > 0
+        ? `Tu Gift Card aún tiene <strong>$${_saldoRest.toLocaleString('es-CO')}</strong> de saldo disponible para próximas compras.`
+        : (_bonoCode ? 'Tu Gift Card ha sido canjeada completamente.' : '');
+      const _bonoLine = _bonoCode
+        ? `<br>Tu <strong>Gift Card ${_bonoCode}</strong> fue aplicada por <strong>$${_bonoMonto.toLocaleString('es-CO')}</strong>. ${_saldoLine}<br>`
         : '';
 
       setContent(
@@ -227,17 +232,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
     }
 
     // ── Flujo A: Wompi clásico (con o sin bono parcial) ─────
-    setContent(
-      '🏺', '¡Gracias por tu compra!',
-      `Tu pago fue confirmado exitosamente.<br><br>
-       En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.<br><br>
-       Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
-       <em>Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</em>`,
-      reference,
-      btnCatalogo + btnWA,
-      'confirm-title--success'
-    );
-
+    // Leer payload ANTES de setContent para incluir info del bono en pantalla
     let pedidoPayload = null;
     try {
       const raw = sessionStorage.getItem('imolarte_pending_pedido')
@@ -246,6 +241,28 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
     } catch(e) { console.warn('checkout.js: error leyendo payload', e); }
     try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
     try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
+
+    // BUG-3C fix: mostrar info del bono (GC parcial) en pantalla de confirmación
+    const _bA = pedidoPayload?.bono;
+    const _bonoLineA = _bA?.code
+      ? `<br>Tu <strong>Gift Card ${_bA.code}</strong> fue aplicada por <strong>$${(_bA.monto||0).toLocaleString('es-CO')}</strong>. ${
+          (_bA.available && _bA.available > _bA.monto)
+            ? `Saldo restante: <strong>$${(_bA.available - _bA.monto).toLocaleString('es-CO')}</strong>`
+            : 'Tu Gift Card ha sido canjeada completamente.'
+        }<br>`
+      : '';
+
+    setContent(
+      '🏺', '¡Gracias por tu compra!',
+      `Tu pago fue confirmado exitosamente.<br><br>
+       ${_bonoLineA}
+       En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.<br><br>
+       Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
+       <em>Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</em>`,
+      reference,
+      btnCatalogo + btnWA,
+      'confirm-title--success'
+    );
 
     if (pedidoPayload && pedidoPayload.referencia === reference) {
       // ── Flujo A: Wompi con payload completo ──────────────

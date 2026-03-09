@@ -1,7 +1,5 @@
 // ============================================================
-// ARTE DE LA MESA — Google Apps Script Backend v20
-// Rama Comercial: arte-de-la-mesa
-// Catálogos activos: IMOLARTE by Helena Caballero
+// IMOLARTE — Google Apps Script Backend v20.03
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -22,6 +20,11 @@
 // ─ v20: todos los valores COP en emails redondeados por exceso a $1.000
 // ─ v20.1: BUG-B fix — String() forzado en _fmtTel y _upsertCliente (crash replace sobre número)
 // ─ v20.1: BUG-A fix — _skipEmail propagado correctamente desde api.js → code.gs
+// ─ v20.02: SpreadsheetApp.flush() incondicional en _confirmarPagoWompi
+// ─ v20.03: SpreadsheetApp.flush() incondicional en _confirmarPagoGiftCard
+// ─ v20.04: flush() MOVIDO al final de _createPedidoWompi y _createGiftCard (mismo scope de appendRow)
+//           BUG-1 fix definitivo: NOT_FOUND resuelto
+//           BUG-4 fix: catalogoId propagado en flujo lean de _confirmarPagoWompi
 // ============================================================
 
 'use strict';
@@ -162,27 +165,31 @@ function _createWishlist(b) {
     ciudad    : ent.ciudad    || '',
   }).clienteId;
 
+  const catalogoId = b.catalogoId || '';
   sheet.appendRow([
     campania,                            // A  Campaña_ID
-    ts,                                  // B  Timestamp
-    ref,                                 // C  Referencia
-    cliId,                               // D  ClienteID
-    cli.nombre    || '',                 // E  Nombre
-    cli.apellido  || '',                 // F  Apellido
-    cli.email     || '',                 // G  Email
-    tel,                                 // H  Teléfono
-    cli.tipoDoc   || '',                 // I  Tipo_Doc
-    cli.numDoc    || '',                 // J  Num_Doc
-    ent.direccion || '',                 // K  Dirección_Wishlist
-    ent.barrio    || '',                 // L  Barrio_Wishlist
-    ent.ciudad    || '',                 // M  Ciudad_Wishlist
-    ent.notas     || '',                 // N  Notas
-    JSON.stringify(b.productos || []),   // O  Productos_JSON
-    b.total       || 0,                  // P  Total_COP
-    'PENDIENTE',                         // Q  Estado_Wishlist
-    '',                                  // R  Notas_internas
+    catalogoId,                          // B  Catalogo_ID
+    ts,                                  // C  Timestamp
+    ref,                                 // D  Referencia
+    cliId,                               // E  ClienteID
+    cli.nombre    || '',                 // F  Nombre
+    cli.apellido  || '',                 // G  Apellido
+    cli.email     || '',                 // H  Email
+    tel,                                 // I  Teléfono
+    cli.tipoDoc   || '',                 // J  Tipo_Doc
+    cli.numDoc    || '',                 // K  Num_Doc
+    ent.direccion || '',                 // L  Dirección_Wishlist
+    ent.barrio    || '',                 // M  Barrio_Wishlist
+    ent.ciudad    || '',                 // N  Ciudad_Wishlist
+    ent.notas     || '',                 // O  Notas
+    JSON.stringify(b.productos || []),   // P  Productos_JSON
+    b.total       || 0,                  // Q  Total_COP
+    'PENDIENTE',                         // R  Estado_Wishlist
+    '',                                  // S  Notas_internas
   ]);
 
+  // v20.05: email "Lista de deseos recibida" inmediato al crear wishlist (manual §1)
+  if (cli.email) _emailPedidoRecibido(cli.email, cli.nombre || '', ref, b.productos, b.total || 0);
   _log('createWishlist', ref, cliId, 'OK');
   return { ok: true, referencia: ref, clienteId: cliId };
 }
@@ -204,13 +211,8 @@ function _updateEstadoWishlist(b) {
     if (data[i][colRef] === ref) {
       sheet.getRange(i + 1, colEstado + 1).setValue(estado);
       _log('updateEstadoWishlist', ref, estado, 'OK');
-      if (estado === 'ENVIADO_WA') {
-        const email  = data[i][header.indexOf('Email')]         || '';
-        const nombre = data[i][header.indexOf('Nombre')]        || '';
-        const prods  = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
-        const total  = data[i][header.indexOf('Total_COP')]     || 0;
-        if (email) _emailEnviadoWA(email, nombre, ref, prods, total);
-      }
+      // v20.05: email "Lista de deseos recibida" se envía en _createWishlist (inmediato).
+      // Manual §1: wishlists NO disparan email en cambio de estado (solo Pedidos_Wompi lo hace).
       return { ok: true, referencia: ref, estado };
     }
   }
@@ -234,6 +236,22 @@ function _createPedidoWompi(b) {
   // Usar referencia del payload si viene (caso: pago ya confirmado por Wompi)
   // Si no viene, generar nueva (caso legacy / fallback)
   const ref      = (b.referencia && b.referencia !== '') ? b.referencia : ('WP-' + Date.now());
+
+  // IDEMPOTENCIA — si ya existe una fila con esta referencia, no crear duplicado
+  if (b.referencia && b.referencia !== '') {
+    const existing = sheet.getDataRange().getValues();
+    const colRef   = existing[0].indexOf('Referencia');
+    if (colRef >= 0) {
+      for (let i = 1; i < existing.length; i++) {
+        if (existing[i][colRef] === ref) {
+          _log('createPedidoWompi', ref, 'DUPLICATE_SKIPPED');
+          const colCli = existing[0].indexOf('ClienteID');
+          return { ok: true, referencia: ref, clienteId: colCli >= 0 ? existing[i][colCli] : '' };
+        }
+      }
+    }
+  }
+
   const ts       = new Date();
   const cli      = b.cliente || {};
   const ent      = b.entrega || {};
@@ -255,46 +273,84 @@ function _createPedidoWompi(b) {
     _soloTotal: true,   // no contar interacción — se cuenta solo en APPROVED
   }).clienteId;
 
+  const catalogoId = b.catalogoId || '';
   sheet.appendRow([
     campania,                            // A  Campaña_ID
-    ts,                                  // B  Timestamp
-    ref,                                 // C  Referencia
-    b.wompiTransactionId || '',          // D  Wompi_Transaction_ID
-    'PENDING',                           // E  Estado_Pago_Wompi
-    cliId,                               // F  ClienteID
-    cli.nombre    || '',                 // G  Nombre
-    cli.apellido  || '',                 // H  Apellido
-    cli.email     || '',                 // I  Email
-    tel,                                 // J  Teléfono
-    cli.tipoDoc   || '',                 // K  Tipo_Doc
-    cli.numDoc    || '',                 // L  Num_Doc
-    ent.direccion || '',                 // M  Dirección
-    ent.barrio    || '',                 // N  Barrio
-    ent.ciudad    || '',                 // O  Ciudad
-    ent.notas     || '',                 // P  Notas_entrega
-    JSON.stringify(b.productos || []),   // Q  Productos_JSON
-    b.subtotal    || 0,                  // R  Subtotal_COP
-    b.descuento   || 0,                  // S  Descuento_COP
-    b.total       || 0,                  // T  Total_COP
-    b.porcentajePagado || 100,           // U  Pct_Pagado
-    b.formaPago   || 'WOMPI_100',        // V  Forma_pago
+    catalogoId,                          // B  Catalogo_ID
+    ts,                                  // C  Timestamp
+    ref,                                 // D  Referencia
+    b.wompiTransactionId || '',          // E  Wompi_Transaction_ID
+    'PENDING',                           // F  Estado_Pago_Wompi
+    cliId,                               // G  ClienteID
+    cli.nombre    || '',                 // H  Nombre
+    cli.apellido  || '',                 // I  Apellido
+    cli.email     || '',                 // J  Email
+    tel,                                 // K  Teléfono
+    cli.tipoDoc   || '',                 // L  Tipo_Doc
+    cli.numDoc    || '',                 // M  Num_Doc
+    ent.direccion || '',                 // N  Dirección
+    ent.barrio    || '',                 // O  Barrio
+    ent.ciudad    || '',                 // P  Ciudad
+    ent.notas     || '',                 // Q  Notas_entrega
+    JSON.stringify(b.productos || []),   // R  Productos_JSON
+    b.subtotal    || 0,                  // S  Subtotal_COP
+    b.descuento   || 0,                  // T  Descuento_COP
+    b.total       || 0,                  // U  Total_COP
+    b.porcentajePagado || 100,           // V  Pct_Pagado
+    b.formaPago   || 'WOMPI_100',        // W  Forma_pago
     // Saldo pendiente: total × (1 - pct/100), 0 si pago completo o gift
-    _roundCOP((b.total || 0) * (1 - ((b.porcentajePagado || 100) / 100))), // W Saldo_Pendiente_COP
-    'PENDIENTE',                         // X  Estado_Pedido
-    '',                                  // Y  Fecha_despacho
-    '',                                  // Z  Notas_internas
-    '',                                  // AA SIIGO_Factura_ID
+    _roundCOP((b.total || 0) * (1 - ((b.porcentajePagado || 100) / 100))), // X  Saldo_Pendiente_COP
+    'PENDIENTE',                         // Y  Estado_Pedido
+    '',                                  // Z  Fecha_despacho
+    '',                                  // AA Notas_internas
+    '',                                  // AB SIIGO_Factura_ID
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
+  // v20.04 BUG-1 fix: flush() en el mismo scope del appendRow — garantiza que la fila
+  // está comprometida ANTES de que _confirmarPagoWompi llame a getDataRange()
+  SpreadsheetApp.flush();
   // _skipEmail: true cuando el pedido se crea post-pago desde checkout.js
-  // En ese caso solo se envía el email de pago confirmado, no el de "pedido recibido"
-  if (!b._skipEmail && cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
+  const _esGift = String(b.formaPago || '').startsWith('GIFT_CARD');
+  if (!b._skipEmail && !_esGift && cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
   return { ok: true, referencia: ref, clienteId: cliId };
 }
 
 function _confirmarPagoWompi(b) {
+  const d      = b.data || {};
+  const ref    = b.referencia    || d.pedidoId      || '';
+  const status = b.status        || d.paymentStatus  || 'APPROVED';
+  const txId   = b.transactionId || d.transactionId  || '';
+
+  if (!ref) return { ok: false, error: 'Referencia requerida' };
+
+  // ── Flujo lean: si viene pedidoPayload, hacer create+redeem en servidor ──
+  // Una sola llamada HTTP desde el browser — sin riesgo de cancelación.
+  if (b.pedidoPayload && status === 'APPROVED') {
+    const p = b.pedidoPayload;
+    // 1. Crear pedido (idempotente — si ya existe, no duplica)
+    _createPedidoWompi({
+      campaniaId:       p.campaniaId       || '',
+      catalogoId:       p.catalogoId       || '',
+      cliente:          p.cliente          || {},
+      entrega:          p.entrega          || {},
+      productos:        p.productos        || [],
+      formaPago:        p.formaPago        || 'WOMPI_100',
+      subtotal:         p.subtotal         || 0,
+      descuento:        p.descuento        || 0,
+      total:            p.total            || 0,
+      porcentajePagado: p.porcentajePagado || 100,
+      referencia:       ref,
+      _skipEmail:       true,
+    });
+    // 2. Redimir bono si aplica
+    if (p.bono && p.bono.code && p.bono.monto > 0) {
+      _redeemDono({ code: p.bono.code, amount: p.bono.monto, referencia: ref });
+    }
+  }
+
   const sheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+  SpreadsheetApp.flush(); // v20.02: garantiza que appendRow ya está escrito antes de leer
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
 
@@ -303,12 +359,6 @@ function _confirmarPagoWompi(b) {
   const colPedido = header.indexOf('Estado_Pedido');
   const colTxId   = header.indexOf('Wompi_Transaction_ID');
 
-  const d      = b.data || {};
-  const ref    = b.referencia    || d.pedidoId      || '';
-  const status = b.status        || d.paymentStatus  || 'APPROVED';
-  const txId   = b.transactionId || d.transactionId  || '';
-
-  if (!ref) return { ok: false, error: 'Referencia requerida' };
   if (colRef < 0 || colPagoWP < 0 || colPedido < 0)
     return { ok: false, error: 'Columnas no encontradas en Pedidos_Wompi' };
 
@@ -335,19 +385,28 @@ function _confirmarPagoWompi(b) {
     // Extraer info del bono si aplica
     // Forma_pago puede ser: GIFT_CARD | WOMPI_60+GIFT:HC-XXXXX | WOMPI_100+GIFT:HC-XXXXX
     let giftInfo = null;
-    const giftMatch = formaPago.match(/GIFT:([A-Z0-9-]+)/);
+    const giftMatch  = formaPago.match(/GIFT:([A-Z0-9-]+)/);   // WOMPI_xx+GIFT:HC-xxx
+    const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/); // GIFT_CARD:HC-xxx
     if (giftMatch) {
       // pago mixto wompi + gift
-      const montoWompi = total * (pctPagado / 100);
-      const montoGift  = total - montoWompi;
-      giftInfo = { codigo: giftMatch[1], monto: montoGift, tipo: 'MIXTO', montoWompi };
+      // Reconstruir monto del bono desde subtotal y total pagado:
+      //   pago 100%: total = (subtotal − bono) × 0.97  → bono = subtotal − total/0.97
+      //   pago 60% : total = (subtotal − bono) × 0.60  → bono = subtotal − total/0.60
+      //   (el 3% solo aplica en pago 100%)
+      const factorPct   = pctPagado === 100 ? 0.97 : (pctPagado / 100);
+      const montoGiftReal = _roundCOP(subtotal - total / factorPct);
+      const montoWompi    = total;
+      giftInfo = { codigo: giftMatch[1], monto: montoGiftReal, tipo: 'MIXTO', montoWompi };
+    } else if (giftTotMatch) {
+      // pago 100% gift con código
+      giftInfo = { codigo: giftTotMatch[1], monto: _roundCOP(subtotal), tipo: 'TOTAL' };
     } else if (formaPago === 'GIFT_CARD') {
-      // pago 100% gift
-      giftInfo = { codigo: '', monto: total, tipo: 'TOTAL' };
+      // pago 100% gift sin código explícito (legacy)
+      giftInfo = { codigo: '', monto: _roundCOP(subtotal), tipo: 'TOTAL' };
     }
 
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
@@ -442,12 +501,16 @@ function _createGiftCard(b) {
   ]);
 
   _log('createGiftCard', ref, b.codigo, cliId, 'OK');
+  // v20.04 BUG-1 fix: flush() en el mismo scope del appendRow — garantiza que la fila
+  // está comprometida ANTES de que _confirmarPagoGiftCard llame a getDataRange()
+  SpreadsheetApp.flush();
   // ⚠️ No upsert destinatario — solo se registra cuando él mismo compra
   return { ok: true, referencia: ref, codigo: b.codigo, clienteId: cliId };
 }
 
 function _confirmarPagoGiftCard(b) {
   const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  SpreadsheetApp.flush(); // garantiza que appendRow de _createGiftCard ya está escrito
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
 
@@ -504,8 +567,19 @@ function _confirmarPagoGiftCard(b) {
       if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig, destNombre, destApellido);
       if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, apellido, codigo, valor, vig, mensaje);
 
-      if (telEmisor && valor > 0)
-        _upsertCliente({ telefono: String(telEmisor), tipoDoc: String(docTipo), numDoc: String(docNum), total: valor, _soloTotal: true });
+      if (telEmisor && valor > 0) {
+        // Registrar la compra de Gift Card en Productos_comprados del cliente
+        _upsertCliente({
+          telefono  : String(telEmisor),
+          tipoDoc   : String(docTipo),
+          numDoc    : String(docNum),
+          total     : valor,
+          _soloTotal: true,
+          _pedidoRef  : ref,
+          _pedidoProds: [{ productName: `Gift Card ${codigo}`, collection: '', quantity: 1 }],
+          _pedidoTs   : new Date(),
+        });
+      }
     }
 
     return { ok: true, referencia: ref, status, estado: estadoGift };
@@ -740,12 +814,14 @@ function _upsertCliente(b) {
       }
     }
 
-    // Teléfono: si se encontró por doc y el tel es diferente, actualizar y loggear
+    // Teléfono: normalizar ambos lados antes de comparar (strip +, espacios, guiones)
+    // para evitar falsos positivos en historial por diferencias de formato
     if (tel) {
-      const actual = String(row[CLI.TELEFONO] || '').replace(/\s/g, '');
+      const _norm = v => String(v || '').replace(/[\s+\-]/g, '');
+      const actual = String(row[CLI.TELEFONO] || '');
       if (!actual) {
         sheet.getRange(i + 1, CLI.TELEFONO + 1).setValue(tel);
-      } else if (actual !== tel) {
+      } else if (_norm(actual) !== _norm(tel)) {
         sheet.getRange(i + 1, CLI.TELEFONO + 1).setValue(tel);
         _addHistorial(i, `[${dtFmt()}] Tel: ${actual} → ${tel}`);
       }
@@ -1277,7 +1353,7 @@ function checkWishlistAbandonadas() {
 
 function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
-    const subject = `&#128203; ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. Helena o alguien de nuestro equipo te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1294,89 +1370,135 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   } catch(err) { _log('emailPedidoRecibido_ERROR', ref, err.message); }
 }
 
-function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento) {
+function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento, txId) {
   try {
-    const subject = `&#127881; ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
+    const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
 
-    // ── Tabla de ítems ──────────────────────────────────────
-    const tablaProductos = _productosHTML(productos);
+    const tablaProductos  = _productosHTML(productos);
+    const pct             = Number(pctPagado) || 100;
+    const subtotalMostrar = _roundCOP(subtotal || total);
 
-    // ── Bloque resumen financiero ───────────────────────────
-    let resumenHTML = '';
+    // ── Descuento 3% y bono — reconstruir desde giftInfo + descuento (Sheets) ──
+    // v20.05 BUG-3C fix: usar giftInfo.monto directo (ya reconstruido en _confirmarPagoWompi)
+    // — evita divergencia del método iterativo cuando bonoDesc < floor(subtotal*0.03)
+    const descuentoTotal = Number(descuento) || 0;
 
-    // Línea bono si aplica
-    let bonoHTML = '';
+    let disc3pct = 0;
     let bonoDesc = 0;
-    if (giftInfo && giftInfo.tipo === 'MIXTO') {
-      bonoDesc = _roundCOP(giftInfo.monto);
+    if (pct === 100) {
+      if (giftInfo?.tipo === 'TOTAL') {
+        // Gift Card total: 3% sobre subtotal completo; bono = subtotal − 3%
+        disc3pct = Math.floor(subtotalMostrar * 0.03 / 1000) * 1000;
+        // bonoDesc se calcula en el fallback abajo
+      } else if (giftInfo) {
+        // Mixto WOMPI_100+GIFT: usar giftInfo.monto (ya validado correctamente)
+        // — 3% se aplica sobre (subtotal − bono), NO sobre el subtotal completo
+        bonoDesc = Math.max(0, Math.round(giftInfo.monto || 0));
+        disc3pct = Math.max(0, descuentoTotal - bonoDesc);
+      } else {
+        // WOMPI_100 sin bono: todo el descuento guardado es el 3%
+        disc3pct = descuentoTotal;
+      }
+    } else if (giftInfo) {
+      // WOMPI_60+GIFT: bono sin 3% (desc. anticipado no aplica en anticipo 60%)
+      bonoDesc = Math.max(0, Math.round(giftInfo.monto || 0));
+    }
+    if (bonoDesc === 0 && giftInfo) {
+      // Fallback para tipo=TOTAL: bonoDesc = descuento − disc3
+      bonoDesc = descuentoTotal - disc3pct;
+    }
+    bonoDesc = Math.max(0, bonoDesc);
+    disc3pct = Math.max(0, disc3pct);
+
+    let bonoHTML = '';
+    if (giftInfo && bonoDesc > 0) {
+      const codigoLabel = giftInfo.codigo
+        ? `Gift Card <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>`
+        : 'Gift Card';
       bonoHTML = `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">
-            &#127873; Bono <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>
-          </td>
-          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">
-            − ${_fmtCOP(bonoDesc)}
-          </td>
-        </tr>`;
-    } else if (giftInfo && giftInfo.tipo === 'TOTAL') {
-      bonoDesc = _roundCOP(total);
-      bonoHTML = `
-        <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">&#127873; Pagado 100% con Gift Card</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">🎁 ${codigoLabel}</td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(bonoDesc)}</td>
         </tr>`;
     }
-
-    // Subtotal + bono + descuento pago anticipado + total pagado — todos redondeados a $1.000
-    const subtotalMostrar = _roundCOP(subtotal || total);
-    const totalRedondeado = _roundCOP(total);
-
-    // Línea descuento pago anticipado (3%) — solo si aplica
-    const descRedondeado = _roundCOP(descuento || 0);
-    const descHTML = descRedondeado > 0 ? `
+    const descHTML = disc3pct > 0 ? `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. Descuento pago anticipado</td>
-          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(descRedondeado)}</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. pago anticipado (3%)</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(disc3pct)}</td>
         </tr>` : '';
 
-    resumenHTML = `
+    // ── Total a pagar (subtotal − bono − 3%) ──────────────
+    // totalRedondeado = valor exacto cobrado por Wompi (no redondear — ya viene de _submitWompi)
+    // totalAPagar = recalculado para verificar coherencia; debe coincidir con totalRedondeado
+    const descRedondeado  = disc3pct;
+    const totalAPagar     = _roundCOP(subtotalMostrar - bonoDesc - disc3pct);
+    const totalRedondeado = Number(total) || 0;  // valor exacto, sin redondear
+
+    // ── Línea "Total a pagar" — solo si hay bono ───────────
+    const totalAPagarHTML = bonoDesc > 0 ? `
+        <tr style="border-top:1px solid #ddd">
+          <td style="padding:6px 8px;font-size:13px;color:#555">Total a pagar</td>
+          <td style="padding:6px 8px;font-size:13px;text-align:right;color:#1a1610">${_fmtCOP(totalAPagar)}</td>
+        </tr>` : '';
+
+    // ── Total pagado hoy ───────────────────────────────────
+    // totalRedondeado = total real registrado en Sheets = lo que cobró Wompi.
+    // Es la fuente de verdad — no recalcular desde totalAPagar para evitar
+    // diferencias de redondeo entre frontend y backend.
+    const pagadoLabel = pct === 60 ? `Total pagado hoy (60%)` : `Total pagado`;
+    const pagadoValor = totalRedondeado;
+
+    // ── Transacción ────────────────────────────────────────
+    const txLabel  = (giftInfo?.tipo === 'TOTAL') ? 'GIFT_CARD' : (txId || '—');
+    const txHTML   = `
+        <tr>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Transacción</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#888;font-size:12px">${txLabel}</td>
+        </tr>`;
+
+    // ── Saldo pendiente ────────────────────────────────────
+    const saldoPendiente = pct === 60 ? _roundCOP(totalAPagar * 0.4) : 0;
+    const saldoValor     = _fmtCOP(saldoPendiente);
+
+    // ── Aviso saldo 40% (solo pct=60) ─────────────────────
+    const saldoAvisoHTML = pct === 60 ? `
+      <div style="background:#fff8e6;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#7a5c00">Saldo pendiente (40%): ${saldoValor}</p>
+        <p style="margin:0;font-size:13px;color:#555">
+          Te avisaremos cuando tu pedido esté en tránsito desde Italia, con tiempo suficiente
+          para completar el pago sin incurrir en sobrecostos o penalidades.
+        </p>
+      </div>` : '';
+
+    const resumenHTML = `
       <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f5ee;border-radius:6px">
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">Subtotal</td>
-          <td style="padding:5px 8px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
+          <td style="padding:8px 8px 5px;font-size:13px;color:#555">Subtotal</td>
+          <td style="padding:8px 8px 5px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
         </tr>
         ${bonoHTML}
         ${descHTML}
+        ${totalAPagarHTML}
         <tr style="border-top:2px solid #C4A05A">
-          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">Total pagado</td>
-          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(totalRedondeado)}</td>
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">${pagadoLabel}</td>
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(pagadoValor)}</td>
+        </tr>
+        ${txHTML}
+        <tr>
+          <td style="padding:5px 8px 8px;font-size:13px;color:#555">Saldo pendiente</td>
+          <td style="padding:5px 8px 8px;font-size:13px;text-align:right;color:#555">${pct === 60 ? saldoValor : _fmtCOP(0)}</td>
         </tr>
       </table>`;
-
-    // ── Bloque saldo pendiente (solo pct=60) ────────────────
-    let saldoHTML = '';
-    const pct = Number(pctPagado) || 100;
-    if (pct === 60) {
-      const saldoPendiente = _roundCOP((subtotalMostrar - bonoDesc) * 0.4);
-      saldoHTML = `
-        <div style="background:#fff8e6;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0">
-          <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#7a5c00">Saldo pendiente: ${_fmtCOP(saldoPendiente)}</p>
-          <p style="margin:0;font-size:13px;color:#555">
-            Te avisaremos cuando tu pedido esté en tránsito desde Italia, con tiempo suficiente
-            para completar el pago sin incurrir en sobrecostos o penalidades.
-          </p>
-        </div>`;
-    }
 
     const body = _emailWrapper(nombre, `
       <p>¡Qué alegría! Tu pago ha sido confirmado exitosamente. Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${tablaProductos}
       ${resumenHTML}
-      ${saldoHTML}
+      ${saldoAvisoHTML}
       <p style="font-size:13px;color:#666;margin-top:16px">
         Te mantendremos informada sobre el estado de tu pedido en cada etapa del proceso.<br>
-        Si tienes alguna pregunta, escríbenos por 
+        Si tienes alguna pregunta, escríbenos por
         <a href="https://wa.me/${CFG.WHATSAPP}" style="color:#C4A05A">WhatsApp</a>, con mucho gusto te atendemos.
       </p>
     `);
@@ -1387,7 +1509,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
 
 function _emailPagoCancelado(email, nombre, ref, status) {
   try {
-    const subject = `&#10060; ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
+    const subject = `❌ ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
     const msgs = {
       'DECLINED' : 'Tu pago fue declinado por la entidad bancaria. Por favor verifica tus datos o intenta con otro medio de pago.',
       'VOIDED'   : 'Tu transacción fue anulada.',
@@ -1428,7 +1550,7 @@ function _instruccionesGiftHTML() {
 
 function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido) {
   try {
-    const subject = `&#127873; ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
+    const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
     const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
       <p>¡Tu Gift Card ha sido activada exitosamente y enviada a <strong>${destCompleto}</strong>! &#127881;</p>
@@ -1482,7 +1604,7 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
 }
 function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
-    const subject = `&#128203; ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! Helena o alguien de nuestro equipo se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1651,14 +1773,14 @@ function _emailWrapper(nombre, contenido) {
 function setupSheets() {
   const HEADERS = {
     [CFG.SHEETS.WISHLIST]: [
-      'Campaña_ID','Timestamp','Referencia','ClienteID',
+      'Campaña_ID','Catalogo_ID','Timestamp','Referencia','ClienteID',
       'Nombre','Apellido','Email','Teléfono',
       'Tipo_Doc','Num_Doc',
       'Dirección_Wishlist','Barrio_Wishlist','Ciudad_Wishlist','Notas',
       'Productos_JSON','Total_COP','Estado_Wishlist','Notas_internas',
     ],
     [CFG.SHEETS.PEDIDOS_WOMPI]: [
-      'Campaña_ID','Timestamp','Referencia',
+      'Campaña_ID','Catalogo_ID','Timestamp','Referencia',
       'Wompi_Transaction_ID','Estado_Pago_Wompi',
       'ClienteID','Nombre','Apellido','Email','Teléfono',
       'Tipo_Doc','Num_Doc',
@@ -1803,7 +1925,7 @@ function setupProtections() {
 
   // Pedidos_Wompi — cols calculadas
   _protectCols(CFG.SHEETS.PEDIDOS_WOMPI,
-    ['Campaña_ID','Timestamp','Referencia','Wompi_Transaction_ID',
+    ['Campaña_ID','Catalogo_ID','Timestamp','Referencia','Wompi_Transaction_ID',
      'Estado_Pago_Wompi','ClienteID','Subtotal_COP','Descuento_COP','Total_COP'],
     'Sistema IMOLARTE — no editar manualmente'
   );
