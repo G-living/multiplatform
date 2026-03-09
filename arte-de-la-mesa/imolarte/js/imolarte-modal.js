@@ -1979,6 +1979,9 @@ const Modal = (() => {
     // Botón Volver
     document.getElementById('giftBtnBack')?.addEventListener('click', () => {
       _giftShowStep(1);
+      // Pre-llenar el input de monto con el valor actual para que el usuario lo vea en step 1
+      const amountEl = document.getElementById('giftAmount');
+      if (amountEl && !amountEl.value && _giftValue) amountEl.value = _giftValue;
       setTimeout(() => _drawGiftCard(_giftValue), 60);
     });
 
