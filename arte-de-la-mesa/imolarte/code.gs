@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.06
+// IMOLARTE — Google Apps Script Backend v20.07
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -24,6 +24,11 @@
 // ─ v20.03: SpreadsheetApp.flush() incondicional en _confirmarPagoGiftCard
 // ─ v20.04: flush() MOVIDO al final de _createPedidoWompi y _createGiftCard (mismo scope de appendRow)
 // ─ v20.06: _createGiftCard con idempotencia — evita duplicados si se llama más de una vez
+// ─ v20.07: _confirmarPagoWompi lean path — eliminar stale-read de GAS
+//           Causa: getDataRange().getValues() devuelve datos pre-appendRow aunque
+//           se llame flush() en la misma ejecución. Fix: en lean path usar _leanRowNum
+//           para actualizar celdas directamente y pedidoPayload para email/upsertCliente,
+//           sin releer la hoja. Flujo estándar (sin pedidoPayload) sin cambios.
 //           BUG-1 fix definitivo: NOT_FOUND resuelto
 //           BUG-4 fix: catalogoId propagado en flujo lean de _confirmarPagoWompi
 // ============================================================
@@ -370,33 +375,78 @@ function _confirmarPagoWompi(b) {
   if (colRef < 0 || colPagoWP < 0 || colPedido < 0)
     return { ok: false, error: 'Columnas no encontradas en Pedidos_Wompi' };
 
-  // ── Localizar fila: si tenemos rowNum del lean flow, usarlo directamente.
-  // De lo contrario escanear toda la hoja (flujo estándar sin payload).
-  let _rowIdx = -1; // índice 0-based en `data`
-  let data;
-  if (_leanRowNum > 0) {
-    // Leer solo la fila específica — no depende de caché de la hoja completa
-    const rowValues = sheet.getRange(_leanRowNum, 1, 1, lastCol).getValues()[0];
-    if (String(rowValues[colRef]) === ref) {
-      // Simular el mismo acceso que el bucle for produce
-      data   = [header, rowValues];
-      _rowIdx = 1; // en data[], la fila es índice 1
-    }
-  }
-  if (_rowIdx < 0) {
-    // Fallback: leer toda la hoja (flujo sin payload o rowNum desconocido)
-    data = sheet.getDataRange().getValues();
-  }
-
-  for (let i = (_rowIdx >= 0 ? _rowIdx : 1); i < data.length; i++) {
-    if (data[i][colRef] !== ref) continue;
-
-    const rowNum1 = (_leanRowNum > 0 && i === _rowIdx) ? _leanRowNum : (i + 1);
-    sheet.getRange(rowNum1, colPagoWP + 1).setValue(status);
+  // ── Vía LEAN (pedidoPayload presente): actualizar celdas directamente ──
+  // v20.07 fix: getDataRange().getValues() puede devolver datos cacheados
+  // (pre-appendRow) incluso tras flush() — GAS stale-read bug.
+  // Solución: usar _leanRowNum para setValues directo + pedidoPayload para
+  // emails/upsert. Sin releer la hoja → sin stale-read.
+  if (_leanRowNum > 0 && b.pedidoPayload) {
+    const p          = b.pedidoPayload;
+    const cli        = p.cliente || {};
     const estadoPedido = status === 'APPROVED' ? 'CONFIRMADO'
       : (status === 'PENDING' ? 'PENDIENTE' : 'CANCELADO');
-    sheet.getRange(rowNum1, colPedido + 1).setValue(estadoPedido);
-    if (txId && colTxId >= 0) sheet.getRange(rowNum1, colTxId + 1).setValue(txId);
+
+    sheet.getRange(_leanRowNum, colPagoWP + 1).setValue(status);
+    sheet.getRange(_leanRowNum, colPedido  + 1).setValue(estadoPedido);
+    if (txId && colTxId >= 0) sheet.getRange(_leanRowNum, colTxId + 1).setValue(txId);
+
+    _log('confirmarPagoWompi', ref, status, estadoPedido);
+
+    const email      = cli.email       || '';
+    const nombre     = cli.nombre      || '';
+    const prods      = p.productos     || [];
+    const total      = p.total         || 0;
+    const subtotal   = p.subtotal      || 0;
+    const descuento  = p.descuento     || 0;
+    const formaPago  = String(p.formaPago || '');
+    const pctPagado  = Number(p.porcentajePagado) || 100;
+
+    // Extraer info del bono si aplica
+    // Forma_pago puede ser: GIFT_CARD | WOMPI_60+GIFT:HC-XXXXX | WOMPI_100+GIFT:HC-XXXXX
+    let giftInfo = null;
+    const giftMatch    = formaPago.match(/GIFT:([A-Z0-9-]+)/);
+    const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/);
+    if (giftMatch) {
+      const factorPct     = pctPagado === 100 ? 0.97 : (pctPagado / 100);
+      const montoGiftReal = _roundCOP(subtotal - total / factorPct);
+      giftInfo = { codigo: giftMatch[1], monto: montoGiftReal, tipo: 'MIXTO', montoWompi: total };
+    } else if (giftTotMatch) {
+      giftInfo = { codigo: giftTotMatch[1], monto: _roundCOP(subtotal), tipo: 'TOTAL' };
+    } else if (formaPago === 'GIFT_CARD') {
+      giftInfo = { codigo: '', monto: _roundCOP(subtotal), tipo: 'TOTAL' };
+    }
+
+    if (email) {
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId);
+      else if (['DECLINED','ERROR','VOIDED'].includes(status))
+        _emailPagoCancelado(email, nombre, ref, status);
+    }
+
+    const totalParaHistorico = _roundCOP(subtotal || total);
+    if (status === 'APPROVED' && totalParaHistorico > 0) {
+      const tel = _fmtTel(cli.codigoPais, cli.telefono);
+      const doc = { tipoDoc: cli.tipoDoc || '', numDoc: cli.numDoc || '' };
+      _upsertCliente({ telefono: tel, ...doc, total: totalParaHistorico,
+                       _pedidoRef: ref,
+                       _pedidoProds: prods,
+                       _pedidoTs: new Date() });
+    }
+
+    return { ok: true, referencia: ref, status, estadoPedido };
+  }
+
+  // ── Vía ESTÁNDAR (webhook Wompi sin payload): escanear toda la hoja ──
+  // En este caso el pedido fue creado en una llamada previa (no hay stale-read).
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][colRef] !== ref) continue;
+
+    sheet.getRange(i + 1, colPagoWP + 1).setValue(status);
+    const estadoPedido = status === 'APPROVED' ? 'CONFIRMADO'
+      : (status === 'PENDING' ? 'PENDIENTE' : 'CANCELADO');
+    sheet.getRange(i + 1, colPedido + 1).setValue(estadoPedido);
+    if (txId && colTxId >= 0) sheet.getRange(i + 1, colTxId + 1).setValue(txId);
 
     _log('confirmarPagoWompi', ref, status, estadoPedido);
 
@@ -412,23 +462,16 @@ function _confirmarPagoWompi(b) {
     // Extraer info del bono si aplica
     // Forma_pago puede ser: GIFT_CARD | WOMPI_60+GIFT:HC-XXXXX | WOMPI_100+GIFT:HC-XXXXX
     let giftInfo = null;
-    const giftMatch  = formaPago.match(/GIFT:([A-Z0-9-]+)/);   // WOMPI_xx+GIFT:HC-xxx
-    const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/); // GIFT_CARD:HC-xxx
+    const giftMatch  = formaPago.match(/GIFT:([A-Z0-9-]+)/);
+    const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/);
     if (giftMatch) {
-      // pago mixto wompi + gift
-      // Reconstruir monto del bono desde subtotal y total pagado:
-      //   pago 100%: total = (subtotal − bono) × 0.97  → bono = subtotal − total/0.97
-      //   pago 60% : total = (subtotal − bono) × 0.60  → bono = subtotal − total/0.60
-      //   (el 3% solo aplica en pago 100%)
       const factorPct   = pctPagado === 100 ? 0.97 : (pctPagado / 100);
       const montoGiftReal = _roundCOP(subtotal - total / factorPct);
       const montoWompi    = total;
       giftInfo = { codigo: giftMatch[1], monto: montoGiftReal, tipo: 'MIXTO', montoWompi };
     } else if (giftTotMatch) {
-      // pago 100% gift con código
       giftInfo = { codigo: giftTotMatch[1], monto: _roundCOP(subtotal), tipo: 'TOTAL' };
     } else if (formaPago === 'GIFT_CARD') {
-      // pago 100% gift sin código explícito (legacy)
       giftInfo = { codigo: '', monto: _roundCOP(subtotal), tipo: 'TOTAL' };
     }
 
@@ -439,7 +482,6 @@ function _confirmarPagoWompi(b) {
     }
 
     // En APPROVED: contar interacción + acumular total en una sola llamada
-    // _soloTotal omitido → _upsertCliente contará la interacción (pago real completado)
     // BUG-SHEET-02: usar subtotal (valor completo del pedido) no total (solo parte Wompi con bono)
     const totalParaHistorico = _roundCOP(subtotal || total);
     if (status === 'APPROVED' && totalParaHistorico > 0) {
