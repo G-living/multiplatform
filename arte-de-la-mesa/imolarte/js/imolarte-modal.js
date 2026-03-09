@@ -840,9 +840,10 @@ const Modal = (() => {
         : (place.formatted_address || '').split(',')[0].trim();
       input.value = dirFormatted;
 
-      // Auto-rellenar barrio solo si está vacío
+      // Siempre actualizar barrio y ciudad cuando el usuario elige una dirección de Places
+      // (sobreescribe el draft anterior — la elección explícita tiene prioridad)
       const barrioEl = document.getElementById(barrioInputId);
-      if (barrioEl && !barrioEl.value) {
+      if (barrioEl) {
         if (barrio) {
           barrioEl.value = barrio;
         } else {
@@ -851,9 +852,8 @@ const Modal = (() => {
         }
       }
 
-      // Auto-rellenar ciudad
       const ciudadEl = document.getElementById(ciudadInputId);
-      if (ciudadEl && ciudad && !ciudadEl.value) ciudadEl.value = ciudad;
+      if (ciudadEl && ciudad) ciudadEl.value = ciudad;
 
       Logger.log('Places→', dirFormatted, '|', barrio, '|', ciudad);
     });
@@ -1415,23 +1415,30 @@ const Modal = (() => {
     if (bonoLine) bonoLine.style.display = bonoDesc > 0 ? 'flex' : 'none';
     if (bonoVal)  bonoVal.textContent = '− ' + Utils.formatPrice(bonoDesc);
 
-    // Línea descuento 3% pago anticipado — visible solo cuando hay bono activo
-    // (sin bono el 3% ya está incluido en el label del botón 100%)
+    // Línea descuento 3% — mostrar ANTES del bono en el DOM (reordenar si necesario)
+    // Orden deseado: Subtotal → Dcto 3% → Bono Gift → Total
     const disc100Line  = document.getElementById('wpLineDisc100');
     const disc100Val   = document.getElementById('wpValDisc100');
+    const bonoLine3    = document.getElementById('wpLineBono');
     if (bonoDesc > 0 && disc100Line) {
       disc100Line.style.display = 'flex';
       if (disc100Val) disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
+      // Asegurar orden: disc100 aparece ANTES de bono en el DOM
+      if (bonoLine3 && disc100Line.parentNode === bonoLine3.parentNode) {
+        const parent = disc100Line.parentNode;
+        const bonoIdx = Array.from(parent.children).indexOf(bonoLine3);
+        const discIdx = Array.from(parent.children).indexOf(disc100Line);
+        if (discIdx > bonoIdx) parent.insertBefore(disc100Line, bonoLine3);
+      }
     } else if (disc100Line) {
       disc100Line.style.display = 'none';
     }
 
-    // Línea "Total a pagar" visible cuando hay bono (muestra base − 3% si aplica)
+    // Línea "Total a pagar" visible cuando hay bono
     const totalFinalLine = document.getElementById('wpLineTotalFinal');
     const totalFinalVal  = document.getElementById('wpValTotalFinal');
     if (bonoDesc > 0) {
       if (totalFinalLine) totalFinalLine.style.display = 'flex';
-      // Mostrar pay100 (base − 3%) como referencia del total más bajo posible
       if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(pay100);
     } else {
       if (totalFinalLine) totalFinalLine.style.display = 'none';
@@ -1627,9 +1634,10 @@ const Modal = (() => {
     } catch(err) { Logger.warn('modal.js: error confirmando pedido gift', err); }
 
     // 4. Vaciar carrito y redirigir a checkout con estado aprobado
+    // isGiftCard=1 → checkout.js no hace segunda llamada a confirmarPagoWompi
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
     Logger.log('modal.js: compra con gift card confirmada', reference);
-    window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED`;
+    window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED&isGiftCard=1`;
   }
 
 
@@ -2272,9 +2280,19 @@ const Modal = (() => {
     Logger.log('modal.js inicializado ✓');
   }
 
+  // Restaura el paso 2 del Gift modal después de volver de Wompi sin pagar
+  // El formulario queda intacto (el draft lo preserva), solo restaura el botón
+  function restoreGiftStep2() {
+    _giftShowStep(2);
+    _openModal('modalGift');
+    const btn = document.getElementById('giftBtnPagar');
+    if (btn) { btn.disabled = false; btn.textContent = 'Pagar con Wompi'; }
+  }
+
   return {
     init,
     resetState,
+    restoreGiftStep2,
     openProduct,
     openFamily,
     openZoom,
@@ -2290,6 +2308,13 @@ const Modal = (() => {
 // ===== BOOTSTRAP =====
 document.addEventListener('DOMContentLoaded', () => {
   Modal.init();
+  // Si viene de checkout con pago Gift Card fallido → reabrir paso 2 directamente
+  try {
+    if (new URLSearchParams(window.location.search).get('retryGift') === '1') {
+      window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(() => Modal.restoreGiftStep2(), 300);
+    }
+  } catch(e) {}
 });
 
 // Detectar vuelta desde Wompi vía bfcache (back/forward cache)
@@ -2299,11 +2324,11 @@ window.addEventListener('pageshow', (e) => {
   try {
     const giftRef = sessionStorage.getItem('imolarte_gift_redirect');
     if (giftRef) {
-      // Usuario volvió de Wompi sin pagar la Gift Card — reabrir modal Gift
+      // Usuario volvió de Wompi sin pagar — volver al paso 2 con formulario intacto
       sessionStorage.removeItem('imolarte_gift_redirect');
       setTimeout(() => {
         Modal.resetState();
-        Modal.openGift(); // reabre el modal de compra de gift card
+        Modal.restoreGiftStep2(); // restaura paso 2 con botón activo
       }, 150);
       return;
     }

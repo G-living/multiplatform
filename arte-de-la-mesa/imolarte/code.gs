@@ -1365,11 +1365,41 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
     const pct             = Number(pctPagado) || 100;
     const subtotalMostrar = _roundCOP(subtotal || total);
 
-    // ── Bono Gift Card ──────────────────────────────────────
+    // ── Descuento 3% y bono — reconstruir desde `descuento` (fuente de verdad Sheets) ──
+    // descuento guardado en Sheets = bono + disc3 (en todos los flujos)
+    // disc3 = floor(base * 0.03 / 1000) * 1000  (misma fórmula que modal.js)
+    // bono  = descuento − disc3
+    const descuentoTotal = Number(descuento) || 0;
+
+    let disc3pct = 0;
     let bonoDesc = 0;
+    if (pct === 100) {
+      if (giftInfo?.tipo === 'TOTAL') {
+        // Gift Card total: base del 3% es el subtotal completo
+        disc3pct = Math.floor(subtotalMostrar * 0.03 / 1000) * 1000;
+      } else if (giftInfo) {
+        // Mixto Wompi+bono: base del 3% es (subtotal − bono)
+        // bono = descuentoTotal − disc3  → resolvemos:
+        // disc3 = floor((subtotal − bono) * 0.03 / 1000)*1000
+        // bono  = descuentoTotal − disc3
+        // Iteramos una vez para estabilizar (convergencia inmediata con floor)
+        let bonoEst = 0;
+        for (let iter = 0; iter < 3; iter++) {
+          const d = Math.floor((subtotalMostrar - bonoEst) * 0.03 / 1000) * 1000;
+          bonoEst = descuentoTotal - d;
+        }
+        disc3pct = descuentoTotal - bonoEst;
+        bonoDesc = bonoEst;
+      }
+    }
+    if (bonoDesc === 0 && giftInfo) {
+      bonoDesc = descuentoTotal - disc3pct;
+    }
+    bonoDesc = Math.max(0, bonoDesc);
+    disc3pct = Math.max(0, disc3pct);
+
     let bonoHTML = '';
-    if (giftInfo) {
-      bonoDesc = _roundCOP(giftInfo.monto || 0);
+    if (giftInfo && bonoDesc > 0) {
       const codigoLabel = giftInfo.codigo
         ? `Gift Card <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>`
         : 'Gift Card';
@@ -1379,14 +1409,6 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(bonoDesc)}</td>
         </tr>`;
     }
-
-    // ── Descuento 3% pago anticipado (solo Wompi 100%) ─────
-    // Se recalcula desde base (subtotal − bono) para no mezclar con el bono.
-    // El campo Descuento_COP en Sheets = bono + 3%, no solo el 3%.
-    const base3pct       = subtotalMostrar - bonoDesc;
-    const disc3pct       = (pct === 100 && giftInfo?.tipo !== 'TOTAL' && base3pct > 0)
-                           ? _roundCOP(base3pct * 0.03)
-                           : 0;
     const descHTML = disc3pct > 0 ? `
         <tr>
           <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. pago anticipado (3%)</td>

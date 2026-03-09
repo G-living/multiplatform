@@ -19,11 +19,20 @@
 
 'use strict';
 
+// Leer params INMEDIATAMENTE — antes de DOMContentLoaded
+// cart.js._checkPostPayment() corre en su propio DOMContentLoaded y limpia
+// la URL con replaceState(); si leemos dentro de DOMContentLoaded llegamos tarde.
+const _checkoutParams    = new URLSearchParams(window.location.search);
+const _checkoutStatus    = _checkoutParams.get('transaction_status') || _checkoutParams.get('status');
+const _checkoutReference = _checkoutParams.get('reference');
+const _checkoutTxId      = _checkoutParams.get('id') || _checkoutParams.get('transaction_id') || '';
+const _checkoutIsGift    = _checkoutParams.get('isGiftCard') === '1';
+
 document.addEventListener('DOMContentLoaded', () => {
-  const params    = new URLSearchParams(window.location.search);
-  const status    = params.get('transaction_status') || params.get('status');
-  const reference = params.get('reference');
-  const txId      = params.get('id') || params.get('transaction_id') || '';
+  const params    = _checkoutParams;
+  const status    = _checkoutStatus;
+  const reference = _checkoutReference;
+  const txId      = _checkoutTxId;
 
   const closeBtn = document.getElementById('confirmClose');
   if (closeBtn) {
@@ -36,16 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sin parámetros → index
   if (!status && !txId) { window.location.replace('imolarte-index.html'); return; }
 
+  const isGiftCard = _checkoutIsGift;
+
   if (status) {
-    _handleStatus(status, reference, txId);
+    _handleStatus(status, reference, txId, isGiftCard);
     return;
   }
 
   // Solo txId (sandbox sin transaction_status) → consultar Wompi
   _fetchTransactionStatus(txId).then(tx => {
-    _handleStatus(tx.status, tx.reference || reference, txId);
+    _handleStatus(tx.status, tx.reference || reference, txId, isGiftCard);
   }).catch(() => {
-    _handleStatus('UNKNOWN', reference, txId);
+    _handleStatus('UNKNOWN', reference, txId, isGiftCard);
   });
 });
 
@@ -66,7 +77,7 @@ async function _fetchTransactionStatus(txId) {
 }
 
 // ── Muestra UI y notifica Sheets ─────────────────────────────
-function _handleStatus(status, reference, txId) {
+function _handleStatus(status, reference, txId, isGiftCard) {
   const iconEl    = document.getElementById('confirmIcon');
   const titleEl   = document.getElementById('confirmTitle');
   const msgEl     = document.getElementById('confirmMessage');
@@ -90,6 +101,22 @@ function _handleStatus(status, reference, txId) {
     // Vaciar carrito
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
 
+    if (isGiftCard) {
+      // ── Flujo B: Gift Card total ───────────────────────────
+      // modal.js ya hizo create + redeem + confirm + email antes del redirect.
+      // Solo mostramos pantalla de agradecimiento específica para Gift Card.
+      setContent(
+        '🎁', '¡Regalo confirmado!',
+        `Tu Gift Card ha sido procesada exitosamente.<br><br>
+         En los próximos minutos recibirás un <strong>email de confirmación</strong>
+         con todos los detalles.<br><br>
+         El destinatario también recibirá su código de regalo por email y WhatsApp.`,
+        reference, btnCatalogo, 'confirm-title--success'
+      );
+      return;
+    }
+
+    // ── Flujo A / C: Wompi ───────────────────────────────────
     setContent(
       '🏺', '¡Gracias por tu compra!',
       `Tu pago fue confirmado exitosamente.<br><br>
@@ -100,8 +127,6 @@ function _handleStatus(status, reference, txId) {
     );
 
     // Leer payload guardado por modal.js antes del redirect a Wompi.
-    // sessionStorage es primario; localStorage es backup (el redirect
-    // cross-origin de Wompi puede limpiar sessionStorage en algunos browsers).
     let pedidoPayload = null;
     try {
       const raw = sessionStorage.getItem('imolarte_pending_pedido')
@@ -109,14 +134,12 @@ function _handleStatus(status, reference, txId) {
       if (raw) pedidoPayload = JSON.parse(raw);
     } catch(e) { console.warn('checkout.js: error leyendo payload', e); }
 
-    // Limpiar siempre ambos storages — independientemente de si había payload
+    // Limpiar siempre ambos storages
     try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
     try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
 
     if (pedidoPayload && pedidoPayload.referencia === reference) {
       // ── Flujo A: Wompi (con o sin bono) ──────────────────────
-      // Una sola llamada HTTP con el payload completo.
-      // code.gs hace create + redeem + confirm + email en servidor.
       Api.confirmarPagoWompi(reference, status, txId, {
         campaniaId:       pedidoPayload.campaniaId       || '',
         cliente:          pedidoPayload.cliente,
@@ -131,22 +154,30 @@ function _handleStatus(status, reference, txId) {
       }).catch(err => console.warn('checkout.js: error confirmarPagoWompi', err));
 
     } else if (txId) {
-      // ── Flujo C: fallback — no hay payload pero hay txId ─────
+      // ── Flujo C: fallback ─────────────────────────────────────
       Api.confirmarPagoWompi(reference, status, txId)
         .catch(err => console.warn('checkout.js: fallback confirmarPagoWompi', err));
     }
-    // ── Flujo B: Gift Card total ──────────────────────────────
-    // modal.js ya hizo create + redeem + confirm antes del redirect.
-    // No hay payload ni txId → solo mostrar pantalla (ya hecho arriba).
 
   } else if (status === 'DECLINED' || status === 'ERROR') {
-    setContent(
-      '✗', 'Pago no procesado',
-      `Tu pago no pudo completarse en este momento.<br><br>
-       Puedes intentarlo nuevamente — tus productos siguen disponibles.<br>
-       Si el problema persiste escríbenos al WhatsApp.`,
-      reference, btnReintentar, 'confirm-title--error'
-    );
+    if (isGiftCard) {
+      // Gift Card: ofrecer reintentar desde el formulario (paso 2 intacto)
+      const btnRetryGift = `<a href="imolarte-index.html?retryGift=1" class="btn btn-primary">Reintentar pago</a>`;
+      setContent(
+        '✗', 'Pago no completado',
+        `Tu pago no pudo procesarse, pero tu Gift Card está reservada.<br><br>
+         Puedes intentarlo nuevamente — el formulario quedará pre-cargado.`,
+        reference, btnRetryGift, 'confirm-title--error'
+      );
+    } else {
+      setContent(
+        '✗', 'Pago no procesado',
+        `Tu pago no pudo completarse en este momento.<br><br>
+         Puedes intentarlo nuevamente — tus productos siguen disponibles.<br>
+         Si el problema persiste escríbenos al WhatsApp.`,
+        reference, btnReintentar, 'confirm-title--error'
+      );
+    }
 
   } else if (status === 'PENDING') {
     setContent(
