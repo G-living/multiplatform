@@ -43,6 +43,11 @@ const IMOLARTE_CONFIG = {
 
   // Cart
   // Campaña activa — actualizar por catálogo/temporada
+  // Identificador de catálogo — usado para diferenciar pedidos en Sheets al clonar
+  catalogo: {
+    id: 'IMOLARTE',
+  },
+
   campania: {
     id: 'IMOLARTE-PRESALE-MARZO2026',
     descuentoPct: 0,      // se carga dinámicamente desde Sheets al init

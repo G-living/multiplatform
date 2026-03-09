@@ -160,25 +160,27 @@ function _createWishlist(b) {
     ciudad    : ent.ciudad    || '',
   }).clienteId;
 
+  const catalogoId = b.catalogoId || '';
   sheet.appendRow([
     campania,                            // A  Campaña_ID
-    ts,                                  // B  Timestamp
-    ref,                                 // C  Referencia
-    cliId,                               // D  ClienteID
-    cli.nombre    || '',                 // E  Nombre
-    cli.apellido  || '',                 // F  Apellido
-    cli.email     || '',                 // G  Email
-    tel,                                 // H  Teléfono
-    cli.tipoDoc   || '',                 // I  Tipo_Doc
-    cli.numDoc    || '',                 // J  Num_Doc
-    ent.direccion || '',                 // K  Dirección_Wishlist
-    ent.barrio    || '',                 // L  Barrio_Wishlist
-    ent.ciudad    || '',                 // M  Ciudad_Wishlist
-    ent.notas     || '',                 // N  Notas
-    JSON.stringify(b.productos || []),   // O  Productos_JSON
-    b.total       || 0,                  // P  Total_COP
-    'PENDIENTE',                         // Q  Estado_Wishlist
-    '',                                  // R  Notas_internas
+    catalogoId,                          // B  Catalogo_ID
+    ts,                                  // C  Timestamp
+    ref,                                 // D  Referencia
+    cliId,                               // E  ClienteID
+    cli.nombre    || '',                 // F  Nombre
+    cli.apellido  || '',                 // G  Apellido
+    cli.email     || '',                 // H  Email
+    tel,                                 // I  Teléfono
+    cli.tipoDoc   || '',                 // J  Tipo_Doc
+    cli.numDoc    || '',                 // K  Num_Doc
+    ent.direccion || '',                 // L  Dirección_Wishlist
+    ent.barrio    || '',                 // M  Barrio_Wishlist
+    ent.ciudad    || '',                 // N  Ciudad_Wishlist
+    ent.notas     || '',                 // O  Notas
+    JSON.stringify(b.productos || []),   // P  Productos_JSON
+    b.total       || 0,                  // Q  Total_COP
+    'PENDIENTE',                         // R  Estado_Wishlist
+    '',                                  // S  Notas_internas
   ]);
 
   _log('createWishlist', ref, cliId, 'OK');
@@ -269,35 +271,37 @@ function _createPedidoWompi(b) {
     _soloTotal: true,   // no contar interacción — se cuenta solo en APPROVED
   }).clienteId;
 
+  const catalogoId = b.catalogoId || '';
   sheet.appendRow([
     campania,                            // A  Campaña_ID
-    ts,                                  // B  Timestamp
-    ref,                                 // C  Referencia
-    b.wompiTransactionId || '',          // D  Wompi_Transaction_ID
-    'PENDING',                           // E  Estado_Pago_Wompi
-    cliId,                               // F  ClienteID
-    cli.nombre    || '',                 // G  Nombre
-    cli.apellido  || '',                 // H  Apellido
-    cli.email     || '',                 // I  Email
-    tel,                                 // J  Teléfono
-    cli.tipoDoc   || '',                 // K  Tipo_Doc
-    cli.numDoc    || '',                 // L  Num_Doc
-    ent.direccion || '',                 // M  Dirección
-    ent.barrio    || '',                 // N  Barrio
-    ent.ciudad    || '',                 // O  Ciudad
-    ent.notas     || '',                 // P  Notas_entrega
-    JSON.stringify(b.productos || []),   // Q  Productos_JSON
-    b.subtotal    || 0,                  // R  Subtotal_COP
-    b.descuento   || 0,                  // S  Descuento_COP
-    b.total       || 0,                  // T  Total_COP
-    b.porcentajePagado || 100,           // U  Pct_Pagado
-    b.formaPago   || 'WOMPI_100',        // V  Forma_pago
+    catalogoId,                          // B  Catalogo_ID
+    ts,                                  // C  Timestamp
+    ref,                                 // D  Referencia
+    b.wompiTransactionId || '',          // E  Wompi_Transaction_ID
+    'PENDING',                           // F  Estado_Pago_Wompi
+    cliId,                               // G  ClienteID
+    cli.nombre    || '',                 // H  Nombre
+    cli.apellido  || '',                 // I  Apellido
+    cli.email     || '',                 // J  Email
+    tel,                                 // K  Teléfono
+    cli.tipoDoc   || '',                 // L  Tipo_Doc
+    cli.numDoc    || '',                 // M  Num_Doc
+    ent.direccion || '',                 // N  Dirección
+    ent.barrio    || '',                 // O  Barrio
+    ent.ciudad    || '',                 // P  Ciudad
+    ent.notas     || '',                 // Q  Notas_entrega
+    JSON.stringify(b.productos || []),   // R  Productos_JSON
+    b.subtotal    || 0,                  // S  Subtotal_COP
+    b.descuento   || 0,                  // T  Descuento_COP
+    b.total       || 0,                  // U  Total_COP
+    b.porcentajePagado || 100,           // V  Pct_Pagado
+    b.formaPago   || 'WOMPI_100',        // W  Forma_pago
     // Saldo pendiente: total × (1 - pct/100), 0 si pago completo o gift
-    _roundCOP((b.total || 0) * (1 - ((b.porcentajePagado || 100) / 100))), // W Saldo_Pendiente_COP
-    'PENDIENTE',                         // X  Estado_Pedido
-    '',                                  // Y  Fecha_despacho
-    '',                                  // Z  Notas_internas
-    '',                                  // AA SIIGO_Factura_ID
+    _roundCOP((b.total || 0) * (1 - ((b.porcentajePagado || 100) / 100))), // X  Saldo_Pendiente_COP
+    'PENDIENTE',                         // Y  Estado_Pedido
+    '',                                  // Z  Fecha_despacho
+    '',                                  // AA Notas_internas
+    '',                                  // AB SIIGO_Factura_ID
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
@@ -1761,14 +1765,14 @@ function _emailWrapper(nombre, contenido) {
 function setupSheets() {
   const HEADERS = {
     [CFG.SHEETS.WISHLIST]: [
-      'Campaña_ID','Timestamp','Referencia','ClienteID',
+      'Campaña_ID','Catalogo_ID','Timestamp','Referencia','ClienteID',
       'Nombre','Apellido','Email','Teléfono',
       'Tipo_Doc','Num_Doc',
       'Dirección_Wishlist','Barrio_Wishlist','Ciudad_Wishlist','Notas',
       'Productos_JSON','Total_COP','Estado_Wishlist','Notas_internas',
     ],
     [CFG.SHEETS.PEDIDOS_WOMPI]: [
-      'Campaña_ID','Timestamp','Referencia',
+      'Campaña_ID','Catalogo_ID','Timestamp','Referencia',
       'Wompi_Transaction_ID','Estado_Pago_Wompi',
       'ClienteID','Nombre','Apellido','Email','Teléfono',
       'Tipo_Doc','Num_Doc',
@@ -1913,7 +1917,7 @@ function setupProtections() {
 
   // Pedidos_Wompi — cols calculadas
   _protectCols(CFG.SHEETS.PEDIDOS_WOMPI,
-    ['Campaña_ID','Timestamp','Referencia','Wompi_Transaction_ID',
+    ['Campaña_ID','Catalogo_ID','Timestamp','Referencia','Wompi_Transaction_ID',
      'Estado_Pago_Wompi','ClienteID','Subtotal_COP','Descuento_COP','Total_COP'],
     'Sistema IMOLARTE — no editar manualmente'
   );

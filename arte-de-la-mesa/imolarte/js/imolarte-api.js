@@ -88,12 +88,17 @@ const Api = (() => {
     return IMOLARTE_CONFIG?.campania?.id || '';
   }
 
+  function _catalogoId() {
+    return IMOLARTE_CONFIG?.catalogo?.id || '';
+  }
+
   // ── WISHLIST ──────────────────────────────────────────────────
 
   async function createWishlist(data, items, totales) {
     const result = await _post({
       action:     'createWishlist',
-      campaniaId: _campaniaId(),
+      campaniaId:  _campaniaId(),
+      catalogoId:  _catalogoId(),
       cliente:    data.cliente,
       entrega:    data.entrega,
       productos:  _mapProductos(items),
@@ -119,6 +124,7 @@ const Api = (() => {
     const result = await _post({
       action:             'createPedidoWompi',
       campaniaId:         _campaniaId(),
+      catalogoId:         _catalogoId(),
       cliente:            data.cliente,
       entrega:            data.entrega,
       formaPago:          totales.formaPago       || 'WOMPI_100',
