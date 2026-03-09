@@ -310,6 +310,37 @@ function _createPedidoWompi(b) {
 }
 
 function _confirmarPagoWompi(b) {
+  const d      = b.data || {};
+  const ref    = b.referencia    || d.pedidoId      || '';
+  const status = b.status        || d.paymentStatus  || 'APPROVED';
+  const txId   = b.transactionId || d.transactionId  || '';
+
+  if (!ref) return { ok: false, error: 'Referencia requerida' };
+
+  // ── Flujo lean: si viene pedidoPayload, hacer create+redeem en servidor ──
+  // Una sola llamada HTTP desde el browser — sin riesgo de cancelación.
+  if (b.pedidoPayload && status === 'APPROVED') {
+    const p = b.pedidoPayload;
+    // 1. Crear pedido (idempotente — si ya existe, no duplica)
+    _createPedidoWompi({
+      campaniaId:       p.campaniaId       || '',
+      cliente:          p.cliente          || {},
+      entrega:          p.entrega          || {},
+      productos:        p.productos        || [],
+      formaPago:        p.formaPago        || 'WOMPI_100',
+      subtotal:         p.subtotal         || 0,
+      descuento:        p.descuento        || 0,
+      total:            p.total            || 0,
+      porcentajePagado: p.porcentajePagado || 100,
+      referencia:       ref,
+      _skipEmail:       true,
+    });
+    // 2. Redimir bono si aplica
+    if (p.bono && p.bono.code && p.bono.monto > 0) {
+      _redeemDono({ code: p.bono.code, amount: p.bono.monto, referencia: ref });
+    }
+  }
+
   const sheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
@@ -319,12 +350,6 @@ function _confirmarPagoWompi(b) {
   const colPedido = header.indexOf('Estado_Pedido');
   const colTxId   = header.indexOf('Wompi_Transaction_ID');
 
-  const d      = b.data || {};
-  const ref    = b.referencia    || d.pedidoId      || '';
-  const status = b.status        || d.paymentStatus  || 'APPROVED';
-  const txId   = b.transactionId || d.transactionId  || '';
-
-  if (!ref) return { ok: false, error: 'Referencia requerida' };
   if (colRef < 0 || colPagoWP < 0 || colPedido < 0)
     return { ok: false, error: 'Columnas no encontradas en Pedidos_Wompi' };
 
@@ -355,11 +380,14 @@ function _confirmarPagoWompi(b) {
     const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/); // GIFT_CARD:HC-xxx
     if (giftMatch) {
       // pago mixto wompi + gift
-      const montoWompi = total * (pctPagado / 100);
-      const montoGift  = subtotal - montoWompi - _roundCOP((subtotal - (data[i][header.indexOf('Descuento_COP')] || 0)) * 0);
-      // montoGift = descuento registrado en Sheets
-      const montoGiftReal = data[i][header.indexOf('Descuento_COP')] || (subtotal - total);
-      giftInfo = { codigo: giftMatch[1], monto: _roundCOP(montoGiftReal), tipo: 'MIXTO', montoWompi };
+      // Reconstruir monto del bono desde subtotal y total pagado:
+      //   pago 100%: total = (subtotal − bono) × 0.97  → bono = subtotal − total/0.97
+      //   pago 60% : total = (subtotal − bono) × 0.60  → bono = subtotal − total/0.60
+      //   (el 3% solo aplica en pago 100%)
+      const factorPct   = pctPagado === 100 ? 0.97 : (pctPagado / 100);
+      const montoGiftReal = _roundCOP(subtotal - total / factorPct);
+      const montoWompi    = total;
+      giftInfo = { codigo: giftMatch[1], monto: montoGiftReal, tipo: 'MIXTO', montoWompi };
     } else if (giftTotMatch) {
       // pago 100% gift con código
       giftInfo = { codigo: giftTotMatch[1], monto: _roundCOP(subtotal), tipo: 'TOTAL' };
@@ -1340,15 +1368,21 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
     }
 
     // ── Descuento 3% pago anticipado (solo Wompi 100%) ─────
-    const descRedondeado = _roundCOP(descuento || 0);
-    const descHTML = (descRedondeado > 0 && pct === 100 && giftInfo?.tipo !== 'TOTAL') ? `
+    // Se recalcula desde base (subtotal − bono) para no mezclar con el bono.
+    // El campo Descuento_COP en Sheets = bono + 3%, no solo el 3%.
+    const base3pct       = subtotalMostrar - bonoDesc;
+    const disc3pct       = (pct === 100 && giftInfo?.tipo !== 'TOTAL' && base3pct > 0)
+                           ? _roundCOP(base3pct * 0.03)
+                           : 0;
+    const descHTML = disc3pct > 0 ? `
         <tr>
           <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. pago anticipado (3%)</td>
-          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(descRedondeado)}</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(disc3pct)}</td>
         </tr>` : '';
 
-    // ── Total a pagar (subtotal − bono − descuento) ────────
-    const totalAPagar    = _roundCOP(subtotalMostrar - bonoDesc - descRedondeado);
+    // ── Total a pagar (subtotal − bono − 3%) ──────────────
+    const descRedondeado = disc3pct; // alias para compatibilidad con líneas siguientes
+    const totalAPagar    = _roundCOP(subtotalMostrar - bonoDesc - disc3pct);
     const totalRedondeado = _roundCOP(total);
 
     // ── Línea "Total a pagar" — solo si hay bono ───────────
@@ -1359,8 +1393,11 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
         </tr>` : '';
 
     // ── Total pagado hoy ───────────────────────────────────
+    // totalRedondeado = total real registrado en Sheets = lo que cobró Wompi.
+    // Es la fuente de verdad — no recalcular desde totalAPagar para evitar
+    // diferencias de redondeo entre frontend y backend.
     const pagadoLabel = pct === 60 ? `Total pagado hoy (60%)` : `Total pagado`;
-    const pagadoValor = pct === 60 ? _roundCOP(totalAPagar * 0.6) : totalRedondeado;
+    const pagadoValor = totalRedondeado;
 
     // ── Transacción ────────────────────────────────────────
     const txLabel  = (giftInfo?.tipo === 'TOTAL') ? 'GIFT_CARD' : (txId || '—');

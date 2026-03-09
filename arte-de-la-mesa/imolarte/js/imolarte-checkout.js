@@ -1,8 +1,20 @@
-/* ===== IMOLARTE V2 - checkout.js =====
- * Maneja confirmación post-Wompi.
- * FIX v3: Wompi sandbox envía ?id=...&env=test sin transaction_status.
- *   Se consulta estado via API Wompi si no viene en URL.
- *   Usa Api.confirmarPagoWompi() → api.js → Apps Script (coherente).
+/* ===== IMOLARTE — checkout.js v2.2 =====
+ * Maneja confirmación post-Wompi y post-GiftCard.
+ *
+ * Arquitectura lean (v2.2):
+ *   Una sola llamada HTTP a confirmarPagoWompi con el pedidoPayload
+ *   completo. code.gs hace create + redeem + confirm + email en el
+ *   servidor — atómico, sin riesgo de cancelación del browser.
+ *
+ * Flujos:
+ *   A) Wompi (60% o 100%, con o sin bono parcial):
+ *      Lee pedidoPayload de localStorage/sessionStorage.
+ *      → confirmarPagoWompi(ref, status, txId, payload)
+ *   B) Gift Card total:
+ *      modal.js ya procesó todo antes del redirect.
+ *      → solo mostrar pantalla de agradecimiento.
+ *   C) Fallback (no hay payload, solo txId):
+ *      → confirmarPagoWompi(ref, status, txId)  sin payload
  * =========================================== */
 
 'use strict';
@@ -21,16 +33,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Limpiar URL sin recargar
   window.history.replaceState({}, '', window.location.pathname);
 
-  // Sin parámetros de Wompi → index
+  // Sin parámetros → index
   if (!status && !txId) { window.location.replace('imolarte-index.html'); return; }
 
-  // Si viene status en URL → procesar directo
   if (status) {
     _handleStatus(status, reference, txId);
     return;
   }
 
-  // Solo viene txId (caso sandbox) → consultar estado a Wompi
+  // Solo txId (sandbox sin transaction_status) → consultar Wompi
   _fetchTransactionStatus(txId).then(tx => {
     _handleStatus(tx.status, tx.reference || reference, txId);
   }).catch(() => {
@@ -38,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ── Consulta estado a Wompi API ──────────────────────────────
+// ── Consulta estado a Wompi API (sandbox) ───────────────────
 async function _fetchTransactionStatus(txId) {
   try {
     const resp = await fetch(`https://api-sandbox.wompi.co/v1/transactions/${txId}`);
@@ -54,7 +65,7 @@ async function _fetchTransactionStatus(txId) {
   }
 }
 
-// ── Muestra UI según estado y notifica Sheets ────────────────
+// ── Muestra UI y notifica Sheets ─────────────────────────────
 function _handleStatus(status, reference, txId) {
   const iconEl    = document.getElementById('confirmIcon');
   const titleEl   = document.getElementById('confirmTitle');
@@ -76,7 +87,7 @@ function _handleStatus(status, reference, txId) {
   const btnReintentar = '<a href="imolarte-index.html" class="btn btn-secondary">Volver al catálogo</a>';
 
   if (status === 'APPROVED') {
-    // Vaciar carrito en pago exitoso
+    // Vaciar carrito
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
 
     setContent(
@@ -88,64 +99,45 @@ function _handleStatus(status, reference, txId) {
       reference, btnCatalogo, 'confirm-title--success'
     );
 
-    // Recuperar payload guardado por modal.js antes de redirigir a Wompi.
-    // Se guarda en sessionStorage (primario) y localStorage (backup).
-    // El redirect cross-origin de Wompi puede limpiar sessionStorage — en ese caso
-    // se usa localStorage. Ambos se borran después de leer para evitar reutilización.
+    // Leer payload guardado por modal.js antes del redirect a Wompi.
+    // sessionStorage es primario; localStorage es backup (el redirect
+    // cross-origin de Wompi puede limpiar sessionStorage en algunos browsers).
     let pedidoPayload = null;
     try {
-      const rawSession = sessionStorage.getItem('imolarte_pending_pedido');
-      const rawLocal   = localStorage.getItem('imolarte_pending_pedido');
-      const raw = rawSession || rawLocal;
-      if (raw) {
-        pedidoPayload = JSON.parse(raw);
-      }
+      const raw = sessionStorage.getItem('imolarte_pending_pedido')
+               || localStorage.getItem('imolarte_pending_pedido');
+      if (raw) pedidoPayload = JSON.parse(raw);
     } catch(e) { console.warn('checkout.js: error leyendo payload', e); }
-    // Limpiar ambos storages siempre — independientemente de si había payload
+
+    // Limpiar siempre ambos storages — independientemente de si había payload
     try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
     try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
 
     if (pedidoPayload && pedidoPayload.referencia === reference) {
-      // ── Flujo Wompi (60% o 100%, con o sin bono parcial) ──────────
-      // Secuencia encadenada con await para garantizar que todas las
-      // llamadas HTTP completan antes de que el browser descargue la página.
-      (async () => {
-        try {
-          await Api.createPedidoWompi(
-            { cliente: pedidoPayload.cliente, entrega: pedidoPayload.entrega },
-            pedidoPayload.productos,
-            {
-              formaPago:        pedidoPayload.formaPago,
-              subtotal:         pedidoPayload.subtotal,
-              descuento:        pedidoPayload.descuento,
-              total:            pedidoPayload.total,
-              porcentajePagado: pedidoPayload.porcentajePagado,
-              referencia:       reference,
-              campaniaId:       pedidoPayload.campaniaId || '',
-              _skipEmail:       true,
-            }
-          );
-        } catch(err) {
-          console.warn('checkout.js: error createPedidoWompi', err);
-        }
-        // Redimir bono si aplica — await para que no se pierda
-        if (pedidoPayload.bono?.code) {
-          try { await Api.redeemDono(pedidoPayload.bono.code, pedidoPayload.bono.monto, reference); }
-          catch(err) { console.warn('checkout.js: error redeemDono', err); }
-        }
-        // Confirmar pago — await garantiza que llega a Sheets antes de cualquier navegación
-        try { await Api.confirmarPagoWompi(reference, status, txId); }
-        catch(err) { console.warn('checkout.js: error confirmarPagoWompi', err); }
-      })();
+      // ── Flujo A: Wompi (con o sin bono) ──────────────────────
+      // Una sola llamada HTTP con el payload completo.
+      // code.gs hace create + redeem + confirm + email en servidor.
+      Api.confirmarPagoWompi(reference, status, txId, {
+        campaniaId:       pedidoPayload.campaniaId       || '',
+        cliente:          pedidoPayload.cliente,
+        entrega:          pedidoPayload.entrega,
+        productos:        pedidoPayload.productos,
+        formaPago:        pedidoPayload.formaPago,
+        subtotal:         pedidoPayload.subtotal,
+        descuento:        pedidoPayload.descuento,
+        total:            pedidoPayload.total,
+        porcentajePagado: pedidoPayload.porcentajePagado,
+        bono:             pedidoPayload.bono             || null,
+      }).catch(err => console.warn('checkout.js: error confirmarPagoWompi', err));
 
     } else if (txId) {
-      // ── Fallback Wompi: no hay payload pero hay txId — solo confirmar ──
-      Api.confirmarPagoWompi(reference, status, txId);
-
+      // ── Flujo C: fallback — no hay payload pero hay txId ─────
+      Api.confirmarPagoWompi(reference, status, txId)
+        .catch(err => console.warn('checkout.js: fallback confirmarPagoWompi', err));
     }
-    // ── Flujo Gift Card total: pedido ya procesado en modal.js ──────
-    // No hacer nada — create + redeem + confirmar ya ocurrieron antes
-    // del redirect. Solo mostrar pantalla de agradecimiento (ya hecho arriba).
+    // ── Flujo B: Gift Card total ──────────────────────────────
+    // modal.js ya hizo create + redeem + confirm antes del redirect.
+    // No hay payload ni txId → solo mostrar pantalla (ya hecho arriba).
 
   } else if (status === 'DECLINED' || status === 'ERROR') {
     setContent(
@@ -164,7 +156,8 @@ function _handleStatus(status, reference, txId) {
        No es necesario realizar otro pago.`,
       reference, btnCatalogo, 'confirm-title--pending'
     );
-    Api.confirmarPagoWompi(reference, status, txId);
+    Api.confirmarPagoWompi(reference, status, txId)
+      .catch(err => console.warn('checkout.js: PENDING confirmarPagoWompi', err));
 
   } else {
     setContent(

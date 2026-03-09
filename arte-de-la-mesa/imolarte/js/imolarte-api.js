@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — api.js v2.0
+// IMOLARTE — api.js v2.1
 // Capa de comunicación centralizada con Google Apps Script
 //
 // CORS note: Apps Script (ContentService) no puede devolver
@@ -7,6 +7,11 @@
 // fetch cross-origin sin CORS es usar URLSearchParams como body
 // — el browser lo clasifica como "simple request" y no genera
 // preflight OPTIONS. El payload JSON va dentro del campo 'data'.
+//
+// v2.1: confirmarPagoWompi acepta pedidoPayload opcional.
+//       Cuando viene, code.gs hace create+redeem+confirm en una
+//       sola llamada HTTP — eliminando riesgo de cancelación
+//       del browser en secuencias multi-fetch post-redirect.
 // ============================================================
 
 'use strict';
@@ -25,7 +30,6 @@ const Api = (() => {
       return { ok: false, error: 'URL no configurada' };
     }
     try {
-      // Inyectar token de autorización en cada payload
       const secured = {
         _token: IMOLARTE_CONFIG?.checkout?.apiToken || '',
         ...payload,
@@ -80,12 +84,11 @@ const Api = (() => {
     }));
   }
 
-  // Obtiene Campaña_ID activa desde config (si existe)
   function _campaniaId() {
     return IMOLARTE_CONFIG?.campania?.id || '';
   }
 
-  // ── WISHLIST (ex Pedidos_WA) ──────────────────────────────────
+  // ── WISHLIST ──────────────────────────────────────────────────
 
   async function createWishlist(data, items, totales) {
     const result = await _post({
@@ -94,7 +97,7 @@ const Api = (() => {
       cliente:    data.cliente,
       entrega:    data.entrega,
       productos:  _mapProductos(items),
-      total:      totales.total     || 0,
+      total:      totales.total      || 0,
       referencia: totales.referencia || '',
     });
     return result.ok
@@ -106,7 +109,7 @@ const Api = (() => {
     return _post({
       action:   'updateEstadoWishlist',
       referencia,
-      estadoWA: estado,   // code.gs acepta estadoWA o estado
+      estadoWA: estado,
     });
   }
 
@@ -118,28 +121,33 @@ const Api = (() => {
       campaniaId:         _campaniaId(),
       cliente:            data.cliente,
       entrega:            data.entrega,
-      formaPago:          totales.formaPago        || 'WOMPI_100',
+      formaPago:          totales.formaPago       || 'WOMPI_100',
       productos:          _mapProductos(items),
-      subtotal:           totales.subtotal          || 0,
-      descuento:          totales.descuento         || 0,
-      total:              totales.total             || 0,
-      porcentajePagado:   totales.porcentajePagado  || 100,
-      referencia:         totales.referencia || '',
+      subtotal:           totales.subtotal         || 0,
+      descuento:          totales.descuento        || 0,
+      total:              totales.total            || 0,
+      porcentajePagado:   totales.porcentajePagado || 100,
+      referencia:         totales.referencia       || '',
       wompiTransactionId: '',
-      _skipEmail:         totales._skipEmail        || false,
+      _skipEmail:         totales._skipEmail       || false,
     });
     return result.ok
       ? { ok: true,  referencia: result.referencia || _genRef('WP'), clienteId: result.clienteId || '' }
       : { ok: false, referencia: _genRef('WP'), error: result.error };
   }
 
-  // Confirmar pago post-redirect Wompi — unifica todas las acciones legacy
-  async function confirmarPagoWompi(referencia, status, transactionId) {
+  // Confirmar pago post-redirect Wompi.
+  // Si se pasa pedidoPayload, code.gs hace create+redeem+confirm
+  // en una sola transacción de servidor — una sola llamada HTTP
+  // desde el browser, eliminando el riesgo de cancelación.
+  async function confirmarPagoWompi(referencia, status, transactionId, pedidoPayload) {
     return _post({
       action:        'confirmarPagoWompi',
       referencia,
       status,
       transactionId: transactionId || '',
+      // Solo se incluye si existe — code.gs detecta su presencia
+      ...(pedidoPayload ? { pedidoPayload } : {}),
     });
   }
 
@@ -149,7 +157,6 @@ const Api = (() => {
     return _get({ action: 'getCliente', telefono });
   }
 
-  // Recuperar pedido por referencia (para carrito abandonado)
   async function getPedido(referencia) {
     return _get({ action: 'getPedido', referencia });
   }
@@ -185,23 +192,17 @@ const Api = (() => {
   }
 
   return {
-    // Wishlist
     createWishlist,
     updateEstadoWishlist,
-    // Wompi
     createPedidoWompi,
     confirmarPagoWompi,
-    // Clientes
     getCliente,
     getPedido,
-    // Gift Cards
     createGiftCard,
     getGiftCard,
     redeemDono,
     validateDono,
-    // Campañas
     getCampaniasActivas,
-    // Utils
     ping,
   };
 
