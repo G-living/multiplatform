@@ -188,6 +188,8 @@ function _createWishlist(b) {
     '',                                  // S  Notas_internas
   ]);
 
+  // v20.05: email "Lista de deseos recibida" inmediato al crear wishlist (manual §1)
+  if (cli.email) _emailPedidoRecibido(cli.email, cli.nombre || '', ref, b.productos, b.total || 0);
   _log('createWishlist', ref, cliId, 'OK');
   return { ok: true, referencia: ref, clienteId: cliId };
 }
@@ -209,13 +211,8 @@ function _updateEstadoWishlist(b) {
     if (data[i][colRef] === ref) {
       sheet.getRange(i + 1, colEstado + 1).setValue(estado);
       _log('updateEstadoWishlist', ref, estado, 'OK');
-      if (estado === 'ENVIADO_WA') {
-        const email  = data[i][header.indexOf('Email')]         || '';
-        const nombre = data[i][header.indexOf('Nombre')]        || '';
-        const prods  = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
-        const total  = data[i][header.indexOf('Total_COP')]     || 0;
-        if (email) _emailEnviadoWA(email, nombre, ref, prods, total);
-      }
+      // v20.05: email "Lista de deseos recibida" se envía en _createWishlist (inmediato).
+      // Manual §1: wishlists NO disparan email en cambio de estado (solo Pedidos_Wompi lo hace).
       return { ok: true, referencia: ref, estado };
     }
   }
@@ -1381,34 +1378,33 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
     const pct             = Number(pctPagado) || 100;
     const subtotalMostrar = _roundCOP(subtotal || total);
 
-    // ── Descuento 3% y bono — reconstruir desde `descuento` (fuente de verdad Sheets) ──
-    // descuento guardado en Sheets = bono + disc3 (en todos los flujos)
-    // disc3 = floor(base * 0.03 / 1000) * 1000  (misma fórmula que modal.js)
-    // bono  = descuento − disc3
+    // ── Descuento 3% y bono — reconstruir desde giftInfo + descuento (Sheets) ──
+    // v20.05 BUG-3C fix: usar giftInfo.monto directo (ya reconstruido en _confirmarPagoWompi)
+    // — evita divergencia del método iterativo cuando bonoDesc < floor(subtotal*0.03)
     const descuentoTotal = Number(descuento) || 0;
 
     let disc3pct = 0;
     let bonoDesc = 0;
     if (pct === 100) {
       if (giftInfo?.tipo === 'TOTAL') {
-        // Gift Card total: base del 3% es el subtotal completo
+        // Gift Card total: 3% sobre subtotal completo; bono = subtotal − 3%
         disc3pct = Math.floor(subtotalMostrar * 0.03 / 1000) * 1000;
+        // bonoDesc se calcula en el fallback abajo
       } else if (giftInfo) {
-        // Mixto Wompi+bono: base del 3% es (subtotal − bono)
-        // bono = descuentoTotal − disc3  → resolvemos:
-        // disc3 = floor((subtotal − bono) * 0.03 / 1000)*1000
-        // bono  = descuentoTotal − disc3
-        // Iteramos una vez para estabilizar (convergencia inmediata con floor)
-        let bonoEst = 0;
-        for (let iter = 0; iter < 3; iter++) {
-          const d = Math.floor((subtotalMostrar - bonoEst) * 0.03 / 1000) * 1000;
-          bonoEst = descuentoTotal - d;
-        }
-        disc3pct = descuentoTotal - bonoEst;
-        bonoDesc = bonoEst;
+        // Mixto WOMPI_100+GIFT: usar giftInfo.monto (ya validado correctamente)
+        // — 3% se aplica sobre (subtotal − bono), NO sobre el subtotal completo
+        bonoDesc = Math.max(0, Math.round(giftInfo.monto || 0));
+        disc3pct = Math.max(0, descuentoTotal - bonoDesc);
+      } else {
+        // WOMPI_100 sin bono: todo el descuento guardado es el 3%
+        disc3pct = descuentoTotal;
       }
+    } else if (giftInfo) {
+      // WOMPI_60+GIFT: bono sin 3% (desc. anticipado no aplica en anticipo 60%)
+      bonoDesc = Math.max(0, Math.round(giftInfo.monto || 0));
     }
     if (bonoDesc === 0 && giftInfo) {
+      // Fallback para tipo=TOTAL: bonoDesc = descuento − disc3
       bonoDesc = descuentoTotal - disc3pct;
     }
     bonoDesc = Math.max(0, bonoDesc);
