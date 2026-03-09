@@ -99,12 +99,15 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
 
     // ── Flujo B: Compra de Gift Card con Wompi ─────────────
+    // La fila ya fue creada en Sheets por modal.js ANTES del redirect.
+    // Solo necesitamos confirmarPagoWompi para actualizar estado y enviar emails.
     if (isGiftCard && !giftPaid) {
-      // Leer payload de la GC guardado por modal.js
+      // Leer payload del storage (para mostrar código/vigencia en pantalla)
       let giftPayload = null;
       try {
         const raw = sessionStorage.getItem('imolarte_gift_payload')
-                 || localStorage.getItem('imolarte_gift_payload');
+                 || localStorage.getItem('imolarte_gift_payload')
+                 || localStorage.getItem('imolarte_gift_' + reference);
         if (raw) giftPayload = JSON.parse(raw);
       } catch(e) { console.warn('checkout.js: error leyendo gift payload', e); }
       try { sessionStorage.removeItem('imolarte_gift_payload'); } catch(e) {}
@@ -135,40 +138,9 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
         'confirm-title--success'
       );
 
-      // Registrar en Sheets — ahora que tenemos APPROVED
-      if (giftPayload) {
-        Api.createGiftCard(giftPayload)
-          .then(() => Api.confirmarPagoWompi(reference, 'APPROVED', txId))
-          .catch(err => console.warn('checkout.js: error procesando gift card', err));
-      } else {
-        // Payload perdido (storage bloqueado o limpiado por redirect cross-origin)
-        // Intentar recuperar por clave indexada con referencia
-        let recoveredPayload = null;
-        try {
-          const rk = localStorage.getItem('imolarte_gift_' + reference);
-          if (rk) recoveredPayload = JSON.parse(rk);
-        } catch(e) {}
-
-        if (recoveredPayload) {
-          // Recuperado por clave indexada
-          Api.createGiftCard(recoveredPayload)
-            .then(() => Api.confirmarPagoWompi(reference, 'APPROVED', txId))
-            .catch(err => console.warn('checkout.js: fallback indexado gift', err));
-        } else {
-          // Sin payload: mostrar pantalla con instrucción de contacto
-          setContent(
-            '🎁', '¡Pago recibido!',
-            `Tu pago fue procesado exitosamente.<br><br>
-             Estamos activando tu Gift Card — recibirás el código por <strong>email</strong> en los próximos minutos.<br><br>
-             Si no recibes el email en 10 minutos, escríbenos por WhatsApp con tu referencia y te lo enviamos de inmediato.`,
-            reference,
-            btnCatalogo + btnWA,
-            'confirm-title--success'
-          );
-          Api.confirmarPagoWompi(reference, 'APPROVED', txId)
-            .catch(err => console.warn('checkout.js: fallback sin payload gift', err));
-        }
-      }
+      // La fila ya fue creada por modal.js antes del redirect. Solo confirmar.
+      Api.confirmarPagoWompi(reference, 'APPROVED', txId)
+        .catch(err => console.warn('checkout.js: error confirmarPagoWompi gift', err));
       return;
     }
 
@@ -288,11 +260,10 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
     }
 
   } else if (status === 'DECLINED' || status === 'ERROR') {
-    // Limpiar payloads huérfanos
+    // Limpiar payloads huérfanos de pedidos normales
     try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
     try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
-    try { sessionStorage.removeItem('imolarte_gift_payload'); }   catch(e) {}
-    try { localStorage.removeItem('imolarte_gift_payload'); }     catch(e) {}
+    // Gift payload se conserva para que restoreGiftStep2 pueda pre-cargar el formulario en retry
 
     if (isGiftCard) {
       const btnRetryGift = `<a href="imolarte-index.html?retryGift=1" class="btn btn-primary">Reintentar pago</a>`;

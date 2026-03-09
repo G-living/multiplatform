@@ -2108,8 +2108,6 @@ const Modal = (() => {
     const recTel   = document.getElementById('gfRecTel')?.value.trim() || '';
     const mensaje  = document.getElementById('gfMensaje')?.value.trim() || '';
 
-    // LEAN: NO escribir en Sheets aquí — guardar payload para checkout.js post-APPROVED
-    // checkout.js lo leerá y llamará Api.createGiftCard + Api.confirmarPagoWompi
     const _giftPayload = {
       referencia:   reference,
       codigo:       _giftCode,
@@ -2121,12 +2119,29 @@ const Modal = (() => {
       destinatario: { nombre: recNom, apellido: recApe, email: recEmail, telefono: recPais + recTel },
       mensaje,
     };
+    // Guardar en storage como fallback (útil para restaurar el modal si el usuario vuelve atrás)
     const _giftPayloadStr = JSON.stringify(_giftPayload);
     try { sessionStorage.setItem('imolarte_gift_payload', _giftPayloadStr); } catch(e) {}
     try { localStorage.setItem('imolarte_gift_payload',   _giftPayloadStr); } catch(e) {}
-    // Clave indexada por referencia — fallback robusto si storage se limpia entre redirects
     try { localStorage.setItem('imolarte_gift_' + reference, _giftPayloadStr); } catch(e) {}
-    Logger.log('modal.js: gift payload guardado en storage (3 claves)', reference);
+
+    // Crear fila en GiftCards ANTES del redirect — garantiza que _confirmarPagoGiftCard
+    // siempre encuentre la fila, independientemente de si el storage sobrevive el redirect.
+    try {
+      const gcResult = await Api.createGiftCard(_giftPayload);
+      if (!gcResult.ok) {
+        Logger.warn('modal.js: createGiftCard falló', gcResult.error);
+        if (btn) { btn.disabled = false; btn.textContent = 'Pagar'; }
+        alert('Hubo un error al registrar tu gift card. Por favor intenta de nuevo.');
+        return;
+      }
+      Logger.log('modal.js: gift card registrada en Sheets', reference);
+    } catch(err) {
+      Logger.warn('modal.js: error creando gift card', err);
+      if (btn) { btn.disabled = false; btn.textContent = 'Pagar'; }
+      alert('Error de conexión al registrar tu gift card. Por favor intenta de nuevo.');
+      return;
+    }
 
     // Obtener firma Wompi
     let signature = null;
@@ -2289,8 +2304,40 @@ const Modal = (() => {
   // Restaura el paso 2 del Gift modal después de volver de Wompi sin pagar
   // El formulario queda intacto (el draft lo preserva), solo restaura el botón
   function restoreGiftStep2() {
+    // Restaurar estado desde el payload guardado antes del redirect a Wompi
+    let savedPayload = null;
+    try {
+      const raw = localStorage.getItem('imolarte_gift_payload')
+               || sessionStorage.getItem('imolarte_gift_payload');
+      if (raw) savedPayload = JSON.parse(raw);
+    } catch(e) {}
+
+    if (savedPayload) {
+      _giftValue      = savedPayload.valor    || _giftValue    || 500000;
+      _giftCode       = savedPayload.codigo   || _giftCode     || _generateGiftCode();
+      _giftValidUntil = savedPayload.vigencia || _giftValidUntil || _giftVigencia();
+    }
+
     _giftShowStep(2);
     _openModal('modalGift');
+
+    requestAnimationFrame(() => {
+      _loadDraft();          // Pre-carga campos emisor (gfNombre, gfEmail, etc.)
+      _bindDraftListeners(); // Idempotente
+      // Pre-cargar campos destinatario y mensaje desde payload
+      if (savedPayload) {
+        const dest = savedPayload.destinatario || {};
+        const s = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+        s('gfRecNombre',   dest.nombre   || '');
+        s('gfRecApellido', dest.apellido || '');
+        s('gfRecEmail',    dest.email    || '');
+        // telefono guardado como "+57XXXXXXXXXX" — mostrar solo los últimos 10 dígitos
+        if (dest.telefono) s('gfRecTel', dest.telefono.replace(/^\+\d{1,3}/, ''));
+        s('gfMensaje', savedPayload.mensaje || '');
+      }
+    });
+
+    setTimeout(() => _drawGiftCard(_giftValue || 500000), 80);
     const btn = document.getElementById('giftBtnPagar');
     if (btn) { btn.disabled = false; btn.textContent = 'Pagar con Wompi'; }
   }
