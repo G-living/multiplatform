@@ -22,6 +22,9 @@
 // ─ v20.1: BUG-A fix — _skipEmail propagado correctamente desde api.js → code.gs
 // ─ v20.02: SpreadsheetApp.flush() incondicional en _confirmarPagoWompi
 // ─ v20.03: SpreadsheetApp.flush() incondicional en _confirmarPagoGiftCard
+// ─ v20.04: flush() MOVIDO al final de _createPedidoWompi y _createGiftCard (mismo scope de appendRow)
+//           BUG-1 fix definitivo: NOT_FOUND resuelto
+//           BUG-4 fix: catalogoId propagado en flujo lean de _confirmarPagoWompi
 // ============================================================
 
 'use strict';
@@ -307,9 +310,10 @@ function _createPedidoWompi(b) {
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
+  // v20.04 BUG-1 fix: flush() en el mismo scope del appendRow — garantiza que la fila
+  // está comprometida ANTES de que _confirmarPagoWompi llame a getDataRange()
+  SpreadsheetApp.flush();
   // _skipEmail: true cuando el pedido se crea post-pago desde checkout.js
-  // En ese caso solo se envía el email de pago confirmado, no el de "pedido recibido"
-  // No enviar email de lista de deseos si es pago Gift Card (ya recibirá email de pago confirmado)
   const _esGift = String(b.formaPago || '').startsWith('GIFT_CARD');
   if (!b._skipEmail && !_esGift && cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
   return { ok: true, referencia: ref, clienteId: cliId };
@@ -330,6 +334,7 @@ function _confirmarPagoWompi(b) {
     // 1. Crear pedido (idempotente — si ya existe, no duplica)
     _createPedidoWompi({
       campaniaId:       p.campaniaId       || '',
+      catalogoId:       p.catalogoId       || '',
       cliente:          p.cliente          || {},
       entrega:          p.entrega          || {},
       productos:        p.productos        || [],
@@ -499,6 +504,9 @@ function _createGiftCard(b) {
   ]);
 
   _log('createGiftCard', ref, b.codigo, cliId, 'OK');
+  // v20.04 BUG-1 fix: flush() en el mismo scope del appendRow — garantiza que la fila
+  // está comprometida ANTES de que _confirmarPagoGiftCard llame a getDataRange()
+  SpreadsheetApp.flush();
   // ⚠️ No upsert destinatario — solo se registra cuando él mismo compra
   return { ok: true, referencia: ref, codigo: b.codigo, clienteId: cliId };
 }

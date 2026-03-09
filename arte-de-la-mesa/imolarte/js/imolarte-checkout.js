@@ -1,4 +1,4 @@
-/* ===== IMOLARTE — checkout.js v2.3 =====
+/* ===== IMOLARTE — checkout.js v2.5 =====
  * Maneja confirmación post-Wompi y post-GiftCard.
  *
  * Arquitectura lean:
@@ -92,7 +92,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
 
   const btnCatalogo   = '<a href="imolarte-index.html" class="btn btn-primary">Explorar catálogo</a>';
   const btnReintentar = '<a href="imolarte-index.html" class="btn btn-secondary">Volver al catálogo</a>';
-  const btnWA         = `<a href="https://wa.me/${(typeof IMOLARTE_CONFIG !== 'undefined' ? IMOLARTE_CONFIG.whatsapp : '573007000000')}" target="_blank" class="btn btn-secondary" style="margin-top:8px">Escríbenos por WhatsApp</a>`;
+  const btnWA         = `<a href="https://wa.me/${(typeof IMOLARTE_CONFIG !== 'undefined' ? IMOLARTE_CONFIG.whatsapp : '573007000000')}" target="_blank" class="btn btn-secondary">Escríbenos por WhatsApp</a>`;
 
   if (status === 'APPROVED') {
     // Vaciar carrito
@@ -119,12 +119,16 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
 
       setContent(
         '🎁', '¡Regalo confirmado!',
-        `Tu Gift Card ha sido activada exitosamente.<br><br>
-         ${codigo ? `<strong>Código:</strong> <code style="background:#f0ede5;padding:2px 8px;border-radius:4px;font-size:15px;letter-spacing:2px">${codigo}</code><br><br>` : ''}
-         ${vigencia ? `<strong>Válida hasta:</strong> ${vigencia}<br><br>` : ''}
+        `¡Tu regalo ha sido enviado con éxito! ✨<br><br>
+         ${codigo ? `<div style="background:#1a1610;border-radius:8px;padding:16px;text-align:center;margin:12px 0">
+           <p style="color:#C4A05A;font-size:11px;letter-spacing:2px;margin:0 0 6px">CÓDIGO DE REGALO</p>
+           <p style="color:#fff;font-size:22px;font-weight:bold;font-family:monospace;letter-spacing:3px;margin:0 0 4px">${codigo}</p>
+           ${vigencia ? `<p style="color:#888;font-size:11px;margin:0">Válido hasta: ${vigencia}</p>` : ''}
+         </div>` : ''}
          <strong>${destCompleto}</strong> recibirá el código por email en los próximos minutos.<br><br>
-         También recibirás una copia en tu correo con todos los detalles.<br><br>
-         <em>Cada pieza de nuestra cerámica italiana es única — un regalo que perdura.</em>`,
+         Tú también recibirás una copia con todos los detalles.<br><br>
+         <strong>¿Cómo usar la Gift Card?</strong> El destinatario ingresa el código antes del checkout del carrito. Válida para cualquier compra en nuestra tienda.<br><br>
+         <em>Un regalo hecho a mano en Italia, con todo el cariño.</em>`,
         reference,
         btnCatalogo + btnWA,
         'confirm-title--success'
@@ -145,18 +149,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
 
     // ── Flujo C: Producto pagado 100% con Gift Card ─────────
     if (giftPaid) {
-      setContent(
-        '🏺', '¡Gracias por tu compra!',
-        `Tu pedido fue confirmado exitosamente.<br><br>
-         En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.<br><br>
-         Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
-         <em>Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</em>`,
-        reference,
-        btnCatalogo + btnWA,
-        'confirm-title--success'
-      );
-
-      // Leer payload y procesar en servidor (lean)
+      // Leer payload UNA SOLA VEZ — para pantalla Y para procesamiento servidor
       let pedidoPayload = null;
       try {
         const raw = sessionStorage.getItem('imolarte_pending_pedido')
@@ -166,9 +159,29 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       try { sessionStorage.removeItem('imolarte_pending_pedido'); } catch(e) {}
       try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
 
+      // Info del bono para pantalla
+      const _bonoCode  = pedidoPayload?.bono?.code  || '';
+      const _bonoMonto = pedidoPayload?.bono?.monto || 0;
+      const _bonoLine  = _bonoCode
+        ? `<br>Tu <strong>Gift Card ${_bonoCode}</strong> fue aplicada exitosamente${_bonoMonto ? ' por <strong>$' + _bonoMonto.toLocaleString('es-CO') + '</strong>' : ''}.<br>`
+        : '';
+
+      setContent(
+        '🏺', '¡Gracias por tu compra!',
+        `Tu pedido fue confirmado exitosamente.<br><br>
+         ${_bonoLine}
+         En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.<br><br>
+         Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
+         <em>Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</em>`,
+        reference,
+        btnCatalogo + btnWA,
+        'confirm-title--success'
+      );
+
       if (pedidoPayload && pedidoPayload.referencia === reference) {
         Api.confirmarPagoWompi(reference, 'APPROVED', 'GIFT_CARD', {
           campaniaId:       pedidoPayload.campaniaId       || '',
+          catalogoId:       pedidoPayload.catalogoId       || '',
           cliente:          pedidoPayload.cliente,
           entrega:          pedidoPayload.entrega,
           productos:        pedidoPayload.productos,
@@ -177,8 +190,13 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
           descuento:        pedidoPayload.descuento,
           total:            pedidoPayload.total,
           porcentajePagado: pedidoPayload.porcentajePagado,
-          bono:             pedidoPayload.bono || null,
+          bono:             pedidoPayload.bono             || null,
+          referencia:       reference,
         }).catch(err => console.warn('checkout.js: error confirmar gift paid', err));
+      } else if (reference) {
+        // Fallback: solo confirmar por referencia (sin payload completo)
+        Api.confirmarPagoWompi(reference, 'APPROVED', 'GIFT_CARD')
+          .catch(err => console.warn('checkout.js: fallback confirmar gift paid', err));
       }
       return;
     }
@@ -208,6 +226,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       // ── Flujo A: Wompi con payload completo ──────────────
       Api.confirmarPagoWompi(reference, status, txId, {
         campaniaId:       pedidoPayload.campaniaId       || '',
+        catalogoId:       pedidoPayload.catalogoId       || '',
         cliente:          pedidoPayload.cliente,
         entrega:          pedidoPayload.entrega,
         productos:        pedidoPayload.productos,
@@ -217,6 +236,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
         total:            pedidoPayload.total,
         porcentajePagado: pedidoPayload.porcentajePagado,
         bono:             pedidoPayload.bono             || null,
+        referencia:       reference,
       }).catch(err => console.warn('checkout.js: error confirmarPagoWompi', err));
 
     } else if (txId) {
@@ -242,12 +262,14 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
         reference, btnRetryGift + btnWA, 'confirm-title--error'
       );
     } else {
+      // retryWompi=1: modal.js detecta este flag y reabre el checkout Wompi con carrito intacto
+      const btnRetryWompi = `<a href="imolarte-index.html?retryWompi=1" class="btn btn-primary">Intentar nuevamente</a>`;
       setContent(
         '✗', 'Pago no procesado',
         `Tu pago no pudo completarse en este momento.<br><br>
-         Tus productos siguen disponibles. Puedes intentarlo nuevamente.<br><br>
-         Si el problema persiste, escríbenos por WhatsApp.`,
-        reference, btnReintentar + btnWA, 'confirm-title--error'
+         Tus productos <strong>siguen en tu carrito</strong> — puedes intentarlo nuevamente.<br><br>
+         Si el problema persiste, escríbenos por WhatsApp y te ayudamos de inmediato.`,
+        reference, btnRetryWompi + btnWA, 'confirm-title--error'
       );
     }
 
@@ -262,8 +284,9 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       '⏳', 'Pago en verificación',
       `Tu pago está siendo procesado.<br><br>
        Te notificaremos por <strong>email</strong> en cuanto se confirme.<br>
-       No es necesario realizar otro pago.`,
-      reference, btnCatalogo, 'confirm-title--pending'
+       No es necesario realizar otro pago.<br><br>
+       Si tienes dudas, escríbenos por WhatsApp con tu referencia.`,
+      reference, btnCatalogo + btnWA, 'confirm-title--pending'
     );
     Api.confirmarPagoWompi(reference, status, txId)
       .catch(err => console.warn('checkout.js: PENDING confirmarPagoWompi', err));
