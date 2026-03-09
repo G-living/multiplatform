@@ -1352,6 +1352,11 @@ const Modal = (() => {
         if (succEl) { succEl.textContent = `✓ Bono válido — ${Utils.formatPrice(data.available)} disponible`; succEl.style.display = 'block'; }
         _updateWompiTotals();
         Toast.show(`Bono aplicado: ${Utils.formatPrice(data.available)} de descuento`, 'success');
+        // Scroll automático al resumen de totales para que el usuario vea el desglose
+        requestAnimationFrame(() => {
+          const totalsEl = document.getElementById('wpLineBono') || document.getElementById('wpPayActions');
+          if (totalsEl) totalsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
       } else {
         _resetBono();
         if (errEl) errEl.textContent = data.reason || 'Código inválido';
@@ -1634,10 +1639,10 @@ const Modal = (() => {
     } catch(err) { Logger.warn('modal.js: error confirmando pedido gift', err); }
 
     // 4. Vaciar carrito y redirigir a checkout con estado aprobado
-    // isGiftCard=1 → checkout.js no hace segunda llamada a confirmarPagoWompi
+    // giftPaid=1 → checkout.js no hace segunda llamada a confirmarPagoWompi (ya la hizo modal.js)
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
     Logger.log('modal.js: compra con gift card confirmada', reference);
-    window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED&isGiftCard=1`;
+    window.location.href = `imolarte-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED&giftPaid=1`;
   }
 
 
@@ -2150,8 +2155,9 @@ const Modal = (() => {
     if (tel)       params.set('customer-data:phone-number', `${pais}${tel}`);
 
     Logger.log('modal.js: gift card → Wompi', { reference, amountCts });
-    // Flag específico para Gift — pageshow lo usará para reabrir el modal Gift
-    try { sessionStorage.setItem('imolarte_gift_redirect', reference); } catch(e) {}
+    // Flags para checkout.js: referencia del pedido y vigencia para el mensaje de agradecimiento
+    try { sessionStorage.setItem('imolarte_gift_redirect',  reference); } catch(e) {}
+    try { sessionStorage.setItem('imolarte_gift_vigencia',  _giftValidUntil || ''); } catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 

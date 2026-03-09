@@ -26,7 +26,10 @@ const _checkoutParams    = new URLSearchParams(window.location.search);
 const _checkoutStatus    = _checkoutParams.get('transaction_status') || _checkoutParams.get('status');
 const _checkoutReference = _checkoutParams.get('reference');
 const _checkoutTxId      = _checkoutParams.get('id') || _checkoutParams.get('transaction_id') || '';
-const _checkoutIsGift    = _checkoutParams.get('isGiftCard') === '1';
+// isGiftCard: param explícito (del redirect manual) O reference GIFT- (redirect de Wompi tras pago de GC)
+const _checkoutIsGift    = _checkoutParams.get('isGiftCard') === '1'
+                        || (_checkoutParams.get('reference') || '').startsWith('GIFT-');
+const _checkoutGiftPaid  = _checkoutParams.get('giftPaid')    === '1';  // producto pagado 100% con Gift Card
 
 document.addEventListener('DOMContentLoaded', () => {
   const params    = _checkoutParams;
@@ -46,17 +49,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!status && !txId) { window.location.replace('imolarte-index.html'); return; }
 
   const isGiftCard = _checkoutIsGift;
+  const giftPaid   = _checkoutGiftPaid;
 
   if (status) {
-    _handleStatus(status, reference, txId, isGiftCard);
+    _handleStatus(status, reference, txId, isGiftCard, giftPaid);
     return;
   }
 
   // Solo txId (sandbox sin transaction_status) → consultar Wompi
   _fetchTransactionStatus(txId).then(tx => {
-    _handleStatus(tx.status, tx.reference || reference, txId, isGiftCard);
+    _handleStatus(tx.status, tx.reference || reference, txId, isGiftCard, giftPaid);
   }).catch(() => {
-    _handleStatus('UNKNOWN', reference, txId, isGiftCard);
+    _handleStatus('UNKNOWN', reference, txId, isGiftCard, giftPaid);
   });
 });
 
@@ -77,7 +81,7 @@ async function _fetchTransactionStatus(txId) {
 }
 
 // ── Muestra UI y notifica Sheets ─────────────────────────────
-function _handleStatus(status, reference, txId, isGiftCard) {
+function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
   const iconEl    = document.getElementById('confirmIcon');
   const titleEl   = document.getElementById('confirmTitle');
   const msgEl     = document.getElementById('confirmMessage');
@@ -101,22 +105,46 @@ function _handleStatus(status, reference, txId, isGiftCard) {
     // Vaciar carrito
     try { localStorage.removeItem(IMOLARTE_CONFIG.cart.storageKey); } catch(e) {}
 
-    if (isGiftCard) {
-      // ── Flujo B: Gift Card total ───────────────────────────
-      // modal.js ya hizo create + redeem + confirm + email antes del redirect.
-      // Solo mostramos pantalla de agradecimiento específica para Gift Card.
+    if (giftPaid) {
+      // ── Flujo D: Producto pagado 100% con Gift Card ────────
+      // modal.js (_submitConGiftCard) ya hizo: createPedido + redeemDono +
+      // confirmarPagoWompi + email. Solo mostrar agradecimiento de compra.
       setContent(
-        '🎁', '¡Regalo confirmado!',
-        `Tu Gift Card ha sido procesada exitosamente.<br><br>
-         En los próximos minutos recibirás un <strong>email de confirmación</strong>
-         con todos los detalles.<br><br>
-         El destinatario también recibirá su código de regalo por email y WhatsApp.`,
+        '🏺', '¡Gracias por tu compra!',
+        `Tu pago fue confirmado exitosamente.<br><br>
+         En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.
+         Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
+         Cada pieza que elegiste es única — <em>hecha a mano en Italia, especialmente para ti.</em>`,
         reference, btnCatalogo, 'confirm-title--success'
       );
       return;
     }
 
-    // ── Flujo A / C: Wompi ───────────────────────────────────
+    if (isGiftCard) {
+      // ── Flujo B: Compra de Gift Card como producto (pagada con Wompi) ──
+      // modal.js ya procesó create + confirm + email de GC antes del redirect.
+      // Leer vigencia guardada por modal.js antes de redirigir a Wompi.
+      let giftVigencia = '';
+      try { giftVigencia = sessionStorage.getItem('imolarte_gift_vigencia') || ''; } catch(e) {}
+      try { sessionStorage.removeItem('imolarte_gift_vigencia'); } catch(e) {}
+      const vigenciaHtml = giftVigencia
+        ? `<br><br>⏳ <strong>Vigencia:</strong> ${giftVigencia} — te recomendamos recordársela a quien recibirá el regalo.`
+        : '';
+
+      setContent(
+        '🎁', '¡Regalo confirmado!',
+        `Tu Gift Card ha sido procesada exitosamente.<br><br>
+         En los próximos minutos recibirás un <strong>email de confirmación</strong> con todos los detalles.
+         El destinatario también recibirá su código de regalo por <strong>email y WhatsApp</strong>
+         — ya está todo listo para que disfrute el regalo.${vigenciaHtml}<br><br>
+         Nuestro equipo está disponible por <strong>WhatsApp y teléfono</strong> para asesorar
+         al destinatario y ayudarle a aprovechar al máximo cada pieza.`,
+        reference, btnCatalogo, 'confirm-title--success'
+      );
+      return;
+    }
+
+    // ── Flujo A / C: Wompi clásico (con o sin bono parcial) ─
     setContent(
       '🏺', '¡Gracias por tu compra!',
       `Tu pago fue confirmado exitosamente.<br><br>
@@ -139,7 +167,7 @@ function _handleStatus(status, reference, txId, isGiftCard) {
     try { localStorage.removeItem('imolarte_pending_pedido'); }   catch(e) {}
 
     if (pedidoPayload && pedidoPayload.referencia === reference) {
-      // ── Flujo A: Wompi (con o sin bono) ──────────────────────
+      // ── Flujo A: Wompi (con o sin bono parcial) ──────────
       Api.confirmarPagoWompi(reference, status, txId, {
         campaniaId:       pedidoPayload.campaniaId       || '',
         cliente:          pedidoPayload.cliente,
@@ -154,7 +182,7 @@ function _handleStatus(status, reference, txId, isGiftCard) {
       }).catch(err => console.warn('checkout.js: error confirmarPagoWompi', err));
 
     } else if (txId) {
-      // ── Flujo C: fallback ─────────────────────────────────────
+      // ── Flujo C: fallback (no hay payload) ───────────────
       Api.confirmarPagoWompi(reference, status, txId)
         .catch(err => console.warn('checkout.js: fallback confirmarPagoWompi', err));
     }

@@ -343,6 +343,10 @@ function _confirmarPagoWompi(b) {
     if (p.bono && p.bono.code && p.bono.monto > 0) {
       _redeemDono({ code: p.bono.code, amount: p.bono.monto, referencia: ref });
     }
+    // 3. Flush obligatorio: garantiza que appendRow de _createPedidoWompi sea
+    //    visible para el getDataRange() inmediato que sigue abajo.
+    //    Sin esto, Sheets devuelve el snapshot anterior → NOT_FOUND siempre.
+    SpreadsheetApp.flush();
   }
 
   const sheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
