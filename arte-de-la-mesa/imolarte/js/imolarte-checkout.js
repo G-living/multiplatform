@@ -122,20 +122,32 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       const destNombre   = giftPayload?.destinatario?.nombre   || '';
       const destApellido = giftPayload?.destinatario?.apellido || '';
       const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
+      const destEmail    = giftPayload?.destinatario?.email    || '';
+      const emisorNombre = giftPayload?.emisor?.nombre         || '';
       const codigo       = giftPayload?.codigo || '';
+      const valor        = giftPayload?.valor  || 0;
+      const valorFmt     = valor ? '$' + valor.toLocaleString('es-CO') : '';
 
       setContent(
         '🎁', '¡Tu Gift Card está lista!',
-        `¡Gracias por este gesto tan especial! Tu regalo ha sido activado y está en camino. ✨<br><br>
+        `${emisorNombre ? `<p style="margin:0 0 12px">¡Gracias, <strong>${emisorNombre}</strong>! Tu regalo está activado y listo para sorprender. ✨</p>` : '<p style="margin:0 0 12px">¡Gracias por este gesto tan especial! Tu regalo está activado y listo para sorprender. ✨</p>'}
          ${codigo ? `<div style="background:#1a1610;border-radius:10px;padding:20px;text-align:center;margin:14px 0">
            <p style="color:#C4A05A;font-size:11px;letter-spacing:2px;margin:0 0 8px;text-transform:uppercase">Código de Gift Card</p>
-           <p style="color:#fff;font-size:26px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 6px">${codigo}</p>
+           <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
+           ${valorFmt ? `<p style="color:#C4A05A;font-size:16px;font-weight:bold;margin:0 0 6px">${valorFmt}</p>` : ''}
            ${vigencia ? `<p style="color:#aaa;font-size:12px;margin:0">Válido hasta: <strong style="color:#C4A05A">${vigencia}</strong></p>` : ''}
          </div>` : ''}
-         <strong>${destCompleto}</strong> recibirá este código por email junto con un mensaje de regalo personalizado.<br>
-         Tú también recibirás una copia con todos los detalles de tu compra.<br><br>
-         <strong>¿Cómo se usa?</strong> El destinatario ingresa el código en el campo de bono antes del pago — aplica en cualquier producto de la tienda, con vigencia hasta la fecha indicada.<br><br>
-         <em>Cada pieza es única, hecha a mano en Italia. Un regalo que perdura.</em>`,
+         <p style="margin:8px 0"><strong>${destCompleto}</strong>${destEmail ? ` (${destEmail})` : ''} recibirá el código por email con un mensaje personalizado.<br>Tú también recibirás una copia con todos los detalles.</p>
+         <div style="background:#f9f6f0;border-radius:8px;padding:14px;margin:14px 0;font-size:13px;text-align:left">
+           <p style="margin:0 0 6px;font-weight:bold;color:#3a2e1f">¿Cómo se usa?</p>
+           <ol style="margin:0;padding-left:18px;color:#555;line-height:1.7">
+             <li>El destinatario visita <strong>imolarte-index.html</strong> y elige su pieza.</li>
+             <li>En el carrito, ingresa el código en el campo <em>"¿Tienes un Gift Card o bono?"</em>.</li>
+             <li>El saldo se aplica automáticamente al total — sin pasos extra.</li>
+           </ol>
+         </div>
+         ${txId ? `<p style="margin:8px 0 0;font-size:11px;color:#aaa">ID de transacción: <code>${txId}</code></p>` : ''}
+         <p style="margin:12px 0 0;font-style:italic;color:#888;font-size:13px">Cada pieza es única, hecha a mano en Italia. Un regalo que perdura.</p>`,
         reference,
         btnCatalogo + btnWA,
         'confirm-title--success'

@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.09
+// IMOLARTE — Google Apps Script Backend v20.10
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -36,6 +36,9 @@
 // ─ v20.09: _createGiftCard — idempotencia cambia de referencia→codigo. Si existe fila
 //           PENDIENTE con mismo código, actualiza la referencia en lugar de insertar nueva.
 //           Evita filas huérfanas cuando el usuario reintenta el pago (nueva referencia/timestamp).
+// ─ v20.10: _createGiftCard reintento — además de referencia, actualiza valor, destinatario y
+//           mensaje. Evita que cambios del usuario (nombre receptor, monto) queden desincronizados
+//           entre el frontend y la fila en Sheets al reintentar el pago.
 // ============================================================
 
 'use strict';
@@ -539,13 +542,34 @@ function _createGiftCard(b) {
       if (existData[i][existColCode] !== b.codigo) continue;
       const estadoGift = existColEst >= 0 ? String(existData[i][existColEst] || '') : '';
       if (estadoGift === 'INACTIVA') {
-        // Reintento de pago: actualizar referencia con la nueva y reutilizar la fila
-        if (existColRef >= 0) sheet.getRange(i + 1, existColRef + 1).setValue(ref);
+        // v20.10: Reintento de pago — actualizar referencia Y datos que pudieron cambiar
+        // (monto, destinatario, mensaje) para que el email salga con info correcta.
+        const dest  = b.destinatario || {};
+        const row   = i + 1; // 1-indexed
+        const updates = [
+          ['Referencia',    existColRef,                             ref],
+          ['Saldo_Gift_COP',existHeader.indexOf('Saldo_Gift_COP'),  b.valor    || 0],
+          ['Válido_Hasta',  existHeader.indexOf('Válido_Hasta'),    b.vigencia || ''],
+          ['Dest_Nombre',   existHeader.indexOf('Dest_Nombre'),     dest.nombre    || ''],
+          ['Dest_Apellido', existHeader.indexOf('Dest_Apellido'),   dest.apellido  || ''],
+          ['Dest_Email',    existHeader.indexOf('Dest_Email'),      dest.email     || ''],
+          ['Dest_Tel',      existHeader.indexOf('Dest_Tel'),        dest.telefono  || ''],
+          ['Dest_Mensaje',  existHeader.indexOf('Dest_Mensaje'),    b.mensaje      || ''],
+        ];
+        updates.forEach(([, col, val]) => {
+          if (col >= 0) sheet.getRange(row, col + 1).setValue(val);
+        });
+        // Actualizar cliente emisor si viene con datos
+        const em = b.emisor || {};
+        const cliId = (em.telefono || em.numDoc)
+          ? _upsertCliente({ telefono: em.telefono || '', nombre: em.nombre || '', apellido: em.apellido || '',
+              email: em.email || '', tipoDoc: em.tipoDoc || '', numDoc: em.numDoc || '',
+              cumpleDia: em.cumpleDia || '', cumpleMes: em.cumpleMes || '',
+              direccion: em.direccion || '', barrio: em.barrio || '', ciudad: em.ciudad || '' }).clienteId
+          : (existColCli >= 0 ? existData[i][existColCli] : '');
         SpreadsheetApp.flush();
-        _log('createGiftCard', ref, b.codigo, 'REINTENTO — referencia actualizada');
-        return { ok: true, referencia: ref,
-                 codigo:    b.codigo,
-                 clienteId: existColCli >= 0 ? existData[i][existColCli] : '' };
+        _log('createGiftCard', ref, b.codigo, cliId, 'REINTENTO — referencia y datos actualizados');
+        return { ok: true, referencia: ref, codigo: b.codigo, clienteId: cliId };
       }
       // Ya procesada (ACTIVA, CANCELADA, etc.) — devolver sin tocar
       _log('createGiftCard', ref, b.codigo, 'YA_PROCESADA — estado:', estadoGift);
