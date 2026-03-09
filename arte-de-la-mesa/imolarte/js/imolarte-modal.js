@@ -1422,7 +1422,9 @@ const Modal = (() => {
     const disc100Line  = document.getElementById('wpLineDisc100');
     const disc100Val   = document.getElementById('wpValDisc100');
     const bonoLine3    = document.getElementById('wpLineBono');
-    if (bonoDesc > 0 && disc100Line) {
+    // Mostrar línea 3% solo si el descuento resultante es > 0 tras el floor al millar.
+    // Cuando base es pequeño (ej. $19k con bono grande), 3% = $570 → floor → $0 → no mostrar.
+    if (bonoDesc > 0 && disc100 > 0 && disc100Line) {
       disc100Line.style.display = 'flex';
       if (disc100Val) disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
       // Asegurar orden: disc100 aparece ANTES de bono en el DOM
@@ -1486,7 +1488,9 @@ const Modal = (() => {
       if (btn60El)
         btn60El.textContent = Utils.formatPrice(pay60);
       if (btn100El)
-        btn100El.textContent = Utils.formatPrice(pay100) + '  —  3% dto. incl.';
+        btn100El.textContent = disc100 > 0
+          ? Utils.formatPrice(pay100) + '  —  3% dto. incl.'
+          : Utils.formatPrice(pay100);
     }
   }
 
