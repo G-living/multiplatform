@@ -2394,8 +2394,10 @@ window.addEventListener('pageshow', (e) => {
   try {
     const giftRef = sessionStorage.getItem('imolarte_gift_redirect');
     if (giftRef) {
-      // Usuario volvió de Wompi sin pagar — volver al paso 2 con formulario intacto
+      // Usuario volvió de Wompi sin pagar — cancelar la fila PENDIENTE_PAGO en Sheets
+      // para evitar acumulación de basura. Fire-and-forget: no bloquea la UI.
       sessionStorage.removeItem('imolarte_gift_redirect');
+      try { Api.cancelGiftCard(giftRef).catch(() => {}); } catch(e) {}
       setTimeout(() => {
         Modal.resetState();
         Modal.restoreGiftStep2(); // restaura paso 2 con botón activo

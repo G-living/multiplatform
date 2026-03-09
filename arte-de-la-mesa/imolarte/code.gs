@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.07
+// IMOLARTE — Google Apps Script Backend v20.08
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -29,6 +29,8 @@
 //           se llame flush() en la misma ejecución. Fix: en lean path usar _leanRowNum
 //           para actualizar celdas directamente y pedidoPayload para email/upsertCliente,
 //           sin releer la hoja. Flujo estándar (sin pedidoPayload) sin cambios.
+// ─ v20.08: _cancelGiftCard — cancela fila PENDIENTE_PAGO cuando usuario regresa de
+//           Wompi sin pagar y edita el formulario (evita acumulación de filas huérfanas).
 //           BUG-1 fix definitivo: NOT_FOUND resuelto
 //           BUG-4 fix: catalogoId propagado en flujo lean de _confirmarPagoWompi
 // ============================================================
@@ -91,6 +93,7 @@ function doPost(e) {
       case 'createWishlist'        : result = _createWishlist(body);          break;
       case 'createPedidoWompi'     : result = _createPedidoWompi(body);       break;
       case 'createGiftCard'        : result = _createGiftCard(body);          break;
+      case 'cancelGiftCard'        : result = _cancelGiftCard(body);          break;
       case 'updateEstadoWishlist'  : result = _updateEstadoWishlist(body);    break;
       case 'confirmarPagoWompi'    :
         // Ruteo automático: referencias GIFT- van a _confirmarPagoGiftCard
@@ -593,6 +596,41 @@ function _createGiftCard(b) {
   SpreadsheetApp.flush();
   // ⚠️ No upsert destinatario — solo se registra cuando él mismo compra
   return { ok: true, referencia: ref, codigo: b.codigo, clienteId: cliId };
+}
+
+// Cancela una Gift Card en estado PENDIENTE_PAGO (usuario regresó de Wompi sin pagar
+// y va a intentar el pago de nuevo con un nuevo formulario / nueva referencia).
+// Solo actúa sobre PENDIENTE_PAGO — nunca cancela ACTIVA, CANCELADA, etc.
+function _cancelGiftCard(b) {
+  const ref = b.referencia || '';
+  if (!ref) return { ok: false, error: 'Referencia requerida' };
+
+  const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  const data   = sheet.getDataRange().getValues();
+  const header = data[0];
+  const colRef     = header.indexOf('Referencia');
+  const colEstPago = header.indexOf('Estado_Pago');
+  const colEstGift = header.indexOf('Estado_Gift');
+
+  if (colRef < 0) return { ok: false, error: 'Columna Referencia no encontrada' };
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][colRef] !== ref) continue;
+    const estadoActual = String(data[i][colEstPago] || '');
+    // Solo cancelar si aún está pendiente de pago — no tocar APPROVED ni CANCELADO
+    if (estadoActual !== 'PENDIENTE_PAGO') {
+      _log('cancelGiftCard', ref, 'SKIP — estado:', estadoActual);
+      return { ok: true, referencia: ref, skipped: true, estado: estadoActual };
+    }
+    if (colEstPago >= 0) sheet.getRange(i + 1, colEstPago + 1).setValue('CANCELADO');
+    if (colEstGift >= 0) sheet.getRange(i + 1, colEstGift + 1).setValue('CANCELADA');
+    SpreadsheetApp.flush();
+    _log('cancelGiftCard', ref, 'CANCELADA');
+    return { ok: true, referencia: ref, cancelada: true };
+  }
+  // No encontrada — igual devolver ok (puede ya haberse limpiado o nunca existido)
+  _log('cancelGiftCard', ref, 'NOT_FOUND');
+  return { ok: true, referencia: ref, notFound: true };
 }
 
 function _confirmarPagoGiftCard(b) {
