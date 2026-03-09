@@ -554,8 +554,19 @@ function _confirmarPagoGiftCard(b) {
       if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig, destNombre, destApellido);
       if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, apellido, codigo, valor, vig, mensaje);
 
-      if (telEmisor && valor > 0)
-        _upsertCliente({ telefono: String(telEmisor), tipoDoc: String(docTipo), numDoc: String(docNum), total: valor, _soloTotal: true });
+      if (telEmisor && valor > 0) {
+        // Registrar la compra de Gift Card en Productos_comprados del cliente
+        _upsertCliente({
+          telefono  : String(telEmisor),
+          tipoDoc   : String(docTipo),
+          numDoc    : String(docNum),
+          total     : valor,
+          _soloTotal: true,
+          _pedidoRef  : ref,
+          _pedidoProds: [{ productName: `Gift Card ${codigo}`, collection: '', quantity: 1 }],
+          _pedidoTs   : new Date(),
+        });
+      }
     }
 
     return { ok: true, referencia: ref, status, estado: estadoGift };
@@ -790,12 +801,14 @@ function _upsertCliente(b) {
       }
     }
 
-    // Teléfono: si se encontró por doc y el tel es diferente, actualizar y loggear
+    // Teléfono: normalizar ambos lados antes de comparar (strip +, espacios, guiones)
+    // para evitar falsos positivos en historial por diferencias de formato
     if (tel) {
-      const actual = String(row[CLI.TELEFONO] || '').replace(/\s/g, '');
+      const _norm = v => String(v || '').replace(/[\s+\-]/g, '');
+      const actual = String(row[CLI.TELEFONO] || '');
       if (!actual) {
         sheet.getRange(i + 1, CLI.TELEFONO + 1).setValue(tel);
-      } else if (actual !== tel) {
+      } else if (_norm(actual) !== _norm(tel)) {
         sheet.getRange(i + 1, CLI.TELEFONO + 1).setValue(tel);
         _addHistorial(i, `[${dtFmt()}] Tel: ${actual} → ${tel}`);
       }
@@ -1381,9 +1394,11 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
         </tr>` : '';
 
     // ── Total a pagar (subtotal − bono − 3%) ──────────────
-    const descRedondeado = disc3pct; // alias para compatibilidad con líneas siguientes
-    const totalAPagar    = _roundCOP(subtotalMostrar - bonoDesc - disc3pct);
-    const totalRedondeado = _roundCOP(total);
+    // totalRedondeado = valor exacto cobrado por Wompi (no redondear — ya viene de _submitWompi)
+    // totalAPagar = recalculado para verificar coherencia; debe coincidir con totalRedondeado
+    const descRedondeado  = disc3pct;
+    const totalAPagar     = _roundCOP(subtotalMostrar - bonoDesc - disc3pct);
+    const totalRedondeado = Number(total) || 0;  // valor exacto, sin redondear
 
     // ── Línea "Total a pagar" — solo si hay bono ───────────
     const totalAPagarHTML = bonoDesc > 0 ? `

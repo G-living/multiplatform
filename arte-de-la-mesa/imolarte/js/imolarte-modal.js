@@ -1375,8 +1375,10 @@ const Modal = (() => {
     const subtotal  = Utils.roundCOP(_ckSubtotal);
     const bonoDesc  = _ckBono ? Math.min(Utils.roundCOP(_ckBono.available), subtotal) : 0;
     const base      = subtotal - bonoDesc;
-    const disc100   = Math.ceil(base * cfg.discountPayFull / 1000) * 1000;
-    const pay60     = Math.ceil(base * 0.6 / 1000) * 1000;
+    // Floor al millar: el cliente siempre paga menos o igual al valor calculado
+    // _submitWompi usa la misma fórmula → display = cobro = email (sin sorpresas)
+    const disc100   = Math.floor(base * cfg.discountPayFull / 1000) * 1000;
+    const pay60     = Math.floor(base * 0.6 / 1000) * 1000;
     const pay100    = base - disc100;
 
     // Mostrar subtotal (ya con descuento campaña si aplica)
@@ -1443,8 +1445,28 @@ const Modal = (() => {
     if (bonoCobreTotal) {
       if (wpPayActions) wpPayActions.style.display = 'none';
       if (wpPayGift)    wpPayGift.style.display     = 'block';
+
+      // Mostrar desglose 3% incluso cuando bono cubre el total
+      // (el 3% aplica sobre el subtotal, el bono cubre subtotal * 0.97)
+      const giftDisc3 = Math.floor(subtotal * cfg.discountPayFull / 1000) * 1000;
+      const giftTotal = subtotal - giftDisc3;   // = lo que cubre el bono (<=subtotal)
+      const bonoLine2 = document.getElementById('wpLineBono');
+      const bonoVal2  = document.getElementById('wpValBono');
+      if (bonoLine2) bonoLine2.style.display = 'flex';
+      if (bonoVal2)  bonoVal2.textContent    = '− ' + Utils.formatPrice(Math.min(bonoDesc, giftTotal));
+
+      const disc100Line2 = document.getElementById('wpLineDisc100');
+      const disc100Val2  = document.getElementById('wpValDisc100');
+      if (disc100Line2) disc100Line2.style.display = 'flex';
+      if (disc100Val2)  disc100Val2.textContent    = '− ' + Utils.formatPrice(giftDisc3);
+
+      const totalFinalLine2 = document.getElementById('wpLineTotalFinal');
+      const totalFinalVal2  = document.getElementById('wpValTotalFinal');
+      if (totalFinalLine2) totalFinalLine2.style.display = 'flex';
+      if (totalFinalVal2)  totalFinalVal2.textContent    = Utils.formatPrice(0);
+
       const giftAmtEl = document.getElementById('wpAmountGift');
-      if (giftAmtEl) giftAmtEl.textContent = 'Cubierto por Gift Card';
+      if (giftAmtEl) giftAmtEl.textContent = 'Total: $0 — Cubierto por Gift Card';
     } else {
       if (wpPayActions) wpPayActions.style.display = 'flex';
       if (wpPayGift)    wpPayGift.style.display     = 'none';
@@ -1478,10 +1500,11 @@ const Modal = (() => {
     const cfg         = IMOLARTE_CONFIG.checkout;
     const bonoDesc    = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
     const base        = subtotal - bonoDesc;
-    const disc100     = pct === '100' ? Math.round(base * cfg.discountPayFull) : 0;
-    const total       = pct === '60'  ? Math.round(base * 0.6) : base - disc100;
+    // Floor al millar — misma fórmula que _updateWompiTotals para que display = cobro
+    const disc100     = pct === '100' ? Math.floor(base * cfg.discountPayFull / 1000) * 1000 : 0;
+    const total       = pct === '60'  ? Math.floor(base * 0.6 / 1000) * 1000 : base - disc100;
     const descuento   = bonoDesc + disc100;
-    const amountCents = Math.round(total * 100);
+    const amountCents = total * 100;  // ya es múltiplo de $1.000 → sin pérdida de centavos
 
     // Generar referencia local — NO grabar en Sheets todavía.
     // El pedido se graba en Sheets solo cuando Wompi confirma APPROVED (en checkout.js)
@@ -1568,8 +1591,12 @@ const Modal = (() => {
     const data     = _collectCMO('wp');
     const items    = Cart.getItems();
     const subtotal = _ckSubtotal;
-    const bonoDesc = _ckBono ? Math.min(_ckBono.available, subtotal) : 0;
-    const total    = 0;  // cubierto por gift card
+    const cfg2     = IMOLARTE_CONFIG.checkout;
+    // El 3% aplica también cuando el bono cubre el total (pago anticipado 100%)
+    const disc3    = Math.floor(subtotal * cfg2.discountPayFull / 1000) * 1000;
+    const netTotal = subtotal - disc3;           // lo que debe cubrir el bono
+    const bonoDesc = _ckBono ? Math.min(_ckBono.available, netTotal) : 0;
+    const total    = 0;  // cubierto por gift card (bono >= netTotal)
 
     // 1. Registrar pedido en Sheets
     let reference = '';
@@ -1577,7 +1604,7 @@ const Modal = (() => {
       const result = await Api.createPedidoWompi(data, items, {
         formaPago:        _ckBono?.code ? `GIFT_CARD:${_ckBono.code}` : 'GIFT_CARD',
         subtotal,
-        descuento:        bonoDesc,
+        descuento:        bonoDesc + disc3,
         total,
         porcentajePagado: 100,
         referencia:       '',
@@ -2115,7 +2142,8 @@ const Modal = (() => {
     if (tel)       params.set('customer-data:phone-number', `${pais}${tel}`);
 
     Logger.log('modal.js: gift card → Wompi', { reference, amountCts });
-    try { sessionStorage.setItem('imolarte_wompi_redirect', '1'); } catch(e) {}
+    // Flag específico para Gift — pageshow lo usará para reabrir el modal Gift
+    try { sessionStorage.setItem('imolarte_gift_redirect', reference); } catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 
@@ -2269,6 +2297,16 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('pageshow', (e) => {
   if (!e.persisted) return;
   try {
+    const giftRef = sessionStorage.getItem('imolarte_gift_redirect');
+    if (giftRef) {
+      // Usuario volvió de Wompi sin pagar la Gift Card — reabrir modal Gift
+      sessionStorage.removeItem('imolarte_gift_redirect');
+      setTimeout(() => {
+        Modal.resetState();
+        Modal.openGift(); // reabre el modal de compra de gift card
+      }, 150);
+      return;
+    }
     if (sessionStorage.getItem('imolarte_wompi_redirect') === '1') {
       sessionStorage.removeItem('imolarte_wompi_redirect');
       // BUG-03: 150ms — bfcache necesita más tiempo que 50ms para hidratar el DOM
