@@ -247,7 +247,8 @@ function _createPedidoWompi(b) {
         if (existing[i][colRef] === ref) {
           _log('createPedidoWompi', ref, 'DUPLICATE_SKIPPED');
           const colCli = existing[0].indexOf('ClienteID');
-          return { ok: true, referencia: ref, clienteId: colCli >= 0 ? existing[i][colCli] : '' };
+          // rowNum = i + 1 (1-based) — devuelto para que _confirmarPagoWompi actualice directamente
+          return { ok: true, referencia: ref, clienteId: colCli >= 0 ? existing[i][colCli] : '', rowNum: i + 1 };
         }
       }
     }
@@ -308,13 +309,13 @@ function _createPedidoWompi(b) {
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
-  // v20.04 BUG-1 fix: flush() en el mismo scope del appendRow — garantiza que la fila
-  // está comprometida ANTES de que _confirmarPagoWompi llame a getDataRange()
+  // flush() en el mismo scope del appendRow — garantiza que la fila está escrita.
   SpreadsheetApp.flush();
+  const rowNum = sheet.getLastRow(); // fila recién creada (1-based)
   // _skipEmail: true cuando el pedido se crea post-pago desde checkout.js
   const _esGift = String(b.formaPago || '').startsWith('GIFT_CARD');
   if (!b._skipEmail && !_esGift && cli.email) _emailPedidoRecibido(cli.email, cli.nombre, ref, b.productos, b.total);
-  return { ok: true, referencia: ref, clienteId: cliId };
+  return { ok: true, referencia: ref, clienteId: cliId, rowNum };
 }
 
 function _confirmarPagoWompi(b) {
@@ -327,10 +328,13 @@ function _confirmarPagoWompi(b) {
 
   // ── Flujo lean: si viene pedidoPayload, hacer create+redeem en servidor ──
   // Una sola llamada HTTP desde el browser — sin riesgo de cancelación.
+  // _leanRowNum: número de fila (1-based) devuelto por _createPedidoWompi para
+  // evitar re-leer la hoja completa (posible dato desactualizado post-flush).
+  let _leanRowNum = 0;
   if (b.pedidoPayload && status === 'APPROVED') {
     const p = b.pedidoPayload;
     // 1. Crear pedido (idempotente — si ya existe, no duplica)
-    _createPedidoWompi({
+    const _cRes = _createPedidoWompi({
       campaniaId:       p.campaniaId       || '',
       catalogoId:       p.catalogoId       || '',
       cliente:          p.cliente          || {},
@@ -344,6 +348,7 @@ function _confirmarPagoWompi(b) {
       referencia:       ref,
       _skipEmail:       true,
     });
+    _leanRowNum = _cRes.rowNum || 0;
     // 2. Redimir bono si aplica
     if (p.bono && p.bono.code && p.bono.monto > 0) {
       _redeemDono({ code: p.bono.code, amount: p.bono.monto, referencia: ref });
@@ -351,9 +356,11 @@ function _confirmarPagoWompi(b) {
   }
 
   const sheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
-  SpreadsheetApp.flush(); // v20.02: garantiza que appendRow ya está escrito antes de leer
-  const data   = sheet.getDataRange().getValues();
-  const header = data[0];
+  SpreadsheetApp.flush(); // commit todos los writes pendientes (appendRow + redeemDono)
+
+  // ── Obtener header (siempre una sola fila — muy barato) ──────
+  const lastCol = sheet.getLastColumn();
+  const header  = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
 
   const colRef    = header.indexOf('Referencia');
   const colPagoWP = header.indexOf('Estado_Pago_Wompi');
@@ -363,14 +370,33 @@ function _confirmarPagoWompi(b) {
   if (colRef < 0 || colPagoWP < 0 || colPedido < 0)
     return { ok: false, error: 'Columnas no encontradas en Pedidos_Wompi' };
 
-  for (let i = 1; i < data.length; i++) {
+  // ── Localizar fila: si tenemos rowNum del lean flow, usarlo directamente.
+  // De lo contrario escanear toda la hoja (flujo estándar sin payload).
+  let _rowIdx = -1; // índice 0-based en `data`
+  let data;
+  if (_leanRowNum > 0) {
+    // Leer solo la fila específica — no depende de caché de la hoja completa
+    const rowValues = sheet.getRange(_leanRowNum, 1, 1, lastCol).getValues()[0];
+    if (String(rowValues[colRef]) === ref) {
+      // Simular el mismo acceso que el bucle for produce
+      data   = [header, rowValues];
+      _rowIdx = 1; // en data[], la fila es índice 1
+    }
+  }
+  if (_rowIdx < 0) {
+    // Fallback: leer toda la hoja (flujo sin payload o rowNum desconocido)
+    data = sheet.getDataRange().getValues();
+  }
+
+  for (let i = (_rowIdx >= 0 ? _rowIdx : 1); i < data.length; i++) {
     if (data[i][colRef] !== ref) continue;
 
-    sheet.getRange(i + 1, colPagoWP + 1).setValue(status);
+    const rowNum1 = (_leanRowNum > 0 && i === _rowIdx) ? _leanRowNum : (i + 1);
+    sheet.getRange(rowNum1, colPagoWP + 1).setValue(status);
     const estadoPedido = status === 'APPROVED' ? 'CONFIRMADO'
       : (status === 'PENDING' ? 'PENDIENTE' : 'CANCELADO');
-    sheet.getRange(i + 1, colPedido + 1).setValue(estadoPedido);
-    if (txId && colTxId >= 0) sheet.getRange(i + 1, colTxId + 1).setValue(txId);
+    sheet.getRange(rowNum1, colPedido + 1).setValue(estadoPedido);
+    if (txId && colTxId >= 0) sheet.getRange(rowNum1, colTxId + 1).setValue(txId);
 
     _log('confirmarPagoWompi', ref, status, estadoPedido);
 
@@ -587,15 +613,18 @@ function _confirmarPagoGiftCard(b) {
       if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, apellido, codigo, valor, vig, mensaje);
 
       if (telEmisor && valor > 0) {
-        // Registrar la compra de Gift Card en Productos_comprados del cliente
+        // Registrar compra de GC: cuenta interacción (+1) y acumula total histórico.
+        // _soloTotal eliminado — compra confirmada de GC = interacción real del cliente.
         _upsertCliente({
           telefono  : String(telEmisor),
           tipoDoc   : String(docTipo),
           numDoc    : String(docNum),
+          nombre    : String(nombre),
+          apellido  : String(apellido),
+          email     : String(email),
           total     : valor,
-          _soloTotal: true,
           _pedidoRef  : ref,
-          _pedidoProds: [{ productName: `Gift Card ${codigo}`, collection: '', quantity: 1 }],
+          _pedidoProds: [{ productName: `Gift Card ${codigo}`, collection: 'Gift Card', quantity: 1 }],
           _pedidoTs   : new Date(),
         });
       }

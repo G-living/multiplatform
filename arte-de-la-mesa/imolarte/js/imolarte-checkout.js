@@ -122,17 +122,17 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       const codigo       = giftPayload?.codigo || '';
 
       setContent(
-        '🎁', '¡Regalo confirmado!',
-        `¡Tu regalo ha sido enviado con éxito! ✨<br><br>
-         ${codigo ? `<div style="background:#1a1610;border-radius:8px;padding:16px;text-align:center;margin:12px 0">
-           <p style="color:#C4A05A;font-size:11px;letter-spacing:2px;margin:0 0 6px">CÓDIGO DE REGALO</p>
-           <p style="color:#fff;font-size:22px;font-weight:bold;font-family:monospace;letter-spacing:3px;margin:0 0 4px">${codigo}</p>
-           ${vigencia ? `<p style="color:#888;font-size:11px;margin:0">Válido hasta: ${vigencia}</p>` : ''}
+        '🎁', '¡Tu Gift Card está lista!',
+        `¡Gracias por este gesto tan especial! Tu regalo ha sido activado y está en camino. ✨<br><br>
+         ${codigo ? `<div style="background:#1a1610;border-radius:10px;padding:20px;text-align:center;margin:14px 0">
+           <p style="color:#C4A05A;font-size:11px;letter-spacing:2px;margin:0 0 8px;text-transform:uppercase">Código de Gift Card</p>
+           <p style="color:#fff;font-size:26px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 6px">${codigo}</p>
+           ${vigencia ? `<p style="color:#aaa;font-size:12px;margin:0">Válido hasta: <strong style="color:#C4A05A">${vigencia}</strong></p>` : ''}
          </div>` : ''}
-         <strong>${destCompleto}</strong> recibirá el código por email en los próximos minutos.<br><br>
-         Tú también recibirás una copia con todos los detalles.<br><br>
-         <strong>¿Cómo usar la Gift Card?</strong> El destinatario ingresa el código antes del checkout del carrito. Válida para cualquier compra en nuestra tienda.<br><br>
-         <em>Un regalo hecho a mano en Italia, con todo el cariño.</em>`,
+         <strong>${destCompleto}</strong> recibirá este código por email junto con un mensaje de regalo personalizado.<br>
+         Tú también recibirás una copia con todos los detalles de tu compra.<br><br>
+         <strong>¿Cómo se usa?</strong> El destinatario ingresa el código en el campo de bono antes del pago — aplica en cualquier producto de la tienda, con vigencia hasta la fecha indicada.<br><br>
+         <em>Cada pieza es única, hecha a mano en Italia. Un regalo que perdura.</em>`,
         reference,
         btnCatalogo + btnWA,
         'confirm-title--success'
@@ -170,9 +170,9 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
 
       setContent(
         '🏺', '¡Gracias por tu compra!',
-        `Tu pedido fue confirmado exitosamente.<br><br>
+        `¡Qué alegría tenerte de vuelta! Tu pedido ha sido confirmado y ya estamos trabajando en él con todo el cariño.<br><br>
          ${_bonoLine}
-         En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.<br><br>
+         En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle completo de tu pedido.<br><br>
          Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
          <em>Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</em>`,
         reference,
@@ -226,11 +226,11 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
 
     setContent(
       '🏺', '¡Gracias por tu compra!',
-      `Tu pago fue confirmado exitosamente.<br><br>
+      `¡Qué alegría! Tu pago fue confirmado exitosamente — cada pieza que elegiste es única, hecha a mano en Italia especialmente para ti.<br><br>
        ${_bonoLineA}
-       En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle de tu pedido.<br><br>
+       En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle completo de tu pedido.<br><br>
        Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
-       <em>Cada pieza que elegiste es única — hecha a mano en Italia, especialmente para ti.</em>`,
+       <em>Gracias por confiar en IMOLARTE. Es un honor llevar cerámica italiana a tu mesa.</em>`,
       reference,
       btnCatalogo + btnWA,
       'confirm-title--success'
