@@ -1513,7 +1513,7 @@ function _getClientesSegmento() {
 
 function onSheetChange(e) {
   try {
-    if (!e || e.changeType !== 'EDIT') return;
+    if (!e || !e.range) return;
     const sheet = e.source.getActiveSheet();
     if (sheet.getName() !== CFG.SHEETS.PEDIDOS_WOMPI) return;
 
