@@ -701,6 +701,11 @@ const Modal = (() => {
     // Checkout Wompi
     document.getElementById('closeCheckoutWompi')?.addEventListener('click', () => _closeModal('modalCheckoutWompi'));
     document.getElementById('modalCheckoutWompiOverlay')?.addEventListener('click', () => _closeModal('modalCheckoutWompi'));
+    document.getElementById('wpBtnApplyInfluencer')?.addEventListener('click', _applyInfluencer);
+    document.getElementById('wpInputInfluencer')?.addEventListener('input', e => {
+      e.target.value = e.target.value.toUpperCase();
+      _resetInfluencer();
+    });
     document.getElementById('wpBtnApplyBono')?.addEventListener('click', _applyBono);
     document.getElementById('wpInputBono')?.addEventListener('input', e => {
       e.target.value = e.target.value.toUpperCase();
@@ -760,8 +765,9 @@ const Modal = (() => {
   // ═══════════════════════════════════════════════════
   // CHECKOUT — ESTADO COMPARTIDO
   // ═══════════════════════════════════════════════════
-  let _ckBono      = null;   // { code, available } si voucher válido
-  let _ckSubtotal  = 0;
+  let _ckBono        = null;   // { code, available } si voucher válido
+  let _ckInfluencer  = null;   // { codigo, descuentoPct, comisionPct } si código válido
+  let _ckSubtotal    = 0;
 
   // ═══════════════════════════════════════════════════
   // OPEN — rellenar días y montos al abrir
@@ -869,8 +875,9 @@ const Modal = (() => {
 
   function openCheckoutWompi() {
     _populateDias('wpInputCumpleDia');
-    _ckBono     = null;   // reset siempre — se revalida automáticamente si hay código
-    _ckSubtotal = Cart.getTotal();
+    _ckBono       = null;   // reset siempre — se revalida automáticamente si hay código
+    _ckInfluencer = null;
+    _ckSubtotal   = Cart.getTotal();
     _updateWompiTotals();
     const btn60  = document.getElementById('btnPagar60');
     const btn100 = document.getElementById('btnPagar100');
@@ -887,8 +894,11 @@ const Modal = (() => {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
-      // Auto-revalidar bono si el campo tiene un código (ej: cliente volvió con "Regresar")
-      // Así el descuento se restaura sin que el cliente tenga que presionar "Aplicar" de nuevo
+      // Auto-revalidar influencer y bono si los campos tienen código (ej: cliente volvió con "Regresar")
+      const inflInput = document.getElementById('wpInputInfluencer');
+      if (inflInput && inflInput.value.trim()) {
+        _applyInfluencer();
+      }
       const bonoInput = document.getElementById('wpInputBono');
       if (bonoInput && bonoInput.value.trim()) {
         _applyBono();
@@ -1376,18 +1386,58 @@ const Modal = (() => {
     _updateWompiTotals();
   }
 
+  async function _applyInfluencer() {
+    const input  = document.getElementById('wpInputInfluencer');
+    const errEl  = document.getElementById('wpErrInfluencer');
+    const succEl = document.getElementById('wpSuccessInfluencer');
+    const code   = (input?.value || '').trim().toUpperCase();
+
+    if (!code) { if (errEl) errEl.textContent = 'Ingresa un código'; return; }
+
+    const btn = document.getElementById('wpBtnApplyInfluencer');
+    if (btn) { btn.disabled = true; btn.textContent = 'Verificando…'; }
+
+    try {
+      const data = await Api.getInfluencer(code);
+      if (data.valid) {
+        _ckInfluencer = { codigo: data.codigo, descuentoPct: data.descuentoPct, comisionPct: data.comisionPct };
+        if (errEl)  errEl.textContent = '';
+        if (succEl) { succEl.textContent = `✓ Código válido — ${data.descuentoPct}% de descuento aplicado`; succEl.style.display = 'block'; }
+        _updateWompiTotals();
+        Toast.show(`Descuento ${data.descuentoPct}% aplicado por código influencer`, 'success');
+      } else {
+        _resetInfluencer();
+        if (errEl) errEl.textContent = data.reason || 'Código inválido';
+        if (succEl) succEl.style.display = 'none';
+      }
+    } catch(err) {
+      if (errEl) errEl.textContent = 'Error al verificar. Intenta de nuevo.';
+      Logger.warn('modal.js: error validando influencer', err);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Aplicar'; }
+    }
+  }
+
+  function _resetInfluencer() {
+    _ckInfluencer = null;
+    _updateWompiTotals();
+  }
+
   function _updateWompiTotals() {
     const cfg       = IMOLARTE_CONFIG.checkout;
     const subtotal  = Utils.roundCOP(_ckSubtotal);
-    // Orden correcto: subtotal → −bono → −3% → total.
-    // El bono (gift card) se descuenta PRIMERO; el 3% aplica sobre el remanente.
+    // Orden: subtotal → −bono → −infl% → −3%(si 100%) → total.
+    // Bono primero; influencer sobre el remanente; 3% sobre afterInfl (solo pago 100%).
     // Floor al millar: el cliente siempre paga menos o igual al valor calculado.
     // _submitWompi usa la misma fórmula → display = cobro = email (sin sorpresas).
     const bonoDesc  = _ckBono ? Math.min(_ckBono.available || 0, subtotal) : 0;
     const afterBono = subtotal - bonoDesc;
-    const disc100   = Math.floor(afterBono * cfg.discountPayFull / 1000) * 1000;
-    const pay100    = afterBono - disc100;
-    const pay60     = Math.floor(afterBono * 0.6 / 1000) * 1000;
+    const inflPct   = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
+    const discInfl  = _ckInfluencer ? Math.floor(afterBono * inflPct / 1000) * 1000 : 0;
+    const afterInfl = afterBono - discInfl;
+    const disc100   = Math.floor(afterInfl * cfg.discountPayFull / 1000) * 1000;
+    const pay100    = afterInfl - disc100;
+    const pay60     = Math.floor(afterInfl * 0.6 / 1000) * 1000;
 
     // Mostrar subtotal (ya con descuento campaña si aplica)
     const subEl = document.getElementById('wpValSubtotal');
@@ -1417,27 +1467,37 @@ const Modal = (() => {
       campLine.style.display = 'none';
     }
 
+    const anyDiscount = bonoDesc > 0 || discInfl > 0;
+
     // Mostrar/ocultar línea bono con valor negativo
     const bonoLine = document.getElementById('wpLineBono');
     const bonoVal  = document.getElementById('wpValBono');
     if (bonoLine) bonoLine.style.display = bonoDesc > 0 ? 'flex' : 'none';
     if (bonoVal)  bonoVal.textContent = '− ' + Utils.formatPrice(bonoDesc);
 
-    // Línea descuento 3% — visible solo cuando hay bono Y el descuento > $0 tras floor al millar.
-    // Orden DOM: Subtotal → Bono Gift → Dcto 3% → Total (igual que en el HTML).
+    // Mostrar/ocultar línea influencer
+    const inflLine  = document.getElementById('wpLineInfluencer');
+    const inflLabel = document.getElementById('wpLabelInfluencer');
+    const inflVal   = document.getElementById('wpValInfluencer');
+    if (inflLine) inflLine.style.display = discInfl > 0 ? 'flex' : 'none';
+    if (inflLabel && _ckInfluencer) inflLabel.textContent = `Descuento ${_ckInfluencer.descuentoPct}% influencer`;
+    if (inflVal)  inflVal.textContent = '− ' + Utils.formatPrice(discInfl);
+
+    // Línea descuento 3% — visible cuando hay algún descuento previo Y disc100 > $0.
+    // Orden DOM: Subtotal → Bono Gift → Influencer → Dcto 3% → Total (igual que en el HTML).
     const disc100Line  = document.getElementById('wpLineDisc100');
     const disc100Val   = document.getElementById('wpValDisc100');
-    if (bonoDesc > 0 && disc100 > 0 && disc100Line) {
+    if (anyDiscount && disc100 > 0 && disc100Line) {
       disc100Line.style.display = 'flex';
       if (disc100Val) disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
     } else if (disc100Line) {
       disc100Line.style.display = 'none';
     }
 
-    // Línea "Total a pagar" visible cuando hay bono
+    // Línea "Total a pagar" visible cuando hay cualquier descuento aplicado
     const totalFinalLine = document.getElementById('wpLineTotalFinal');
     const totalFinalVal  = document.getElementById('wpValTotalFinal');
-    if (bonoDesc > 0) {
+    if (anyDiscount) {
       if (totalFinalLine) totalFinalLine.style.display = 'flex';
       if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(pay100);
     } else {
@@ -1509,13 +1569,16 @@ const Modal = (() => {
     const items       = Cart.getItems();
     const subtotal    = _ckSubtotal;
     const cfg         = IMOLARTE_CONFIG.checkout;
-    // Misma fórmula que _updateWompiTotals: bono (gift card) primero, 3% sobre el remanente.
+    // Misma fórmula que _updateWompiTotals: bono → infl% → 3%(si 100%) → total.
     const bonoDesc    = _ckBono ? Math.min(_ckBono.available || 0, subtotal) : 0;
     const afterBono   = subtotal - bonoDesc;
-    const disc100raw  = pct === '100' ? Math.floor(afterBono * cfg.discountPayFull / 1000) * 1000 : 0;
-    const afterDisc   = afterBono - disc100raw;
-    const total       = pct === '60' ? Math.floor(afterBono * 0.6 / 1000) * 1000 : afterDisc;
-    const descuento   = bonoDesc + disc100raw;
+    const inflPct     = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
+    const discInfl    = _ckInfluencer ? Math.floor(afterBono * inflPct / 1000) * 1000 : 0;
+    const afterInfl   = afterBono - discInfl;
+    const disc100raw  = pct === '100' ? Math.floor(afterInfl * cfg.discountPayFull / 1000) * 1000 : 0;
+    const afterDisc   = afterInfl - disc100raw;
+    const total       = pct === '60' ? Math.floor(afterInfl * 0.6 / 1000) * 1000 : afterDisc;
+    const descuento   = bonoDesc + discInfl + disc100raw;
     const amountCents = total * 100;  // ya es múltiplo de $1.000 → sin pérdida de centavos
 
     // Generar referencia local — NO grabar en Sheets todavía.
@@ -1540,6 +1603,8 @@ const Modal = (() => {
       bono:             _ckBono
         ? { code: _ckBono.code, monto: bonoDesc, available: _ckBono.available }
         : null,
+      influencerCodigo: _ckInfluencer?.codigo || null,
+      influencerBase:   _ckInfluencer ? subtotal : 0,
       campaniaId:       IMOLARTE_CONFIG?.campania?.id  || '',
       catalogoId:       IMOLARTE_CONFIG?.catalogo?.id  || '',
     });
@@ -1611,13 +1676,15 @@ const Modal = (() => {
     const subtotal = _ckSubtotal;
     const cfg2     = IMOLARTE_CONFIG.checkout;
 
-    // BUG-3C fix v21.1: GC cubre 100% — disc3 se aplica sobre el subtotal completo,
-    // bono cubre el remanente (subtotal − disc3), NO el subtotal entero.
-    // Antes: disc3 = floor(0 * 0.03) = 0 porque base3 = subtotal − subtotal = 0.
-    // Ahora: disc3 = floor(subtotal * 0.03), bonoActual = subtotal − disc3.
-    const disc3      = Math.floor(subtotal * cfg2.discountPayFull / 1000) * 1000;
-    const bonoActual = subtotal - disc3;   // importe que cubre la GC (≤ GC.available)
-    const totalFinal = 0;                  // bono cubre el total después del descuento
+    // BUG-3C fix v21.1 + v20.16 influencer: bono → infl → 3% → total=0
+    // discInfl aplica sobre afterBono (= subtotal cuando bono es otro mecanismo)
+    // disc3 aplica sobre afterInfl; bonoActual = lo que la GC necesita cubrir.
+    const inflPct2   = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
+    const discInfl2  = _ckInfluencer ? Math.floor(subtotal * inflPct2 / 1000) * 1000 : 0;
+    const afterInfl2 = subtotal - discInfl2;
+    const disc3      = Math.floor(afterInfl2 * cfg2.discountPayFull / 1000) * 1000;
+    const bonoActual = afterInfl2 - disc3; // importe que cubre la GC (≤ GC.available)
+    const totalFinal = 0;                  // bono cubre el total después de descuentos
 
     // Generar referencia
     const reference = `WP-${Date.now()}`;
@@ -1627,7 +1694,7 @@ const Modal = (() => {
     const _pendingGiftPayload = JSON.stringify({
       formaPago:        _ckBono?.code ? `GIFT_CARD:${_ckBono.code}` : 'GIFT_CARD',
       subtotal,
-      descuento:        disc3 + bonoActual,  // = subtotal (disc3 + bonoActual)
+      descuento:        discInfl2 + disc3 + bonoActual,  // = subtotal (discInfl + disc3 + bonoActual)
       total:            totalFinal,
       porcentajePagado: 100,
       referencia:       reference,
@@ -1637,6 +1704,8 @@ const Modal = (() => {
       bono:             _ckBono
         ? { code: _ckBono.code, monto: bonoActual, available: _ckBono.available }
         : null,
+      influencerCodigo: _ckInfluencer?.codigo || null,
+      influencerBase:   _ckInfluencer ? subtotal : 0,
       campaniaId:       IMOLARTE_CONFIG?.campania?.id || '',
       catalogoId:       IMOLARTE_CONFIG?.catalogo?.id || '',
     });

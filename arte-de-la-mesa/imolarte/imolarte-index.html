@@ -829,6 +829,15 @@
           <div class="cmo-section-label">Pago</div>
 
           <div class="cmo-group">
+            <label class="cmo-label" for="wpInputInfluencer">Código influencer <span class="cmo-hint">(opcional)</span></label>
+            <div class="cmo-field-with-btn">
+              <input class="cmo-input" type="text" id="wpInputInfluencer" placeholder="INF-CODIGO"
+                autocomplete="off" autocapitalize="characters" spellcheck="false">
+              <button type="button" class="btn btn-secondary cmo-btn-bono" id="wpBtnApplyInfluencer">Aplicar</button>
+            </div>
+            <span class="cmo-error"   id="wpErrInfluencer"></span>
+            <span class="cmo-success" id="wpSuccessInfluencer" style="display:none"></span>
+
             <label class="cmo-label" for="wpInputBono">Código de bono <span class="cmo-hint">(opcional)</span></label>
             <div class="cmo-bono-row">
               <input class="cmo-input" type="text" id="wpInputBono" placeholder="ABCD1234EF"
@@ -848,6 +857,9 @@
             </div>
             <div class="cmo-total-line cmo-line-discount" id="wpLineBono" style="display:none">
               <span>Bono descuento</span><span id="wpValBono" class="cmo-discount-val"></span>
+            </div>
+            <div class="cmo-total-line cmo-line-discount" id="wpLineInfluencer" style="display:none">
+              <span id="wpLabelInfluencer">Descuento influencer</span><span id="wpValInfluencer" class="cmo-discount-val"></span>
             </div>
             <div class="cmo-total-line cmo-line-discount" id="wpLineDisc100" style="display:none">
               <span>Descuento 3% (pago total)</span><span id="wpValDisc100" class="cmo-discount-val"></span>
