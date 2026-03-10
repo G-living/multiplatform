@@ -1383,6 +1383,8 @@ const Modal = (() => {
 
   function _resetBono() {
     _ckBono = null;
+    const succEl = document.getElementById('wpSuccessBono');
+    if (succEl) { succEl.textContent = ''; succEl.style.display = 'none'; }
     _updateWompiTotals();
   }
 
@@ -1420,24 +1422,27 @@ const Modal = (() => {
 
   function _resetInfluencer() {
     _ckInfluencer = null;
+    const succEl = document.getElementById('wpSuccessInfluencer');
+    if (succEl) { succEl.textContent = ''; succEl.style.display = 'none'; }
     _updateWompiTotals();
   }
 
   function _updateWompiTotals() {
     const cfg       = IMOLARTE_CONFIG.checkout;
     const subtotal  = Utils.roundCOP(_ckSubtotal);
-    // Orden: subtotal → −bono → −infl% → −3%(si 100%) → total.
-    // Bono primero; influencer sobre el remanente; 3% sobre afterInfl (solo pago 100%).
+    // Orden: subtotal → −infl% → −3%(si 100%) → −bono → total.
+    // Influencer sobre subtotal completo; bono cubre solo lo que queda tras infl+3%.
+    // Esto garantiza discInfl > 0 aunque el bono cubra el total, y que el GC
+    // consuma el mínimo saldo necesario. _submitConGiftCard usa el mismo orden.
     // Floor al millar: el cliente siempre paga menos o igual al valor calculado.
-    // _submitWompi usa la misma fórmula → display = cobro = email (sin sorpresas).
-    const bonoDesc  = _ckBono ? Math.min(_ckBono.available || 0, subtotal) : 0;
-    const afterBono = subtotal - bonoDesc;
     const inflPct   = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
-    const discInfl  = _ckInfluencer ? Math.floor(afterBono * inflPct / 1000) * 1000 : 0;
-    const afterInfl = afterBono - discInfl;
+    const discInfl  = _ckInfluencer ? Math.floor(subtotal * inflPct / 1000) * 1000 : 0;
+    const afterInfl = subtotal - discInfl;
     const disc100   = Math.floor(afterInfl * cfg.discountPayFull / 1000) * 1000;
-    const pay100    = afterInfl - disc100;
-    const pay60     = Math.floor(afterInfl * 0.6 / 1000) * 1000;
+    const afterDisc = afterInfl - disc100;
+    const bonoDesc  = _ckBono ? Math.min(_ckBono.available || 0, afterDisc) : 0;
+    const pay100    = afterDisc - bonoDesc;
+    const pay60     = Math.floor((afterInfl - bonoDesc) * 0.6 / 1000) * 1000;
 
     // Mostrar subtotal (ya con descuento campaña si aplica)
     const subEl = document.getElementById('wpValSubtotal');
@@ -1514,7 +1519,7 @@ const Modal = (() => {
       if (wpPayActions) wpPayActions.style.display = 'none';
       if (wpPayGift)    wpPayGift.style.display     = 'block';
 
-      // Desglose: bono cubre subtotal; 3% = 0 (no hay remanente tras el bono)
+      // Desglose: infl% + 3% ya aplicados; bono cubre afterDisc (= afterInfl − disc100)
       const bonoLine2 = document.getElementById('wpLineBono');
       const bonoVal2  = document.getElementById('wpValBono');
       if (bonoLine2) bonoLine2.style.display = 'flex';
@@ -1569,16 +1574,16 @@ const Modal = (() => {
     const items       = Cart.getItems();
     const subtotal    = _ckSubtotal;
     const cfg         = IMOLARTE_CONFIG.checkout;
-    // Misma fórmula que _updateWompiTotals: bono → infl% → 3%(si 100%) → total.
-    const bonoDesc    = _ckBono ? Math.min(_ckBono.available || 0, subtotal) : 0;
-    const afterBono   = subtotal - bonoDesc;
+    // Misma fórmula que _updateWompiTotals: infl% → 3%(si 100%) → bono → total.
     const inflPct     = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
-    const discInfl    = _ckInfluencer ? Math.floor(afterBono * inflPct / 1000) * 1000 : 0;
-    const afterInfl   = afterBono - discInfl;
+    const discInfl    = _ckInfluencer ? Math.floor(subtotal * inflPct / 1000) * 1000 : 0;
+    const afterInfl   = subtotal - discInfl;
     const disc100raw  = pct === '100' ? Math.floor(afterInfl * cfg.discountPayFull / 1000) * 1000 : 0;
     const afterDisc   = afterInfl - disc100raw;
-    const total       = pct === '60' ? Math.floor(afterInfl * 0.6 / 1000) * 1000 : afterDisc;
-    const descuento   = bonoDesc + discInfl + disc100raw;
+    const bonoDesc    = _ckBono ? Math.min(_ckBono.available || 0, afterDisc) : 0;
+    const afterBono   = afterDisc - bonoDesc;
+    const total       = pct === '60' ? Math.floor((afterInfl - bonoDesc) * 0.6 / 1000) * 1000 : afterBono;
+    const descuento   = discInfl + disc100raw + bonoDesc;
     const amountCents = total * 100;  // ya es múltiplo de $1.000 → sin pérdida de centavos
 
     // Generar referencia local — NO grabar en Sheets todavía.
