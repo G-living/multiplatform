@@ -44,7 +44,8 @@
 //           setupTriggerResumenDiario() crea el trigger (ejecutar una vez desde Apps Script UI).
 // ─ v20.12: emailResumenHuerfanos extendido — incluye Wishlists PENDIENTE, Pedidos_Wompi,
 //           GiftCards INACTIVA y Cumpleaños del día (desde sheet Clientes).
-// ─ v20.13: adminDesactivarGiftCard — nuevo endpoint para desactivar cualquier gift card
+// ─ v20.13: emailResumenHuerfanos — 5 secciones en orden: Wishlists · Cumpleaños · PedidosWompi
+//           · Huérfanas (GiftCards Estado_Pago=PENDIENTE) · Gift Cards INACTIVAS. adminDesactivarGiftCard.
 //           manualmente (acepta referencia o codigo, cualquier estado → CANCELADA).
 //           _emailGiftCardActivada — texto actualizado: "se pondrá muy feliz…" +
 //           "Gracias por confiar en HELENA CABALLERO" + footer con Código/Referencia/TxID.
@@ -2292,7 +2293,7 @@ function emailResumenHuerfanos() {
     });
   }
 
-  // ── GiftCards INACTIVA ───────────────────────────────────
+  // ── GiftCards INACTIVA + Huérfanas (Estado_Pago PENDIENTE) ─
   const gcSheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
   const gcData   = gcSheet.getDataRange().getValues();
   const gcH      = gcData[0];
@@ -2301,21 +2302,25 @@ function emailResumenHuerfanos() {
   const gcColVal = gcH.indexOf('Saldo_Gift_COP');
   const gcColTs  = gcH.indexOf('Timestamp');
   const gcColEst = gcH.indexOf('Estado_Gift');
+  const gcColPag = gcH.indexOf('Estado_Pago');
   const gcColEmi = gcH.indexOf('Emisor_Email');
   const gcColNom = gcH.indexOf('Emisor_Nombre');
   const gcColApe = gcH.indexOf('Emisor_Apellido');
 
-  const gcHuerfanas = [];
+  const gcHuerfanas = [];   // Estado_Pago = PENDIENTE
+  const gcInactivas = [];   // Estado_Gift = INACTIVA
   for (let i = 1; i < gcData.length; i++) {
-    if (String(gcData[i][gcColEst] || '') !== 'INACTIVA') continue;
-    gcHuerfanas.push({
-      ref:    gcData[i][gcColRef] || '—',
-      codigo: gcData[i][gcColCod] || '—',
-      valor:  gcData[i][gcColVal] || 0,
-      emisor: [gcData[i][gcColNom], gcData[i][gcColApe]].filter(Boolean).join(' ') || '—',
-      email:  gcData[i][gcColEmi] || '—',
-      fecha:  _fmtTs(gcData[i][gcColTs]),
-    });
+    const row = gcData[i];
+    const entry = {
+      ref:    row[gcColRef] || '—',
+      codigo: row[gcColCod] || '—',
+      valor:  row[gcColVal] || 0,
+      emisor: [row[gcColNom], row[gcColApe]].filter(Boolean).join(' ') || '—',
+      email:  row[gcColEmi] || '—',
+      fecha:  _fmtTs(row[gcColTs]),
+    };
+    if (String(row[gcColPag] || '') === 'PENDIENTE') gcHuerfanas.push(entry);
+    if (String(row[gcColEst] || '') === 'INACTIVA')  gcInactivas.push(entry);
   }
 
   // ── Cumpleaños de hoy ────────────────────────────────────
@@ -2422,9 +2427,8 @@ function emailResumenHuerfanos() {
       </table>`;
   }
 
-  let gcTabla = '';
-  if (gcHuerfanas.length) {
-    const filas = gcHuerfanas.map(r => `
+  function _gcFilas(rows) {
+    return rows.map(r => `
       <tr>
         <td ${_tdStyle('')}>${r.fecha}</td>
         <td ${_tdStyle('')}>${r.ref}</td>
@@ -2433,9 +2437,11 @@ function emailResumenHuerfanos() {
         <td ${_tdStyle('')}>${r.emisor}</td>
         <td ${_tdStyle('color:#888')}>${r.email}</td>
       </tr>`).join('');
-    gcTabla = `
-      <h3 style="color:#c0392b;margin:24px 0 8px;font-size:14px">
-        🎁 Gift Cards INACTIVAS — ${gcHuerfanas.length} fila(s)
+  }
+  function _gcTable(titulo, color, emoji, rows) {
+    return `
+      <h3 style="color:${color};margin:24px 0 8px;font-size:14px">
+        ${emoji} ${titulo} — ${rows.length} fila(s)
       </h3>
       <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
         <thead><tr>
@@ -2446,16 +2452,23 @@ function emailResumenHuerfanos() {
           <th ${_thStyle('')}>Emisor</th>
           <th ${_thStyle('')}>Email</th>
         </tr></thead>
-        <tbody>${filas}</tbody>
+        <tbody>${_gcFilas(rows)}</tbody>
       </table>`;
   }
 
-  const totalAlerts = waPendientes.length + pwHuerfanos.length + gcHuerfanas.length;
+  const gcHuerfanasTabla = gcHuerfanas.length
+    ? _gcTable('Gift Cards Huérfanas (pago PENDIENTE)', '#d35400', '👻', gcHuerfanas)
+    : '';
+  const gcInactivasTabla = gcInactivas.length
+    ? _gcTable('Gift Cards INACTIVAS', '#c0392b', '🎁', gcInactivas)
+    : '';
+
+  const totalAlerts = waPendientes.length + pwHuerfanos.length + gcHuerfanas.length + gcInactivas.length;
   const hayAlgo     = totalAlerts > 0 || cumpleHoy.length > 0;
 
   const cuerpo = !hayAlgo
     ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay pendientes ni cumpleaños hoy.</p>`
-    : `${cumpleTabla}${waTabla}${pwTabla}${gcTabla}
+    : `${waTabla}${cumpleTabla}${pwTabla}${gcHuerfanasTabla}${gcInactivasTabla}
        <p style="margin:16px 0 0;font-size:12px;color:#888">
          ${totalAlerts > 0 ? `Alertas: <strong>${totalAlerts}</strong> pendiente(s) · ` : ''}
          <a href="${urlSheet}" style="color:#C4A05A">Ver Spreadsheet</a>
@@ -2481,7 +2494,7 @@ function emailResumenHuerfanos() {
   </div>
   <div style="background:#1a1610;padding:10px 28px;border-radius:0 0 8px 8px;text-align:center">
     <p style="color:#888;font-size:10px;margin:0">
-      Generado automáticamente · IMOLARTE v20.12 · <a href="${urlSheet}" style="color:#C4A05A">Abrir Sheets</a>
+      Generado automáticamente · IMOLARTE v20.13 · <a href="${urlSheet}" style="color:#C4A05A">Abrir Sheets</a>
     </p>
   </div>
 </div>`;
@@ -2490,7 +2503,8 @@ function emailResumenHuerfanos() {
   _log('emailResumenHuerfanos',
     'wa:' + waPendientes.length,
     'pw:' + pwHuerfanos.length,
-    'gc:' + gcHuerfanas.length,
+    'gcHuerfanas:' + gcHuerfanas.length,
+    'gcInactivas:' + gcInactivas.length,
     'cumple:' + cumpleHoy.length);
 }
 
