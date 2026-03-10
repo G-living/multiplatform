@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.14
+// IMOLARTE — Google Apps Script Backend v20.15
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -51,6 +51,8 @@
 //           "Gracias por confiar en HELENA CABALLERO" + footer con Código/Referencia/TxID.
 //           CFG.WHATSAPP corregido: +573004257367 (dígitos invertidos).
 // ─ v20.14: setupDropdowns — agrega dropdown Estado_Gift en GiftCards (ACTIVA/INACTIVA/CANCELADA).
+// ─ v20.15: Fase 1 influencer — hoja Influencers + columnas Influencer_Código y Base_Comision_COP
+//           en Pedidos_Wompi. Frontend: orden de descuentos corregido: bono → 3% → (5% futuro).
 //           _emailNotificarEstadoPedido — reescrito con tabla de productos, resumen de valores,
 //           saldo pendiente callout, mensajes cálidos por estado y footer estándar de seguimiento.
 // ============================================================
@@ -77,6 +79,7 @@ const CFG = {
     DASHBOARD     : 'Dashboard_Clientes',
     CAMPANIAS     : 'Campañas',
     LOG           : 'Log',
+    INFLUENCERS   : 'Influencers',
   },
 };
 
@@ -2081,6 +2084,7 @@ function setupSheets() {
       'Productos_JSON','Subtotal_COP','Descuento_COP',
       'Total_COP','Pct_Pagado','Forma_pago','Saldo_Pendiente_COP',
       'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
+      'Influencer_Código','Base_Comision_COP',
     ],
     [CFG.SHEETS.GIFT_CARDS]: [
       'Campaña_ID','Timestamp','Referencia','Código_Gift','Saldo_Gift_COP','Válido_Hasta',
@@ -2110,6 +2114,11 @@ function setupSheets() {
     [CFG.SHEETS.LOG]: [
       'Timestamp','Función','Arg1','Arg2','Arg3','Arg4',
     ],
+    [CFG.SHEETS.INFLUENCERS]: [
+      'Influencer_ID','Código','Nombre','Apellido','Email','Teléfono',
+      'Descuento_Pct','Comision_Pct',
+      'Estado','Fecha_Registro','Notas_internas',
+    ],
   };
 
   const ss = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
@@ -2130,6 +2139,26 @@ function setupSheets() {
   });
 
   Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
+}
+
+// Agrega columnas Influencer_Código y Base_Comision_COP al final de Pedidos_Wompi existente.
+// Ejecutar UNA VEZ tras desplegar v20.15.
+function repairPedidosWompiAddInfluencer() {
+  const ss     = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet  = ss.getSheetByName(CFG.SHEETS.PEDIDOS_WOMPI);
+  if (!sheet) { Logger.log('❌ Hoja Pedidos_Wompi no encontrada'); return; }
+  const lastCol  = sheet.getLastColumn();
+  const existing = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const toAdd    = ['Influencer_Código', 'Base_Comision_COP'].filter(h => !existing.includes(h));
+  if (toAdd.length === 0) { Logger.log('ℹ️ Columnas de influencer ya existen'); return; }
+  toAdd.forEach((h, i) => {
+    const col = lastCol + i + 1;
+    const cell = sheet.getRange(1, col);
+    cell.setValue(h)
+        .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+  });
+  sheet.autoResizeColumns(lastCol + 1, toAdd.length);
+  Logger.log('✅ Columnas influencer agregadas a Pedidos_Wompi: ' + toAdd.join(', '));
 }
 
 // Repara cabeceras de Pedidos_Wompi sin borrar datos.
