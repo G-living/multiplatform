@@ -36,6 +36,7 @@ const Modal = (() => {
     document.body.style.overflow = 'hidden';
     const content = modal.querySelector('.modal-content, .modal-zoom-content');
     if (content) {
+      content.scrollTop = 0;  // Siempre muestra el título y datos del usuario al abrir
       if (_focusTrapCleanup) _focusTrapCleanup();
       try { _focusTrapCleanup = A11y.trapFocus(content); }
       catch { _focusTrapCleanup = null; }
@@ -1430,21 +1431,20 @@ const Modal = (() => {
   function _updateWompiTotals() {
     const cfg       = IMOLARTE_CONFIG.checkout;
     const subtotal  = Utils.roundCOP(_ckSubtotal);
-    // Orden: subtotal → −infl% → −3%(si 100%) → −bono → total.
-    // Influencer sobre subtotal completo; bono cubre solo lo que queda tras infl+3%.
-    // Esto garantiza discInfl > 0 aunque el bono cubra el total, y que el GC
-    // consuma el mínimo saldo necesario. _submitConGiftCard usa el mismo orden.
+    // Orden recuadro financiero: subtotal → −infl% → −bono/GC → Total a Pagar.
+    // El 3% se aplica SOLO en el botón Wompi 100% (no aparece en el recuadro).
     // Floor al millar: el cliente siempre paga menos o igual al valor calculado.
-    const inflPct   = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
-    const discInfl  = _ckInfluencer ? Math.floor(subtotal * inflPct / 1000) * 1000 : 0;
-    const afterInfl = subtotal - discInfl;
-    const disc100   = Math.floor(afterInfl * cfg.discountPayFull / 1000) * 1000;
-    const afterDisc = afterInfl - disc100;
-    const bonoDesc  = _ckBono ? Math.min(_ckBono.available || 0, afterDisc) : 0;
-    const pay100    = afterDisc - bonoDesc;
-    const pay60     = Math.floor((afterInfl - bonoDesc) * 0.6 / 1000) * 1000;
+    const inflPct    = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
+    const discInfl   = _ckInfluencer ? Math.floor(subtotal * inflPct / 1000) * 1000 : 0;
+    const afterInfl  = subtotal - discInfl;
+    const bonoDesc   = _ckBono ? Math.min(_ckBono.available || 0, afterInfl) : 0;
+    const totalPagar = afterInfl - bonoDesc;
+    // 3% solo para calcular el monto del botón Wompi 100%
+    const disc100    = Math.floor(totalPagar * cfg.discountPayFull / 1000) * 1000;
+    const pay100     = totalPagar - disc100;
+    const pay60      = Math.floor(totalPagar * 0.6 / 1000) * 1000;
 
-    // Mostrar subtotal (ya con descuento campaña si aplica)
+    // Mostrar subtotal (precios de catálogo)
     const subEl = document.getElementById('wpValSubtotal');
     if (subEl) subEl.textContent = Utils.formatPrice(subtotal);
 
@@ -1454,8 +1454,6 @@ const Modal = (() => {
     const campVal   = document.getElementById('wpValCampania');
     const descPct   = Campania.descuentoPct();
     if (descPct > 0 && campLine) {
-      // Calcular ahorro = subtotal_pleno - subtotal_presale
-      // subtotal_pleno: reconstruir desde items originales
       const ahorroTotal = Cart.getItems().reduce((s, i) => {
         const orig = i.priceOriginal || i.price;
         return s + (orig - i.price) * i.quantity;
@@ -1472,15 +1470,9 @@ const Modal = (() => {
       campLine.style.display = 'none';
     }
 
-    const anyDiscount = bonoDesc > 0 || discInfl > 0;
+    const anyDiscount = discInfl > 0 || bonoDesc > 0;
 
-    // Mostrar/ocultar línea bono con valor negativo
-    const bonoLine = document.getElementById('wpLineBono');
-    const bonoVal  = document.getElementById('wpValBono');
-    if (bonoLine) bonoLine.style.display = bonoDesc > 0 ? 'flex' : 'none';
-    if (bonoVal)  bonoVal.textContent = '− ' + Utils.formatPrice(bonoDesc);
-
-    // Mostrar/ocultar línea influencer
+    // Mostrar/ocultar línea influencer (primero en el recuadro)
     const inflLine  = document.getElementById('wpLineInfluencer');
     const inflLabel = document.getElementById('wpLabelInfluencer');
     const inflVal   = document.getElementById('wpValInfluencer');
@@ -1488,51 +1480,32 @@ const Modal = (() => {
     if (inflLabel && _ckInfluencer) inflLabel.textContent = `Descuento ${_ckInfluencer.descuentoPct}% influencer`;
     if (inflVal)  inflVal.textContent = '− ' + Utils.formatPrice(discInfl);
 
-    // Línea descuento 3% — visible cuando hay algún descuento previo Y disc100 > $0.
-    // Orden DOM: Subtotal → Bono Gift → Influencer → Dcto 3% → Total (igual que en el HTML).
-    const disc100Line  = document.getElementById('wpLineDisc100');
-    const disc100Val   = document.getElementById('wpValDisc100');
-    if (anyDiscount && disc100 > 0 && disc100Line) {
-      disc100Line.style.display = 'flex';
-      if (disc100Val) disc100Val.textContent = '− ' + Utils.formatPrice(disc100);
-    } else if (disc100Line) {
-      disc100Line.style.display = 'none';
-    }
+    // Mostrar/ocultar línea Gift Card/bono (se resta después del influencer)
+    const bonoLine = document.getElementById('wpLineBono');
+    const bonoVal  = document.getElementById('wpValBono');
+    if (bonoLine) bonoLine.style.display = bonoDesc > 0 ? 'flex' : 'none';
+    if (bonoVal)  bonoVal.textContent = '− ' + Utils.formatPrice(bonoDesc);
 
-    // Línea "Total a pagar" visible cuando hay cualquier descuento aplicado
+    // Línea "Total a pagar" — sin descuento 3% (ese solo va en el botón)
     const totalFinalLine = document.getElementById('wpLineTotalFinal');
     const totalFinalVal  = document.getElementById('wpValTotalFinal');
     if (anyDiscount) {
       if (totalFinalLine) totalFinalLine.style.display = 'flex';
-      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(pay100);
+      if (totalFinalVal)  totalFinalVal.textContent = Utils.formatPrice(totalPagar);
     } else {
       if (totalFinalLine) totalFinalLine.style.display = 'none';
     }
 
-    // ── Bono cubre el total → botón Gift Card, sin Wompi ──
-    // Gift card se aplica primero: bono cubre si bonoDesc >= subtotal
-    const bonoCobreTotal = pay100 <= 0;
+    // ── Bono cubre el total (totalPagar ≤ 0) → botón Gift Card, sin Wompi ──
+    const bonoCobreTotal = totalPagar <= 0;
     const wpPayActions   = document.getElementById('wpPayActions');
     const wpPayGift      = document.getElementById('wpPayGift');
+    const tipEl          = document.getElementById('wpTipAnticipado');
 
     if (bonoCobreTotal) {
       if (wpPayActions) wpPayActions.style.display = 'none';
       if (wpPayGift)    wpPayGift.style.display     = 'block';
-
-      // Desglose: infl% + 3% ya aplicados; bono cubre afterDisc (= afterInfl − disc100)
-      const bonoLine2 = document.getElementById('wpLineBono');
-      const bonoVal2  = document.getElementById('wpValBono');
-      if (bonoLine2) bonoLine2.style.display = 'flex';
-      if (bonoVal2)  bonoVal2.textContent    = '− ' + Utils.formatPrice(bonoDesc);
-
-      const disc100Line2 = document.getElementById('wpLineDisc100');
-      const disc100Val2  = document.getElementById('wpValDisc100');
-      if (disc100 > 0 && disc100Line2) {
-        disc100Line2.style.display = 'flex';
-        if (disc100Val2) disc100Val2.textContent = '− ' + Utils.formatPrice(disc100);
-      } else if (disc100Line2) {
-        disc100Line2.style.display = 'none';
-      }
+      if (tipEl)        tipEl.style.display         = 'none';
 
       const totalFinalLine2 = document.getElementById('wpLineTotalFinal');
       const totalFinalVal2  = document.getElementById('wpValTotalFinal');
@@ -1544,16 +1517,14 @@ const Modal = (() => {
     } else {
       if (wpPayActions) wpPayActions.style.display = 'flex';
       if (wpPayGift)    wpPayGift.style.display     = 'none';
+      if (tipEl)        tipEl.style.display         = 'block';
 
-      // W2: labels de botones con formato aprobado
+      // Botones: 60% y 100% calculados sobre "Total a pagar" del recuadro.
+      // 100% siempre muestra el 3% incluido en el monto del botón.
       const btn60El  = document.getElementById('wpAmount60');
       const btn100El = document.getElementById('wpAmount100');
-      if (btn60El)
-        btn60El.textContent = Utils.formatPrice(pay60);
-      if (btn100El)
-        btn100El.textContent = disc100 > 0
-          ? Utils.formatPrice(pay100) + '  —  3% dto. incl.'
-          : Utils.formatPrice(pay100);
+      if (btn60El)  btn60El.textContent  = Utils.formatPrice(pay60);
+      if (btn100El) btn100El.textContent = Utils.formatPrice(pay100) + '  —  3% dto. incl.';
     }
   }
 
@@ -1574,16 +1545,15 @@ const Modal = (() => {
     const items       = Cart.getItems();
     const subtotal    = _ckSubtotal;
     const cfg         = IMOLARTE_CONFIG.checkout;
-    // Misma fórmula que _updateWompiTotals: infl% → 3%(si 100%) → bono → total.
+    // Misma fórmula que _updateWompiTotals: infl% → bono/GC → totalPagar → 3%(si 100% en botón).
     const inflPct     = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
     const discInfl    = _ckInfluencer ? Math.floor(subtotal * inflPct / 1000) * 1000 : 0;
     const afterInfl   = subtotal - discInfl;
-    const disc100raw  = pct === '100' ? Math.floor(afterInfl * cfg.discountPayFull / 1000) * 1000 : 0;
-    const afterDisc   = afterInfl - disc100raw;
-    const bonoDesc    = _ckBono ? Math.min(_ckBono.available || 0, afterDisc) : 0;
-    const afterBono   = afterDisc - bonoDesc;
-    const total       = pct === '60' ? Math.floor((afterInfl - bonoDesc) * 0.6 / 1000) * 1000 : afterBono;
-    const descuento   = discInfl + disc100raw + bonoDesc;
+    const bonoDesc    = _ckBono ? Math.min(_ckBono.available || 0, afterInfl) : 0;
+    const totalPagar  = afterInfl - bonoDesc;
+    const disc100raw  = pct === '100' ? Math.floor(totalPagar * cfg.discountPayFull / 1000) * 1000 : 0;
+    const total       = pct === '60' ? Math.floor(totalPagar * 0.6 / 1000) * 1000 : totalPagar - disc100raw;
+    const descuento   = discInfl + bonoDesc + disc100raw;
     const amountCents = total * 100;  // ya es múltiplo de $1.000 → sin pérdida de centavos
 
     // Generar referencia local — NO grabar en Sheets todavía.
@@ -1681,15 +1651,13 @@ const Modal = (() => {
     const subtotal = _ckSubtotal;
     const cfg2     = IMOLARTE_CONFIG.checkout;
 
-    // BUG-3C fix v21.1 + v20.16 influencer: bono → infl → 3% → total=0
-    // discInfl aplica sobre afterBono (= subtotal cuando bono es otro mecanismo)
-    // disc3 aplica sobre afterInfl; bonoActual = lo que la GC necesita cubrir.
+    // Misma fórmula que _updateWompiTotals: infl% → bono/GC → totalPagar.
+    // No hay 3% aquí porque no hay pago Wompi — la GC cubre el total restante.
     const inflPct2   = _ckInfluencer ? (_ckInfluencer.descuentoPct / 100) : 0;
     const discInfl2  = _ckInfluencer ? Math.floor(subtotal * inflPct2 / 1000) * 1000 : 0;
     const afterInfl2 = subtotal - discInfl2;
-    const disc3      = Math.floor(afterInfl2 * cfg2.discountPayFull / 1000) * 1000;
-    const bonoActual = afterInfl2 - disc3; // importe que cubre la GC (≤ GC.available)
-    const totalFinal = 0;                  // bono cubre el total después de descuentos
+    const bonoActual = afterInfl2; // la GC cubre el total tras el descuento influencer
+    const totalFinal = 0;          // bono cubre el total
 
     // Generar referencia
     const reference = `WP-${Date.now()}`;
@@ -1699,7 +1667,7 @@ const Modal = (() => {
     const _pendingGiftPayload = JSON.stringify({
       formaPago:        _ckBono?.code ? `GIFT_CARD:${_ckBono.code}` : 'GIFT_CARD',
       subtotal,
-      descuento:        discInfl2 + disc3 + bonoActual,  // = subtotal (discInfl + disc3 + bonoActual)
+      descuento:        discInfl2 + bonoActual,  // = subtotal (discInfl + GC cubre afterInfl)
       total:            totalFinal,
       porcentajePagado: 100,
       referencia:       reference,
