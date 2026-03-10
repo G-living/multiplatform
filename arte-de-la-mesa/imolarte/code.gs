@@ -1889,7 +1889,7 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
       'DESPACHADO'         : '🚚',
     };
     const TITULOS = {
-      'EN_PRODUCCION'      : '¡Tu pedido está en manos de los artesanos!',
+      'EN_PRODUCCION'      : '¡Tu pedido está en manos de los artistas!',
       'EN_TRANSITO'        : '¡Tu pedido está en camino desde Italia!',
       'EN_NACIONALIZACION' : '¡Tu pedido llegó a Colombia!',
       'LISTO_DESPACHO'     : '¡Tu pedido está listo para despacharse!',
@@ -1897,7 +1897,7 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
       'DESPACHADO'         : '¡Tu pedido está en camino a tu puerta!',
     };
     const MENSAJES = {
-      'EN_PRODUCCION'      : 'Los artesanos de Imola, Italia, están creando con dedicación cada pieza de tu pedido. ¡Con tanto amor puesto en cada detalle, el resultado será precioso!',
+      'EN_PRODUCCION'      : 'Los artistas de Imola, Italia, están creando con dedicación cada pieza de tu pedido. ¡Con tanto amor puesto en cada detalle, el resultado será precioso!',
       'EN_TRANSITO'        : '¡Qué emoción! Tus piezas han salido de Italia y están viajando hacia ti. Pronto las tendrás en casa.',
       'EN_NACIONALIZACION' : 'Tu pedido ha llegado a Colombia y está en proceso de nacionalización en aduana. ¡Ya falta muy poco para que llegue a tus manos!',
       'LISTO_DESPACHO'     : '¡Buenas noticias! Tu pedido está empacado y listo para salir. En breve recibirás la información de seguimiento.',
@@ -2045,7 +2045,7 @@ function _emailWrapper(nombre, contenido) {
 <div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#1a1610">
   <div style="background:#1a1610;padding:28px 32px;border-radius:8px 8px 0 0">
     <h1 style="color:#C4A05A;font-size:22px;margin:0;letter-spacing:2px">HELENA CABALLERO</h1>
-    <p style="color:#f5f0e8;font-size:13px;margin:6px 0 0">Cerámica artesanal italiana</p>
+    <p style="color:#f5f0e8;font-size:13px;margin:6px 0 0">Cerámica artística italiana</p>
   </div>
   <div style="background:#faf8f4;padding:28px 32px;border:1px solid #e8e0d0;border-top:none">
     <p style="font-size:16px">Hola <strong>${saludo}</strong>,</p>
