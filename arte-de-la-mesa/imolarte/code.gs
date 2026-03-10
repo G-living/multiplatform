@@ -53,7 +53,7 @@ const CFG = {
   NOMBRE_TIENDA   : 'IMOLARTE by Helena Caballero',
   EMAIL_ADMIN     : 'filippo.massara2016@gmail.com',
   EMAIL_REMITENTE : 'filippo.massara2016@gmail.com',
-  WHATSAPP        : '+573004267367',
+  WHATSAPP        : '+573004257367',
   WEBSITE         : 'https://www.helenacaballero.com',
   CATALOGO        : 'https://g-living.github.io/multiplatform/imolarte/',
   WISHLIST_ABANDON_MIN: 30,
