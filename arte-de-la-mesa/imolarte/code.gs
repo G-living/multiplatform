@@ -2777,55 +2777,58 @@ function emailResumenHuerfanos() {
   const hayAlgo     = totalAlerts > 0 || cumpleHoy.length > 0;
 
   // ── Sección influencers (solo lunes) ─────────────────────
+  // ── Sección influencers — se muestra diariamente ─────────
   let influencerSeccion = '';
-  if (esLunes) {
-    try {
-      const inflSheet  = _getSheet(CFG.SHEETS.INFLUENCERS);
-      const inflData   = inflSheet.getDataRange().getValues();
-      const inflH      = inflData[0];
-      const iCod  = inflH.indexOf('Código');
-      const iNom  = inflH.indexOf('Nombre');
-      const iApe  = inflH.indexOf('Apellido');
-      const iEst  = inflH.indexOf('Estado');
-      const iAcum = inflH.indexOf('Comision_Acumulada_COP');
-      const iCPct = inflH.indexOf('Comision_Pct');
-      const activos = [];
-      for (let i = 1; i < inflData.length; i++) {
-        if (String(inflData[i][iEst] || '').trim() !== 'ACTIVO') continue;
-        activos.push({
-          codigo:  String(inflData[i][iCod]  || '').trim(),
-          nombre:  [String(inflData[i][iNom] || ''), String(inflData[i][iApe] || '')].filter(Boolean).join(' '),
-          comPct:  Number(inflData[i][iCPct]) || 0,
-          acum:    Number(inflData[i][iAcum]) || 0,
-        });
-      }
-      if (activos.length > 0) {
-        const filas = activos.map(inf => {
-          const color = inf.acum >= 100000 ? '#27ae60' : (inf.acum > 0 ? '#e67e22' : '#999');
-          return `<tr>
-            <td ${_tdStyle('')}>${inf.nombre || '—'}</td>
-            <td ${_tdStyle('font-family:monospace')}>${inf.codigo}</td>
-            <td ${_tdStyle('')}>${inf.comPct}%</td>
-            <td ${_tdStyle('text-align:right;font-weight:bold;color:' + color)}>${_fmtCOP(inf.acum)}</td>
-          </tr>`;
-        }).join('');
-        influencerSeccion = `
-          <h3 style="color:#8e44ad;margin:24px 0 8px;font-size:14px">📊 Desempeño influencers (semana)</h3>
-          <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
-            <thead><tr>
-              <th ${_thStyle('')}>Nombre</th>
-              <th ${_thStyle('')}>Código</th>
-              <th ${_thStyle('')}>Comisión%</th>
-              <th ${_thStyle('text-align:right')}>Acumulado mes</th>
-            </tr></thead>
-            <tbody>${filas}</tbody>
-          </table>
-          <p style="font-size:11px;color:#888;margin:0">
-            🟢 ≥ $100.000 (pago pendiente el día 1) · 🟠 en progreso · Meta mínima: $100.000
-          </p>`;
-      }
-    } catch(e) { _log('emailResumenHuerfanos_inflSeccion_ERROR', e.message); }
-  }
+  try {
+    const inflSheet  = _getSheet(CFG.SHEETS.INFLUENCERS);
+    const inflData   = inflSheet.getDataRange().getValues();
+    const inflH      = inflData[0];
+    const iCod  = inflH.indexOf('Código');
+    const iNom  = inflH.indexOf('Nombre');
+    const iApe  = inflH.indexOf('Apellido');
+    const iEst  = inflH.indexOf('Estado');
+    const iAcum = inflH.indexOf('Comision_Acumulada_COP');
+    const iCPct = inflH.indexOf('Comision_Pct');
+    const iDPct = inflH.indexOf('Descuento_Pct');
+    const activos = [];
+    for (let i = 1; i < inflData.length; i++) {
+      if (String(inflData[i][iEst] || '').trim() !== 'ACTIVO') continue;
+      activos.push({
+        codigo: String(inflData[i][iCod]  || '').trim(),
+        nombre: [String(inflData[i][iNom] || ''), String(inflData[i][iApe] || '')].filter(Boolean).join(' '),
+        comPct: Number(inflData[i][iCPct]) || 0,
+        dscPct: Number(iDPct >= 0 ? inflData[i][iDPct] : 0) || 0,
+        acum:   Number(inflData[i][iAcum]) || 0,
+      });
+    }
+    if (activos.length > 0) {
+      const filas = activos.map(inf => {
+        const color = inf.acum >= 100000 ? '#27ae60' : (inf.acum > 0 ? '#e67e22' : '#999');
+        return `<tr>
+          <td ${_tdStyle('')}>${inf.nombre || '—'}</td>
+          <td ${_tdStyle('font-family:monospace')}>${inf.codigo}</td>
+          <td ${_tdStyle('text-align:center')}>${inf.dscPct}%</td>
+          <td ${_tdStyle('text-align:center')}>${inf.comPct}%</td>
+          <td ${_tdStyle('text-align:right;font-weight:bold;color:' + color)}>${_fmtCOP(inf.acum)}</td>
+        </tr>`;
+      }).join('');
+      influencerSeccion = `
+        <h3 style="color:#8e44ad;margin:24px 0 8px;font-size:14px">📊 Influencers activos</h3>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+          <thead><tr>
+            <th ${_thStyle('')}>Nombre</th>
+            <th ${_thStyle('')}>Código</th>
+            <th ${_thStyle('text-align:center')}>Dcto.%</th>
+            <th ${_thStyle('text-align:center')}>Comisión%</th>
+            <th ${_thStyle('text-align:right')}>Acumulado mes</th>
+          </tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+        <p style="font-size:11px;color:#888;margin:0">
+          🟢 ≥ $100.000 (pago el día 1) · 🟠 en progreso · Meta mínima: $100.000
+        </p>`;
+    }
+  } catch(e) { _log('emailResumenHuerfanos_inflSeccion_ERROR', e.message); }
 
   const cuerpo = !hayAlgo
     ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay pendientes ni cumpleaños hoy.</p>${influencerSeccion}`
@@ -2835,14 +2838,13 @@ function emailResumenHuerfanos() {
          <a href="${urlSheet}" style="color:#C4A05A">Ver Spreadsheet</a>
        </p>`;
 
-  const _inflTag = esLunes ? ' 📊infl' : '';
   const asunto = cumpleHoy.length > 0 && totalAlerts === 0
-    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños hoy${_inflTag} — ${fechaStr}`
+    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños hoy — ${fechaStr}`
     : totalAlerts === 0
-    ? `[IMOLARTE] ✅ Sin pendientes${_inflTag} — ${fechaStr}`
+    ? `[IMOLARTE] ✅ Sin pendientes — ${fechaStr}`
     : cumpleHoy.length > 0
-    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños · ⚠️ ${totalAlerts} pendiente(s)${_inflTag} — ${fechaStr}`
-    : `[IMOLARTE] ⚠️ ${totalAlerts} pendiente(s)${_inflTag} — ${fechaStr}`;
+    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños · ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`
+    : `[IMOLARTE] ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`;
 
   const html = `
 <div style="font-family:Georgia,serif;max-width:680px;margin:auto;color:#1a1610">
@@ -3096,15 +3098,69 @@ function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
 }
 
 /**
+ * Devuelve las ventas APPROVED del mes actual para un código influencer.
+ * Retorna array de { fecha, ref, subtotal, comision } ordenado por fecha desc.
+ */
+function _ventasInfluencerMes(codigo, comPct) {
+  try {
+    const sheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+    const data   = sheet.getDataRange().getValues();
+    const header = data[0];
+    const cTs    = header.indexOf('Timestamp');
+    const cRef   = header.indexOf('Referencia');
+    const cEst   = header.indexOf('Estado_Pago_Wompi');
+    const cSub   = header.indexOf('Subtotal_COP');
+    const cTot   = header.indexOf('Total_COP');
+    const cInfl  = header.indexOf('Influencer_Código');
+    if (cInfl < 0) return [];
+    const ahora  = new Date();
+    const mes    = ahora.getMonth();
+    const anio   = ahora.getFullYear();
+    const norm   = String(codigo).trim().toUpperCase();
+    const ventas = [];
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][cInfl] || '').trim().toUpperCase() !== norm) continue;
+      if (String(data[i][cEst]  || '') !== 'APPROVED') continue;
+      const ts = data[i][cTs];
+      if (!(ts instanceof Date) || ts.getMonth() !== mes || ts.getFullYear() !== anio) continue;
+      const subtotal = Number(data[i][cSub]) || Number(data[i][cTot]) || 0;
+      const comision = comPct > 0 ? Math.floor(subtotal * comPct / 100 / 1000) * 1000 : 0;
+      ventas.push({ fecha: ts, ref: String(data[i][cRef] || ''), subtotal, comision });
+    }
+    ventas.sort((a, b) => b.fecha - a.fecha);
+    return ventas;
+  } catch(e) { return []; }
+}
+
+/**
  * Email motivacional al influencer que aún no alcanzó la cuota mínima.
- * Muestra su panel de comisiones, cuánto le falta y mensajes de apoyo.
+ * Incluye panel de comisiones con detalle de ventas del mes.
  */
 function _emailInfluencerMotivacion(infl, acumulado) {
   if (!infl.email) return;
   try {
     const primerNombre = (infl.nombre || '').split(' ')[0] || infl.nombre || 'amig@';
-    const falta  = CUOTA_MIN_INFLUENCER - acumulado;
-    const mesAno = Utilities.formatDate(new Date(), 'America/Bogota', 'MMMM yyyy');
+    const falta   = CUOTA_MIN_INFLUENCER - acumulado;
+    const mesAno  = Utilities.formatDate(new Date(), 'America/Bogota', 'MMMM yyyy');
+    const ventas  = _ventasInfluencerMes(infl.codigo, infl.comPct);
+    const ventasHTML = ventas.length > 0
+      ? `<p style="font-weight:bold;font-size:13px;margin:18px 0 8px;color:#3a2e1f">Ventas del mes con tu código:</p>
+         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px">
+           <thead><tr style="background:#f0ece4">
+             <th style="padding:6px 8px;text-align:left;color:#555">Fecha</th>
+             <th style="padding:6px 8px;text-align:left;color:#555">Referencia</th>
+             <th style="padding:6px 8px;text-align:right;color:#555">Subtotal</th>
+             <th style="padding:6px 8px;text-align:right;color:#555">Comisión</th>
+           </tr></thead>
+           <tbody>${ventas.map(v => `<tr style="border-bottom:1px solid #e8e0d0">
+             <td style="padding:5px 8px">${Utilities.formatDate(v.fecha,'America/Bogota','dd/MM')}</td>
+             <td style="padding:5px 8px;font-family:monospace;font-size:11px">${v.ref}</td>
+             <td style="padding:5px 8px;text-align:right">${_fmtCOP(v.subtotal)}</td>
+             <td style="padding:5px 8px;text-align:right;color:#27ae60;font-weight:bold">${_fmtCOP(v.comision)}</td>
+           </tr>`).join('')}</tbody>
+         </table>`
+      : `<p style="font-size:13px;color:#888;margin:14px 0 0;font-style:italic">Aún no hay ventas registradas este mes. ¡Comparte tu código y la primera llegará pronto! 🚀</p>`;
+
     const body = _emailWrapper(primerNombre, `
       <p style="font-size:15px;line-height:1.7">
         ¡Hola ${primerNombre}! Queremos tomarnos un momento para decirte algo importante:
@@ -3128,6 +3184,7 @@ function _emailInfluencerMotivacion(infl, acumulado) {
           </p>
         </div>
       </div>
+      ${ventasHTML}
       <p style="font-size:14px;line-height:1.7;margin-top:6px">
         Tu acumulado <strong>no se pierde</strong> — sigue creciendo mes a mes hasta que alcances
         la cuota mínima de <strong>${_fmtCOP(CUOTA_MIN_INFLUENCER)}</strong>. En cuanto llegues,
