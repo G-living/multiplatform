@@ -42,6 +42,8 @@
 // ─ v20.11: emailResumenHuerfanos — resumen diario 6am al admin con todas las filas
 //           INACTIVA (GiftCards) y PENDIENTE_PAGO (Pedidos_Wompi) detectadas como huérfanas.
 //           setupTriggerResumenDiario() crea el trigger (ejecutar una vez desde Apps Script UI).
+// ─ v20.12: emailResumenHuerfanos extendido — incluye Wishlists PENDIENTE, Pedidos_Wompi,
+//           GiftCards INACTIVA y Cumpleaños del día (desde sheet Clientes).
 // ============================================================
 
 'use strict';
@@ -2179,14 +2181,70 @@ function _productosHTML(productos) {
 // ============================================================
 
 /**
- * Escanea GiftCards y Pedidos_Wompi buscando filas huérfanas/pendientes
- * y envía un resumen al admin. Disparado por trigger diario a las 6am.
+ * Escanea Wishlists, Pedidos_Wompi y GiftCards buscando filas pendientes/huérfanas,
+ * y detecta cumpleaños del día. Envía resumen al admin a las 6am.
  * Para crear el trigger una sola vez: ejecutar setupTriggerResumenDiario()
  */
 function emailResumenHuerfanos() {
   const ahora    = new Date();
   const fechaStr = Utilities.formatDate(ahora, 'America/Bogota', 'dd/MM/yyyy HH:mm');
+  const hoyDia   = parseInt(Utilities.formatDate(ahora, 'America/Bogota', 'd'),  10);
+  const hoyMes   = parseInt(Utilities.formatDate(ahora, 'America/Bogota', 'M'),  10);
   const urlSheet = 'https://docs.google.com/spreadsheets/d/' + CFG.SPREADSHEET_ID;
+
+  function _tdStyle(extra) { return `style="padding:7px 10px;border-bottom:1px solid #e8e0d0;font-size:12px;${extra || ''}`; }
+  function _thStyle(extra) { return `style="padding:7px 10px;font-size:11px;text-align:left;background:#f0ece4;color:#555;${extra || ''}`; }
+  function _fmtTs(ts) { return ts instanceof Date ? Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yyyy HH:mm') : String(ts || '—'); }
+
+  // ── Wishlists PENDIENTE ──────────────────────────────────
+  const waSheet  = _getSheet(CFG.SHEETS.WISHLIST);
+  const waData   = waSheet.getDataRange().getValues();
+  const waH      = waData[0];
+  const waColRef = waH.indexOf('Referencia');
+  const waColTs  = waH.indexOf('Timestamp');
+  const waColNom = waH.indexOf('Nombre');
+  const waColApe = waH.indexOf('Apellido');
+  const waColEml = waH.indexOf('Email');
+  const waColTot = waH.indexOf('Total_COP');
+  const waColEst = waH.indexOf('Estado_Wishlist');
+
+  const waPendientes = [];
+  for (let i = 1; i < waData.length; i++) {
+    if (String(waData[i][waColEst] || '') !== 'PENDIENTE') continue;
+    waPendientes.push({
+      ref:    waData[i][waColRef] || '—',
+      nombre: [waData[i][waColNom], waData[i][waColApe]].filter(Boolean).join(' ') || '—',
+      email:  waData[i][waColEml] || '—',
+      total:  waData[i][waColTot] || 0,
+      fecha:  _fmtTs(waData[i][waColTs]),
+    });
+  }
+
+  // ── Pedidos_Wompi pendientes ─────────────────────────────
+  const pwSheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+  const pwData   = pwSheet.getDataRange().getValues();
+  const pwH      = pwData[0];
+  const pwColRef = pwH.indexOf('Referencia');
+  const pwColEst = pwH.indexOf('Estado_Pago_Wompi');
+  const pwColTs  = pwH.indexOf('Timestamp');
+  const pwColNom = pwH.indexOf('Nombre');
+  const pwColApe = pwH.indexOf('Apellido');
+  const pwColEml = pwH.indexOf('Email');
+  const pwColTot = pwH.indexOf('Total_COP');
+
+  const pwHuerfanos = [];
+  for (let i = 1; i < pwData.length; i++) {
+    const est = String(pwData[i][pwColEst] || '');
+    if (!est || est === 'APPROVED' || est === 'DECLINED' || est === 'ERROR' || est === 'CANCELADO') continue;
+    pwHuerfanos.push({
+      ref:    pwData[i][pwColRef] || '—',
+      nombre: [pwData[i][pwColNom], pwData[i][pwColApe]].filter(Boolean).join(' ') || '—',
+      email:  pwData[i][pwColEml] || '—',
+      total:  pwData[i][pwColTot] || 0,
+      estado: est,
+      fecha:  _fmtTs(pwData[i][pwColTs]),
+    });
+  }
 
   // ── GiftCards INACTIVA ───────────────────────────────────
   const gcSheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
@@ -2204,73 +2262,86 @@ function emailResumenHuerfanos() {
   const gcHuerfanas = [];
   for (let i = 1; i < gcData.length; i++) {
     if (String(gcData[i][gcColEst] || '') !== 'INACTIVA') continue;
-    const ts = gcData[i][gcColTs];
     gcHuerfanas.push({
-      ref:    gcData[i][gcColRef]  || '—',
-      codigo: gcData[i][gcColCod]  || '—',
-      valor:  gcData[i][gcColVal]  || 0,
+      ref:    gcData[i][gcColRef] || '—',
+      codigo: gcData[i][gcColCod] || '—',
+      valor:  gcData[i][gcColVal] || 0,
       emisor: [gcData[i][gcColNom], gcData[i][gcColApe]].filter(Boolean).join(' ') || '—',
-      email:  gcData[i][gcColEmi]  || '—',
-      fecha:  ts instanceof Date ? Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yyyy HH:mm') : String(ts || '—'),
+      email:  gcData[i][gcColEmi] || '—',
+      fecha:  _fmtTs(gcData[i][gcColTs]),
     });
   }
 
-  // ── Pedidos_Wompi PENDIENTE_PAGO ─────────────────────────
-  const pwSheet   = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
-  const pwData    = pwSheet.getDataRange().getValues();
-  const pwH       = pwData[0];
-  const pwColRef  = pwH.indexOf('Referencia');
-  const pwColEst  = pwH.indexOf('Estado_Pago_Wompi');
-  const pwColTs   = pwH.indexOf('Timestamp');
-  const pwColNom  = pwH.indexOf('Nombre');
-  const pwColApe  = pwH.indexOf('Apellido');
-  const pwColEml  = pwH.indexOf('Email');
-  const pwColTot  = pwH.indexOf('Total_COP');
+  // ── Cumpleaños de hoy ────────────────────────────────────
+  const cliSheet  = _getSheet(CFG.SHEETS.CLIENTES);
+  const cliData   = cliSheet.getDataRange().getValues();
+  const cliH      = cliData[0];
+  const cliColNom = cliH.indexOf('Nombre');
+  const cliColApe = cliH.indexOf('Apellido');
+  const cliColEml = cliH.indexOf('Email');
+  const cliColTel = cliH.indexOf('Teléfono');
+  const cliColDia = cliH.indexOf('Cumple_Día');
+  const cliColMes = cliH.indexOf('Cumple_Mes');
+  const cliColTot = cliH.indexOf('Total_histórico_COP');
 
-  const pwHuerfanos = [];
-  for (let i = 1; i < pwData.length; i++) {
-    const est = String(pwData[i][pwColEst] || '');
-    if (est === 'APPROVED' || est === 'DECLINED' || est === 'ERROR' || est === 'CANCELADO') continue;
-    if (!est) continue;
-    const ts = pwData[i][pwColTs];
-    pwHuerfanos.push({
-      ref:    pwData[i][pwColRef] || '—',
-      nombre: [pwData[i][pwColNom], pwData[i][pwColApe]].filter(Boolean).join(' ') || '—',
-      email:  pwData[i][pwColEml] || '—',
-      total:  pwData[i][pwColTot] || 0,
-      estado: est,
-      fecha:  ts instanceof Date ? Utilities.formatDate(ts, 'America/Bogota', 'dd/MM/yyyy HH:mm') : String(ts || '—'),
+  const cumpleHoy = [];
+  for (let i = 1; i < cliData.length; i++) {
+    const dia = parseInt(cliData[i][cliColDia] || 0, 10);
+    const mes = parseInt(cliData[i][cliColMes] || 0, 10);
+    if (!dia || !mes || dia !== hoyDia || mes !== hoyMes) continue;
+    cumpleHoy.push({
+      nombre: [cliData[i][cliColNom], cliData[i][cliColApe]].filter(Boolean).join(' ') || '—',
+      email:  cliData[i][cliColEml] || '—',
+      tel:    cliData[i][cliColTel] || '—',
+      total:  cliData[i][cliColTot] || 0,
     });
   }
 
-  const totalHuerfanos = gcHuerfanas.length + pwHuerfanos.length;
+  // ── Construir tablas HTML ────────────────────────────────
+  let cumpleTabla = '';
+  if (cumpleHoy.length) {
+    const filas = cumpleHoy.map(r => `
+      <tr>
+        <td ${_tdStyle('font-weight:bold')}>${r.nombre}</td>
+        <td ${_tdStyle('color:#888')}>${r.email}</td>
+        <td ${_tdStyle('')}>${r.tel}</td>
+        <td ${_tdStyle('text-align:right')}>${_fmtCOP(r.total)}</td>
+      </tr>`).join('');
+    cumpleTabla = `
+      <h3 style="color:#27ae60;margin:24px 0 8px;font-size:14px">
+        🎂 Cumpleaños de hoy — ${cumpleHoy.length} cliente(s)
+      </h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        <thead><tr>
+          <th ${_thStyle('')}>Cliente</th>
+          <th ${_thStyle('')}>Email</th>
+          <th ${_thStyle('')}>Teléfono</th>
+          <th ${_thStyle('text-align:right')}>Histórico COP</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>`;
+  }
 
-  // ── Construir tabla HTML ─────────────────────────────────
-  function _tdStyle(extra) { return `style="padding:7px 10px;border-bottom:1px solid #e8e0d0;font-size:12px;${extra || ''}`; }
-  function _thStyle(extra) { return `style="padding:7px 10px;font-size:11px;text-align:left;background:#f0ece4;color:#555;${extra || ''}`; }
-
-  let gcTabla = '';
-  if (gcHuerfanas.length) {
-    const filas = gcHuerfanas.map(r => `
+  let waTabla = '';
+  if (waPendientes.length) {
+    const filas = waPendientes.map(r => `
       <tr>
         <td ${_tdStyle('')}>${r.fecha}</td>
         <td ${_tdStyle('')}>${r.ref}</td>
-        <td ${_tdStyle('font-family:monospace;letter-spacing:2px;color:#C4A05A')}>${r.codigo}</td>
-        <td ${_tdStyle('text-align:right')}>${_fmtCOP(r.valor)}</td>
-        <td ${_tdStyle('')}>${r.emisor}</td>
+        <td ${_tdStyle('')}>${r.nombre}</td>
+        <td ${_tdStyle('text-align:right')}>${_fmtCOP(r.total)}</td>
         <td ${_tdStyle('color:#888')}>${r.email}</td>
       </tr>`).join('');
-    gcTabla = `
-      <h3 style="color:#c0392b;margin:24px 0 8px;font-size:14px">
-        🎁 Gift Cards INACTIVAS — ${gcHuerfanas.length} fila(s)
+    waTabla = `
+      <h3 style="color:#8e44ad;margin:24px 0 8px;font-size:14px">
+        📋 Wishlists PENDIENTES — ${waPendientes.length} fila(s)
       </h3>
       <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
         <thead><tr>
           <th ${_thStyle('')}>Fecha</th>
           <th ${_thStyle('')}>Referencia</th>
-          <th ${_thStyle('')}>Código</th>
-          <th ${_thStyle('text-align:right')}>Valor</th>
-          <th ${_thStyle('')}>Emisor</th>
+          <th ${_thStyle('')}>Cliente</th>
+          <th ${_thStyle('text-align:right')}>Total</th>
           <th ${_thStyle('')}>Email</th>
         </tr></thead>
         <tbody>${filas}</tbody>
@@ -2305,17 +2376,52 @@ function emailResumenHuerfanos() {
       </table>`;
   }
 
-  const cuerpo = totalHuerfanos === 0
-    ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay transacciones huérfanas ni pendientes.</p>`
-    : `${gcTabla}${pwTabla}
+  let gcTabla = '';
+  if (gcHuerfanas.length) {
+    const filas = gcHuerfanas.map(r => `
+      <tr>
+        <td ${_tdStyle('')}>${r.fecha}</td>
+        <td ${_tdStyle('')}>${r.ref}</td>
+        <td ${_tdStyle('font-family:monospace;letter-spacing:2px;color:#C4A05A')}>${r.codigo}</td>
+        <td ${_tdStyle('text-align:right')}>${_fmtCOP(r.valor)}</td>
+        <td ${_tdStyle('')}>${r.emisor}</td>
+        <td ${_tdStyle('color:#888')}>${r.email}</td>
+      </tr>`).join('');
+    gcTabla = `
+      <h3 style="color:#c0392b;margin:24px 0 8px;font-size:14px">
+        🎁 Gift Cards INACTIVAS — ${gcHuerfanas.length} fila(s)
+      </h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        <thead><tr>
+          <th ${_thStyle('')}>Fecha</th>
+          <th ${_thStyle('')}>Referencia</th>
+          <th ${_thStyle('')}>Código</th>
+          <th ${_thStyle('text-align:right')}>Valor</th>
+          <th ${_thStyle('')}>Emisor</th>
+          <th ${_thStyle('')}>Email</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>`;
+  }
+
+  const totalAlerts = waPendientes.length + pwHuerfanos.length + gcHuerfanas.length;
+  const hayAlgo     = totalAlerts > 0 || cumpleHoy.length > 0;
+
+  const cuerpo = !hayAlgo
+    ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay pendientes ni cumpleaños hoy.</p>`
+    : `${cumpleTabla}${waTabla}${pwTabla}${gcTabla}
        <p style="margin:16px 0 0;font-size:12px;color:#888">
-         Total detectado: <strong>${totalHuerfanos}</strong> fila(s) —
+         ${totalAlerts > 0 ? `Alertas: <strong>${totalAlerts}</strong> pendiente(s) · ` : ''}
          <a href="${urlSheet}" style="color:#C4A05A">Ver Spreadsheet</a>
        </p>`;
 
-  const asunto = totalHuerfanos === 0
+  const asunto = cumpleHoy.length > 0 && totalAlerts === 0
+    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños hoy — ${fechaStr}`
+    : totalAlerts === 0
     ? `[IMOLARTE] ✅ Sin pendientes — ${fechaStr}`
-    : `[IMOLARTE] ⚠️ ${totalHuerfanos} transacción(es) huérfana(s) — ${fechaStr}`;
+    : cumpleHoy.length > 0
+    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños · ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`
+    : `[IMOLARTE] ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`;
 
   const html = `
 <div style="font-family:Georgia,serif;max-width:680px;margin:auto;color:#1a1610">
@@ -2324,18 +2430,22 @@ function emailResumenHuerfanos() {
     <p style="color:#f5f0e8;font-size:12px;margin:4px 0 0">Monitoreo diario · ${fechaStr} (Bogotá)</p>
   </div>
   <div style="background:#faf8f4;padding:24px 28px;border:1px solid #e8e0d0;border-top:none">
-    <p style="margin:0 0 16px;font-size:14px">Hola <strong>Filippo</strong>, este es el resumen automático de transacciones incompletas detectadas en el sistema al corte de hoy:</p>
+    <p style="margin:0 0 16px;font-size:14px">Hola <strong>Filippo</strong>, este es el resumen automático de hoy:</p>
     ${cuerpo}
   </div>
   <div style="background:#1a1610;padding:10px 28px;border-radius:0 0 8px 8px;text-align:center">
     <p style="color:#888;font-size:10px;margin:0">
-      Generado automáticamente · IMOLARTE v20.11 · <a href="${urlSheet}" style="color:#C4A05A">Abrir Sheets</a>
+      Generado automáticamente · IMOLARTE v20.12 · <a href="${urlSheet}" style="color:#C4A05A">Abrir Sheets</a>
     </p>
   </div>
 </div>`;
 
   GmailApp.sendEmail(CFG.EMAIL_ADMIN, asunto, '', { htmlBody: html });
-  _log('emailResumenHuerfanos', 'gcHuerfanas:' + gcHuerfanas.length, 'pwHuerfanos:' + pwHuerfanos.length);
+  _log('emailResumenHuerfanos',
+    'wa:' + waPendientes.length,
+    'pw:' + pwHuerfanos.length,
+    'gc:' + gcHuerfanas.length,
+    'cumple:' + cumpleHoy.length);
 }
 
 /**
