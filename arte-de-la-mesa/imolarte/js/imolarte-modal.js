@@ -1578,8 +1578,13 @@ const Modal = (() => {
       bono:             _ckBono
         ? { code: _ckBono.code, monto: bonoDesc, available: _ckBono.available }
         : null,
-      influencerCodigo: _ckInfluencer?.codigo || null,
-      influencerBase:   _ckInfluencer ? subtotal : 0,
+      influencerCodigo: _ckInfluencer?.codigo        || null,
+      influencerBase:   _ckInfluencer ? subtotal      : 0,
+      influencerPct:    _ckInfluencer?.descuentoPct   || 0,
+      discInfluencer:   discInfl,
+      discGiftCard:     bonoDesc,
+      disc3pct:         disc100raw,
+      totalAPagar:      totalPagar,
       campaniaId:       IMOLARTE_CONFIG?.campania?.id  || '',
       catalogoId:       IMOLARTE_CONFIG?.catalogo?.id  || '',
     });
@@ -1677,8 +1682,13 @@ const Modal = (() => {
       bono:             _ckBono
         ? { code: _ckBono.code, monto: bonoActual, available: _ckBono.available }
         : null,
-      influencerCodigo: _ckInfluencer?.codigo || null,
-      influencerBase:   _ckInfluencer ? subtotal : 0,
+      influencerCodigo: _ckInfluencer?.codigo      || null,
+      influencerBase:   _ckInfluencer ? subtotal    : 0,
+      influencerPct:    _ckInfluencer?.descuentoPct || 0,
+      discInfluencer:   discInfl2,
+      discGiftCard:     bonoActual,
+      disc3pct:         0,
+      totalAPagar:      0,   // GC cubre el total → totalPagar = 0
       campaniaId:       IMOLARTE_CONFIG?.campania?.id || '',
       catalogoId:       IMOLARTE_CONFIG?.catalogo?.id || '',
     });
