@@ -214,6 +214,8 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
           total:            pedidoPayload.total,
           porcentajePagado: pedidoPayload.porcentajePagado,
           bono:             pedidoPayload.bono             || null,
+          influencerCodigo: pedidoPayload.influencerCodigo || null,
+          influencerBase:   pedidoPayload.influencerBase   || 0,
           referencia:       reference,
         }).catch(err => console.warn('checkout.js: error confirmar gift paid', err));
       } else if (reference) {
@@ -271,6 +273,8 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
         total:            pedidoPayload.total,
         porcentajePagado: pedidoPayload.porcentajePagado,
         bono:             pedidoPayload.bono             || null,
+        influencerCodigo: pedidoPayload.influencerCodigo || null,
+        influencerBase:   pedidoPayload.influencerBase   || 0,
         referencia:       reference,
       }).catch(err => console.warn('checkout.js: error confirmarPagoWompi', err));
 

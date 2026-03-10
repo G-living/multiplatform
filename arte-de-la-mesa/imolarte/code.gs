@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.14
+// IMOLARTE — Google Apps Script Backend v20.16
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -51,6 +51,10 @@
 //           "Gracias por confiar en HELENA CABALLERO" + footer con Código/Referencia/TxID.
 //           CFG.WHATSAPP corregido: +573004257367 (dígitos invertidos).
 // ─ v20.14: setupDropdowns — agrega dropdown Estado_Gift en GiftCards (ACTIVA/INACTIVA/CANCELADA).
+// ─ v20.15: Fase 1 influencer — hoja Influencers + columnas Influencer_Código y Base_Comision_COP
+//           en Pedidos_Wompi. Frontend: orden de descuentos corregido: bono → 3% → (5% futuro).
+// ─ v20.16: Fase 2 influencer — GET getInfluencer valida código; _createPedidoWompi escribe
+//           Influencer_Código y Base_Comision_COP; descuento 5% activo en checkout (bono→infl→3%).
 //           _emailNotificarEstadoPedido — reescrito con tabla de productos, resumen de valores,
 //           saldo pendiente callout, mensajes cálidos por estado y footer estándar de seguimiento.
 // ============================================================
@@ -77,6 +81,7 @@ const CFG = {
     DASHBOARD     : 'Dashboard_Clientes',
     CAMPANIAS     : 'Campañas',
     LOG           : 'Log',
+    INFLUENCERS   : 'Influencers',
   },
 };
 
@@ -152,6 +157,7 @@ function doGet(e) {
       case 'getGiftCard'   : result = _getGiftCard(e.parameter.codigo);       break;
       case 'validateDono'  : result = _getGiftCard(e.parameter.code);         break;
       case 'getCampanias'  : result = _getCampaniasActivas();                  break;
+      case 'getInfluencer' : result = _getInfluencer(e.parameter.codigo);     break;
       case 'ping'          : result = { ok: true, ts: new Date().toISOString() }; break;
       default:
         result = { ok: false, error: 'Acción GET desconocida: ' + action };
@@ -335,6 +341,8 @@ function _createPedidoWompi(b) {
     '',                                  // Z  Fecha_despacho
     '',                                  // AA Notas_internas
     '',                                  // AB SIIGO_Factura_ID
+    b.influencerCodigo || '',            // AC Influencer_Código
+    b.influencerBase   || 0,             // AD Base_Comision_COP
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
@@ -364,18 +372,20 @@ function _confirmarPagoWompi(b) {
     const p = b.pedidoPayload;
     // 1. Crear pedido (idempotente — si ya existe, no duplica)
     const _cRes = _createPedidoWompi({
-      campaniaId:       p.campaniaId       || '',
-      catalogoId:       p.catalogoId       || '',
-      cliente:          p.cliente          || {},
-      entrega:          p.entrega          || {},
-      productos:        p.productos        || [],
-      formaPago:        p.formaPago        || 'WOMPI_100',
-      subtotal:         p.subtotal         || 0,
-      descuento:        p.descuento        || 0,
-      total:            p.total            || 0,
-      porcentajePagado: p.porcentajePagado || 100,
-      referencia:       ref,
-      _skipEmail:       true,
+      campaniaId:        p.campaniaId        || '',
+      catalogoId:        p.catalogoId        || '',
+      cliente:           p.cliente           || {},
+      entrega:           p.entrega           || {},
+      productos:         p.productos         || [],
+      formaPago:         p.formaPago         || 'WOMPI_100',
+      subtotal:          p.subtotal          || 0,
+      descuento:         p.descuento         || 0,
+      total:             p.total             || 0,
+      porcentajePagado:  p.porcentajePagado  || 100,
+      influencerCodigo:  p.influencerCodigo  || '',
+      influencerBase:    p.influencerBase    || 0,
+      referencia:        ref,
+      _skipEmail:        true,
     });
     _leanRowNum = _cRes.rowNum || 0;
     // 2. Redimir bono si aplica
@@ -844,6 +854,46 @@ function _getGiftCard(codigo) {
       estado,
       canjeadoEn: data[i][colCanjeado] || '',
       available,
+      reason,
+    };
+  }
+  return { ok: false, valid: false, error: 'Código no encontrado', reason: 'Código no encontrado' };
+}
+
+// Busca un influencer por Código. Usado por GET action=getInfluencer.
+// Retorna: { ok, valid, codigo, nombre, descuentoPct, comisionPct, estado, reason }
+function _getInfluencer(codigo) {
+  if (!codigo) return { ok: false, valid: false, error: 'Código requerido', reason: 'Código requerido' };
+  const sheet  = _getSheet(CFG.SHEETS.INFLUENCERS);
+  const data   = sheet.getDataRange().getValues();
+  const header = data[0];
+  const colCod      = header.indexOf('Código');
+  const colNombre   = header.indexOf('Nombre');
+  const colApellido = header.indexOf('Apellido');
+  const colDesc     = header.indexOf('Descuento_Pct');
+  const colCom      = header.indexOf('Comision_Pct');
+  const colEstado   = header.indexOf('Estado');
+
+  if (colCod < 0) return { ok: false, valid: false, reason: 'Hoja Influencers no configurada' };
+
+  const codigoNorm = String(codigo).trim().toUpperCase();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][colCod]).trim().toUpperCase() !== codigoNorm) continue;
+    const estado   = String(data[i][colEstado] || '').trim();
+    const isActive = estado === 'ACTIVO';
+    const nombre   = [data[i][colNombre] || '', data[i][colApellido] || '']
+      .filter(Boolean).join(' ');
+    const reason   = !isActive
+      ? (estado === 'INACTIVO' ? 'Código de influencer inactivo' : 'Código no disponible')
+      : '';
+    return {
+      ok          : true,
+      valid       : isActive,
+      codigo      : String(data[i][colCod]).trim(),
+      nombre,
+      descuentoPct: Number(data[i][colDesc]) || 0,
+      comisionPct : Number(data[i][colCom])  || 0,
+      estado,
       reason,
     };
   }
@@ -2081,6 +2131,7 @@ function setupSheets() {
       'Productos_JSON','Subtotal_COP','Descuento_COP',
       'Total_COP','Pct_Pagado','Forma_pago','Saldo_Pendiente_COP',
       'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
+      'Influencer_Código','Base_Comision_COP',
     ],
     [CFG.SHEETS.GIFT_CARDS]: [
       'Campaña_ID','Timestamp','Referencia','Código_Gift','Saldo_Gift_COP','Válido_Hasta',
@@ -2110,6 +2161,11 @@ function setupSheets() {
     [CFG.SHEETS.LOG]: [
       'Timestamp','Función','Arg1','Arg2','Arg3','Arg4',
     ],
+    [CFG.SHEETS.INFLUENCERS]: [
+      'Influencer_ID','Código','Nombre','Apellido','Email','Teléfono',
+      'Descuento_Pct','Comision_Pct',
+      'Estado','Fecha_Registro','Notas_internas',
+    ],
   };
 
   const ss = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
@@ -2130,6 +2186,26 @@ function setupSheets() {
   });
 
   Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
+}
+
+// Agrega columnas Influencer_Código y Base_Comision_COP al final de Pedidos_Wompi existente.
+// Ejecutar UNA VEZ tras desplegar v20.15.
+function repairPedidosWompiAddInfluencer() {
+  const ss     = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet  = ss.getSheetByName(CFG.SHEETS.PEDIDOS_WOMPI);
+  if (!sheet) { Logger.log('❌ Hoja Pedidos_Wompi no encontrada'); return; }
+  const lastCol  = sheet.getLastColumn();
+  const existing = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const toAdd    = ['Influencer_Código', 'Base_Comision_COP'].filter(h => !existing.includes(h));
+  if (toAdd.length === 0) { Logger.log('ℹ️ Columnas de influencer ya existen'); return; }
+  toAdd.forEach((h, i) => {
+    const col = lastCol + i + 1;
+    const cell = sheet.getRange(1, col);
+    cell.setValue(h)
+        .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+  });
+  sheet.autoResizeColumns(lastCol + 1, toAdd.length);
+  Logger.log('✅ Columnas influencer agregadas a Pedidos_Wompi: ' + toAdd.join(', '));
 }
 
 // Repara cabeceras de Pedidos_Wompi sin borrar datos.

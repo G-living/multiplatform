@@ -189,6 +189,10 @@ const Api = (() => {
     return _get({ action: 'validateDono', code });
   }
 
+  async function getInfluencer(codigo) {
+    return _get({ action: 'getInfluencer', codigo });
+  }
+
   // ── CAMPAÑAS ─────────────────────────────────────────────────
 
   async function getCampaniasActivas() {
@@ -213,6 +217,7 @@ const Api = (() => {
     getGiftCard,
     redeemDono,
     validateDono,
+    getInfluencer,
     getCampaniasActivas,
     ping,
   };
