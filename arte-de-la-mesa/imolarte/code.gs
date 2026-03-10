@@ -165,7 +165,7 @@ function doGet(e) {
 
 // ============================================================
 // WISHLIST
-// Cols: Campaña_ID | Timestamp | Referencia | ClienteID |
+// Cols: Campaña_ID | Catalogo_ID | Timestamp | Referencia | ClienteID |
 //       Nombre | Apellido | Email | Teléfono |
 //       Tipo_Doc | Num_Doc |
 //       Dirección_Wishlist | Barrio_Wishlist | Ciudad_Wishlist | Notas |
@@ -1875,7 +1875,10 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
     const pct      = Number(rowData[header.indexOf('Pct_Pagado')])          || 100;
     const saldoPendiente = Number(rowData[header.indexOf('Saldo_Pendiente_COP')]) || 0;
     const productos = _parseJSON(rowData[header.indexOf('Productos_JSON')]);
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      _log('emailNotificarEstado_SKIP', ref, 'invalid email: ' + email);
+      return;
+    }
 
     const EMOJIS = {
       'EN_PRODUCCION'      : '🏺',
@@ -2127,6 +2130,45 @@ function setupSheets() {
   });
 
   Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
+}
+
+// Repara cabeceras de Pedidos_Wompi sin borrar datos.
+// Ejecutar UNA VEZ si la hoja fue creada antes de que se agregara Catalogo_ID.
+function repairPedidosWompiHeaders() {
+  const ss      = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet   = ss.getSheetByName(CFG.SHEETS.PEDIDOS_WOMPI);
+  if (!sheet) { Logger.log('❌ Hoja no encontrada'); return; }
+  const headers = [
+    'Campaña_ID','Catalogo_ID','Timestamp','Referencia',
+    'Wompi_Transaction_ID','Estado_Pago_Wompi',
+    'ClienteID','Nombre','Apellido','Email','Teléfono',
+    'Tipo_Doc','Num_Doc',
+    'Dirección','Barrio','Ciudad','Notas_entrega',
+    'Productos_JSON','Subtotal_COP','Descuento_COP',
+    'Total_COP','Pct_Pagado','Forma_pago','Saldo_Pendiente_COP',
+    'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
+  ];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers])
+    .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+  Logger.log('✅ Cabeceras Pedidos_Wompi reparadas');
+}
+
+// Repara cabeceras de Wishlist sin borrar datos.
+// Ejecutar UNA VEZ si la hoja fue creada antes de que se agregara Catalogo_ID.
+function repairWishlistHeaders() {
+  const ss      = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet   = ss.getSheetByName(CFG.SHEETS.WISHLIST);
+  if (!sheet) { Logger.log('❌ Hoja no encontrada'); return; }
+  const headers = [
+    'Campaña_ID','Catalogo_ID','Timestamp','Referencia','ClienteID',
+    'Nombre','Apellido','Email','Teléfono',
+    'Tipo_Doc','Num_Doc',
+    'Dirección_Wishlist','Barrio_Wishlist','Ciudad_Wishlist','Notas',
+    'Productos_JSON','Total_COP','Estado_Wishlist','Notas_internas',
+  ];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers])
+    .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+  Logger.log('✅ Cabeceras Wishlist reparadas');
 }
 
 // ============================================================
