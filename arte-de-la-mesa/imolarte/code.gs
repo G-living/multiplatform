@@ -353,6 +353,10 @@ function _createPedidoWompi(b) {
     '',                                  // AB SIIGO_Factura_ID
     b.influencerCodigo || '',            // AC Influencer_Código
     b.influencerBase   || 0,             // AD Base_Comision_COP
+    b.discInfluencer   || 0,             // AE Dcto_Influencer_COP
+    b.discGiftCard     || 0,             // AF Dcto_GiftCard_COP
+    b.disc3pct         || 0,             // AG Dcto_3pct_COP
+    b.totalAPagar      || 0,             // AH Total_a_Pagar_COP
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
@@ -394,6 +398,10 @@ function _confirmarPagoWompi(b) {
       porcentajePagado:  p.porcentajePagado  || 100,
       influencerCodigo:  p.influencerCodigo  || '',
       influencerBase:    p.influencerBase    || 0,
+      discInfluencer:    p.discInfluencer    || 0,
+      discGiftCard:      p.discGiftCard      || 0,
+      disc3pct:          p.disc3pct          || 0,
+      totalAPagar:       p.totalAPagar       || 0,
       referencia:        ref,
       _skipEmail:        true,
     });
@@ -436,32 +444,30 @@ function _confirmarPagoWompi(b) {
 
     _log('confirmarPagoWompi', ref, status, estadoPedido);
 
-    const email      = cli.email       || '';
-    const nombre     = cli.nombre      || '';
-    const prods      = p.productos     || [];
-    const total      = p.total         || 0;
-    const subtotal   = p.subtotal      || 0;
-    const descuento  = p.descuento     || 0;
-    const formaPago  = String(p.formaPago || '');
-    const pctPagado  = Number(p.porcentajePagado) || 100;
+    const email          = cli.email                      || '';
+    const nombre         = cli.nombre                     || '';
+    const prods          = p.productos                    || [];
+    const total          = p.total                        || 0;
+    const subtotal       = p.subtotal                     || 0;
+    const descuento      = p.descuento                    || 0;
+    const formaPago      = String(p.formaPago             || '');
+    const pctPagado      = Number(p.porcentajePagado)     || 100;
+    const discInfluencer = Number(p.discInfluencer        || 0);
+    const inflPct        = Number(p.influencerPct         || 0);
+    const discGiftCard   = Number(p.discGiftCard          || 0);
+    const disc3pct       = Number(p.disc3pct              || 0);
+    const totalAPagar    = Number(p.totalAPagar           || 0);
 
-    // Extraer info del bono si aplica
-    // Forma_pago puede ser: GIFT_CARD | WOMPI_60+GIFT:HC-XXXXX | WOMPI_100+GIFT:HC-XXXXX
+    // Extraer código de GC para el email (solo el código — el monto viene de discGiftCard)
     let giftInfo = null;
     const giftMatch    = formaPago.match(/GIFT:([A-Z0-9-]+)/);
     const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/);
-    if (giftMatch) {
-      const factorPct     = pctPagado === 100 ? 0.97 : (pctPagado / 100);
-      const montoGiftReal = _roundCOP(subtotal - total / factorPct);
-      giftInfo = { codigo: giftMatch[1], monto: montoGiftReal, tipo: 'MIXTO', montoWompi: total };
-    } else if (giftTotMatch) {
-      giftInfo = { codigo: giftTotMatch[1], monto: _roundCOP(subtotal), tipo: 'TOTAL' };
-    } else if (formaPago === 'GIFT_CARD') {
-      giftInfo = { codigo: '', monto: _roundCOP(subtotal), tipo: 'TOTAL' };
-    }
+    if (giftMatch)         giftInfo = { codigo: giftMatch[1],    monto: discGiftCard, tipo: 'MIXTO'  };
+    else if (giftTotMatch) giftInfo = { codigo: giftTotMatch[1], monto: discGiftCard, tipo: 'TOTAL'  };
+    else if (formaPago === 'GIFT_CARD') giftInfo = { codigo: '', monto: discGiftCard, tipo: 'TOTAL'  };
 
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
@@ -501,33 +507,31 @@ function _confirmarPagoWompi(b) {
 
     _log('confirmarPagoWompi', ref, status, estadoPedido);
 
-    const email      = data[i][header.indexOf('Email')]         || '';
-    const nombre     = data[i][header.indexOf('Nombre')]        || '';
-    const prods      = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
-    const total      = data[i][header.indexOf('Total_COP')]     || 0;
-    const subtotal   = data[i][header.indexOf('Subtotal_COP')]  || 0;
-    const descuento  = data[i][header.indexOf('Descuento_COP')] || 0;
-    const formaPago  = String(data[i][header.indexOf('Forma_pago')] || '');
-    const pctPagado  = Number(data[i][header.indexOf('Pct_Pagado')])  || 100;
+    const email          = data[i][header.indexOf('Email')]               || '';
+    const nombre         = data[i][header.indexOf('Nombre')]              || '';
+    const prods          = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
+    const total          = data[i][header.indexOf('Total_COP')]           || 0;
+    const subtotal       = data[i][header.indexOf('Subtotal_COP')]        || 0;
+    const descuento      = data[i][header.indexOf('Descuento_COP')]       || 0;
+    const formaPago      = String(data[i][header.indexOf('Forma_pago')]   || '');
+    const pctPagado      = Number(data[i][header.indexOf('Pct_Pagado')])  || 100;
+    const discInfluencer = Number(data[i][header.indexOf('Dcto_Influencer_COP')] || 0);
+    const discGiftCard   = Number(data[i][header.indexOf('Dcto_GiftCard_COP')]   || 0);
+    const disc3pct       = Number(data[i][header.indexOf('Dcto_3pct_COP')]       || 0);
+    const totalAPagar    = Number(data[i][header.indexOf('Total_a_Pagar_COP')]   || 0);
+    // inflPct no se guarda en sheet — reconstruir aproximado desde discInfluencer/subtotal
+    const inflPct        = subtotal > 0 ? Math.round(discInfluencer / subtotal * 100) : 0;
 
-    // Extraer info del bono si aplica
-    // Forma_pago puede ser: GIFT_CARD | WOMPI_60+GIFT:HC-XXXXX | WOMPI_100+GIFT:HC-XXXXX
+    // Código de GC para el email — monto viene de discGiftCard (columna AF)
     let giftInfo = null;
-    const giftMatch  = formaPago.match(/GIFT:([A-Z0-9-]+)/);
+    const giftMatch    = formaPago.match(/GIFT:([A-Z0-9-]+)/);
     const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/);
-    if (giftMatch) {
-      const factorPct   = pctPagado === 100 ? 0.97 : (pctPagado / 100);
-      const montoGiftReal = _roundCOP(subtotal - total / factorPct);
-      const montoWompi    = total;
-      giftInfo = { codigo: giftMatch[1], monto: montoGiftReal, tipo: 'MIXTO', montoWompi };
-    } else if (giftTotMatch) {
-      giftInfo = { codigo: giftTotMatch[1], monto: _roundCOP(subtotal), tipo: 'TOTAL' };
-    } else if (formaPago === 'GIFT_CARD') {
-      giftInfo = { codigo: '', monto: _roundCOP(subtotal), tipo: 'TOTAL' };
-    }
+    if (giftMatch)         giftInfo = { codigo: giftMatch[1],    monto: discGiftCard, tipo: 'MIXTO' };
+    else if (giftTotMatch) giftInfo = { codigo: giftTotMatch[1], monto: discGiftCard, tipo: 'TOTAL' };
+    else if (formaPago === 'GIFT_CARD') giftInfo = { codigo: '', monto: discGiftCard, tipo: 'TOTAL' };
 
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
@@ -1666,49 +1670,36 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   } catch(err) { _log('emailPedidoRecibido_ERROR', ref, err.message); }
 }
 
-function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento, txId) {
+// discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar → columnas AE-AH
+// Sin reconstrucción heurística: valores guardados directamente por el frontend.
+function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento, txId,
+                              discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar) {
   try {
     const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
 
     const tablaProductos  = _productosHTML(productos);
-    const pct             = Number(pctPagado) || 100;
-    const subtotalMostrar = _roundCOP(subtotal || total);
+    const pct             = Number(pctPagado)   || 100;
+    const subtotalMostrar = _roundCOP(subtotal  || total);
+    const totalRedondeado = Number(total)        || 0;
 
-    // ── Descuento 3% y bono — reconstruir desde giftInfo + descuento (Sheets) ──
-    // v20.05 BUG-3C fix: usar giftInfo.monto directo (ya reconstruido en _confirmarPagoWompi)
-    // — evita divergencia del método iterativo cuando bonoDesc < floor(subtotal*0.03)
-    const descuentoTotal = Number(descuento) || 0;
+    // ── Componentes de descuento — columnas AE-AH (sin heurísticas) ──────────
+    const inflDesc     = Number(discInfluencer || 0);
+    const bonoDesc     = Number(discGiftCard   || 0);
+    const disc3pctAmt  = Number(disc3pct       || 0);
+    const totalAPagarV = Number(totalAPagar    || 0);
+    const inflPctLabel = Number(inflPct        || 0);
 
-    let disc3pct = 0;
-    let bonoDesc = 0;
-    if (pct === 100) {
-      if (giftInfo?.tipo === 'TOTAL') {
-        // Gift Card total: 3% sobre subtotal completo; bono = subtotal − 3%
-        disc3pct = Math.floor(subtotalMostrar * 0.03 / 1000) * 1000;
-        // bonoDesc se calcula en el fallback abajo
-      } else if (giftInfo) {
-        // Mixto WOMPI_100+GIFT: usar giftInfo.monto (ya validado correctamente)
-        // — 3% se aplica sobre (subtotal − bono), NO sobre el subtotal completo
-        bonoDesc = Math.max(0, Math.round(giftInfo.monto || 0));
-        disc3pct = Math.max(0, descuentoTotal - bonoDesc);
-      } else {
-        // WOMPI_100 sin bono: todo el descuento guardado es el 3%
-        disc3pct = descuentoTotal;
-      }
-    } else if (giftInfo) {
-      // WOMPI_60+GIFT: bono sin 3% (desc. anticipado no aplica en anticipo 60%)
-      bonoDesc = Math.max(0, Math.round(giftInfo.monto || 0));
-    }
-    if (bonoDesc === 0 && giftInfo) {
-      // Fallback para tipo=TOTAL: bonoDesc = descuento − disc3
-      bonoDesc = descuentoTotal - disc3pct;
-    }
-    bonoDesc = Math.max(0, bonoDesc);
-    disc3pct = Math.max(0, disc3pct);
+    // ── Línea descuento influencer ──────────────────────────
+    const inflHTML = inflDesc > 0 ? `
+        <tr>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. influencer${inflPctLabel > 0 ? ' (' + inflPctLabel + '%)' : ''}</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(inflDesc)}</td>
+        </tr>` : '';
 
+    // ── Línea Gift Card ─────────────────────────────────────
     let bonoHTML = '';
-    if (giftInfo && bonoDesc > 0) {
-      const codigoLabel = giftInfo.codigo
+    if (bonoDesc > 0) {
+      const codigoLabel = giftInfo?.codigo
         ? `Gift Card <code style="background:#e8f5e8;padding:2px 6px;border-radius:3px;font-size:12px">${giftInfo.codigo}</code>`
         : 'Gift Card';
       bonoHTML = `
@@ -1717,30 +1708,22 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(bonoDesc)}</td>
         </tr>`;
     }
-    const descHTML = disc3pct > 0 ? `
+
+    // ── Línea 3% pago anticipado ────────────────────────────
+    const descHTML = disc3pctAmt > 0 ? `
         <tr>
           <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. pago anticipado (3%)</td>
-          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(disc3pct)}</td>
+          <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(disc3pctAmt)}</td>
         </tr>` : '';
 
-    // ── Total a pagar (subtotal − bono − 3%) ──────────────
-    // totalRedondeado = valor exacto cobrado por Wompi (no redondear — ya viene de _submitWompi)
-    // totalAPagar = recalculado para verificar coherencia; debe coincidir con totalRedondeado
-    const descRedondeado  = disc3pct;
-    const totalAPagar     = _roundCOP(subtotalMostrar - bonoDesc - disc3pct);
-    const totalRedondeado = Number(total) || 0;  // valor exacto, sin redondear
-
-    // ── Línea "Total a pagar" — solo si hay bono ───────────
-    const totalAPagarHTML = bonoDesc > 0 ? `
+    // ── Línea "Total a pagar" — visible si hay infl o bono ─
+    const totalAPagarHTML = (inflDesc > 0 || bonoDesc > 0) ? `
         <tr style="border-top:1px solid #ddd">
           <td style="padding:6px 8px;font-size:13px;color:#555">Total a pagar</td>
-          <td style="padding:6px 8px;font-size:13px;text-align:right;color:#1a1610">${_fmtCOP(totalAPagar)}</td>
+          <td style="padding:6px 8px;font-size:13px;text-align:right;color:#1a1610">${_fmtCOP(totalAPagarV)}</td>
         </tr>` : '';
 
     // ── Total pagado hoy ───────────────────────────────────
-    // totalRedondeado = total real registrado en Sheets = lo que cobró Wompi.
-    // Es la fuente de verdad — no recalcular desde totalAPagar para evitar
-    // diferencias de redondeo entre frontend y backend.
     const pagadoLabel = pct === 60 ? `Total pagado hoy (60%)` : `Total pagado`;
     const pagadoValor = totalRedondeado;
 
@@ -1753,7 +1736,8 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
         </tr>`;
 
     // ── Saldo pendiente ────────────────────────────────────
-    const saldoPendiente = pct === 60 ? _roundCOP(totalAPagar * 0.4) : 0;
+    // Para 60%: saldo = 40% de "Total a Pagar" (sin el 3% que no aplica en anticipo)
+    const saldoPendiente = pct === 60 ? _roundCOP(totalAPagarV * 0.4) : 0;
     const saldoValor     = _fmtCOP(saldoPendiente);
 
     // ── Aviso saldo 40% (solo pct=60) ─────────────────────
@@ -1772,6 +1756,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
           <td style="padding:8px 8px 5px;font-size:13px;color:#555">Subtotal</td>
           <td style="padding:8px 8px 5px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
         </tr>
+        ${inflHTML}
         ${bonoHTML}
         ${descHTML}
         ${totalAPagarHTML}
@@ -2214,6 +2199,7 @@ function setupSheets() {
       'Total_COP','Pct_Pagado','Forma_pago','Saldo_Pendiente_COP',
       'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
       'Influencer_Código','Base_Comision_COP',
+      'Dcto_Influencer_COP','Dcto_GiftCard_COP','Dcto_3pct_COP','Total_a_Pagar_COP',
     ],
     [CFG.SHEETS.GIFT_CARDS]: [
       'Campaña_ID','Timestamp','Referencia','Código_Gift','Saldo_Gift_COP','Válido_Hasta',
@@ -2268,6 +2254,36 @@ function setupSheets() {
   });
 
   Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
+}
+
+// Agrega las columnas AE-AH a Pedidos_Wompi si no existen.
+// Ejecutar UNA VEZ desde Apps Script: Ejecutar → migrarColumnasDescuento
+// Seguro de re-ejecutar (idempotente — solo agrega columnas faltantes).
+function migrarColumnasDescuento() {
+  const sheet   = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+  const lastCol = sheet.getLastColumn();
+  const header  = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+
+  const nuevas = [
+    'Dcto_Influencer_COP',
+    'Dcto_GiftCard_COP',
+    'Dcto_3pct_COP',
+    'Total_a_Pagar_COP',
+  ];
+
+  nuevas.forEach(col => {
+    if (header.indexOf(col) < 0) {
+      const nextCol = sheet.getLastColumn() + 1;
+      sheet.getRange(1, nextCol).setValue(col);
+      sheet.getRange(1, nextCol).setFontWeight('bold');
+      Logger.log('Columna agregada: ' + col + ' → col ' + nextCol);
+    } else {
+      Logger.log('Columna ya existe: ' + col);
+    }
+  });
+
+  SpreadsheetApp.flush();
+  Logger.log('✅ migrarColumnasDescuento completado');
 }
 
 // Crea la hoja Influencers con sus cabeceras y formato si no existe.
