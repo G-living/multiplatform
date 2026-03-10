@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.11
+// IMOLARTE — Google Apps Script Backend v20.13
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -44,6 +44,11 @@
 //           setupTriggerResumenDiario() crea el trigger (ejecutar una vez desde Apps Script UI).
 // ─ v20.12: emailResumenHuerfanos extendido — incluye Wishlists PENDIENTE, Pedidos_Wompi,
 //           GiftCards INACTIVA y Cumpleaños del día (desde sheet Clientes).
+// ─ v20.13: adminDesactivarGiftCard — nuevo endpoint para desactivar cualquier gift card
+//           manualmente (acepta referencia o codigo, cualquier estado → CANCELADA).
+//           _emailGiftCardActivada — texto actualizado: "se pondrá muy feliz…" +
+//           "Gracias por confiar en HELENA CABALLERO" + footer con Código/Referencia/TxID.
+//           CFG.WHATSAPP corregido: +573004257367 (dígitos invertidos).
 // ============================================================
 
 'use strict';
