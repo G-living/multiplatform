@@ -3073,6 +3073,7 @@ function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
         <p style="color:#aaa;font-size:12px;margin:0">Válida hasta ${gcVig}</p>
       </div>
       ${_instruccionesGiftHTML()}
+      ${_ventasDashboardHTML(_ventasInfluencerMes(infl.codigo, infl.comPct), mesAno)}
       <p style="font-size:14px;line-height:1.7;margin-top:20px">
         Puedes usar tu Gift Card para darte un regalo que te mereces, o regalarla a alguien especial.
         Es tuya — con todo nuestro reconocimiento y afecto. 🎁
@@ -3099,7 +3100,8 @@ function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
 
 /**
  * Devuelve las ventas APPROVED del mes actual para un código influencer.
- * Retorna array de { fecha, ref, subtotal, comision } ordenado por fecha desc.
+ * Retorna array de { fecha, ref, comprador, productos, subtotal, comPct, comision }
+ * ordenado por fecha descendente.
  */
 function _ventasInfluencerMes(codigo, comPct) {
   try {
@@ -3111,25 +3113,87 @@ function _ventasInfluencerMes(codigo, comPct) {
     const cEst   = header.indexOf('Estado_Pago_Wompi');
     const cSub   = header.indexOf('Subtotal_COP');
     const cTot   = header.indexOf('Total_COP');
+    const cNom   = header.indexOf('Nombre');
+    const cApe   = header.indexOf('Apellido');
+    const cProds = header.indexOf('Productos_JSON');
     const cInfl  = header.indexOf('Influencer_Código');
     if (cInfl < 0) return [];
-    const ahora  = new Date();
-    const mes    = ahora.getMonth();
-    const anio   = ahora.getFullYear();
-    const norm   = String(codigo).trim().toUpperCase();
+    const ahora = new Date();
+    const mes   = ahora.getMonth();
+    const anio  = ahora.getFullYear();
+    const norm  = String(codigo).trim().toUpperCase();
     const ventas = [];
     for (let i = 1; i < data.length; i++) {
       if (String(data[i][cInfl] || '').trim().toUpperCase() !== norm) continue;
       if (String(data[i][cEst]  || '') !== 'APPROVED') continue;
       const ts = data[i][cTs];
       if (!(ts instanceof Date) || ts.getMonth() !== mes || ts.getFullYear() !== anio) continue;
-      const subtotal = Number(data[i][cSub]) || Number(data[i][cTot]) || 0;
-      const comision = comPct > 0 ? Math.floor(subtotal * comPct / 100 / 1000) * 1000 : 0;
-      ventas.push({ fecha: ts, ref: String(data[i][cRef] || ''), subtotal, comision });
+      const subtotal  = Number(data[i][cSub]) || Number(data[i][cTot]) || 0;
+      const comision  = comPct > 0 ? Math.round(subtotal * comPct / 100) : 0;
+      const comprador = [String(data[i][cNom] || ''), String(data[i][cApe] || '')].filter(Boolean).join(' ') || '—';
+      const prodsArr  = cProds >= 0 ? _parseJSON(data[i][cProds]) : [];
+      const productos = Array.isArray(prodsArr) && prodsArr.length > 0
+        ? prodsArr.map(p => {
+            const nom = p.productName || p.name || '';
+            const qty = p.quantity || 1;
+            return qty > 1 ? `${nom} x${qty}` : nom;
+          }).filter(Boolean).join(' / ')
+        : '—';
+      ventas.push({ fecha: ts, ref: String(data[i][cRef] || ''), comprador, productos, subtotal, comPct, comision });
     }
     ventas.sort((a, b) => b.fecha - a.fecha);
     return ventas;
   } catch(e) { return []; }
+}
+
+/**
+ * Genera el HTML de la tabla completa de ventas del mes — dashboard del influencer.
+ * Compartido por _emailInfluencerComisionGC y _emailInfluencerMotivacion.
+ */
+function _ventasDashboardHTML(ventas, mesAno) {
+  if (!ventas || ventas.length === 0) {
+    return `<p style="font-size:13px;color:#888;margin:14px 0;font-style:italic">
+      Aún no hay ventas registradas este mes. ¡Comparte tu código y la primera llegará pronto! 🚀
+    </p>`;
+  }
+  const totalSub = ventas.reduce((s, v) => s + v.subtotal, 0);
+  const totalCom = ventas.reduce((s, v) => s + v.comision, 0);
+  const filas = ventas.map((v, idx) => `
+    <tr style="background:${idx % 2 === 0 ? '#faf8f5' : '#fff'};border-bottom:1px solid #ede6d8">
+      <td style="padding:7px 8px;font-size:12px;color:#555">${Utilities.formatDate(v.fecha,'America/Bogota','dd/MM')}</td>
+      <td style="padding:7px 8px;font-size:12px;font-weight:600;color:#1a1610">${v.comprador}</td>
+      <td style="padding:7px 8px;font-size:11px;color:#666;line-height:1.4">${v.productos}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right">${_fmtCOP(v.subtotal)}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:center;color:#8e44ad;font-weight:600">${v.comPct}%</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right;color:#27ae60;font-weight:bold">${_fmtCOP(v.comision)}</td>
+    </tr>`).join('');
+  return `
+    <h3 style="color:#3a2e1f;font-size:13px;font-weight:700;margin:22px 0 8px;text-transform:uppercase;letter-spacing:1px">
+      📦 Tus ventas de ${mesAno}
+    </h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">
+      <thead>
+        <tr style="background:#1a1610;color:#C4A05A">
+          <th style="padding:8px;text-align:left;font-weight:600;font-size:11px">Fecha</th>
+          <th style="padding:8px;text-align:left;font-weight:600;font-size:11px">Comprador</th>
+          <th style="padding:8px;text-align:left;font-weight:600;font-size:11px">Productos</th>
+          <th style="padding:8px;text-align:right;font-weight:600;font-size:11px">Subtotal</th>
+          <th style="padding:8px;text-align:center;font-weight:600;font-size:11px">Com.%</th>
+          <th style="padding:8px;text-align:right;font-weight:600;font-size:11px">Tu comisión</th>
+        </tr>
+      </thead>
+      <tbody>${filas}</tbody>
+      <tfoot>
+        <tr style="background:#f0ece4;border-top:2px solid #C4A05A">
+          <td colspan="3" style="padding:8px;font-size:12px;font-weight:700;color:#1a1610">
+            TOTAL · ${ventas.length} venta${ventas.length !== 1 ? 's' : ''}
+          </td>
+          <td style="padding:8px;text-align:right;font-size:12px;font-weight:700">${_fmtCOP(totalSub)}</td>
+          <td></td>
+          <td style="padding:8px;text-align:right;font-size:13px;font-weight:700;color:#27ae60">${_fmtCOP(totalCom)}</td>
+        </tr>
+      </tfoot>
+    </table>`;
 }
 
 /**
@@ -3142,24 +3206,8 @@ function _emailInfluencerMotivacion(infl, acumulado) {
     const primerNombre = (infl.nombre || '').split(' ')[0] || infl.nombre || 'amig@';
     const falta   = CUOTA_MIN_INFLUENCER - acumulado;
     const mesAno  = Utilities.formatDate(new Date(), 'America/Bogota', 'MMMM yyyy');
-    const ventas  = _ventasInfluencerMes(infl.codigo, infl.comPct);
-    const ventasHTML = ventas.length > 0
-      ? `<p style="font-weight:bold;font-size:13px;margin:18px 0 8px;color:#3a2e1f">Ventas del mes con tu código:</p>
-         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px">
-           <thead><tr style="background:#f0ece4">
-             <th style="padding:6px 8px;text-align:left;color:#555">Fecha</th>
-             <th style="padding:6px 8px;text-align:left;color:#555">Referencia</th>
-             <th style="padding:6px 8px;text-align:right;color:#555">Subtotal</th>
-             <th style="padding:6px 8px;text-align:right;color:#555">Comisión</th>
-           </tr></thead>
-           <tbody>${ventas.map(v => `<tr style="border-bottom:1px solid #e8e0d0">
-             <td style="padding:5px 8px">${Utilities.formatDate(v.fecha,'America/Bogota','dd/MM')}</td>
-             <td style="padding:5px 8px;font-family:monospace;font-size:11px">${v.ref}</td>
-             <td style="padding:5px 8px;text-align:right">${_fmtCOP(v.subtotal)}</td>
-             <td style="padding:5px 8px;text-align:right;color:#27ae60;font-weight:bold">${_fmtCOP(v.comision)}</td>
-           </tr>`).join('')}</tbody>
-         </table>`
-      : `<p style="font-size:13px;color:#888;margin:14px 0 0;font-style:italic">Aún no hay ventas registradas este mes. ¡Comparte tu código y la primera llegará pronto! 🚀</p>`;
+    const ventas     = _ventasInfluencerMes(infl.codigo, infl.comPct);
+    const ventasHTML = _ventasDashboardHTML(ventas, mesAno);
 
     const body = _emailWrapper(primerNombre, `
       <p style="font-size:15px;line-height:1.7">
