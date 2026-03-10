@@ -1,5 +1,5 @@
 // ============================================================
-// IMOLARTE — Google Apps Script Backend v20.13
+// IMOLARTE — Google Apps Script Backend v20.14
 // ============================================================
 // Spreadsheet ID : 1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg
 // Deploy: publicar como nueva versión tras pegar este código
@@ -50,6 +50,9 @@
 //           _emailGiftCardActivada — texto actualizado: "se pondrá muy feliz…" +
 //           "Gracias por confiar en HELENA CABALLERO" + footer con Código/Referencia/TxID.
 //           CFG.WHATSAPP corregido: +573004257367 (dígitos invertidos).
+// ─ v20.14: setupDropdowns — agrega dropdown Estado_Gift en GiftCards (ACTIVA/INACTIVA/CANCELADA).
+//           _emailNotificarEstadoPedido — reescrito con tabla de productos, resumen de valores,
+//           saldo pendiente callout, mensajes cálidos por estado y footer estándar de seguimiento.
 // ============================================================
 
 'use strict';
@@ -1864,25 +1867,90 @@ function _emailCarritoAbandonado(email, nombre, ref, productos, total) {
 
 function _emailNotificarEstadoPedido(rowData, header, estado) {
   try {
-    const email  = rowData[header.indexOf('Email')]     || '';
-    const nombre = rowData[header.indexOf('Nombre')]    || 'cliente';
-    const ref    = rowData[header.indexOf('Referencia')]|| '';
+    const email    = rowData[header.indexOf('Email')]            || '';
+    const nombre   = rowData[header.indexOf('Nombre')]           || '';
+    const ref      = rowData[header.indexOf('Referencia')]       || '';
+    const subtotal = Number(rowData[header.indexOf('Subtotal_COP')])       || 0;
+    const total    = Number(rowData[header.indexOf('Total_COP')])           || 0;
+    const pct      = Number(rowData[header.indexOf('Pct_Pagado')])          || 100;
+    const saldoPendiente = Number(rowData[header.indexOf('Saldo_Pendiente_COP')]) || 0;
+    const productos = _parseJSON(rowData[header.indexOf('Productos_JSON')]);
     if (!email) return;
-    const MENSAJES = {
-      'EN_PRODUCCION'      : 'Tu pedido está en producción en Italia. Te notificaremos cuando esté listo para embarque.',
-      'EN_TRANSITO'        : 'Tu pedido está en tránsito desde Italia hacia Colombia.',
-      'EN_NACIONALIZACION' : 'Tu pedido está en proceso de nacionalización en aduana.',
-      'LISTO_DESPACHO'     : 'Tu pedido está listo para ser despachado.',
-      'DISPONIBLE_TIENDA'  : 'Tu pedido está disponible para retirar en nuestra tienda en Bogotá.',
-      'DESPACHADO'         : 'Tu pedido ha sido despachado. Pronto recibirás la información de seguimiento.',
+
+    const EMOJIS = {
+      'EN_PRODUCCION'      : '🏺',
+      'EN_TRANSITO'        : '✈️',
+      'EN_NACIONALIZACION' : '🛃',
+      'LISTO_DESPACHO'     : '📦',
+      'DISPONIBLE_TIENDA'  : '🏪',
+      'DESPACHADO'         : '🚚',
     };
-    const subject = `&#128230; ${CFG.NOMBRE_TIENDA} — Actualización pedido ${ref}`;
+    const TITULOS = {
+      'EN_PRODUCCION'      : '¡Tu pedido está en manos de los artesanos!',
+      'EN_TRANSITO'        : '¡Tu pedido está en camino desde Italia!',
+      'EN_NACIONALIZACION' : '¡Tu pedido llegó a Colombia!',
+      'LISTO_DESPACHO'     : '¡Tu pedido está listo para despacharse!',
+      'DISPONIBLE_TIENDA'  : '¡Tu pedido te espera en tienda!',
+      'DESPACHADO'         : '¡Tu pedido está en camino a tu puerta!',
+    };
+    const MENSAJES = {
+      'EN_PRODUCCION'      : 'Los artesanos de Imola, Italia, están creando con dedicación cada pieza de tu pedido. ¡Con tanto amor puesto en cada detalle, el resultado será precioso!',
+      'EN_TRANSITO'        : '¡Qué emoción! Tus piezas han salido de Italia y están viajando hacia ti. Pronto las tendrás en casa.',
+      'EN_NACIONALIZACION' : 'Tu pedido ha llegado a Colombia y está en proceso de nacionalización en aduana. ¡Ya falta muy poco para que llegue a tus manos!',
+      'LISTO_DESPACHO'     : '¡Buenas noticias! Tu pedido está empacado y listo para salir. En breve recibirás la información de seguimiento.',
+      'DISPONIBLE_TIENDA'  : '¡Tu pedido está listo y te espera en nuestra tienda en Bogotá! Puedes pasar a recogerlo cuando gustes.',
+      'DESPACHADO'         : 'Tu pedido ha sido despachado y está en camino a tu dirección. ¡Muy pronto podrás disfrutar de tus piezas!',
+    };
+
+    const emoji  = EMOJIS[estado]  || '📋';
+    const titulo = TITULOS[estado] || 'Actualización de tu pedido';
+    const msg    = MENSAJES[estado] || 'El estado de tu pedido ha sido actualizado: ' + estado;
+
+    const subject = `${emoji} ${CFG.NOMBRE_TIENDA} — ${titulo} · Pedido ${ref}`;
+
+    const tablaProductos = _productosHTML(productos);
+
+    // ── Resumen de valores ──────────────────────────────────
+    const subtotalMostrar = _roundCOP(subtotal || total);
+    const pagadoLabel     = pct === 60 ? 'Total pagado (60%)' : 'Total pagado';
+    const resumenHTML = subtotalMostrar > 0 ? `
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f5ee;border-radius:6px">
+        <tr>
+          <td style="padding:8px 8px 5px;font-size:13px;color:#555">Subtotal</td>
+          <td style="padding:8px 8px 5px;font-size:13px;text-align:right">${_fmtCOP(subtotalMostrar)}</td>
+        </tr>
+        <tr style="border-top:2px solid #C4A05A">
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;color:#1a1610">${pagadoLabel}</td>
+          <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(total)}</td>
+        </tr>
+        ${saldoPendiente > 0 ? `
+        <tr>
+          <td style="padding:5px 8px 8px;font-size:13px;color:#555">Saldo pendiente</td>
+          <td style="padding:5px 8px 8px;font-size:13px;text-align:right;color:#555">${_fmtCOP(saldoPendiente)}</td>
+        </tr>` : ''}
+      </table>` : '';
+
+    // ── Aviso saldo pendiente ───────────────────────────────
+    const saldoAvisoHTML = saldoPendiente > 0 ? `
+      <div style="background:#fff8e6;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#7a5c00">Saldo pendiente (40%): ${_fmtCOP(saldoPendiente)}</p>
+        <p style="margin:0;font-size:13px;color:#555">
+          Te avisaremos cuando tu pedido esté en tránsito desde Italia, con tiempo suficiente
+          para completar el pago sin incurrir en sobrecostos o penalidades.
+        </p>
+      </div>` : '';
+
     const body = _emailWrapper(nombre, `
-      <p>${MENSAJES[estado] || 'El estado de tu pedido ha sido actualizado: ' + estado}</p>
+      <p style="font-size:16px;font-weight:bold;color:#1a1610">${titulo}</p>
+      <p>${msg}</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
-      <p style="font-size:13px;color:#666;margin-top:16px">
-        Gracias por tu preferencia. Si tienes preguntas escríbenos por 
-        <a href="https://wa.me/${CFG.WHATSAPP}" style="color:#C4A05A">WhatsApp</a>.
+      ${tablaProductos}
+      ${resumenHTML}
+      ${saldoAvisoHTML}
+      <p style="font-size:13px;color:#666;margin-top:20px">
+        Te mantendremos informada sobre el estado de tu pedido en cada etapa del proceso.<br>
+        Si tienes alguna pregunta, escríbenos por
+        <a href="https://wa.me/${CFG.WHATSAPP}" style="color:#C4A05A">WhatsApp</a>, con mucho gusto te atendemos.
       </p>
     `);
     GmailApp.sendEmail(email, subject, '', { htmlBody: body });
@@ -2070,7 +2138,7 @@ function setupDropdowns() {
 
   // Limpiar TODAS las validaciones existentes antes de reaplicar
   // Evita acumulación de reglas en columnas incorrectas por ejecuciones previas
-  [CFG.SHEETS.PEDIDOS_WOMPI, CFG.SHEETS.WISHLIST, CFG.SHEETS.CAMPANIAS].forEach(nombre => {
+  [CFG.SHEETS.PEDIDOS_WOMPI, CFG.SHEETS.WISHLIST, CFG.SHEETS.CAMPANIAS, CFG.SHEETS.GIFT_CARDS].forEach(nombre => {
     const sheet = ss.getSheetByName(nombre);
     if (!sheet) return;
     const lastCol = sheet.getLastColumn() || 30;
@@ -2081,6 +2149,7 @@ function setupDropdowns() {
   _applyDropdown(ss, CFG.SHEETS.PEDIDOS_WOMPI, 'Pct_Pagado',      ['60', '100']);
   _applyDropdown(ss, CFG.SHEETS.WISHLIST,       'Estado_Wishlist', ESTADOS_WISHLIST);
   _applyDropdown(ss, CFG.SHEETS.CAMPANIAS,      'Estado',         ['ACTIVA','CERRADA','PAUSADA']);
+  _applyDropdown(ss, CFG.SHEETS.GIFT_CARDS,     'Estado_Gift',    ['ACTIVA','INACTIVA','CANCELADA']);
 
   // Forma_pago — texto libre, añadir solo nota en header
   const sheetWP = ss.getSheetByName(CFG.SHEETS.PEDIDOS_WOMPI);
