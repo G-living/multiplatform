@@ -2259,6 +2259,46 @@ function setupSheets() {
   Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
 }
 
+// Crea la hoja Influencers con sus cabeceras y formato si no existe.
+// Ejecutar UNA VEZ desde el editor de Apps Script: Ejecutar → setupInfluencers
+function setupInfluencers() {
+  const ss      = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const nombre  = CFG.SHEETS.INFLUENCERS;
+  const headers = [
+    'Influencer_ID','Código','Nombre','Apellido','Email','Teléfono',
+    'Descuento_Pct','Comision_Pct',
+    'Estado','Fecha_Registro','Notas_internas',
+  ];
+
+  let sheet = ss.getSheetByName(nombre);
+  if (!sheet) {
+    sheet = ss.insertSheet(nombre);
+    Logger.log('✅ Hoja creada: ' + nombre);
+  } else {
+    Logger.log('ℹ️ La hoja ya existe: ' + nombre);
+  }
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(headers);
+    const hdrRange = sheet.getRange(1, 1, 1, headers.length);
+    hdrRange.setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.autoResizeColumns(1, headers.length);
+
+    // Dropdown Estado: ACTIVO / INACTIVO
+    const estadoCol  = headers.indexOf('Estado') + 1;
+    const estadoRule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['ACTIVO', 'INACTIVO'], true).build();
+    sheet.getRange(2, estadoCol, 500, 1).setDataValidation(estadoRule);
+
+    Logger.log('✅ Cabeceras escritas en ' + nombre);
+  } else {
+    Logger.log('ℹ️ La hoja ya tiene datos — cabeceras no modificadas');
+  }
+
+  Logger.log('✅ setupInfluencers completado');
+}
+
 // Agrega columnas Influencer_Código y Base_Comision_COP al final de Pedidos_Wompi existente.
 // Ejecutar UNA VEZ tras desplegar v20.15.
 function repairPedidosWompiAddInfluencer() {
