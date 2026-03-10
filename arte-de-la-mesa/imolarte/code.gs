@@ -1875,7 +1875,10 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
     const pct      = Number(rowData[header.indexOf('Pct_Pagado')])          || 100;
     const saldoPendiente = Number(rowData[header.indexOf('Saldo_Pendiente_COP')]) || 0;
     const productos = _parseJSON(rowData[header.indexOf('Productos_JSON')]);
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      _log('emailNotificarEstado_SKIP', ref, 'invalid email: ' + email);
+      return;
+    }
 
     const EMOJIS = {
       'EN_PRODUCCION'      : '🏺',
