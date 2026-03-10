@@ -881,6 +881,12 @@ const Modal = (() => {
     requestAnimationFrame(() => {
       _loadDraft();
       _bindDraftListeners(); // idempotente — no duplica listeners
+      // Barrio y Ciudad los llena Places Autocomplete al escribir la dirección.
+      // Limpiarlos evita que persistan valores de sesiones anteriores.
+      ['wpInputBarrio', 'wpInputCiudad'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
       // Auto-revalidar bono si el campo tiene un código (ej: cliente volvió con "Regresar")
       // Así el descuento se restaura sin que el cliente tenga que presionar "Aplicar" de nuevo
       const bonoInput = document.getElementById('wpInputBono');
@@ -1906,6 +1912,12 @@ const Modal = (() => {
     requestAnimationFrame(() => {
       _loadDraft();
       _bindDraftListeners();
+      // Barrio y Ciudad los llena Places Autocomplete automáticamente al escribir la dirección.
+      // Limpiarlos evita que persistan valores de sesiones anteriores.
+      ['gfBarrio', 'gfCiudad'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
     });
 
     setTimeout(() => _drawGiftCard(500000), 80);
