@@ -2132,6 +2132,27 @@ function setupSheets() {
   Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
 }
 
+// Repara cabeceras de Pedidos_Wompi sin borrar datos.
+// Ejecutar UNA VEZ si la hoja fue creada antes de que se agregara Catalogo_ID.
+function repairPedidosWompiHeaders() {
+  const ss      = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet   = ss.getSheetByName(CFG.SHEETS.PEDIDOS_WOMPI);
+  if (!sheet) { Logger.log('❌ Hoja no encontrada'); return; }
+  const headers = [
+    'Campaña_ID','Catalogo_ID','Timestamp','Referencia',
+    'Wompi_Transaction_ID','Estado_Pago_Wompi',
+    'ClienteID','Nombre','Apellido','Email','Teléfono',
+    'Tipo_Doc','Num_Doc',
+    'Dirección','Barrio','Ciudad','Notas_entrega',
+    'Productos_JSON','Subtotal_COP','Descuento_COP',
+    'Total_COP','Pct_Pagado','Forma_pago','Saldo_Pendiente_COP',
+    'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
+  ];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers])
+    .setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+  Logger.log('✅ Cabeceras Pedidos_Wompi reparadas');
+}
+
 // ============================================================
 // DROPDOWNS
 // ============================================================
