@@ -321,6 +321,18 @@ function _createPedidoWompi(b) {
   }).clienteId;
 
   const catalogoId = b.catalogoId || '';
+
+  // Lookup influencer para columnas AC-AF (comisionPct, nombre, apellido, codigo)
+  let inflComisionPct = 0, inflNombreSolo = '', inflApellido = '';
+  if (b.influencerCodigo) {
+    const inflData = _getInfluencer(b.influencerCodigo);
+    if (inflData.ok) {
+      inflComisionPct = inflData.comisionPct || 0;
+      inflNombreSolo  = inflData.nombreSolo  || '';
+      inflApellido    = inflData.apellido    || '';
+    }
+  }
+
   sheet.appendRow([
     campania,                            // A  Campaña_ID
     catalogoId,                          // B  Catalogo_ID
@@ -341,22 +353,22 @@ function _createPedidoWompi(b) {
     ent.notas     || '',                 // Q  Notas_entrega
     JSON.stringify(b.productos || []),   // R  Productos_JSON
     b.subtotal    || 0,                  // S  Subtotal_COP
-    b.descuento   || 0,                  // T  Descuento_COP
-    b.total       || 0,                  // U  Total_COP
-    b.porcentajePagado || 100,           // V  Pct_Pagado
-    b.formaPago   || 'WOMPI_100',        // W  Forma_pago
-    // Saldo pendiente: total × (1 - pct/100), 0 si pago completo o gift
-    _roundCOP((b.total || 0) * (1 - ((b.porcentajePagado || 100) / 100))), // X  Saldo_Pendiente_COP
-    'PENDIENTE',                         // Y  Estado_Pedido
-    '',                                  // Z  Fecha_despacho
-    '',                                  // AA Notas_internas
-    '',                                  // AB SIIGO_Factura_ID
-    b.influencerCodigo || '',            // AC Influencer_Código
-    b.influencerBase   || 0,             // AD Base_Comision_COP
-    b.discInfluencer   || 0,             // AE Dcto_Influencer_COP
-    b.discGiftCard     || 0,             // AF Dcto_GiftCard_COP
-    b.disc3pct         || 0,             // AG Dcto_3pct_COP
-    b.totalAPagar      || 0,             // AH Total_a_Pagar_COP
+    // T-AF: desglose completo de descuentos e influencer para análisis financiero
+    b.discInfluencer   || 0,             // T  Descuento_Influencer_COP
+    b.discGiftCard     || 0,             // U  Descuento_GiftCard_COP
+    b.totalAPagar      || 0,             // V  Total_a_Pagar_COP
+    b.porcentajePagado || 100,           // W  Porcentaje_Pagado
+    b.formaPago   || 'WOMPI_100',        // X  Forma_Pago
+    // Y Saldo pendiente: 40% de Total_a_Pagar si anticipo 60%, 0 en otro caso
+    (b.porcentajePagado || 100) === 60
+      ? _roundCOP((b.totalAPagar || 0) * 0.4) : 0,       // Y  Saldo_Pendiente_COP
+    'PENDIENTE',                         // Z  Estado_Pedido
+    '',                                  // AA Fecha_Despacho
+    '',                                  // AB Notas_Internas
+    inflComisionPct,                     // AC Comision_Pct_Influencer
+    inflNombreSolo,                      // AD Influencer_Nombre
+    inflApellido,                        // AE Influencer_Apellido
+    b.influencerCodigo || '',            // AF Influencer_Codigo
   ]);
 
   _log('createPedidoWompi', ref, cliId, 'OK');
@@ -507,22 +519,29 @@ function _confirmarPagoWompi(b) {
 
     _log('confirmarPagoWompi', ref, status, estadoPedido);
 
-    const email          = data[i][header.indexOf('Email')]               || '';
-    const nombre         = data[i][header.indexOf('Nombre')]              || '';
+    const email          = data[i][header.indexOf('Email')]                        || '';
+    const nombre         = data[i][header.indexOf('Nombre')]                       || '';
     const prods          = _parseJSON(data[i][header.indexOf('Productos_JSON')]);
-    const total          = data[i][header.indexOf('Total_COP')]           || 0;
-    const subtotal       = data[i][header.indexOf('Subtotal_COP')]        || 0;
-    const descuento      = data[i][header.indexOf('Descuento_COP')]       || 0;
-    const formaPago      = String(data[i][header.indexOf('Forma_pago')]   || '');
-    const pctPagado      = Number(data[i][header.indexOf('Pct_Pagado')])  || 100;
-    const discInfluencer = Number(data[i][header.indexOf('Dcto_Influencer_COP')] || 0);
-    const discGiftCard   = Number(data[i][header.indexOf('Dcto_GiftCard_COP')]   || 0);
-    const disc3pct       = Number(data[i][header.indexOf('Dcto_3pct_COP')]       || 0);
-    const totalAPagar    = Number(data[i][header.indexOf('Total_a_Pagar_COP')]   || 0);
-    // inflPct no se guarda en sheet — reconstruir aproximado desde discInfluencer/subtotal
+    const subtotal       = Number(data[i][header.indexOf('Subtotal_COP')]          || 0);
+    const formaPago      = String(data[i][header.indexOf('Forma_Pago')]            || '');
+    const pctPagado      = Number(data[i][header.indexOf('Porcentaje_Pagado')]     || 100);
+    const discInfluencer = Number(data[i][header.indexOf('Descuento_Influencer_COP')] || 0);
+    const discGiftCard   = Number(data[i][header.indexOf('Descuento_GiftCard_COP')]   || 0);
+    const totalAPagar    = Number(data[i][header.indexOf('Total_a_Pagar_COP')]     || 0);
+    // inflPct aproximado: puede derivarse del comisionPct de la columna AC
     const inflPct        = subtotal > 0 ? Math.round(discInfluencer / subtotal * 100) : 0;
+    // Reconstruir total Wompi (no se guarda en sheet — se deriva de V + W + X)
+    let total = 0;
+    if (formaPago.startsWith('GIFT_CARD') && !formaPago.includes('+GIFT')) {
+      total = 0;
+    } else if (pctPagado === 60) {
+      total = Math.floor(totalAPagar * 0.6 / 1000) * 1000;
+    } else {
+      total = Math.floor(totalAPagar * 0.97 / 1000) * 1000;
+    }
+    const disc3pct = (pctPagado === 100 && total > 0) ? Math.max(0, totalAPagar - total) : 0;
 
-    // Código de GC para el email — monto viene de discGiftCard (columna AF)
+    // Código de GC para el email — monto viene de discGiftCard (columna U)
     let giftInfo = null;
     const giftMatch    = formaPago.match(/GIFT:([A-Z0-9-]+)/);
     const giftTotMatch = formaPago.match(/^GIFT_CARD:([A-Z0-9-]+)/);
@@ -531,12 +550,12 @@ function _confirmarPagoWompi(b) {
     else if (formaPago === 'GIFT_CARD') giftInfo = { codigo: '', monto: discGiftCard, tipo: 'TOTAL' };
 
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, 0, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
 
-    const inflCodStd = String(data[i][header.indexOf('Influencer_Código')] || '').trim();
+    const inflCodStd = String(data[i][header.indexOf('Influencer_Codigo')] || '').trim();
     if (status === 'APPROVED' && inflCodStd) {
       _emailInfluencerVenta(inflCodStd, {
         clienteNombre: `${nombre} ${data[i][header.indexOf('Apellido')] || ''}`.trim(),
@@ -919,7 +938,9 @@ function _getInfluencer(codigo) {
       ok          : true,
       valid       : isActive,
       codigo      : String(data[i][colCod]).trim(),
-      nombre,
+      nombre,                                              // nombre completo (nombre + apellido)
+      nombreSolo  : String(data[i][colNombre]   || '').trim(),
+      apellido    : String(data[i][colApellido] || '').trim(),
       email       : String(data[i][header.indexOf('Email')] || '').trim(),
       descuentoPct: Number(data[i][colDesc]) || 0,
       comisionPct : Number(data[i][colCom])  || 0,
@@ -2195,11 +2216,11 @@ function setupSheets() {
       'ClienteID','Nombre','Apellido','Email','Teléfono',
       'Tipo_Doc','Num_Doc',
       'Dirección','Barrio','Ciudad','Notas_entrega',
-      'Productos_JSON','Subtotal_COP','Descuento_COP',
-      'Total_COP','Pct_Pagado','Forma_pago','Saldo_Pendiente_COP',
-      'Estado_Pedido','Fecha_despacho','Notas_internas','SIIGO_Factura_ID',
-      'Influencer_Código','Base_Comision_COP',
-      'Dcto_Influencer_COP','Dcto_GiftCard_COP','Dcto_3pct_COP','Total_a_Pagar_COP',
+      'Productos_JSON','Subtotal_COP',
+      'Descuento_Influencer_COP','Descuento_GiftCard_COP','Total_a_Pagar_COP',
+      'Porcentaje_Pagado','Forma_Pago','Saldo_Pendiente_COP',
+      'Estado_Pedido','Fecha_Despacho','Notas_Internas',
+      'Comision_Pct_Influencer','Influencer_Nombre','Influencer_Apellido','Influencer_Codigo',
     ],
     [CFG.SHEETS.GIFT_CARDS]: [
       'Campaña_ID','Timestamp','Referencia','Código_Gift','Saldo_Gift_COP','Válido_Hasta',
@@ -2256,34 +2277,52 @@ function setupSheets() {
   Logger.log('✅ setupSheets completado — ejecutar setupDropdowns() y setupProtections() por separado');
 }
 
-// Agrega las columnas AE-AH a Pedidos_Wompi si no existen.
+// Reescribe los headers T-AF de Pedidos_Wompi al nuevo esquema v21.3.
 // Ejecutar UNA VEZ desde Apps Script: Ejecutar → migrarColumnasDescuento
-// Seguro de re-ejecutar (idempotente — solo agrega columnas faltantes).
+// ⚠ Sobreescribe los headers de columna T en adelante; los datos existentes
+//   en esas celdas quedan como histórico — no se borran.
 function migrarColumnasDescuento() {
-  const sheet   = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
-  const lastCol = sheet.getLastColumn();
-  const header  = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const sheet  = _getSheet(CFG.SHEETS.PEDIDOS_WOMPI);
+  const colS   = 19; // columna S (1-based) = Subtotal_COP — invariante
 
-  const nuevas = [
-    'Dcto_Influencer_COP',
-    'Dcto_GiftCard_COP',
-    'Dcto_3pct_COP',
-    'Total_a_Pagar_COP',
+  // Nuevos headers T→AF (columnas 20-32)
+  const nuevosHeaders = [
+    'Descuento_Influencer_COP',   // T  col 20
+    'Descuento_GiftCard_COP',     // U  col 21
+    'Total_a_Pagar_COP',          // V  col 22
+    'Porcentaje_Pagado',          // W  col 23
+    'Forma_Pago',                 // X  col 24
+    'Saldo_Pendiente_COP',        // Y  col 25
+    'Estado_Pedido',              // Z  col 26
+    'Fecha_Despacho',             // AA col 27
+    'Notas_Internas',             // AB col 28
+    'Comision_Pct_Influencer',    // AC col 29
+    'Influencer_Nombre',          // AD col 30
+    'Influencer_Apellido',        // AE col 31
+    'Influencer_Codigo',          // AF col 32
   ];
 
-  nuevas.forEach(col => {
-    if (header.indexOf(col) < 0) {
-      const nextCol = sheet.getLastColumn() + 1;
-      sheet.getRange(1, nextCol).setValue(col);
-      sheet.getRange(1, nextCol).setFontWeight('bold');
-      Logger.log('Columna agregada: ' + col + ' → col ' + nextCol);
-    } else {
-      Logger.log('Columna ya existe: ' + col);
-    }
+  const startCol = colS + 1; // columna T = 20
+  nuevosHeaders.forEach((h, i) => {
+    const col = startCol + i;
+    sheet.getRange(1, col).setValue(h).setFontWeight('bold');
+    Logger.log('Header escrito: ' + h + ' → col ' + col);
   });
 
+  // Asegurar que la hoja tenga al menos 32 columnas
+  if (sheet.getMaxColumns() < 32) sheet.insertColumnsAfter(sheet.getMaxColumns(), 32 - sheet.getMaxColumns());
+
+  // Agregar columna de totalizador a Influencers si no existe
+  const inflSheet = _getSheet(CFG.SHEETS.INFLUENCERS);
+  const inflH = inflSheet.getRange(1, 1, 1, inflSheet.getLastColumn()).getValues()[0];
+  if (inflH.indexOf('Comision_Total_Historica_COP') < 0) {
+    const nextInflCol = inflSheet.getLastColumn() + 1;
+    inflSheet.getRange(1, nextInflCol).setValue('Comision_Total_Historica_COP').setFontWeight('bold');
+    Logger.log('Influencers: Comision_Total_Historica_COP agregada → col ' + nextInflCol);
+  }
+
   SpreadsheetApp.flush();
-  Logger.log('✅ migrarColumnasDescuento completado');
+  Logger.log('✅ migrarColumnasDescuento v21.3 completado');
 }
 
 // Crea la hoja Influencers con sus cabeceras y formato si no existe.
@@ -2294,7 +2333,7 @@ function setupInfluencers() {
   const headers = [
     'Influencer_ID','Código','Nombre','Apellido','Email','Teléfono',
     'Descuento_Pct','Comision_Pct',
-    'Estado','Fecha_Registro','Notas_internas','Comision_Acumulada_COP',
+    'Estado','Fecha_Registro','Notas_internas','Comision_Acumulada_COP','Comision_Total_Historica_COP',
   ];
 
   let sheet = ss.getSheetByName(nombre);
@@ -2957,13 +2996,14 @@ function liquidarComisionesInfluencers() {
   const sheet  = _getSheet(CFG.SHEETS.INFLUENCERS);
   const data   = sheet.getDataRange().getValues();
   const header = data[0];
-  const colCod    = header.indexOf('Código');
-  const colNom    = header.indexOf('Nombre');
-  const colApe    = header.indexOf('Apellido');
-  const colEmail  = header.indexOf('Email');
-  const colEst    = header.indexOf('Estado');
-  const colAcum   = header.indexOf('Comision_Acumulada_COP');
-  const colComPct = header.indexOf('Comision_Pct');
+  const colCod      = header.indexOf('Código');
+  const colNom      = header.indexOf('Nombre');
+  const colApe      = header.indexOf('Apellido');
+  const colEmail    = header.indexOf('Email');
+  const colEst      = header.indexOf('Estado');
+  const colAcum     = header.indexOf('Comision_Acumulada_COP');
+  const colComPct   = header.indexOf('Comision_Pct');
+  const colHistorico = header.indexOf('Comision_Total_Historica_COP'); // puede ser -1 si no migrado aún
 
   if (colAcum < 0) {
     _log('liquidarComisionesInfluencers', 'ERROR: Comision_Acumulada_COP no encontrada — ejecutar repairInfluencersAddComisionAcumulada()');
@@ -2993,6 +3033,11 @@ function liquidarComisionesInfluencers() {
       _crearGiftCardInfluencerComision(infl, acumulado, gcCodigo, gcVig);
       _emailInfluencerComisionGC(infl, acumulado, gcCodigo, gcVig);
       sheet.getRange(i + 1, colAcum + 1).setValue(0); // resetear acumulador
+      // Sumar al totalizador histórico (columna Comision_Total_Historica_COP)
+      if (colHistorico >= 0) {
+        const historico = Number(data[i][colHistorico]) || 0;
+        sheet.getRange(i + 1, colHistorico + 1).setValue(historico + acumulado);
+      }
       _log('liquidarComisionesInfluencers', codigo, 'PAGADO', acumulado, gcCodigo);
     } else {
       // ── Motivación: email recordatorio sin resetear ──
