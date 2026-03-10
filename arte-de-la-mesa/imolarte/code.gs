@@ -55,6 +55,8 @@
 //           en Pedidos_Wompi. Frontend: orden de descuentos corregido: bono → 3% → (5% futuro).
 // ─ v20.16: Fase 2 influencer — GET getInfluencer valida código; _createPedidoWompi escribe
 //           Influencer_Código y Base_Comision_COP; descuento 5% activo en checkout (bono→infl→3%).
+// ─ v20.16: _emailInfluencerVenta — email automático al influencer en cada APPROVED con su código:
+//           comisión estimada destacada, productos del pedido, nombre del cliente (primer nombre).
 //           _emailNotificarEstadoPedido — reescrito con tabla de productos, resumen de valores,
 //           saldo pendiente callout, mensajes cálidos por estado y footer estándar de seguimiento.
 // ============================================================
@@ -456,6 +458,13 @@ function _confirmarPagoWompi(b) {
         _emailPagoCancelado(email, nombre, ref, status);
     }
 
+    if (status === 'APPROVED' && (p.influencerCodigo || '')) {
+      _emailInfluencerVenta(p.influencerCodigo, {
+        clienteNombre: `${cli.nombre || ''} ${cli.apellido || ''}`.trim(),
+        ref, prods, subtotal: subtotal || total,
+      });
+    }
+
     const totalParaHistorico = _roundCOP(subtotal || total);
     if (status === 'APPROVED' && totalParaHistorico > 0) {
       const tel = _fmtTel(cli.codigoPais, cli.telefono);
@@ -513,6 +522,14 @@ function _confirmarPagoWompi(b) {
       if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
+    }
+
+    const inflCodStd = String(data[i][header.indexOf('Influencer_Código')] || '').trim();
+    if (status === 'APPROVED' && inflCodStd) {
+      _emailInfluencerVenta(inflCodStd, {
+        clienteNombre: `${nombre} ${data[i][header.indexOf('Apellido')] || ''}`.trim(),
+        ref, prods, subtotal: subtotal || total,
+      });
     }
 
     // En APPROVED: contar interacción + acumular total en una sola llamada
@@ -891,6 +908,7 @@ function _getInfluencer(codigo) {
       valid       : isActive,
       codigo      : String(data[i][colCod]).trim(),
       nombre,
+      email       : String(data[i][header.indexOf('Email')] || '').trim(),
       descuentoPct: Number(data[i][colDesc]) || 0,
       comisionPct : Number(data[i][colCom])  || 0,
       estado,
@@ -2088,6 +2106,59 @@ function _emailIdentidadSospechosa(b, rowEncontrada) {
 // ============================================================
 // EMAIL WRAPPER
 // ============================================================
+
+// Email automático al influencer cuando un pedido con su código queda APPROVED.
+// inflCodigo: string código del influencer.
+// opts: { clienteNombre, ref, prods, subtotal }
+function _emailInfluencerVenta(inflCodigo, opts) {
+  if (!inflCodigo) return;
+  try {
+    const infl = _getInfluencer(inflCodigo);
+    if (!infl.valid || !infl.email) return;
+
+    const inflEmail   = infl.email;
+    const inflNombre  = (infl.nombre || '').split(' ')[0] || infl.nombre || 'influencer';
+    const comisionPct = Number(infl.comisionPct) || 0;
+    const subtotal    = Number(opts.subtotal) || 0;
+    const comision    = comisionPct > 0
+      ? Math.floor(subtotal * comisionPct / 100 / 1000) * 1000
+      : 0;
+    const clientePrimerNombre = (String(opts.clienteNombre || '').split(' ')[0]) || 'Un cliente';
+    const ref         = opts.ref || '';
+    const prods       = opts.prods || [];
+
+    const comisionHTML = comision > 0 ? `
+      <div style="background:#1a1610;border-radius:8px;padding:18px 22px;margin:20px 0;text-align:center">
+        <p style="color:#C4A05A;font-size:10px;letter-spacing:2px;margin:0 0 6px;text-transform:uppercase">Tu comisión estimada por esta venta</p>
+        <p style="color:#fff;font-size:30px;font-weight:bold;margin:0;letter-spacing:1px">${_fmtCOP(comision)}</p>
+        <p style="color:#aaa;font-size:12px;margin:6px 0 0">${comisionPct}% sobre ${_fmtCOP(subtotal)}</p>
+      </div>` : '';
+
+    const body = _emailWrapper(inflNombre, `
+      <p>¡Enhorabuena! <strong>${clientePrimerNombre}</strong> acaba de confirmar una compra usando tu código <strong style="background:#f5f0e8;padding:2px 8px;border-radius:4px;font-family:monospace;letter-spacing:1px">${inflCodigo}</strong>. 🛍️✨</p>
+      ${comisionHTML}
+      <p style="font-weight:bold;margin:18px 0 8px;font-size:14px">Productos del pedido:</p>
+      ${_productosHTML(prods)}
+      <table width="100%" style="border-collapse:collapse;margin:10px 0 0;font-size:13px">
+        <tr>
+          <td style="padding:5px 8px;color:#555">Subtotal del pedido</td>
+          <td style="padding:5px 8px;text-align:right;font-weight:bold">${_fmtCOP(subtotal)}</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 8px;color:#555">Referencia</td>
+          <td style="padding:5px 8px;text-align:right;color:#888;font-family:monospace;font-size:12px">${ref}</td>
+        </tr>
+      </table>
+      <p style="margin:20px 0 6px;font-size:13px;color:#555;font-style:italic">La comisión se liquidará según los términos acordados. Para cualquier consulta escríbenos a <a href="mailto:${CFG.EMAIL_ADMIN}" style="color:#C4A05A">${CFG.EMAIL_ADMIN}</a>.</p>
+      <p style="font-size:14px;margin:12px 0 0">¡Gracias por llevar IMOLARTE a tu comunidad! Cada recomendación tuya pone cerámica italiana única en nuevas mesas. 🏺</p>
+    `);
+
+    GmailApp.sendEmail(inflEmail, `🛍️ ¡Nueva venta con tu código ${inflCodigo}! — ${CFG.NOMBRE_TIENDA}`, '', { htmlBody: body });
+    _log('emailInfluencerVenta', inflCodigo, inflEmail, ref);
+  } catch(err) {
+    _log('emailInfluencerVenta_ERROR', String(err.message), inflCodigo);
+  }
+}
 
 function _emailWrapper(nombre, contenido) {
   const saludo = (nombre || '').trim() || 'estimada clienta';
