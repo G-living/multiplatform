@@ -55,6 +55,14 @@
 //           en Pedidos_Wompi. Frontend: orden de descuentos corregido: bono → 3% → (5% futuro).
 // ─ v20.16: Fase 2 influencer — GET getInfluencer valida código; _createPedidoWompi escribe
 //           Influencer_Código y Base_Comision_COP; descuento 5% activo en checkout (bono→infl→3%).
+// ─ v20.17: Fase 3 influencer — acumulación y liquidación mensual de comisiones:
+//           · Comision_Acumulada_COP en hoja Influencers se incrementa en cada APPROVED.
+//           · emailResumenHuerfanos (lunes 6am): sección extra con tabla nombre/código/acumulado.
+//           · liquidarComisionesInfluencers (día 1 de cada mes, 8am via trigger):
+//             ≥ $100.000 → crea Gift Card ACTIVA, email cálido con código, resetea acumulador.
+//             < $100.000 → email motivacional con panel y mensajes de apoyo, NO resetea.
+//           · repairInfluencersAddComisionAcumulada() para hojas ya existentes.
+//           · setupTriggerLiquidacionInfluencers() para activar el trigger 8am.
 // ─ v20.16: _emailInfluencerVenta — email automático al influencer en cada APPROVED con su código:
 //           comisión estimada destacada, productos del pedido, nombre del cliente (primer nombre).
 //           _emailNotificarEstadoPedido — reescrito con tabla de productos, resumen de valores,
@@ -2127,6 +2135,9 @@ function _emailInfluencerVenta(inflCodigo, opts) {
     const ref         = opts.ref || '';
     const prods       = opts.prods || [];
 
+    // Acumular comisión en la hoja Influencers para liquidación mensual
+    if (comision > 0) _acumularComisionInfluencer(inflCodigo, comision);
+
     const comisionHTML = comision > 0 ? `
       <div style="background:#1a1610;border-radius:8px;padding:18px 22px;margin:20px 0;text-align:center">
         <p style="color:#C4A05A;font-size:10px;letter-spacing:2px;margin:0 0 6px;text-transform:uppercase">Tu comisión estimada por esta venta</p>
@@ -2267,7 +2278,7 @@ function setupInfluencers() {
   const headers = [
     'Influencer_ID','Código','Nombre','Apellido','Email','Teléfono',
     'Descuento_Pct','Comision_Pct',
-    'Estado','Fecha_Registro','Notas_internas',
+    'Estado','Fecha_Registro','Notas_internas','Comision_Acumulada_COP',
   ];
 
   let sheet = ss.getSheetByName(nombre);
@@ -2535,6 +2546,7 @@ function emailResumenHuerfanos() {
   const fechaStr = Utilities.formatDate(ahora, 'America/Bogota', 'dd/MM/yyyy HH:mm');
   const hoyDia   = parseInt(Utilities.formatDate(ahora, 'America/Bogota', 'd'),  10);
   const hoyMes   = parseInt(Utilities.formatDate(ahora, 'America/Bogota', 'M'),  10);
+  const esLunes  = Utilities.formatDate(ahora, 'America/Bogota', 'u') === '1'; // lunes = día 1 en ISO
   const urlSheet = 'https://docs.google.com/spreadsheets/d/' + CFG.SPREADSHEET_ID;
 
   function _tdStyle(extra) { return `style="padding:7px 10px;border-bottom:1px solid #e8e0d0;font-size:12px;${extra || ''}`; }
@@ -2764,21 +2776,73 @@ function emailResumenHuerfanos() {
   const totalAlerts = waPendientes.length + pwHuerfanos.length + gcHuerfanas.length + gcInactivas.length;
   const hayAlgo     = totalAlerts > 0 || cumpleHoy.length > 0;
 
+  // ── Sección influencers (solo lunes) ─────────────────────
+  let influencerSeccion = '';
+  if (esLunes) {
+    try {
+      const inflSheet  = _getSheet(CFG.SHEETS.INFLUENCERS);
+      const inflData   = inflSheet.getDataRange().getValues();
+      const inflH      = inflData[0];
+      const iCod  = inflH.indexOf('Código');
+      const iNom  = inflH.indexOf('Nombre');
+      const iApe  = inflH.indexOf('Apellido');
+      const iEst  = inflH.indexOf('Estado');
+      const iAcum = inflH.indexOf('Comision_Acumulada_COP');
+      const iCPct = inflH.indexOf('Comision_Pct');
+      const activos = [];
+      for (let i = 1; i < inflData.length; i++) {
+        if (String(inflData[i][iEst] || '').trim() !== 'ACTIVO') continue;
+        activos.push({
+          codigo:  String(inflData[i][iCod]  || '').trim(),
+          nombre:  [String(inflData[i][iNom] || ''), String(inflData[i][iApe] || '')].filter(Boolean).join(' '),
+          comPct:  Number(inflData[i][iCPct]) || 0,
+          acum:    Number(inflData[i][iAcum]) || 0,
+        });
+      }
+      if (activos.length > 0) {
+        const filas = activos.map(inf => {
+          const color = inf.acum >= 100000 ? '#27ae60' : (inf.acum > 0 ? '#e67e22' : '#999');
+          return `<tr>
+            <td ${_tdStyle('')}>${inf.nombre || '—'}</td>
+            <td ${_tdStyle('font-family:monospace')}>${inf.codigo}</td>
+            <td ${_tdStyle('')}>${inf.comPct}%</td>
+            <td ${_tdStyle('text-align:right;font-weight:bold;color:' + color)}>${_fmtCOP(inf.acum)}</td>
+          </tr>`;
+        }).join('');
+        influencerSeccion = `
+          <h3 style="color:#8e44ad;margin:24px 0 8px;font-size:14px">📊 Desempeño influencers (semana)</h3>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+            <thead><tr>
+              <th ${_thStyle('')}>Nombre</th>
+              <th ${_thStyle('')}>Código</th>
+              <th ${_thStyle('')}>Comisión%</th>
+              <th ${_thStyle('text-align:right')}>Acumulado mes</th>
+            </tr></thead>
+            <tbody>${filas}</tbody>
+          </table>
+          <p style="font-size:11px;color:#888;margin:0">
+            🟢 ≥ $100.000 (pago pendiente el día 1) · 🟠 en progreso · Meta mínima: $100.000
+          </p>`;
+      }
+    } catch(e) { _log('emailResumenHuerfanos_inflSeccion_ERROR', e.message); }
+  }
+
   const cuerpo = !hayAlgo
-    ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay pendientes ni cumpleaños hoy.</p>`
-    : `${waTabla}${cumpleTabla}${pwTabla}${gcHuerfanasTabla}${gcInactivasTabla}
+    ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay pendientes ni cumpleaños hoy.</p>${influencerSeccion}`
+    : `${waTabla}${cumpleTabla}${pwTabla}${gcHuerfanasTabla}${gcInactivasTabla}${influencerSeccion}
        <p style="margin:16px 0 0;font-size:12px;color:#888">
          ${totalAlerts > 0 ? `Alertas: <strong>${totalAlerts}</strong> pendiente(s) · ` : ''}
          <a href="${urlSheet}" style="color:#C4A05A">Ver Spreadsheet</a>
        </p>`;
 
+  const _inflTag = esLunes ? ' 📊infl' : '';
   const asunto = cumpleHoy.length > 0 && totalAlerts === 0
-    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños hoy — ${fechaStr}`
+    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños hoy${_inflTag} — ${fechaStr}`
     : totalAlerts === 0
-    ? `[IMOLARTE] ✅ Sin pendientes — ${fechaStr}`
+    ? `[IMOLARTE] ✅ Sin pendientes${_inflTag} — ${fechaStr}`
     : cumpleHoy.length > 0
-    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños · ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`
-    : `[IMOLARTE] ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`;
+    ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños · ⚠️ ${totalAlerts} pendiente(s)${_inflTag} — ${fechaStr}`
+    : `[IMOLARTE] ⚠️ ${totalAlerts} pendiente(s)${_inflTag} — ${fechaStr}`;
 
   const html = `
 <div style="font-family:Georgia,serif;max-width:680px;margin:auto;color:#1a1610">
@@ -2825,6 +2889,314 @@ function setupTriggerResumenDiario() {
     .create();
 
   Logger.log('✅ Trigger diario 6am creado para emailResumenHuerfanos');
+}
+
+// ============================================================
+// INFLUENCERS — ACUMULACIÓN Y LIQUIDACIÓN DE COMISIONES v20.17
+// ============================================================
+
+/** Cuota mínima COP para generar pago vía Gift Card */
+const CUOTA_MIN_INFLUENCER = 100000;
+
+/**
+ * Suma 'monto' al acumulador Comision_Acumulada_COP del influencer indicado.
+ * Llamado automáticamente desde _emailInfluencerVenta en cada APPROVED.
+ */
+function _acumularComisionInfluencer(codigo, monto) {
+  if (!codigo || !monto || monto <= 0) return;
+  try {
+    const sheet  = _getSheet(CFG.SHEETS.INFLUENCERS);
+    const data   = sheet.getDataRange().getValues();
+    const header = data[0];
+    const colCod  = header.indexOf('Código');
+    const colAcum = header.indexOf('Comision_Acumulada_COP');
+    if (colCod < 0 || colAcum < 0) return;
+    const norm = String(codigo).trim().toUpperCase();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][colCod]).trim().toUpperCase() !== norm) continue;
+      const actual = Number(data[i][colAcum]) || 0;
+      sheet.getRange(i + 1, colAcum + 1).setValue(actual + monto);
+      SpreadsheetApp.flush();
+      _log('_acumularComisionInfluencer', codigo, 'suma:' + monto, 'total:' + (actual + monto));
+      return;
+    }
+  } catch(err) { _log('_acumularComisionInfluencer_ERROR', err.message, codigo); }
+}
+
+/**
+ * Liquidación mensual de comisiones de influencers.
+ * Trigger diario a las 8am; actúa SOLO el día 1 de cada mes.
+ *   ≥ $100.000 acumulado: crea Gift Card por ese monto, envía email cálido, resetea a 0.
+ *   < $100.000 acumulado: envía email motivacional, NO resetea (sigue acumulando).
+ * Para crear el trigger una sola vez: ejecutar setupTriggerLiquidacionInfluencers()
+ */
+function liquidarComisionesInfluencers() {
+  const ahora  = new Date();
+  const tz     = 'America/Bogota';
+  const diaMes = parseInt(Utilities.formatDate(ahora, tz, 'd'), 10);
+  if (diaMes !== 1) return; // actuar solo el 1er día del mes
+
+  const sheet  = _getSheet(CFG.SHEETS.INFLUENCERS);
+  const data   = sheet.getDataRange().getValues();
+  const header = data[0];
+  const colCod    = header.indexOf('Código');
+  const colNom    = header.indexOf('Nombre');
+  const colApe    = header.indexOf('Apellido');
+  const colEmail  = header.indexOf('Email');
+  const colEst    = header.indexOf('Estado');
+  const colAcum   = header.indexOf('Comision_Acumulada_COP');
+  const colComPct = header.indexOf('Comision_Pct');
+
+  if (colAcum < 0) {
+    _log('liquidarComisionesInfluencers', 'ERROR: Comision_Acumulada_COP no encontrada — ejecutar repairInfluencersAddComisionAcumulada()');
+    return;
+  }
+
+  for (let i = 1; i < data.length; i++) {
+    const estado = String(data[i][colEst] || '').trim();
+    if (estado !== 'ACTIVO') continue;
+
+    const codigo    = String(data[i][colCod]   || '').trim();
+    const nombre    = String(data[i][colNom]   || '').trim();
+    const apellido  = String(data[i][colApe]   || '').trim();
+    const email     = String(data[i][colEmail] || '').trim();
+    const acumulado = Number(data[i][colAcum]) || 0;
+    const comPct    = Number(data[i][colComPct]) || 0;
+
+    if (acumulado <= 0 || !email || !codigo) continue;
+
+    const infl = { codigo, nombre, apellido, email, comPct,
+                   nombreCompleto: [nombre, apellido].filter(Boolean).join(' ') };
+
+    if (acumulado >= CUOTA_MIN_INFLUENCER) {
+      // ── Pago: crear GC y enviar email de felicitación ──
+      const gcCodigo = _generarCodigoInfluencerGC(codigo);
+      const gcVig    = _vigenciaGCInfluencer();
+      _crearGiftCardInfluencerComision(infl, acumulado, gcCodigo, gcVig);
+      _emailInfluencerComisionGC(infl, acumulado, gcCodigo, gcVig);
+      sheet.getRange(i + 1, colAcum + 1).setValue(0); // resetear acumulador
+      _log('liquidarComisionesInfluencers', codigo, 'PAGADO', acumulado, gcCodigo);
+    } else {
+      // ── Motivación: email recordatorio sin resetear ──
+      _emailInfluencerMotivacion(infl, acumulado);
+      _log('liquidarComisionesInfluencers', codigo, 'MOTIVACION', acumulado);
+    }
+  }
+  SpreadsheetApp.flush();
+  _log('liquidarComisionesInfluencers', 'FIN', Utilities.formatDate(ahora, tz, 'dd/MM/yyyy'));
+}
+
+/** Genera código de GC para comisión: INFL-<4letras código>-XXXXXX */
+function _generarCodigoInfluencerGC(codigoInfl) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let sufijo = '';
+  for (let i = 0; i < 6; i++) sufijo += chars[Math.floor(Math.random() * chars.length)];
+  const pref = (codigoInfl || '').slice(0, 4).toUpperCase();
+  return `INFL-${pref}-${sufijo}`;
+}
+
+/** Calcula la fecha de vigencia de la GC de comisión (9 meses desde hoy) */
+function _vigenciaGCInfluencer() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 9);
+  return Utilities.formatDate(d, 'America/Bogota', 'dd/MM/yyyy');
+}
+
+/**
+ * Inserta la Gift Card de comisión directamente como ACTIVA en GiftCards.
+ * No requiere pago Wompi — es un reconocimiento interno de comisión.
+ */
+function _crearGiftCardInfluencerComision(infl, monto, gcCodigo, gcVig) {
+  try {
+    const sheet = _getSheet(CFG.SHEETS.GIFT_CARDS);
+    const ts    = new Date();
+    const mesAno = Utilities.formatDate(ts, 'America/Bogota', 'MM/yyyy');
+    sheet.appendRow([
+      'INFLUENCER_COMISION',                                              // A Campaña_ID
+      ts,                                                                  // B Timestamp
+      'INFL-' + ts.getTime(),                                             // C Referencia
+      gcCodigo,                                                            // D Código_Gift
+      monto,                                                               // E Saldo_Gift_COP
+      gcVig,                                                               // F Válido_Hasta
+      '',                                                                  // G ClienteID_Emisor
+      'IMOLARTE',                                                          // H Emisor_Nombre
+      '',                                                                  // I Emisor_Apellido
+      CFG.EMAIL_ADMIN,                                                     // J Emisor_Email
+      '',  '',  '',  '',  '',                                              // K-P Emisor info
+      infl.nombre   || '',                                                 // Q Dest_Nombre
+      infl.apellido || '',                                                 // R Dest_Apellido
+      infl.email    || '',                                                 // S Dest_Email
+      '',                                                                  // T Dest_Tel
+      `Comisión ${mesAno} — código ${infl.codigo}`,                       // U Dest_Mensaje
+      'PAGADO',                                                            // V Estado_Pago
+      'ACTIVA',                                                            // W Estado_Gift
+      '',                                                                  // X Wompi_Transaction_ID
+      ts,                                                                  // Y Fecha_Pago
+      ts,                                                                  // Z Fecha_Activación
+      '',                                                                  // AA Canjeado_En
+      `Comisión influencer ${infl.codigo} — liquidación automática ${mesAno}`, // AB Notas_Internas
+    ]);
+    SpreadsheetApp.flush();
+    _log('_crearGiftCardInfluencerComision', infl.codigo, gcCodigo, monto, 'OK');
+  } catch(err) { _log('_crearGiftCardInfluencerComision_ERROR', err.message, infl.codigo); }
+}
+
+/**
+ * Email cálido y emocional al influencer que alcanzó la cuota mínima.
+ * Incluye el código de Gift Card generado y el resumen del mes.
+ */
+function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
+  if (!infl.email) return;
+  try {
+    const primerNombre = (infl.nombre || '').split(' ')[0] || infl.nombre || 'amig@';
+    const mesAno = Utilities.formatDate(new Date(), 'America/Bogota', 'MMMM yyyy');
+    const body = _emailWrapper(primerNombre, `
+      <p style="font-size:15px;line-height:1.7">
+        ¡Este momento lo celebramos contigo! 🥂✨ Has alcanzado tu meta de comisiones del mes
+        y eso dice mucho de ti: de tu autenticidad, de tu amor por lo que haces y de la confianza
+        que tu comunidad deposita en ti cada vez que compartes Helena Caballero.
+      </p>
+      <p style="font-size:14px;line-height:1.7;margin-top:12px">
+        Gracias por llevar la cerámica artística italiana a nuevas mesas, nuevas historias y
+        nuevos hogares. Cada código que compartes no es solo una venta —
+        <strong>es una pieza única que alguien atesorará de por vida</strong> gracias a ti. 🏺💛
+      </p>
+      <div style="background:#1a1610;border-radius:12px;padding:28px;text-align:center;margin:24px 0">
+        <p style="color:#C4A05A;font-size:11px;letter-spacing:3px;margin:0 0 6px;text-transform:uppercase">Tu comisión — ${mesAno}</p>
+        <p style="color:#fff;font-size:36px;font-weight:bold;margin:0 0 4px;letter-spacing:1px">${_fmtCOP(comision)}</p>
+        <p style="color:#aaa;font-size:12px;margin:0 0 20px">acumulada con tu código <strong style="color:#C4A05A;font-family:monospace;letter-spacing:1px">${infl.codigo}</strong> · comisión ${infl.comPct}% por venta</p>
+        <hr style="border:none;border-top:1px solid #333;margin:16px 0">
+        <p style="color:#C4A05A;font-size:11px;letter-spacing:3px;margin:0 0 8px;text-transform:uppercase">Tu Gift Card de reconocimiento</p>
+        <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 6px">${gcCodigo}</p>
+        <p style="color:#aaa;font-size:12px;margin:0">Válida hasta ${gcVig}</p>
+      </div>
+      ${_instruccionesGiftHTML()}
+      <p style="font-size:14px;line-height:1.7;margin-top:20px">
+        Puedes usar tu Gift Card para darte un regalo que te mereces, o regalarla a alguien especial.
+        Es tuya — con todo nuestro reconocimiento y afecto. 🎁
+      </p>
+      <p style="font-size:14px;line-height:1.7;margin-top:10px">
+        Seguimos juntos en este camino. <strong>El equipo de Helena Caballero cree en ti</strong>
+        y está emocionado de ver hasta dónde llegaremos juntos. ¡Gracias por ser parte de esta historia! 💫
+      </p>
+      <div style="margin-top:24px;text-align:center">
+        <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:13px 32px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:bold">
+          Ver catálogo Helena Caballero
+        </a>
+      </div>
+    `);
+    GmailApp.sendEmail(
+      infl.email,
+      `🏆 ¡Lograste tu meta! Tu comisión de ${_fmtCOP(comision)} en Gift Card — ${CFG.NOMBRE_TIENDA}`,
+      '',
+      { htmlBody: body }
+    );
+    _log('_emailInfluencerComisionGC', infl.codigo, infl.email, comision, gcCodigo);
+  } catch(err) { _log('_emailInfluencerComisionGC_ERROR', err.message, infl.codigo); }
+}
+
+/**
+ * Email motivacional al influencer que aún no alcanzó la cuota mínima.
+ * Muestra su panel de comisiones, cuánto le falta y mensajes de apoyo.
+ */
+function _emailInfluencerMotivacion(infl, acumulado) {
+  if (!infl.email) return;
+  try {
+    const primerNombre = (infl.nombre || '').split(' ')[0] || infl.nombre || 'amig@';
+    const falta  = CUOTA_MIN_INFLUENCER - acumulado;
+    const mesAno = Utilities.formatDate(new Date(), 'America/Bogota', 'MMMM yyyy');
+    const body = _emailWrapper(primerNombre, `
+      <p style="font-size:15px;line-height:1.7">
+        ¡Hola ${primerNombre}! Queremos tomarnos un momento para decirte algo importante:
+        <strong>creemos en ti y apreciamos enormemente tu dedicación y constancia
+        en promocionar Helena Caballero</strong>. 💛
+      </p>
+      <p style="font-size:14px;line-height:1.7;margin-top:10px">
+        Esto va a ser un éxito, y somos un equipo en este camino. 🤝
+      </p>
+      <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:24px 0">
+        <p style="color:#C4A05A;font-size:11px;letter-spacing:3px;margin:0 0 8px;text-transform:uppercase">Tu panel de comisiones — ${mesAno}</p>
+        <p style="color:#fff;font-size:13px;margin:0 0 4px">Código: <strong style="font-family:monospace;color:#C4A05A;letter-spacing:1px">${infl.codigo}</strong></p>
+        <p style="color:#aaa;font-size:12px;margin:0 0 16px">Tu comisión: <strong style="color:#fff">${infl.comPct || 0}%</strong> por cada venta confirmada</p>
+        <hr style="border:none;border-top:1px solid #333;margin:12px 0">
+        <p style="color:#C4A05A;font-size:11px;letter-spacing:2px;margin:0 0 4px;text-transform:uppercase">Acumulado actual</p>
+        <p style="color:#fff;font-size:30px;font-weight:bold;margin:0 0 6px">${_fmtCOP(acumulado)}</p>
+        <p style="color:#aaa;font-size:12px;margin:0 0 14px">Meta mínima para recibir tu pago: <strong style="color:#C4A05A">${_fmtCOP(CUOTA_MIN_INFLUENCER)}</strong></p>
+        <div style="background:#2a2010;border-radius:6px;padding:10px 16px">
+          <p style="color:#f0c060;font-size:13px;margin:0">
+            🎯 Te faltan <strong>${_fmtCOP(falta)}</strong> para activar tu Gift Card de comisión
+          </p>
+        </div>
+      </div>
+      <p style="font-size:14px;line-height:1.7;margin-top:6px">
+        Tu acumulado <strong>no se pierde</strong> — sigue creciendo mes a mes hasta que alcances
+        la cuota mínima de <strong>${_fmtCOP(CUOTA_MIN_INFLUENCER)}</strong>. En cuanto llegues,
+        generamos tu Gift Card automáticamente el primer día del mes siguiente.
+      </p>
+      <p style="font-size:14px;line-height:1.7;margin-top:14px">
+        Si necesitas cualquier información adicional sobre los productos o contenido digital
+        para compartir con tu comunidad, <strong>por favor no dudes en contactarte con nosotros</strong>.
+        Estamos aquí para darte todas las herramientas que necesitas. 📸🎨
+      </p>
+      <p style="font-size:14px;line-height:1.7;margin-top:14px">
+        ¡Sigue así, ${primerNombre}! Tu constancia y autenticidad son lo que hacen la diferencia. 🌟
+      </p>
+      <div style="margin-top:24px;text-align:center">
+        <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:13px 28px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:bold">
+          Ver catálogo
+        </a>
+        &nbsp;&nbsp;
+        <a href="mailto:${CFG.EMAIL_ADMIN}" style="background:#f5f0e8;color:#1a1610;padding:13px 28px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:bold">
+          Contáctanos
+        </a>
+      </div>
+    `);
+    GmailApp.sendEmail(
+      infl.email,
+      `💛 Tu panel de comisiones ${mesAno} — ¡Vamos juntos! · ${CFG.NOMBRE_TIENDA}`,
+      '',
+      { htmlBody: body }
+    );
+    _log('_emailInfluencerMotivacion', infl.codigo, infl.email, acumulado, 'ENVIADO');
+  } catch(err) { _log('_emailInfluencerMotivacion_ERROR', err.message, infl.codigo); }
+}
+
+/**
+ * Crea el trigger diario a las 8am para liquidarComisionesInfluencers.
+ * La función actúa solo el día 1 de cada mes (guarda por sí misma).
+ * Ejecutar UNA SOLA VEZ desde Apps Script UI → Ejecutar → setupTriggerLiquidacionInfluencers
+ */
+function setupTriggerLiquidacionInfluencers() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'liquidarComisionesInfluencers')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('liquidarComisionesInfluencers')
+    .timeBased()
+    .atHour(8)
+    .everyDays(1)
+    .inTimezone('America/Bogota')
+    .create();
+  Logger.log('✅ Trigger 8am diario creado para liquidarComisionesInfluencers (actúa solo el día 1 del mes)');
+}
+
+/**
+ * Agrega la columna Comision_Acumulada_COP a la hoja Influencers existente.
+ * Ejecutar UNA VEZ si la hoja ya existe y no tiene la columna.
+ */
+function repairInfluencersAddComisionAcumulada() {
+  const ss     = SpreadsheetApp.openById(CFG.SPREADSHEET_ID);
+  const sheet  = ss.getSheetByName(CFG.SHEETS.INFLUENCERS);
+  if (!sheet) { Logger.log('❌ Hoja Influencers no encontrada'); return; }
+  const lastCol  = sheet.getLastColumn();
+  const existing = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const col      = 'Comision_Acumulada_COP';
+  if (existing.includes(col)) { Logger.log('ℹ️ Columna ya existe: ' + col); return; }
+  const newCol = lastCol + 1;
+  sheet.getRange(1, newCol)
+    .setValue(col).setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
+  sheet.getRange(2, newCol, 500, 1).setValue(0);
+  sheet.autoResizeColumns(newCol, 1);
+  Logger.log('✅ Columna agregada a Influencers: ' + col);
 }
 
 function _log(fn, a1='', a2='', a3='', a4='') {
