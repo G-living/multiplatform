@@ -105,6 +105,7 @@ function doPost(e) {
       case 'createPedidoWompi'     : result = _createPedidoWompi(body);       break;
       case 'createGiftCard'        : result = _createGiftCard(body);          break;
       case 'cancelGiftCard'        : result = _cancelGiftCard(body);          break;
+      case 'adminDesactivarGiftCard': result = _adminDesactivarGiftCard(body); break;
       case 'updateEstadoWishlist'  : result = _updateEstadoWishlist(body);    break;
       case 'confirmarPagoWompi'    :
         // Ruteo automático: referencias GIFT- van a _confirmarPagoGiftCard
@@ -680,6 +681,41 @@ function _cancelGiftCard(b) {
   return { ok: true, referencia: ref, notFound: true };
 }
 
+// Desactivación manual por el admin — acepta referencia o codigo.
+// Puede actuar sobre cualquier estado (ACTIVA, PENDIENTE_PAGO, INACTIVA).
+// Uso: POST { action: 'adminDesactivarGiftCard', referencia: 'GIFT-...' }
+//      o    { action: 'adminDesactivarGiftCard', codigo: 'XXXX-XXXX-XXXX' }
+function _adminDesactivarGiftCard(b) {
+  const ref    = String(b.referencia || '').trim();
+  const codigo = String(b.codigo     || '').trim();
+  if (!ref && !codigo) return { ok: false, error: 'Se requiere referencia o codigo' };
+
+  const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
+  const data   = sheet.getDataRange().getValues();
+  const header = data[0];
+  const colRef     = header.indexOf('Referencia');
+  const colCodigo  = header.indexOf('Código_Gift');
+  const colEstPago = header.indexOf('Estado_Pago');
+  const colEstGift = header.indexOf('Estado_Gift');
+
+  for (let i = 1; i < data.length; i++) {
+    const rowRef    = String(data[i][colRef]    || '');
+    const rowCodigo = String(data[i][colCodigo] || '');
+    if ((ref && rowRef !== ref) && (codigo && rowCodigo !== codigo)) continue;
+    if (!ref && rowCodigo !== codigo) continue;
+    if (!codigo && rowRef !== ref)   continue;
+
+    const estadoAnterior = String(data[i][colEstGift] || '');
+    if (colEstPago >= 0) sheet.getRange(i + 1, colEstPago + 1).setValue('CANCELADO');
+    if (colEstGift >= 0) sheet.getRange(i + 1, colEstGift + 1).setValue('CANCELADA');
+    SpreadsheetApp.flush();
+    _log('adminDesactivarGiftCard', rowRef || rowCodigo, estadoAnterior, '→ CANCELADA');
+    return { ok: true, referencia: rowRef, codigo: rowCodigo, estadoAnterior, cancelada: true };
+  }
+  _log('adminDesactivarGiftCard', ref || codigo, 'NOT_FOUND');
+  return { ok: false, error: 'Gift Card no encontrada', referencia: ref, codigo };
+}
+
 function _confirmarPagoGiftCard(b) {
   const sheet  = _getSheet(CFG.SHEETS.GIFT_CARDS);
   SpreadsheetApp.flush(); // garantiza que appendRow de _createGiftCard ya está escrito
@@ -736,7 +772,7 @@ function _confirmarPagoGiftCard(b) {
       const destApellido = data[i][header.indexOf('Dest_Apellido')] || '';
       const mensaje      = data[i][header.indexOf('Dest_Mensaje')]  || '';
 
-      if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig, destNombre, destApellido);
+      if (email) _emailGiftCardActivada(email, nombre, ref, codigo, valor, vig, destNombre, destApellido, txId);
       if (destEmail) _emailGiftCardDestinatario(destEmail, destNombre, nombre, apellido, codigo, valor, vig, mensaje);
 
       if (telEmisor && valor > 0) {
@@ -1723,12 +1759,13 @@ function _instruccionesGiftHTML() {
     </p>`;
 }
 
-function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido) {
+function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido, txId) {
   try {
     const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
     const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
-      <p>¡Tu Gift Card ha sido activada exitosamente y enviada a <strong>${destCompleto}</strong>! &#127881;</p>
+      <p>Tu Gift Card ha sido activada exitosamente y <strong>${destCompleto}</strong> se pondrá muy feliz por este super detalle de tu parte.</p>
+      <p>Gracias por confiar en HELENA CABALLERO, ha sido un placer atenderte.</p>
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">CÓDIGO DE REGALO</p>
         <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
@@ -1736,7 +1773,11 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, des
         <p style="color:#888;font-size:12px;margin:0">Válido hasta: ${vigencia}</p>
       </div>
       ${_instruccionesGiftHTML()}
-      <p style="font-size:12px;color:#aaa;margin-top:16px">Referencia de pago: ${ref}</p>
+      <p style="font-size:12px;color:#aaa;margin-top:16px">
+        Código de la Gift Card: <strong style="font-family:monospace">${codigo}</strong><br>
+        Referencia de pedido: <strong>${ref}</strong><br>
+        Transacción ID: <strong>${txId || '—'}</strong>
+      </p>
       <div style="margin-top:20px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-size:14px">
           Ir al catálogo
