@@ -1674,7 +1674,7 @@ function checkWishlistAbandonadas() {
 
 function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
-    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. Helena o alguien de nuestro equipo te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1696,7 +1696,7 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
 function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento, txId,
                               discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar, inflCodigo) {
   try {
-    const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
+    const subject = `${CFG.NOMBRE_TIENDA} — Pago confirmado — Pedido ${ref}`;
 
     const tablaProductos  = _productosHTML(productos);
     const pct             = Number(pctPagado)   || 100;
@@ -1726,7 +1726,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
         : 'Gift Card';
       bonoHTML = `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">🎁 ${codigoLabel}</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">${codigoLabel}</td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(bonoDesc)}</td>
         </tr>`;
     }
@@ -1813,7 +1813,7 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
 
 function _emailPagoCancelado(email, nombre, ref, status) {
   try {
-    const subject = `❌ ${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
+    const subject = `${CFG.NOMBRE_TIENDA} — Problema con tu pago — Pedido ${ref}`;
     const msgs = {
       'DECLINED' : 'Tu pago fue declinado por la entidad bancaria. Por favor verifica tus datos o intenta con otro medio de pago.',
       'VOIDED'   : 'Tu transacción fue anulada.',
@@ -1854,7 +1854,7 @@ function _instruccionesGiftHTML() {
 
 function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, destNombre, destApellido, txId) {
   try {
-    const subject = `🎁 ${CFG.NOMBRE_TIENDA} — ¡Tu Gift Card está lista! ${codigo}`;
+    const subject = `${CFG.NOMBRE_TIENDA} — Tu Gift Card esta lista: ${codigo}`;
     const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
       <p>Tu Gift Card ha sido activada exitosamente y <strong>${destCompleto}</strong> se pondrá muy feliz por este super detalle de tu parte.</p>
@@ -1884,7 +1884,7 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, des
 
 function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorApellido, codigo, valor, vigencia, mensaje) {
   try {
-    const subject = `&#127873; ${CFG.NOMBRE_TIENDA} — ¡Tienes un regalo esperándote!`;
+    const subject = `${CFG.NOMBRE_TIENDA} — Tienes un regalo esperandote`;
     const emisorCompleto = [emisorNombre, emisorApellido].filter(Boolean).join(' ');
     const mensajeHTML = mensaje
       ? `<div style="background:#f8f5ee;border-left:4px solid #C4A05A;padding:14px 18px;border-radius:4px;margin:16px 0;font-style:italic;color:#555">
@@ -1892,7 +1892,7 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
          </div>`
       : `<p style="font-size:13px;color:#666">${emisorCompleto} te envía este regalo con todo el cariño.</p>`;
     const body = _emailWrapper(destNombre || '', `
-      <p><strong>${emisorCompleto}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}. &#127881;</p>
+      <p><strong>${emisorCompleto}</strong> te ha enviado una Gift Card de ${CFG.NOMBRE_TIENDA}.</p>
       ${mensajeHTML}
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">TU CÓDIGO DE REGALO</p>
@@ -1913,7 +1913,7 @@ function _emailGiftCardDestinatario(destEmail, destNombre, emisorNombre, emisorA
 }
 function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
-    const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
+    const subject = `${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
       <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! Helena o alguien de nuestro equipo se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
@@ -1931,7 +1931,7 @@ function _emailEnviadoWA(email, nombre, ref, productos, total) {
 
 function _emailCarritoAbandonado(email, nombre, ref, productos, total) {
   try {
-    const subject = `&#128722; ${CFG.NOMBRE_TIENDA} — ¿Olvidaste algo?`;
+    const subject = `${CFG.NOMBRE_TIENDA} — Olvidaste algo en tu carrito`;
     const enlace  = `${CFG.CATALOGO}?ref=${ref}`;
     const body = _emailWrapper(nombre, `
       <p>Notamos que seleccionaste algunas piezas pero no completaste el proceso.</p>
@@ -1964,14 +1964,7 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
       return;
     }
 
-    const EMOJIS = {
-      'EN_PRODUCCION'      : '🏺',
-      'EN_TRANSITO'        : '✈️',
-      'EN_NACIONALIZACION' : '🛃',
-      'LISTO_DESPACHO'     : '📦',
-      'DISPONIBLE_TIENDA'  : '🏪',
-      'DESPACHADO'         : '🚚',
-    };
+    const EMOJIS = {}; // emojis eliminados — solo texto en asuntos
     const TITULOS = {
       'EN_PRODUCCION'      : '¡Tu pedido está en manos de los artistas!',
       'EN_TRANSITO'        : '¡Tu pedido está en camino desde Italia!',
@@ -1989,11 +1982,10 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
       'DESPACHADO'         : 'Tu pedido ha sido despachado y está en camino a tu dirección. ¡Muy pronto podrás disfrutar de tus piezas!',
     };
 
-    const emoji  = EMOJIS[estado]  || '📋';
-    const titulo = TITULOS[estado] || 'Actualización de tu pedido';
+    const titulo = TITULOS[estado] || 'Actualizacion de tu pedido';
     const msg    = MENSAJES[estado] || 'El estado de tu pedido ha sido actualizado: ' + estado;
 
-    const subject = `${emoji} ${CFG.NOMBRE_TIENDA} — ${titulo} · Pedido ${ref}`;
+    const subject = `${CFG.NOMBRE_TIENDA} — ${titulo} · Pedido ${ref}`;
 
     const tablaProductos = _productosHTML(productos);
 
@@ -2048,12 +2040,12 @@ function _emailNotificarEstadoPedido(rowData, header, estado) {
 // ── Alerta identidad sospechosa → admin ─────────────────────
 function _emailIdentidadSospechosa(b, rowEncontrada) {
   try {
-    const subject = '&#128680;⚠️ ALERTA IDENTIDAD SOSPECHOSA — IMOLARTE — REVISAR DE INMEDIATO ⚠️&#128680;';
+    const subject = 'ALERTA IDENTIDAD SOSPECHOSA — IMOLARTE — REVISAR DE INMEDIATO';
     const body = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
   <div style="background:#8b0000;padding:20px 24px;border-radius:8px 8px 0 0">
     <h1 style="color:#fff;font-size:20px;margin:0;letter-spacing:1px">
-      &#128680; ALERTA DE SEGURIDAD — IMOLARTE
+      ALERTA DE SEGURIDAD — IMOLARTE
     </h1>
     <p style="color:#ffcccc;font-size:13px;margin:6px 0 0">
       Se detectó una posible inconsistencia de identidad en una transacción
@@ -2154,7 +2146,7 @@ function _emailInfluencerVenta(inflCodigo, opts) {
       </div>` : '';
 
     const body = _emailWrapper(inflNombre, `
-      <p>¡Enhorabuena! <strong>${clientePrimerNombre}</strong> acaba de confirmar una compra usando tu código <strong style="background:#f5f0e8;padding:2px 8px;border-radius:4px;font-family:monospace;letter-spacing:1px">${inflCodigo}</strong>. 🛍️✨</p>
+      <p>¡Enhorabuena! <strong>${clientePrimerNombre}</strong> acaba de confirmar una compra usando tu código <strong style="background:#f5f0e8;padding:2px 8px;border-radius:4px;font-family:monospace;letter-spacing:1px">${inflCodigo}</strong>.</p>
       ${comisionHTML}
       <p style="font-weight:bold;margin:18px 0 8px;font-size:14px">Productos del pedido:</p>
       ${_productosHTML(prods)}
@@ -2169,10 +2161,10 @@ function _emailInfluencerVenta(inflCodigo, opts) {
         </tr>
       </table>
       <p style="margin:20px 0 6px;font-size:13px;color:#555;font-style:italic">La comisión se liquidará según los términos acordados. Para cualquier consulta escríbenos a <a href="mailto:${CFG.EMAIL_ADMIN}" style="color:#C4A05A">${CFG.EMAIL_ADMIN}</a>.</p>
-      <p style="font-size:14px;margin:12px 0 0">¡Gracias por llevar IMOLARTE a tu comunidad! Cada recomendación tuya pone cerámica italiana única en nuevas mesas. 🏺</p>
+      <p style="font-size:14px;margin:12px 0 0">¡Gracias por llevar IMOLARTE a tu comunidad! Cada recomendación tuya pone cerámica italiana única en nuevas mesas.</p>
     `);
 
-    GmailApp.sendEmail(inflEmail, `🛍️ ¡Nueva venta con tu código ${inflCodigo}! — ${CFG.NOMBRE_TIENDA}`, '', { htmlBody: body });
+    GmailApp.sendEmail(inflEmail, `Nueva venta con tu codigo ${inflCodigo} — ${CFG.NOMBRE_TIENDA}`, '', { htmlBody: body });
     _log('emailInfluencerVenta', inflCodigo, inflEmail, ref);
   } catch(err) {
     _log('emailInfluencerVenta_ERROR', String(err.message), inflCodigo);
@@ -2315,11 +2307,12 @@ function migrarColumnasDescuento() {
   // Asegurar que la hoja tenga al menos 32 columnas
   if (sheet.getMaxColumns() < 32) sheet.insertColumnsAfter(sheet.getMaxColumns(), 32 - sheet.getMaxColumns());
 
-  // Agregar columnas de totalizadores a Influencers si no existen
+  // Agregar columnas de comisión a Influencers si no existen (idempotente)
+  // Comision_Acumulada_COP es crítica — sin ella no se acumulan comisiones
   const inflSheet = _getSheet(CFG.SHEETS.INFLUENCERS);
-  const inflH = inflSheet.getRange(1, 1, 1, inflSheet.getLastColumn()).getValues()[0];
-  ['Comision_Total_Historica_COP', 'Comision_Mes_Corriente_COP'].forEach(col => {
-    if (inflH.indexOf(col) < 0) {
+  ['Comision_Acumulada_COP', 'Comision_Total_Historica_COP', 'Comision_Mes_Corriente_COP'].forEach(col => {
+    const currentH = inflSheet.getRange(1, 1, 1, inflSheet.getLastColumn()).getValues()[0];
+    if (currentH.indexOf(col) < 0) {
       const nextCol = inflSheet.getLastColumn() + 1;
       inflSheet.getRange(1, nextCol).setValue(col).setFontWeight('bold');
       Logger.log('Influencers: ' + col + ' agregada → col ' + nextCol);
@@ -2327,7 +2320,7 @@ function migrarColumnasDescuento() {
   });
 
   SpreadsheetApp.flush();
-  Logger.log('✅ migrarColumnasDescuento v21.4 completado');
+  Logger.log('migrarColumnasDescuento v21.9 completado');
 }
 
 // Crea la hoja Influencers con sus cabeceras y formato si no existe.
@@ -2756,7 +2749,7 @@ function emailResumenHuerfanos() {
       </tr>`).join('');
     waTabla = `
       <h3 style="color:#8e44ad;margin:24px 0 8px;font-size:14px">
-        📋 Wishlists PENDIENTES — ${waPendientes.length} fila(s)
+        Wishlists PENDIENTES — ${waPendientes.length} fila(s)
       </h3>
       <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
         <thead><tr>
@@ -2831,7 +2824,7 @@ function emailResumenHuerfanos() {
     ? _gcTable('Gift Cards Huérfanas (pago PENDIENTE)', '#d35400', '👻', gcHuerfanas)
     : '';
   const gcInactivasTabla = gcInactivas.length
-    ? _gcTable('Gift Cards INACTIVAS', '#c0392b', '🎁', gcInactivas)
+    ? _gcTable('Gift Cards INACTIVAS', '#c0392b', '', gcInactivas)
     : '';
 
   const totalAlerts = waPendientes.length + pwHuerfanos.length + gcHuerfanas.length + gcInactivas.length;
@@ -2892,7 +2885,7 @@ function emailResumenHuerfanos() {
   } catch(e) { _log('emailResumenHuerfanos_inflSeccion_ERROR', e.message); }
 
   const cuerpo = !hayAlgo
-    ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">✅ Todo limpio — no hay pendientes ni cumpleaños hoy.</p>${influencerSeccion}`
+    ? `<p style="color:#27ae60;font-size:15px;font-weight:bold">Todo limpio — no hay pendientes ni cumpleanos hoy.</p>${influencerSeccion}`
     : `${waTabla}${cumpleTabla}${pwTabla}${gcHuerfanasTabla}${gcInactivasTabla}${influencerSeccion}
        <p style="margin:16px 0 0;font-size:12px;color:#888">
          ${totalAlerts > 0 ? `Alertas: <strong>${totalAlerts}</strong> pendiente(s) · ` : ''}
@@ -2902,7 +2895,7 @@ function emailResumenHuerfanos() {
   const asunto = cumpleHoy.length > 0 && totalAlerts === 0
     ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños hoy — ${fechaStr}`
     : totalAlerts === 0
-    ? `[IMOLARTE] ✅ Sin pendientes — ${fechaStr}`
+    ? `[IMOLARTE] Sin pendientes — ${fechaStr}`
     : cumpleHoy.length > 0
     ? `[IMOLARTE] 🎂 ${cumpleHoy.length} cumpleaños · ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`
     : `[IMOLARTE] ⚠️ ${totalAlerts} pendiente(s) — ${fechaStr}`;
@@ -3127,14 +3120,14 @@ function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
     const mesAno = Utilities.formatDate(new Date(), 'America/Bogota', 'MMMM yyyy');
     const body = _emailWrapper(primerNombre, `
       <p style="font-size:15px;line-height:1.7">
-        ¡Este momento lo celebramos contigo! 🥂✨ Has alcanzado tu meta de comisiones del mes
+        ¡Has alcanzado tu meta de comisiones del mes!
         y eso dice mucho de ti: de tu autenticidad, de tu amor por lo que haces y de la confianza
         que tu comunidad deposita en ti cada vez que compartes Helena Caballero.
       </p>
       <p style="font-size:14px;line-height:1.7;margin-top:12px">
         Gracias por llevar la cerámica artística italiana a nuevas mesas, nuevas historias y
         nuevos hogares. Cada código que compartes no es solo una venta —
-        <strong>es una pieza única que alguien atesorará de por vida</strong> gracias a ti. 🏺💛
+        <strong>es una pieza única que alguien atesorará de por vida</strong> gracias a ti.
       </p>
       <div style="background:#1a1610;border-radius:12px;padding:28px;text-align:center;margin:24px 0">
         <p style="color:#C4A05A;font-size:11px;letter-spacing:3px;margin:0 0 6px;text-transform:uppercase">Tu comisión — ${mesAno}</p>
@@ -3149,11 +3142,11 @@ function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
       ${_ventasDashboardHTML(_ventasInfluencerMes(infl.codigo, infl.comPct), mesAno)}
       <p style="font-size:14px;line-height:1.7;margin-top:20px">
         Puedes usar tu Gift Card para darte un regalo que te mereces, o regalarla a alguien especial.
-        Es tuya — con todo nuestro reconocimiento y afecto. 🎁
+        Es tuya — con todo nuestro reconocimiento y afecto.
       </p>
       <p style="font-size:14px;line-height:1.7;margin-top:10px">
         Seguimos juntos en este camino. <strong>El equipo de Helena Caballero cree en ti</strong>
-        y está emocionado de ver hasta dónde llegaremos juntos. ¡Gracias por ser parte de esta historia! 💫
+        y está emocionado de ver hasta dónde llegaremos juntos. ¡Gracias por ser parte de esta historia!
       </p>
       <div style="margin-top:24px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:13px 32px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:bold">
@@ -3242,7 +3235,7 @@ function _ventasDashboardHTML(ventas, mesAno) {
     </tr>`).join('');
   return `
     <h3 style="color:#3a2e1f;font-size:13px;font-weight:700;margin:22px 0 8px;text-transform:uppercase;letter-spacing:1px">
-      📦 Tus ventas de ${mesAno}
+      Tus ventas de ${mesAno}
     </h3>
     <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px">
       <thead>
@@ -3286,10 +3279,10 @@ function _emailInfluencerMotivacion(infl, acumulado) {
       <p style="font-size:15px;line-height:1.7">
         ¡Hola ${primerNombre}! Queremos tomarnos un momento para decirte algo importante:
         <strong>creemos en ti y apreciamos enormemente tu dedicación y constancia
-        en promocionar Helena Caballero</strong>. 💛
+        en promocionar Helena Caballero</strong>.
       </p>
       <p style="font-size:14px;line-height:1.7;margin-top:10px">
-        Esto va a ser un éxito, y somos un equipo en este camino. 🤝
+        Esto va a ser un éxito, y somos un equipo en este camino.
       </p>
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:24px 0">
         <p style="color:#C4A05A;font-size:11px;letter-spacing:3px;margin:0 0 8px;text-transform:uppercase">Tu panel de comisiones — ${mesAno}</p>
@@ -3301,7 +3294,7 @@ function _emailInfluencerMotivacion(infl, acumulado) {
         <p style="color:#aaa;font-size:12px;margin:0 0 14px">Meta mínima para recibir tu pago: <strong style="color:#C4A05A">${_fmtCOP(CUOTA_MIN_INFLUENCER)}</strong></p>
         <div style="background:#2a2010;border-radius:6px;padding:10px 16px">
           <p style="color:#f0c060;font-size:13px;margin:0">
-            🎯 Te faltan <strong>${_fmtCOP(falta)}</strong> para activar tu Gift Card de comisión
+            Te faltan <strong>${_fmtCOP(falta)}</strong> para activar tu Gift Card de comision
           </p>
         </div>
       </div>
@@ -3314,10 +3307,10 @@ function _emailInfluencerMotivacion(infl, acumulado) {
       <p style="font-size:14px;line-height:1.7;margin-top:14px">
         Si necesitas cualquier información adicional sobre los productos o contenido digital
         para compartir con tu comunidad, <strong>por favor no dudes en contactarte con nosotros</strong>.
-        Estamos aquí para darte todas las herramientas que necesitas. 📸🎨
+        Estamos aquí para darte todas las herramientas que necesitas.
       </p>
       <p style="font-size:14px;line-height:1.7;margin-top:14px">
-        ¡Sigue así, ${primerNombre}! Tu constancia y autenticidad son lo que hacen la diferencia. 🌟
+        ¡Sigue así, ${primerNombre}! Tu constancia y autenticidad son lo que hacen la diferencia.
       </p>
       <div style="margin-top:24px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:13px 28px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:bold">
@@ -3331,7 +3324,7 @@ function _emailInfluencerMotivacion(infl, acumulado) {
     `);
     GmailApp.sendEmail(
       infl.email,
-      `💛 Tu panel de comisiones ${mesAno} — ¡Vamos juntos! · ${CFG.NOMBRE_TIENDA}`,
+      `Tu panel de comisiones ${mesAno} — Helena Caballero`,
       '',
       { htmlBody: body }
     );
