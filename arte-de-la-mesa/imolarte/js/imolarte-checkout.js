@@ -222,6 +222,11 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
           bono:             pedidoPayload.bono             || null,
           influencerCodigo: pedidoPayload.influencerCodigo || null,
           influencerBase:   pedidoPayload.influencerBase   || 0,
+          influencerPct:    pedidoPayload.influencerPct    || 0,
+          discInfluencer:   pedidoPayload.discInfluencer   || 0,
+          discGiftCard:     pedidoPayload.discGiftCard     || 0,
+          disc3pct:         pedidoPayload.disc3pct         || 0,
+          totalAPagar:      pedidoPayload.totalAPagar      || 0,
           referencia:       reference,
         }).catch(err => console.warn('checkout.js: error confirmar gift paid', err));
       } else if (reference) {
