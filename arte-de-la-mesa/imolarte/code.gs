@@ -479,7 +479,7 @@ function _confirmarPagoWompi(b) {
     else if (formaPago === 'GIFT_CARD') giftInfo = { codigo: '', monto: discGiftCard, tipo: 'TOTAL'  };
 
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, descuento, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar, p.influencerCodigo || '');
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
@@ -549,13 +549,13 @@ function _confirmarPagoWompi(b) {
     else if (giftTotMatch) giftInfo = { codigo: giftTotMatch[1], monto: discGiftCard, tipo: 'TOTAL' };
     else if (formaPago === 'GIFT_CARD') giftInfo = { codigo: '', monto: discGiftCard, tipo: 'TOTAL' };
 
+    const inflCodStd = String(data[i][header.indexOf('Influencer_Codigo')] || '').trim();
     if (email) {
-      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, 0, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar);
+      if (status === 'APPROVED') _emailPagoConfirmado(email, nombre, ref, prods, total, giftInfo, pctPagado, subtotal, 0, txId, discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar, inflCodStd);
       else if (['DECLINED','ERROR','VOIDED'].includes(status))
         _emailPagoCancelado(email, nombre, ref, status);
     }
 
-    const inflCodStd = String(data[i][header.indexOf('Influencer_Codigo')] || '').trim();
     if (status === 'APPROVED' && inflCodStd) {
       _emailInfluencerVenta(inflCodStd, {
         clienteNombre: `${nombre} ${data[i][header.indexOf('Apellido')] || ''}`.trim(),
@@ -1691,10 +1691,10 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   } catch(err) { _log('emailPedidoRecibido_ERROR', ref, err.message); }
 }
 
-// discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar → columnas AE-AH
+// discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar, inflCodigo
 // Sin reconstrucción heurística: valores guardados directamente por el frontend.
 function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pctPagado, subtotal, descuento, txId,
-                              discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar) {
+                              discInfluencer, inflPct, discGiftCard, disc3pct, totalAPagar, inflCodigo) {
   try {
     const subject = `🎉 ${CFG.NOMBRE_TIENDA} — ¡Pago confirmado! Pedido ${ref}`;
 
@@ -1711,9 +1711,10 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
     const inflPctLabel = Number(inflPct        || 0);
 
     // ── Línea descuento influencer ──────────────────────────
+    const inflCodigoLabel = String(inflCodigo || '').trim();
     const inflHTML = inflDesc > 0 ? `
         <tr>
-          <td style="padding:5px 8px;font-size:13px;color:#555">Dcto. influencer${inflPctLabel > 0 ? ' (' + inflPctLabel + '%)' : ''}</td>
+          <td style="padding:5px 8px;font-size:13px;color:#555">Descuento Referido${inflCodigoLabel ? ' <strong>' + inflCodigoLabel + '</strong>' : ''}${inflPctLabel > 0 ? ' (' + inflPctLabel + '%)' : ''}</td>
           <td style="padding:5px 8px;font-size:13px;text-align:right;color:#5a9a5a">− ${_fmtCOP(inflDesc)}</td>
         </tr>` : '';
 
@@ -1786,10 +1787,11 @@ function _emailPagoConfirmado(email, nombre, ref, productos, total, giftInfo, pc
           <td style="padding:8px 8px 5px;font-size:14px;font-weight:bold;text-align:right;color:#C4A05A">${_fmtCOP(pagadoValor)}</td>
         </tr>
         ${txHTML}
+        ${pct === 60 ? `
         <tr>
-          <td style="padding:5px 8px 8px;font-size:13px;color:#555">Saldo pendiente</td>
-          <td style="padding:5px 8px 8px;font-size:13px;text-align:right;color:#555">${pct === 60 ? saldoValor : _fmtCOP(0)}</td>
-        </tr>
+          <td style="padding:5px 8px 8px;font-size:13px;color:#555">Saldo pendiente (40%)</td>
+          <td style="padding:5px 8px 8px;font-size:13px;text-align:right;color:#d97706">${saldoValor}</td>
+        </tr>` : ''}
       </table>`;
 
     const body = _emailWrapper(nombre, `
@@ -2179,7 +2181,7 @@ function _emailInfluencerVenta(inflCodigo, opts) {
 
 function _emailWrapper(nombre, contenido) {
   const saludo = (nombre || '').trim() || 'estimada clienta';
-  return `
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
 <div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#1a1610">
   <div style="background:#1a1610;padding:28px 32px;border-radius:8px 8px 0 0">
     <h1 style="color:#C4A05A;font-size:22px;margin:0;letter-spacing:2px">HELENA CABALLERO</h1>
@@ -2191,10 +2193,11 @@ function _emailWrapper(nombre, contenido) {
   </div>
   <div style="background:#1a1610;padding:12px 32px;border-radius:0 0 8px 8px;text-align:center">
     <p style="color:#888;font-size:11px;margin:0">
-      © ${new Date().getFullYear()} Helena Caballero — Imolarte · Bogotá
+      &copy; ${new Date().getFullYear()} Helena Caballero &mdash; Imolarte &middot; Bogot&aacute;
     </p>
   </div>
-</div>`;
+</div>
+</body></html>`;
 }
 
 // ============================================================
