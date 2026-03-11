@@ -1,0 +1,10 @@
+# wrangler-webhook.toml — MLG Wompi Webhook Worker
+# Deploy:  npx wrangler deploy --config wrangler-webhook.toml
+# Secrets: npx wrangler secret put WOMPI_EVENTS_SECRET --config wrangler-webhook.toml
+#          npx wrangler secret put GOOGLE_SHEETS_WEBHOOK_URL --config wrangler-webhook.toml
+#          npx wrangler secret put GAS_API_TOKEN --config wrangler-webhook.toml
+
+name             = "mlg-wompi-webhook"
+main             = "wompi-webhook.js"
+compatibility_date = "2026-02-16"
+compatibility_flags = ["nodejs_compat"]
