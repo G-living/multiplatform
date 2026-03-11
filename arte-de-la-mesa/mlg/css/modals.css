@@ -851,7 +851,7 @@
 
 .cmo-footer-wompi {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: var(--spacing-sm);
 }
 
@@ -893,6 +893,10 @@
     }
 
     .cmo-row-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .cmo-footer-wompi {
         grid-template-columns: 1fr;
     }
 
