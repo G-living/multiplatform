@@ -1255,9 +1255,10 @@ function _upsertCliente(b) {
   }
 
   // ── 2. Buscar por Teléfono (fallback) ────────────────────
+  const _normTel = v => String(v || '').replace(/[\s+\-]/g, '');
   if (tel) {
     for (let i = 1; i < data.length; i++) {
-      if (String(data[i][CLI.TELEFONO]).replace(/\s/g, '') !== tel) continue;
+      if (_normTel(String(data[i][CLI.TELEFONO])) !== _normTel(tel)) continue;
 
       const sospechoso = _checkIdentidadSospechosa(
         data[i][CLI.NOMBRE], data[i][CLI.APELLIDO],
