@@ -1,7 +1,7 @@
 // ============================================================
 // MLG — Google Apps Script Backend v1.0
 // ============================================================
-// Spreadsheet ID : PENDING_MLG_SPREADSHEET_ID
+// Spreadsheet ID : 1lBQQNetPUqtXSTBiMpAfEUXuOtXErn8bgyyvfn0LL0s
 // Deploy: publicar como nueva versión tras pegar este código
 // Setup  (una vez): setupSheets() → setupDropdowns() → setupProtections()
 // Reset  GiftCards: resetGiftCardSheet()
@@ -72,7 +72,7 @@
 'use strict';
 
 const CFG = {
-  SPREADSHEET_ID  : 'PENDING_MLG_SPREADSHEET_ID',
+  SPREADSHEET_ID  : '1lBQQNetPUqtXSTBiMpAfEUXuOtXErn8bgyyvfn0LL0s',
   NOMBRE_TIENDA   : 'MLG by Helena Caballero',
   EMAIL_ADMIN     : 'filippo.massara2016@gmail.com',
   EMAIL_REMITENTE : 'filippo.massara2016@gmail.com',
