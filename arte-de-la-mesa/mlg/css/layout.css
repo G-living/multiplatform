@@ -691,6 +691,35 @@
     background: rgba(0, 0, 0, 0.12);
 }
 
+/* ===================================================
+   RESPONSIVE EXTRA — iPhone pequeño (≤430px)
+   =================================================== */
+@media (max-width: 430px) {
+    .families-grid {
+        padding: var(--spacing-sm) var(--spacing-xs) var(--spacing-lg);
+        gap: var(--spacing-xs);
+    }
+
+    .family-card-title {
+        font-size: var(--font-size-sm);
+    }
+
+    .family-card-body {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .slider-img {
+        height: clamp(120px, 37.5vw, 180px);
+    }
+}
+
+/* iPad portrait: margen seguro en las dos columnas */
+@media (min-width: 601px) and (max-width: 900px) {
+    .families-grid {
+        padding: var(--spacing-lg) var(--spacing-md) var(--spacing-2xl);
+    }
+}
+
 /* Override GLightbox z-index para estar sobre modales */
 .glightbox-container {
     z-index: calc(var(--z-modal) + 200) !important;

@@ -585,9 +585,11 @@
 
 .modal-checkout-content {
     width: 520px;
+    max-width: 95vw;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* Tablet: 768–1024px — más espacio para el formulario */
@@ -849,7 +851,7 @@
 
 .cmo-footer-wompi {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: var(--spacing-sm);
 }
 
@@ -898,10 +900,6 @@
         grid-template-columns: 82px 1fr;
     }
 
-    .cmo-footer-wompi {
-        grid-template-columns: 1fr;
-    }
-
     .cmo-radio-group {
         flex-direction: column;
         gap: var(--spacing-xs);
@@ -914,6 +912,45 @@
     }
 
     .cmo-btn-bono { width: 100%; }
+}
+
+/* ===================================================
+   RESPONSIVE EXTRA — iPhone pequeño (≤430px)
+   =================================================== */
+@media (max-width: 430px) {
+    .modal-checkout-content {
+        width: 100vw;
+        max-width: 100vw;
+        max-height: 96vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        align-self: flex-end;
+        margin-top: auto;
+    }
+
+    .modal-checkout-body {
+        padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-sm);
+    }
+
+    .cmo-btn-pago {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .cmo-btn-pago-label {
+        font-size: var(--font-size-xs);
+    }
+
+    .cmo-btn-pago-amount {
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ===================================================
+   RESPONSIVE EXTRA — Tablet (769–1024px)
+   =================================================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .modal-checkout-content {
+        max-width: 92vw;
+    }
 }
 
 /* ===================================================
