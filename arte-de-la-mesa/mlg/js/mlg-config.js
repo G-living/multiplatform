@@ -33,7 +33,7 @@ const MLG_CONFIG = {
     discountPayFull: 0.03,
     discountInfluencer: 0.05,
     // ── Token de autorización — debe coincidir con CFG.API_TOKEN en code.gs
-    apiToken: 'PENDING_MLG_API_TOKEN',
+    apiToken: 'kk-BZ6gKDPx_5B72HKzMgh72og6XXhVJ2GIYvN4yRTE',
   },
 
   // Toast

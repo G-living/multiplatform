@@ -82,7 +82,7 @@ const CFG = {
   WISHLIST_ABANDON_MIN: 30,
   // ── Seguridad: token compartido con frontend (config.js → Api.TOKEN)
   // Cambiar por uno propio antes de pasar a producción
-  API_TOKEN       : 'PENDING_MLG_API_TOKEN',
+  API_TOKEN       : 'kk-BZ6gKDPx_5B72HKzMgh72og6XXhVJ2GIYvN4yRTE',
   SHEETS: {
     WISHLIST      : 'Wishlist',
     PEDIDOS_WOMPI : 'Pedidos_Wompi',
