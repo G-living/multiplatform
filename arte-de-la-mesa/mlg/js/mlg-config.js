@@ -28,7 +28,7 @@ const MLG_CONFIG = {
     wompiPublicKey: 'pub_test_rT7K8rzYnk2Ec8Lv25tRL3JIof6b6Lwp',
     wompiCheckoutUrl: 'https://checkout.wompi.co/p/',
     signatureWorkerUrl: 'https://mlg-signature-generator.filippo-massara2016.workers.dev',
-    sheetsUrl: 'PENDING_MLG_APPS_SCRIPT_URL',
+    sheetsUrl: 'https://script.google.com/macros/s/AKfycbxn9Iwzp-hr7Ex1SthbBeFt2F94mqjjb0R658iuEd3KnON_OtDKJUj42wYw6Fvt4pqf/exec',
     checkoutUrl: 'https://g-living.github.io/multiplatform/arte-de-la-mesa/mlg/mlg-checkout.html',
     discountPayFull: 0.03,
     discountInfluencer: 0.05,
