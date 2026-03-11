@@ -2315,17 +2315,19 @@ function migrarColumnasDescuento() {
   // Asegurar que la hoja tenga al menos 32 columnas
   if (sheet.getMaxColumns() < 32) sheet.insertColumnsAfter(sheet.getMaxColumns(), 32 - sheet.getMaxColumns());
 
-  // Agregar columna de totalizador a Influencers si no existe
+  // Agregar columnas de totalizadores a Influencers si no existen
   const inflSheet = _getSheet(CFG.SHEETS.INFLUENCERS);
   const inflH = inflSheet.getRange(1, 1, 1, inflSheet.getLastColumn()).getValues()[0];
-  if (inflH.indexOf('Comision_Total_Historica_COP') < 0) {
-    const nextInflCol = inflSheet.getLastColumn() + 1;
-    inflSheet.getRange(1, nextInflCol).setValue('Comision_Total_Historica_COP').setFontWeight('bold');
-    Logger.log('Influencers: Comision_Total_Historica_COP agregada → col ' + nextInflCol);
-  }
+  ['Comision_Total_Historica_COP', 'Comision_Mes_Corriente_COP'].forEach(col => {
+    if (inflH.indexOf(col) < 0) {
+      const nextCol = inflSheet.getLastColumn() + 1;
+      inflSheet.getRange(1, nextCol).setValue(col).setFontWeight('bold');
+      Logger.log('Influencers: ' + col + ' agregada → col ' + nextCol);
+    }
+  });
 
   SpreadsheetApp.flush();
-  Logger.log('✅ migrarColumnasDescuento v21.3 completado');
+  Logger.log('✅ migrarColumnasDescuento v21.4 completado');
 }
 
 // Crea la hoja Influencers con sus cabeceras y formato si no existe.
@@ -2337,6 +2339,7 @@ function setupInfluencers() {
     'Influencer_ID','Código','Nombre','Apellido','Email','Teléfono',
     'Descuento_Pct','Comision_Pct',
     'Estado','Fecha_Registro','Notas_internas','Comision_Acumulada_COP','Comision_Total_Historica_COP',
+    'Comision_Mes_Corriente_COP',
   ];
 
   let sheet = ss.getSheetByName(nombre);
@@ -2970,14 +2973,17 @@ function _acumularComisionInfluencer(codigo, monto) {
     const header = data[0];
     const colCod  = header.indexOf('Código');
     const colAcum = header.indexOf('Comision_Acumulada_COP');
+    const colMes  = header.indexOf('Comision_Mes_Corriente_COP');
     if (colCod < 0 || colAcum < 0) return;
     const norm = String(codigo).trim().toUpperCase();
     for (let i = 1; i < data.length; i++) {
       if (String(data[i][colCod]).trim().toUpperCase() !== norm) continue;
-      const actual = Number(data[i][colAcum]) || 0;
+      const actual   = Number(data[i][colAcum]) || 0;
+      const actualMs = colMes >= 0 ? (Number(data[i][colMes]) || 0) : 0;
       sheet.getRange(i + 1, colAcum + 1).setValue(actual + monto);
+      if (colMes >= 0) sheet.getRange(i + 1, colMes + 1).setValue(actualMs + monto);
       SpreadsheetApp.flush();
-      _log('_acumularComisionInfluencer', codigo, 'suma:' + monto, 'total:' + (actual + monto));
+      _log('_acumularComisionInfluencer', codigo, 'suma:' + monto, 'total:' + (actual + monto), 'mes:' + (actualMs + monto));
       return;
     }
   } catch(err) { _log('_acumularComisionInfluencer_ERROR', err.message, codigo); }
@@ -3006,7 +3012,8 @@ function liquidarComisionesInfluencers() {
   const colEst      = header.indexOf('Estado');
   const colAcum     = header.indexOf('Comision_Acumulada_COP');
   const colComPct   = header.indexOf('Comision_Pct');
-  const colHistorico = header.indexOf('Comision_Total_Historica_COP'); // puede ser -1 si no migrado aún
+  const colHistorico   = header.indexOf('Comision_Total_Historica_COP');  // puede ser -1 si no migrado aún
+  const colMesCorriente = header.indexOf('Comision_Mes_Corriente_COP');   // puede ser -1 si no migrado aún
 
   if (colAcum < 0) {
     _log('liquidarComisionesInfluencers', 'ERROR: Comision_Acumulada_COP no encontrada — ejecutar repairInfluencersAddComisionAcumulada()');
@@ -3035,18 +3042,20 @@ function liquidarComisionesInfluencers() {
       const gcVig    = _vigenciaGCInfluencer();
       _crearGiftCardInfluencerComision(infl, acumulado, gcCodigo, gcVig);
       _emailInfluencerComisionGC(infl, acumulado, gcCodigo, gcVig);
-      sheet.getRange(i + 1, colAcum + 1).setValue(0); // resetear acumulador
-      // Sumar al totalizador histórico (columna Comision_Total_Historica_COP)
+      sheet.getRange(i + 1, colAcum + 1).setValue(0); // resetear acumulador pendiente
+      // Sumar al totalizador histórico
       if (colHistorico >= 0) {
         const historico = Number(data[i][colHistorico]) || 0;
         sheet.getRange(i + 1, colHistorico + 1).setValue(historico + acumulado);
       }
       _log('liquidarComisionesInfluencers', codigo, 'PAGADO', acumulado, gcCodigo);
     } else {
-      // ── Motivación: email recordatorio sin resetear ──
+      // ── Motivación: email recordatorio sin resetear acumulado ──
       _emailInfluencerMotivacion(infl, acumulado);
       _log('liquidarComisionesInfluencers', codigo, 'MOTIVACION', acumulado);
     }
+    // Mes corriente siempre resetea el día 1, independiente de si hubo pago o no
+    if (colMesCorriente >= 0) sheet.getRange(i + 1, colMesCorriente + 1).setValue(0);
   }
   SpreadsheetApp.flush();
   _log('liquidarComisionesInfluencers', 'FIN', Utilities.formatDate(ahora, tz, 'dd/MM/yyyy'));
