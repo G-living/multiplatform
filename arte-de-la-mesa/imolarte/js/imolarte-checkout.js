@@ -23,8 +23,14 @@ const _checkoutParams    = new URLSearchParams(window.location.search);
 const _checkoutStatus    = _checkoutParams.get('transaction_status') || _checkoutParams.get('status');
 const _checkoutReference = _checkoutParams.get('reference');
 const _checkoutTxId      = _checkoutParams.get('id') || _checkoutParams.get('transaction_id') || '';
+// Detectar flujo Gift Card:
+//   1) param isGiftCard=1 codificado en redirect-url (método principal desde v21.6)
+//   2) referencia empieza con GIFT- (Wompi pasa reference en el redirect)
+//   3) localStorage flag (backup cross-origin, modaljs lo escribe antes del redirect)
+const _checkoutGiftStorage = (() => { try { return sessionStorage.getItem('imolarte_gift_redirect') || localStorage.getItem('imolarte_gift_redirect') || ''; } catch(e) { return ''; } })();
 const _checkoutIsGift    = _checkoutParams.get('isGiftCard') === '1'
-                        || String(_checkoutReference || '').startsWith('GIFT-');
+                        || String(_checkoutReference || '').startsWith('GIFT-')
+                        || !!_checkoutGiftStorage;
 const _checkoutGiftPaid  = _checkoutParams.get('giftPaid') === '1';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -112,10 +118,10 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
       try { sessionStorage.removeItem('imolarte_gift_payload'); }     catch(e) {}
       try { localStorage.removeItem('imolarte_gift_payload'); }       catch(e) {}
       try { localStorage.removeItem('imolarte_gift_' + reference); } catch(e) {}
-      // Limpiar flag de redirect Gift: si Wompi redirigió a checkout.html (flujo feliz),
-      // el pageshow de index.html nunca limpia este flag → queda huérfano y restaura
-      // el modal Gift incorrectamente en la próxima compra de carrito.
-      try { sessionStorage.removeItem('imolarte_gift_redirect'); }    catch(e) {}
+      // Limpiar flag de redirect Gift (session + local) — evita que pageshow lo restaure
+      // incorrectamente en la próxima compra de carrito.
+      try { sessionStorage.removeItem('imolarte_gift_redirect'); } catch(e) {}
+      try { localStorage.removeItem('imolarte_gift_redirect'); }   catch(e) {}
 
       // Leer vigencia para mostrar en pantalla
       const vigencia     = giftPayload?.vigencia     || '';

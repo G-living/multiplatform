@@ -2223,7 +2223,8 @@ const Modal = (() => {
       'currency':        cfg.currency,
       'amount-in-cents': amountCts,
       'reference':       reference,
-      'redirect-url':    cfg.checkoutUrl,
+      // isGiftCard=1 codificado en la URL de retorno — sobrevive al redirect cross-origin de Wompi
+      'redirect-url':    cfg.checkoutUrl + (cfg.checkoutUrl.includes('?') ? '&' : '?') + 'isGiftCard=1',
     });
     if (signature) params.set('signature:integrity', signature);
     if (nombre)    params.set('customer-data:full-name', `${nombre} ${apellido}`);
@@ -2233,8 +2234,9 @@ const Modal = (() => {
     Logger.log('modal.js: gift card → Wompi', { reference, amountCts });
     // Limpiar flag de carrito — evita interferencia si el usuario alterna flujos
     try { sessionStorage.removeItem('imolarte_wompi_redirect'); } catch(e) {}
-    // Flag específico para Gift — pageshow lo usará para reabrir el modal Gift
+    // Flag específico para Gift — localStorage persiste cross-origin; sessionStorage como backup
     try { sessionStorage.setItem('imolarte_gift_redirect', reference); } catch(e) {}
+    try { localStorage.setItem('imolarte_gift_redirect', reference); }   catch(e) {}
     window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
   }
 
@@ -2447,10 +2449,12 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('pageshow', (e) => {
   if (!e.persisted) return;
   try {
-    const giftRef = sessionStorage.getItem('imolarte_gift_redirect');
+    const giftRef = sessionStorage.getItem('imolarte_gift_redirect')
+                 || localStorage.getItem('imolarte_gift_redirect');
     if (giftRef) {
       // Usuario volvió de Wompi sin pagar — no hay fila en Sheets que cancelar (flujo lean).
-      sessionStorage.removeItem('imolarte_gift_redirect');
+      try { sessionStorage.removeItem('imolarte_gift_redirect'); } catch(e) {}
+      try { localStorage.removeItem('imolarte_gift_redirect'); }   catch(e) {}
       setTimeout(() => {
         Modal.resetState();
         Modal.restoreGiftStep2(); // restaura paso 2 con botón activo
