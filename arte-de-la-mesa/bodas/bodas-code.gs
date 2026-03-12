@@ -23,14 +23,20 @@
  *   🔑 Sesiones (5 cols)
  *      A:token | B:username | C:coupleName | D:createdAt | E:expiresAt
  *
- *   ❤️ ListaBodas (11 cols)
+ *   ❤️ ListaBodas (13 cols)
  *      A:token | B:coupleName | C:brand | D:productId | E:productName
  *      F:variantSku | G:variantLabel | H:precio_cop | I:qty | J:addedAt | K:total_cop
+ *      L:accion (agregado/removido) | M:timestamp_accion
  *
  *   🎁 PagosInvitados (12 cols)
  *      A:pagoId | B:coupleUsername | C:coupleName | D:invitado_user | E:nombreInvitado
  *      F:productId | G:variantSku | H:productName | I:qty | J:precio_cop
  *      K:wompiReference | L:timestamp
+ *
+ *   👤 Invitados (9 cols)  ← datos para facturación y cross-selling
+ *      A:invitado_user | B:nombre | C:apellido | D:id_cc | E:telefono
+ *      F:email | G:direccion | H:createdAt | I:updatedAt
+ *      → Se completa en el formulario de registro al primer acceso del invitado
  *
  * API TOKEN: bodas-GLv2-XkP9mTqR7hNwJ3sE
  *   Todos los requests deben incluir: { _token: '...', action: '...', ... }
@@ -57,8 +63,9 @@ const CFG_BODAS = {
   SHEET_USUARIOS: 'Usuarios',
   SHEET_SESIONES: 'Sesiones',
   SHEET_LISTA:    'ListaBodas',
-  SHEET_PAGOS:    'PagosInvitados',
-  EMAIL_FILIPPO:  'filippo.massara2016@gmail.com',
+  SHEET_PAGOS:      'PagosInvitados',
+  SHEET_INVITADOS:  'Invitados',
+  EMAIL_FILIPPO:    'filippo.massara2016@gmail.com',
   TZ_BOGOTA:      'America/Bogota',
 };
 
@@ -83,10 +90,12 @@ function doPost(e) {
       case 'getCart':               result = _getCart_(body.token);                                  break;
       case 'clearCart':             result = _clearCart_(body.token);                                break;
       case 'updateProfile':         result = _updateProfile_(body.token, body.profile);              break;
-      case 'loginGuest':            result = _loginGuest_(body.invitado_user, body.password);        break;
-      case 'getGuestList':          result = _getGuestList_(body.invitado_user, body.guestToken);    break;
-      case 'createPedidoInvitado':  result = _createPedidoInvitado_(body.guestToken, body.pedido);  break;
-      case 'confirmarPagoInvitado': result = _confirmarPagoInvitado_(body.pagoId, body.wompiRef);   break;
+      case 'loginGuest':            result = _loginGuest_(body.invitado_user, body.password);                    break;
+      case 'getGuestList':          result = _getGuestList_(body.invitado_user, body.guestToken);                break;
+      case 'createPedidoInvitado':  result = _createPedidoInvitado_(body.guestToken, body.pedido);              break;
+      case 'confirmarPagoInvitado': result = _confirmarPagoInvitado_(body.pagoId, body.wompiRef);               break;
+      case 'saveGuestProfile':      result = _saveGuestProfile_(body.invitado_user, body.guestToken, body.profile); break;
+      case 'getGuestProfile':       result = _getGuestProfile_(body.invitado_user, body.guestToken);             break;
       default:                      result = { success: false, error: 'Acción no reconocida: ' + action };
     }
 
@@ -119,9 +128,11 @@ function _login_(username, password) {
     const [uName, uHash, uCouple, uActive] = row;
     if (
       String(uName).trim().toLowerCase() === String(username).trim().toLowerCase() &&
-      String(uHash).trim() === hash &&
-      (uActive === true || String(uActive).toUpperCase() === 'TRUE')
+      String(uHash).trim() === hash
     ) {
+      const isActive   = (uActive === true || String(uActive).toUpperCase() === 'TRUE');
+      const restricted = !isActive;
+
       const token = Utilities.getUuid();
       const now   = new Date();
       const exp   = new Date(now.getTime() + CFG_BODAS.SESSION_TTL_H * 3600 * 1000);
@@ -142,6 +153,7 @@ function _login_(username, password) {
         expiresAt:       exp.toISOString(),
         profileComplete: profileComplete,
         profile:         _rowToProfile_(row),
+        restricted:      restricted,
       };
     }
   }
@@ -276,32 +288,61 @@ function _saveCart_(token, items) {
   // Detectar primer envío: fecha_ultimo_cambio vacía
   const isFirstSend = !validation.profile || !validation.profile.fecha_ultimo_cambio;
 
-  // Eliminar filas previas de este token
-  const data        = sheet.getDataRange().getValues();
-  const rowsToDelete = [];
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]).trim() === String(token).trim()) rowsToDelete.push(i + 1);
-  }
-  for (let i = rowsToDelete.length - 1; i >= 0; i--) sheet.deleteRow(rowsToDelete[i]);
-
   const coupleName = validation.coupleName || '';
   const total_cop  = items.reduce((s, it) => s + (it.precio_cop || 0) * (it.qty || 1), 0);
   const nowBogota  = Utilities.formatDate(new Date(), CFG_BODAS.TZ_BOGOTA, 'yyyy-MM-dd HH:mm:ss');
 
+  // ── Audit trail: en vez de borrar, marcar "removido" y agregar nuevos ──────
+  const allData = sheet.getDataRange().getValues();
+
+  // Construir mapa de filas activas: variantSku → índice fila 1-based
+  const activeRows = {}; // sku → rowNum
+  for (let i = 1; i < allData.length; i++) {
+    if (String(allData[i][0]).trim() === String(token).trim()) {
+      const sku    = String(allData[i][5]  || '').trim(); // col F: variantSku
+      const accion = String(allData[i][11] || '').trim(); // col L: accion
+      if (accion !== 'removido') {
+        activeRows[sku] = i + 1; // 1-based
+      }
+    }
+  }
+
+  // Conjunto de SKUs nuevos
+  const newSkus = new Set(items.map(it => String(it.variantSku || '').trim()));
+
+  // Marcar como "removido" los SKUs que ya no están en la nueva lista
+  for (const [sku, rowNum] of Object.entries(activeRows)) {
+    if (!newSkus.has(sku)) {
+      sheet.getRange(rowNum, 12).setValue('removido'); // col L
+      sheet.getRange(rowNum, 13).setValue(nowBogota);  // col M
+    }
+  }
+
+  // Agregar nuevos o actualizar cantidad en activos
   for (const item of items) {
-    sheet.appendRow([
-      token,
-      coupleName,
-      item.brand        || '',
-      item.productId    || '',
-      item.productName  || '',
-      item.variantSku   || '',
-      item.variantLabel || '',
-      item.precio_cop   || 0,
-      item.qty          || 1,
-      nowBogota,
-      total_cop,
-    ]);
+    const sku = String(item.variantSku || '').trim();
+    if (activeRows[sku]) {
+      // Ya existe activo: actualizar cantidad y timestamp
+      sheet.getRange(activeRows[sku], 9).setValue(item.qty || 1);  // col I: qty
+      sheet.getRange(activeRows[sku], 13).setValue(nowBogota);      // col M: timestamp_accion
+    } else {
+      // Nuevo item: agregar fila con accion = 'agregado'
+      sheet.appendRow([
+        token,
+        coupleName,
+        item.brand        || '',
+        item.productId    || '',
+        item.productName  || '',
+        item.variantSku   || '',
+        item.variantLabel || '',
+        item.precio_cop   || 0,
+        item.qty          || 1,
+        nowBogota,    // col J: addedAt
+        total_cop,    // col K: total_cop
+        'agregado',   // col L: accion
+        nowBogota,    // col M: timestamp_accion
+      ]);
+    }
   }
 
   // Actualizar fecha_ultimo_cambio (col T = columna 20, 1-based) en Usuarios
@@ -342,6 +383,8 @@ function _getCart_(token) {
   const items = [];
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][0]).trim() === String(token).trim()) {
+      const accion = String(data[i][11] || '').trim(); // col L
+      if (accion === 'removido') continue;
       const [, , brand, productId, productName, variantSku, variantLabel, precio_cop, qty] = data[i];
       items.push({ brand, productId, productName, variantSku, variantLabel, precio_cop, qty });
     }
@@ -479,19 +522,112 @@ function _loginGuest_(invitado_user, password) {
     const rowHash   = String(row[21] || '').trim(); // Col V: invitado_passHash
 
     if (rowUser.toLowerCase() === invitado_user.trim().toLowerCase() && rowHash === hash) {
-      const guestToken = 'G-' + Utilities.getUuid();
+      const guestToken    = 'G-' + Utilities.getUuid();
+      const profileComplete = _guestProfileExists_(ss, rowUser);
       return {
-        success:        true,
-        guestToken:     guestToken,
-        coupleUsername: String(row[0]),
-        coupleName:     String(row[2]),
-        fecha_boda:     String(row[5] || ''),
-        invitado_user:  rowUser,
+        success:         true,
+        guestToken:      guestToken,
+        coupleUsername:  String(row[0]),
+        coupleName:      String(row[2]),
+        fecha_boda:      String(row[5] || ''),
+        invitado_user:   rowUser,
+        profileComplete: profileComplete,
+        profile:         profileComplete ? _getGuestProfileData_(ss, rowUser) : null,
       };
     }
   }
 
   return { success: false, error: 'Acceso no válido' };
+}
+
+// ── INVITADOS: PERFIL (DATOS PARA FACTURACIÓN Y CROSS-SELLING) ───────────────
+
+function _saveGuestProfile_(invitado_user, guestToken, profile) {
+  if (!guestToken || !guestToken.startsWith('G-')) {
+    return { success: false, error: 'Sesión de invitado no válida' };
+  }
+  if (!profile || !profile.nombre || !profile.apellido || !profile.id_cc || !profile.email) {
+    return { success: false, error: 'Nombre, apellido, cédula y email son obligatorios' };
+  }
+
+  const ss    = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
+  let   sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS);
+  if (!sheet) { setupSheets(); sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS); }
+
+  const now  = Utilities.formatDate(new Date(), CFG_BODAS.TZ_BOGOTA, 'yyyy-MM-dd HH:mm:ss');
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === invitado_user.trim().toLowerCase()) {
+      // Actualizar fila existente (cols B–H, updatedAt en col I)
+      sheet.getRange(i + 1, 2, 1, 8).setValues([[
+        profile.nombre     || '',
+        profile.apellido   || '',
+        profile.id_cc      || '',
+        profile.telefono   || '',
+        profile.email      || '',
+        profile.direccion  || '',
+        data[i][7],   // createdAt: no tocar
+        now,          // updatedAt
+      ]]);
+      return { success: true, updated: true };
+    }
+  }
+
+  // Registro nuevo
+  sheet.appendRow([
+    invitado_user.trim(),
+    profile.nombre     || '',
+    profile.apellido   || '',
+    profile.id_cc      || '',
+    profile.telefono   || '',
+    profile.email      || '',
+    profile.direccion  || '',
+    now,   // createdAt
+    now,   // updatedAt
+  ]);
+  return { success: true, updated: false };
+}
+
+function _getGuestProfile_(invitado_user, guestToken) {
+  if (!guestToken || !guestToken.startsWith('G-')) {
+    return { success: false, error: 'Sesión de invitado no válida' };
+  }
+  const ss      = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
+  const profile = _getGuestProfileData_(ss, invitado_user);
+  if (!profile) return { success: true, profileComplete: false, profile: null };
+  return { success: true, profileComplete: true, profile };
+}
+
+function _guestProfileExists_(ss, invitado_user) {
+  const sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS);
+  if (!sheet) return false;
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === invitado_user.trim().toLowerCase()) {
+      return !!String(data[i][1] || '').trim(); // nombre presente = completo
+    }
+  }
+  return false;
+}
+
+function _getGuestProfileData_(ss, invitado_user) {
+  const sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS);
+  if (!sheet) return null;
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === invitado_user.trim().toLowerCase()) {
+      return {
+        nombre:    String(data[i][1] || ''),
+        apellido:  String(data[i][2] || ''),
+        id_cc:     String(data[i][3] || ''),
+        telefono:  String(data[i][4] || ''),
+        email:     String(data[i][5] || ''),
+        direccion: String(data[i][6] || ''),
+      };
+    }
+  }
+  return null;
 }
 
 // ── INVITADOS: VER LISTA ──────────────────────────────────────────────────────
@@ -528,6 +664,8 @@ function _getGuestList_(invitado_user, guestToken) {
   const items    = [];
   for (let i = 1; i < listData.length; i++) {
     if (String(listData[i][1]).trim() === coupleName.trim()) {
+      const accion = String(listData[i][11] || '').trim(); // col L
+      if (accion === 'removido') continue;
       const [, , brand, productId, productName, variantSku, variantLabel, precio_cop, qty] = listData[i];
       const reservadas = _getUnidadesReservadas_(ss, productId, variantSku);
       items.push({ brand, productId, productName, variantSku, variantLabel, precio_cop, qty, reservadas });
@@ -666,6 +804,10 @@ function setupSheets() {
       headers: [
         'token','coupleName','brand','productId','productName',
         'variantSku','variantLabel','precio_cop','qty','addedAt','total_cop',
+        'accion','timestamp_accion',
+      ],
+      dropdowns: [
+        { col: 12, values: ['agregado','removido'] }, // L: accion
       ],
     },
     {
@@ -673,6 +815,13 @@ function setupSheets() {
       headers: [
         'pagoId','coupleUsername','coupleName','invitado_user','nombreInvitado',
         'productId','variantSku','productName','qty','precio_cop','wompiReference','timestamp',
+      ],
+    },
+    {
+      nombre:  CFG_BODAS.SHEET_INVITADOS,
+      headers: [
+        'invitado_user','nombre','apellido','id_cc','telefono','email','direccion',
+        'createdAt','updatedAt',
       ],
     },
   ];
@@ -719,8 +868,34 @@ function inicializarHojas() { setupSheets(); }
  * Solo inserta cols A–E; las demás las completa Filippo o la pareja.
  */
 function crearUsuario() {
-  _agregarUsuario('boda', 'boda', 'filofio');
-  // _agregarUsuario('esposos_garcia', 'password123', 'María & Andrés García');
+  // _agregarUsuario('esposos_garcia', 'clave_segura', 'María & Andrés García');
+}
+
+// ── CREAR INVITADO (ejecutar manualmente) ─────────────────────────────────────
+/**
+ * Asigna credenciales de invitado a una pareja existente en la hoja Usuarios.
+ * Escribe el username (col U) y el hash de la contraseña (col V).
+ * Edita los valores y ejecuta con el botón ▶ en Apps Script.
+ */
+function crearInvitado() {
+  // _agregarInvitado('esposos_garcia', 'invitado_juan', 'clave123');
+}
+
+function _agregarInvitado(coupleUsername, invitadoUser, invitadoPass) {
+  const ss    = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
+  const sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
+  if (!sheet) { Logger.log('❌ Hoja Usuarios no encontrada.'); return; }
+
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === coupleUsername.trim().toLowerCase()) {
+      sheet.getRange(i + 1, 21).setValue(invitadoUser.trim());    // Col U: invitado_user
+      sheet.getRange(i + 1, 22).setValue(_sha256_(invitadoPass)); // Col V: invitado_passHash
+      Logger.log('✅ Invitado "' + invitadoUser + '" asignado a la pareja "' + coupleUsername + '".');
+      return;
+    }
+  }
+  Logger.log('❌ Pareja "' + coupleUsername + '" no encontrada en la hoja Usuarios.');
 }
 
 function _agregarUsuario(username, password, coupleName) {
