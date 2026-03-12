@@ -867,6 +867,9 @@
     gap: var(--spacing-sm);
 }
 
+/* Desktop: 60% left · 100% right */
+.cmo-footer-wompi #btnPagar60  { order: -1; }
+
 .cmo-btn-pago {
     display: flex;
     flex-direction: column;
@@ -911,6 +914,9 @@
     .cmo-footer-wompi {
         grid-template-columns: 1fr;
     }
+
+    /* Mobile: reset order → DOM order (100% top, 60% bottom) */
+    .cmo-footer-wompi #btnPagar60 { order: 0; }
 
     .cmo-row-phone {
         grid-template-columns: 82px 1fr;
