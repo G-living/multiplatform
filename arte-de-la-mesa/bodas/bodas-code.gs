@@ -9,13 +9,14 @@
  *
  * HOJAS REQUERIDAS:
  *
- *   📋 Usuarios (22 cols A–V)
+ *   📋 Usuarios (23 cols A–W)
  *      A:username | B:passwordHash | C:coupleName | D:active | E:createdAt
  *      F:fecha_boda | G:fecha_apertura_lista | H:fecha_cierre_lista
  *      I:nombre_el | J:apellido_el | K:id_cc_el | L:telefono_el | M:email_el
  *      N:nombre_ella | O:apellido_ella | P:id_cc_ella | Q:telefono_ella | R:email_ella
  *      S:direccion_entrega | T:fecha_ultimo_cambio | U:invitado_user | V:invitado_passHash
- *      → Cols A–H y U–V: Filippo inserta manualmente
+ *      W:estado_lista  → dropdown ACTIVA / BLOQUEADA (Filippo lo cambia manualmente)
+ *      → Cols A–H y U–W: Filippo inserta/gestiona manualmente
  *      → Cols I–S: la pareja actualiza vía formulario / botón flotante ✏️
  *      → Col T: sistema actualiza automáticamente al guardar wishlist
  *
@@ -509,6 +510,11 @@ function _getGuestList_(invitado_user, guestToken) {
   const usrData  = usrSh.getDataRange().getValues();
   for (let i = 1; i < usrData.length; i++) {
     if (String(usrData[i][20] || '').trim().toLowerCase() === invitado_user.trim().toLowerCase()) {
+      // Col W (idx 22): estado_lista — vacío se trata como ACTIVA
+      const estadoLista = String(usrData[i][22] || 'ACTIVA').trim().toUpperCase();
+      if (estadoLista === 'BLOQUEADA') {
+        return { success: false, error: 'La lista de bodas no está disponible en este momento.' };
+      }
       coupleName = String(usrData[i][2]);
       break;
     }
@@ -625,15 +631,17 @@ function _respond_(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// ── INICIALIZACIÓN DE HOJAS ───────────────────────────────────────────────────
+// ── SETUP DE HOJAS ────────────────────────────────────────────────────────────
 /**
- * Ejecutar UNA VEZ al configurar el sistema.
- * Crea las hojas si no existen con los encabezados correctos.
+ * Ejecutar cada vez que se necesite reparar / inicializar el Spreadsheet.
+ * • Crea las hojas si no existen.
+ * • Siempre sobreescribe los encabezados de la fila 1 (idempotente).
+ * • Aplica formato (negrita, color, freeze) y validaciones (dropdowns).
  */
-function inicializarHojas() {
+function setupSheets() {
   const ss = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
 
-  const hojas = [
+  const HOJAS = [
     {
       nombre:  CFG_BODAS.SHEET_USUARIOS,
       headers: [
@@ -642,6 +650,11 @@ function inicializarHojas() {
         'nombre_el','apellido_el','id_cc_el','telefono_el','email_el',
         'nombre_ella','apellido_ella','id_cc_ella','telefono_ella','email_ella',
         'direccion_entrega','fecha_ultimo_cambio','invitado_user','invitado_passHash',
+        'estado_lista',
+      ],
+      dropdowns: [
+        { col: 4,  values: ['TRUE','FALSE']        },  // D: active
+        { col: 23, values: ['ACTIVA','BLOQUEADA']  },  // W: estado_lista
       ],
     },
     {
@@ -650,27 +663,55 @@ function inicializarHojas() {
     },
     {
       nombre:  CFG_BODAS.SHEET_LISTA,
-      headers: ['token','coupleName','brand','productId','productName','variantSku','variantLabel','precio_cop','qty','addedAt','total_cop'],
+      headers: [
+        'token','coupleName','brand','productId','productName',
+        'variantSku','variantLabel','precio_cop','qty','addedAt','total_cop',
+      ],
     },
     {
       nombre:  CFG_BODAS.SHEET_PAGOS,
-      headers: ['pagoId','coupleUsername','coupleName','invitado_user','nombreInvitado','productId','variantSku','productName','qty','precio_cop','wompiReference','timestamp'],
+      headers: [
+        'pagoId','coupleUsername','coupleName','invitado_user','nombreInvitado',
+        'productId','variantSku','productName','qty','precio_cop','wompiReference','timestamp',
+      ],
     },
   ];
 
-  for (const hoja of hojas) {
+  for (const hoja of HOJAS) {
     let sheet = ss.getSheetByName(hoja.nombre);
     if (!sheet) {
       sheet = ss.insertSheet(hoja.nombre);
-      sheet.appendRow(hoja.headers);
-      sheet.getRange(1, 1, 1, hoja.headers.length).setFontWeight('bold');
       Logger.log('✅ Hoja "' + hoja.nombre + '" creada.');
     } else {
-      Logger.log('ℹ️ Hoja "' + hoja.nombre + '" ya existe — no se modificó.');
+      Logger.log('ℹ️ Hoja "' + hoja.nombre + '" existe — actualizando encabezados y validaciones.');
+    }
+
+    // Siempre escribe encabezados en fila 1
+    const headerRange = sheet.getRange(1, 1, 1, hoja.headers.length);
+    headerRange.setValues([hoja.headers]);
+    headerRange.setFontWeight('bold');
+    headerRange.setBackground('#8b6f5e');
+    headerRange.setFontColor('#ffffff');
+    sheet.setFrozenRows(1);
+
+    // Dropdowns en columnas de datos (fila 2 hasta maxRows)
+    if (hoja.dropdowns) {
+      const maxDataRows = Math.max(sheet.getMaxRows() - 1, 1000);
+      for (const dd of hoja.dropdowns) {
+        const rule = SpreadsheetApp.newDataValidation()
+          .requireValueInList(dd.values, true)
+          .setAllowInvalid(false)
+          .build();
+        sheet.getRange(2, dd.col, maxDataRows, 1).setDataValidation(rule);
+      }
     }
   }
-  Logger.log('🎉 Inicialización completa.');
+
+  Logger.log('🎉 setupSheets completo.');
 }
+
+/** Alias retrocompatible */
+function inicializarHojas() { setupSheets(); }
 
 // ── CREAR USUARIO (ejecutar manualmente) ─────────────────────────────────────
 /**
@@ -685,7 +726,7 @@ function crearUsuario() {
 function _agregarUsuario(username, password, coupleName) {
   const ss    = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
   let   sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
-  if (!sheet) { inicializarHojas(); sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS); }
+  if (!sheet) { setupSheets(); sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS); }
 
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
