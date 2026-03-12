@@ -61,7 +61,7 @@
 /* ===== MODAL PRODUCTO COMPACTO ===== */
 .modal-product-content {
     width: 600px;
-    max-height: 60vh;
+    height: 82vh;           /* altura fija — no encoge con pocos variants */
     display: flex;
     flex-direction: column;
 }
@@ -88,8 +88,8 @@
 }
 
 .product-main-image {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     cursor: zoom-in;
     transition: transform var(--transition-fast);
@@ -424,31 +424,39 @@
 /* Tablet: cart y product más generosos */
 @media (min-width: 768px) and (max-width: 1024px) {
     .modal-cart-content    { width: 560px; }
-    .modal-product-content { width: 640px; }
+    .modal-product-content { width: 640px; height: 80vh; }
 }
 
 /* Desktop: cart y product aprovechan el espacio */
 @media (min-width: 1025px) {
     .modal-cart-content    { width: 580px; }
-    .modal-product-content { width: 660px; }
+    .modal-product-content { width: 660px; height: 82vh; }
 }
 
 @media (max-width: 768px) {
+    /* Modal producto: margen estético arriba Y abajo — no a toda pantalla */
+    #modalProduct {
+        align-items: flex-start;
+        padding-top: 6vh;
+        padding-bottom: 6vh;
+    }
+
     .modal-product-content {
         width: 95vw;
-        max-height: 62vh;
+        height: 88vh;           /* 6vh arriba + 88vh modal + 6vh abajo = 100vh */
+    }
+
+    /* Prioridad absoluta a la foto — variants con scroll lateral */
+    .product-image-section {
+        height: 50vh;
+        min-height: 280px;
     }
 
     .modal-cart-content {
         width: 95vw;
         max-height: 90vh;
     }
-    
-    .product-image-section {
-        height: 36vh;
-        min-height: 220px;
-    }
-    
+
     .variant-row {
         grid-template-columns: 32px 1fr 72px 64px 64px;
         gap: 6px;
