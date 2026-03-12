@@ -1,6 +1,6 @@
 // @version    v2.0  @file mlg-catalog-data.js  @updated 2026-03-11  @session mlg-catalog
 /* ===== MLG V2 - catalog-data.js =====
- * Familias y tipos de producto para el catálogo MLG by Helena Caballero.
+ * Familias y tipos de producto para el catálogo MLG by G-Living | Italian Living & Design | Est. 2018.
  * Factor EUR→COP: 12219 | Fuente: PRICE LIST JANUARY 2026
  * MLG_FAMILIES  → cards giratorias en la página principal
  * MLG_PRODUCT_TYPES → productos con variantes dentro de cada familia

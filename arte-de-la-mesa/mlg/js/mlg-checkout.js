@@ -264,7 +264,7 @@ function _handleStatus(status, reference, txId, isGiftCard, giftPaid) {
        ${_bonoLineA}
        En los próximos minutos recibirás un <strong>email de confirmación</strong> con el detalle completo de tu pedido.<br><br>
        Nuestro equipo se pondrá en contacto contigo para coordinar la entrega.<br><br>
-       <em>Gracias por confiar en MLG by Helena Caballero.</em>`,
+       <em>Gracias por confiar en G-Living | Italian Living & Design | Est. 2018.</em>`,
       reference,
       btnCatalogo + btnWA,
       'confirm-title--success'
