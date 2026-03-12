@@ -74,8 +74,8 @@
 }
 
 .product-image-section {
-    height: 22vh;
-    min-height: 160px;
+    height: 40vh;
+    min-height: 260px;
     background: var(--color-background-secondary);
     display: flex;
     align-items: center;
@@ -445,8 +445,8 @@
     }
     
     .product-image-section {
-        height: 20vh;
-        min-height: 140px;
+        height: 36vh;
+        min-height: 220px;
     }
     
     .variant-row {
