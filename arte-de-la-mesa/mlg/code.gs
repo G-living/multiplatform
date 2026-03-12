@@ -2350,16 +2350,21 @@ function setupInfluencers() {
     hdrRange.setBackground('#1a1610').setFontColor('#C4A05A').setFontWeight('bold');
     sheet.setFrozenRows(1);
     sheet.autoResizeColumns(1, headers.length);
-
-    // Dropdown Estado: ACTIVO / INACTIVO
-    const estadoCol  = headers.indexOf('Estado') + 1;
-    const estadoRule = SpreadsheetApp.newDataValidation()
-      .requireValueInList(['ACTIVO', 'INACTIVO'], true).build();
-    sheet.getRange(2, estadoCol, 500, 1).setDataValidation(estadoRule);
-
     Logger.log('✅ Cabeceras escritas en ' + nombre);
   } else {
     Logger.log('ℹ️ La hoja ya tiene datos — cabeceras no modificadas');
+  }
+
+  // Dropdown Estado: ACTIVO / INACTIVO — se aplica siempre (hoja nueva o existente)
+  const actualHeader = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const estadoCol    = actualHeader.indexOf('Estado') + 1;
+  if (estadoCol > 0) {
+    const estadoRule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['ACTIVO', 'INACTIVO'], true).build();
+    sheet.getRange(2, estadoCol, 500, 1).setDataValidation(estadoRule);
+    Logger.log('✅ Dropdown Estado aplicado → col ' + estadoCol);
+  } else {
+    Logger.log('⚠️ Columna Estado no encontrada en Influencers');
   }
 
   Logger.log('✅ setupInfluencers completado');
