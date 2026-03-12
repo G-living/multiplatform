@@ -182,7 +182,7 @@
 <div class="world-stage" id="worldStage">
   <div class="active-zone" id="activeZone">
     <div class="active-mag" id="activeMag">
-      <div class="dbl-hint">Doble toque para entrar</div>
+      <div class="dbl-hint">Toca para entrar</div>
       <div class="mag-body" id="magBody">
         <div class="mag-spine"></div>
         <div class="mag-inner">
@@ -206,7 +206,7 @@
 
 <div class="grid-zone" id="gridZone"></div>
 <div class="go-overlay" id="goOverlay"><span>Abriendo cat&aacute;logo&hellip;</span></div>
-<div class="global-hint">Arrastra &middot; Doble toque para entrar &middot; Toca una colecci&oacute;n</div>
+<div class="global-hint">Toca una colecci&oacute;n para entrar &middot; Arrastra para explorar</div>
 
 <script>
 (function(){
@@ -214,10 +214,10 @@
 
 const BRANDS = [
   { id:'imolarte', name:'Imolarte', sub:'by Helena Caballero', foot:'Cerámica italiana',
-    color:'#3A3228', url:'imolarte/index.html', live:true, folder:'Imolarte',
+    color:'#3A3228', url:'imolarte/imolarte-index.html', live:true, folder:'Imolarte',
     files:['imolarte-portada1.jpg','imolarte-portada2.jpg','imolarte-portada3.jpg','imolarte-portada4.jpg','imolarte-portada5.jpg'] },
   { id:'mlg', name:'Mario Luca Giusti', sub:'Synthetic Crystal', foot:'Arte de la Mesa',
-    color:'#2C4A3E', url:'MLG/index-mlg.html', live:true, folder:'MLG',
+    color:'#2C4A3E', url:'mlg/mlg-index.html', live:true, folder:'MLG',
     files:['MLG-portada1.jpg','MLG-portada2.jpg','MLG-portada3.jpg','MLG-portada4.jpg','MLG-portada5.jpg'] },
   { id:'tessitura', name:'Tessitura', sub:'Toscana', foot:'Textil · Toscana',
     color:'#4A3828', url:'#', live:false, folder:'Tessitura-Toscana',
@@ -305,11 +305,11 @@ function applyMagPan(){ activeMag.style.transform='rotateX(10deg) translate('+ma
 activeMag.addEventListener('mousedown',e=>{ if(e.button!==0)return; mD=true;mDD=false;mSX=e.clientX;mSY=e.clientY;mSPX=magPanX;mSPY=magPanY; activeMag.classList.add('dragging');e.preventDefault();e.stopPropagation(); });
 window.addEventListener('mousemove',e=>{ if(!mD)return; const dx=e.clientX-mSX,dy=e.clientY-mSY; if(Math.abs(dx)>5||Math.abs(dy)>5)mDD=true; magPanX=clamp(mSPX+dx,-MLX,MLX);magPanY=clamp(mSPY+dy,-MLY,MLY); applyMagPan(); });
 window.addEventListener('mouseup',()=>{ if(mD){mD=false;activeMag.classList.remove('dragging');} });
-activeMag.addEventListener('dblclick',()=>{ if(!mDD)openActive(); });
-let mTS2={x:0,y:0},mTPS2={x:0,y:0},mTD2=false,lastTap=0;
-activeMag.addEventListener('touchstart',e=>{ if(e.touches.length!==1)return; const t=e.touches[0]; mTS2={x:t.clientX,y:t.clientY};mTPS2={x:magPanX,y:magPanY};mTD2=true; const now=Date.now(); if(now-lastTap<340){openActive();lastTap=0;return;} lastTap=now;e.stopPropagation();e.preventDefault(); },{passive:false});
-activeMag.addEventListener('touchmove',e=>{ if(!mTD2||e.touches.length!==1)return; const t=e.touches[0],dx=t.clientX-mTS2.x,dy=t.clientY-mTS2.y; magPanX=clamp(mTPS2.x+dx,-MLX,MLX);magPanY=clamp(mTPS2.y+dy,-MLY,MLY); applyMagPan();e.preventDefault(); },{passive:false});
-activeMag.addEventListener('touchend',()=>{mTD2=false;});
+activeMag.addEventListener('click',()=>{ if(!mDD)openActive(); });
+let mTS2={x:0,y:0},mTPS2={x:0,y:0},mTD2=false,mTDD2=false;
+activeMag.addEventListener('touchstart',e=>{ if(e.touches.length!==1)return; const t=e.touches[0]; mTS2={x:t.clientX,y:t.clientY};mTPS2={x:magPanX,y:magPanY};mTD2=true;mTDD2=false;e.stopPropagation();e.preventDefault(); },{passive:false});
+activeMag.addEventListener('touchmove',e=>{ if(!mTD2||e.touches.length!==1)return; const t=e.touches[0],dx=t.clientX-mTS2.x,dy=t.clientY-mTS2.y; if(Math.abs(dx)>5||Math.abs(dy)>5)mTDD2=true; magPanX=clamp(mTPS2.x+dx,-MLX,MLX);magPanY=clamp(mTPS2.y+dy,-MLY,MLY); applyMagPan();e.preventDefault(); },{passive:false});
+activeMag.addEventListener('touchend',()=>{ if(mTD2&&!mTDD2)openActive(); mTD2=false; });
 
 // ASPECT RATIO DINÁMICO
 function setMagAspectRatio(brand){
@@ -346,7 +346,7 @@ function renderGrid(){
     wrap.className='mini-mag';wrap.dataset.idx=idx;
     const img=brand.files[portadaState[brand.id]];
     wrap.innerHTML='<div class="mini-body"><div class="mini-spine"></div><div class="mini-inner"><div class="mini-head" style="background:'+brand.color+'"><div class="mini-name">'+brand.name+'</div></div><div class="mini-img-wrap"><img class="mini-img" src="'+BASE+brand.folder+'/'+img+'" alt="'+brand.name+'" loading="lazy"></div></div>'+(!brand.live?'<div class="mini-soon"><span>Próx.</span></div>':'')+'</div><div class="mini-label">'+brand.name+'</div>';
-    wrap.addEventListener('click',()=>swapActive(idx,wrap));
+    wrap.addEventListener('click',()=>{ const brand=BRANDS[idx]; if(brand.live){wrap.classList.add('flying');savePortadas();goOverlay.classList.add('show');setTimeout(()=>{window.location.href=brand.url;},500);}else{swapActive(idx,wrap);} });
     gridZone.appendChild(wrap);
   });
 }
@@ -370,8 +370,10 @@ function swapActive(newIdx,miniEl){
 }
 
 // ABRIR
+let _navigating=false;
 function openActive(){
-  const b=BRANDS[activeIdx];if(!b.live)return;
+  const b=BRANDS[activeIdx];if(!b.live||_navigating)return;
+  _navigating=true;
   savePortadas();goOverlay.classList.add('show');
   setTimeout(()=>{window.location.href=b.url;},600);
 }
