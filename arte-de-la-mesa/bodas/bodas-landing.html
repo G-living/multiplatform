@@ -976,6 +976,129 @@
       .btn-logout span { display: none; }
       .header-title { font-size: var(--font-size-base); }
     }
+
+    /* ── PROFILE SETUP SCREEN ────────────────────────────── */
+    .profile-setup-card {
+      background: #fff;
+      border: 1px solid var(--color-border, #e8e8e4);
+      border-radius: var(--radius-xl, 12px);
+      padding: var(--spacing-xl, 48px);
+      width: 100%;
+      max-width: 680px;
+      box-shadow: var(--shadow-large, 0 8px 24px rgba(0,0,0,.12));
+    }
+
+    .profile-welcome-msg {
+      font-size: var(--font-size-sm, .875rem);
+      color: var(--color-text-secondary, #6b6b6b);
+      line-height: 1.75;
+      margin: 0 0 var(--spacing-lg, 32px);
+      text-align: center;
+      font-style: italic;
+    }
+
+    .profile-section-title {
+      font-family: var(--font-display);
+      font-size: var(--font-size-lg, 1.125rem);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-accent-dark, #9a7a42);
+      margin: var(--spacing-md, 24px) 0 var(--spacing-sm, 16px);
+      border-bottom: 1px solid var(--color-border-light, #f0f0ec);
+      padding-bottom: 6px;
+    }
+
+    .profile-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--spacing-md, 24px);
+    }
+
+    @media (max-width: 520px) {
+      .profile-form-grid { grid-template-columns: 1fr; }
+      .profile-setup-card { padding: var(--spacing-lg, 32px) var(--spacing-md, 24px); }
+    }
+
+    /* ── SEND CONFIRM MODAL ──────────────────────────────── */
+    .confirm-modal {
+      position: fixed;
+      inset: 0;
+      z-index: var(--z-modal, 1400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-lg, 32px);
+    }
+
+    .confirm-modal-box {
+      background: #fff;
+      border-radius: var(--radius-xl, 12px);
+      padding: var(--spacing-2xl, 64px) var(--spacing-xl, 48px);
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,.25);
+    }
+
+    .confirm-modal-icon { font-size: 2.5rem; margin-bottom: var(--spacing-sm); }
+
+    .confirm-modal-title {
+      font-family: var(--font-display);
+      font-size: var(--font-size-2xl, 1.5rem);
+      font-weight: 600;
+      margin: 0 0 var(--spacing-sm);
+    }
+
+    .confirm-modal-body {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.75;
+      margin: 0 0 var(--spacing-lg);
+    }
+
+    .confirm-modal-actions { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+
+    .btn-send-cancel {
+      width: 100%;
+      padding: 14px;
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-send-cancel:hover { border-color: var(--color-text-primary); color: var(--color-text-primary); }
+
+    /* ── FLOATING PROFILE BUTTON ─────────────────────────── */
+    .btn-float-profile {
+      position: fixed;
+      bottom: var(--spacing-lg, 32px);
+      right: var(--spacing-lg, 32px);
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-full, 9999px);
+      background: #fff;
+      border: 1px solid var(--color-border, #e8e8e4);
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+      transition: all var(--transition-fast, .15s ease);
+    }
+
+    .btn-float-profile:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      transform: scale(1.08);
+      border-color: var(--color-accent, #c9a961);
+    }
   </style>
 </head>
 <body>
@@ -1131,6 +1254,152 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════
+       PROFILE SETUP SCREEN (primer acceso — obligatorio)
+       ═══════════════════════════════════════════════════════ -->
+  <div id="profileScreen" class="login-screen hidden">
+    <div class="profile-setup-card">
+      <img src="../mlg/images/branding/Logo-HC.jpeg"
+           alt="G-Living" class="login-logo" onerror="this.style.display='none'">
+      <h1 class="login-title">Su Boda, Nuestra Pasión</h1>
+      <p class="profile-welcome-msg">
+        Nos importan los detalles — queremos conocer más de ustedes y de su Boda para brindarles
+        la mejor atención personalizada. Este formulario se diligencia solo la primera vez y
+        podrá ser modificado más adelante si lo desean.
+      </p>
+
+      <form id="profileForm" autocomplete="on" novalidate>
+
+        <div class="profile-section-title">Él</div>
+        <div class="profile-form-grid">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" id="pf_nombre_el" placeholder="Nombre" required autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label>Apellido *</label>
+            <input type="text" id="pf_apellido_el" placeholder="Apellido" required autocomplete="family-name">
+          </div>
+          <div class="form-group">
+            <label>Cédula (CC) *</label>
+            <input type="text" id="pf_id_cc_el" placeholder="Número de identificación" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono *</label>
+            <input type="tel" id="pf_telefono_el" placeholder="+57 300 000 0000" required autocomplete="tel">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label>Email *</label>
+            <input type="email" id="pf_email_el" placeholder="email@ejemplo.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="profile-section-title">Ella</div>
+        <div class="profile-form-grid">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" id="pf_nombre_ella" placeholder="Nombre" required>
+          </div>
+          <div class="form-group">
+            <label>Apellido *</label>
+            <input type="text" id="pf_apellido_ella" placeholder="Apellido" required>
+          </div>
+          <div class="form-group">
+            <label>Cédula (CC) *</label>
+            <input type="text" id="pf_id_cc_ella" placeholder="Número de identificación" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono *</label>
+            <input type="tel" id="pf_telefono_ella" placeholder="+57 300 000 0000" required>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label>Email *</label>
+            <input type="email" id="pf_email_ella" placeholder="email@ejemplo.com" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:8px">
+          <label>Dirección de Entrega *</label>
+          <input type="text" id="pf_direccion_entrega"
+                 placeholder="Calle, barrio, ciudad, departamento" required autocomplete="street-address">
+        </div>
+
+        <div id="profileFormError" class="login-error hidden"></div>
+        <button type="submit" id="btnSaveProfile" class="btn btn-login" style="margin-top:8px">
+          Continuar →
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SEND CONFIRMATION MODAL
+       ═══════════════════════════════════════════════════════ -->
+  <div id="sendConfirmBackdrop" class="catalog-modal-backdrop hidden"></div>
+  <div id="sendConfirmModal" class="confirm-modal hidden" role="dialog" aria-modal="true">
+    <div class="confirm-modal-box">
+      <div class="confirm-modal-icon">✉</div>
+      <h2 class="confirm-modal-title">¿Enviamos tu Lista?</h2>
+      <p class="confirm-modal-body" id="sendConfirmBody"></p>
+      <div class="confirm-modal-actions">
+        <button id="btnConfirmSend" class="btn-send-list">Sí, enviar mi Lista ♡</button>
+        <button id="btnCancelSend" class="btn-send-cancel">Revisar antes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FLOATING PROFILE BUTTON
+       ═══════════════════════════════════════════════════════ -->
+  <button id="btnFloatProfile" class="btn-float-profile hidden" title="Editar mis datos" aria-label="Editar perfil">
+    ✏️
+  </button>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PROFILE EDIT MODAL (botón flotante)
+       ═══════════════════════════════════════════════════════ -->
+  <div id="profileEditBackdrop" class="catalog-modal-backdrop hidden"></div>
+  <div id="profileEditModal" class="catalog-modal hidden" role="dialog" aria-modal="true" aria-label="Editar datos">
+    <div class="catalog-modal-box" style="max-width:640px">
+      <div class="catalog-modal-header">
+        <span class="catalog-modal-brand-name">Actualizar nuestros datos</span>
+        <button class="catalog-modal-close" id="profileEditClose" aria-label="Cerrar">×</button>
+      </div>
+      <div style="overflow-y:auto;max-height:calc(100vh - 120px);padding:24px 32px">
+        <form id="profileEditForm" novalidate>
+
+          <div class="profile-section-title">Él</div>
+          <div class="profile-form-grid">
+            <div class="form-group"><label>Nombre *</label><input type="text" id="pe_nombre_el" required></div>
+            <div class="form-group"><label>Apellido *</label><input type="text" id="pe_apellido_el" required></div>
+            <div class="form-group"><label>Cédula *</label><input type="text" id="pe_id_cc_el" required></div>
+            <div class="form-group"><label>Teléfono *</label><input type="tel" id="pe_telefono_el" required></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Email *</label><input type="email" id="pe_email_el" required></div>
+          </div>
+
+          <div class="profile-section-title">Ella</div>
+          <div class="profile-form-grid">
+            <div class="form-group"><label>Nombre *</label><input type="text" id="pe_nombre_ella" required></div>
+            <div class="form-group"><label>Apellido *</label><input type="text" id="pe_apellido_ella" required></div>
+            <div class="form-group"><label>Cédula *</label><input type="text" id="pe_id_cc_ella" required></div>
+            <div class="form-group"><label>Teléfono *</label><input type="tel" id="pe_telefono_ella" required></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Email *</label><input type="email" id="pe_email_ella" required></div>
+          </div>
+
+          <div class="form-group" style="margin-top:8px">
+            <label>Dirección de Entrega *</label>
+            <input type="text" id="pe_direccion_entrega" required>
+          </div>
+
+          <div id="profileEditError" class="login-error hidden"></div>
+          <button type="submit" id="btnSaveProfileEdit" class="btn btn-login" style="margin-top:8px">
+            Guardar cambios
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
        TOAST
        ═══════════════════════════════════════════════════════ -->
   <div class="toast-container" id="toastContainer"></div>
@@ -1140,6 +1409,7 @@
        ═══════════════════════════════════════════════════════ -->
   <script src="../mlg/mlg-catalog-data.js"></script>
   <script src="../imolarte/js/imolarte-catalog-data.js"></script>
+  <script src="bodas-config.js"></script>
 
   <!-- ═══════════════════════════════════════════════════════
        APP LOGIC
@@ -1149,8 +1419,8 @@
 
   // ── CONFIGURACIÓN ──────────────────────────────────────────────────────────
 
-  const GAS_URL    = 'https://script.google.com/macros/s/AKfycbzuvc8d_EpzzuiiWX9FRudG9X7EtuZ5z2-6oxmKOjehOdKyzkj5zD9DnrtEwk6EEY1W/exec';
-  const CART_KEY   = 'bodas_cart_v1';
+  // GAS_URL y API_TOKEN vienen de bodas-config.js (BODAS_CONFIG)
+  const CART_KEY    = 'bodas_cart_v1';
   const SESSION_KEY = 'bodas_session_v1';
 
   // ── DEFINICIÓN DE CATÁLOGOS ─────────────────────────────────────────────────
@@ -1188,7 +1458,7 @@
 
   // ── ESTADO DE LA APLICACIÓN ─────────────────────────────────────────────────
 
-  let session       = null;   // { token, coupleName, expiresAt }
+  let session       = null;   // { token, username, coupleName, expiresAt, profileComplete, profile:{...} }
   let cart          = [];     // array de items
   let currentCatalog = null;  // catalog config object
   let currentFamily  = null;  // nombre de familia activa
@@ -1202,7 +1472,6 @@
   document.addEventListener('DOMContentLoaded', init);
 
   function init() {
-    // Verificar sesión guardada
     const saved = localStorage.getItem(SESSION_KEY);
     if (saved) {
       try {
@@ -1210,7 +1479,11 @@
         if (s && s.token && new Date(s.expiresAt) > new Date()) {
           session = s;
           loadCart();
-          showApp();
+          if (!session.profileComplete) {
+            showProfileScreen();
+          } else {
+            showApp();
+          }
           return;
         }
       } catch (_) {}
@@ -1242,10 +1515,21 @@
     try {
       const res = await gasPost({ action: 'login', username, password });
       if (res.success) {
-        session = { token: res.token, coupleName: res.coupleName, expiresAt: res.expiresAt };
+        session = {
+          token:           res.token,
+          username:        res.username,
+          coupleName:      res.coupleName,
+          expiresAt:       res.expiresAt,
+          profileComplete: res.profileComplete,
+          profile:         res.profile || {},
+        };
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
         loadCart();
-        showApp();
+        if (!session.profileComplete) {
+          showProfileScreen();
+        } else {
+          showApp();
+        }
       } else {
         errEl.textContent = res.error || 'Credenciales incorrectas';
         errEl.classList.remove('hidden');
@@ -1271,6 +1555,7 @@
     cart    = [];
     localStorage.removeItem(SESSION_KEY);
     updateCartBadge();
+    document.getElementById('btnFloatProfile').classList.add('hidden');
     showLogin();
   });
 
@@ -1278,10 +1563,79 @@
 
   function showApp() {
     document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('profileScreen').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
+    document.getElementById('btnFloatProfile').classList.remove('hidden');
     document.getElementById('headerCoupleName').textContent = session?.coupleName || '';
     renderCatalogGrid();
   }
+
+  function showProfileScreen() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainApp').classList.add('hidden');
+    document.getElementById('profileScreen').classList.remove('hidden');
+    // Pre-fill if data already exists
+    const p = session?.profile || {};
+    ['nombre_el','apellido_el','id_cc_el','telefono_el','email_el',
+     'nombre_ella','apellido_ella','id_cc_ella','telefono_ella','email_ella',
+     'direccion_entrega'].forEach(f => {
+      const el = document.getElementById('pf_' + f);
+      if (el && p[f]) el.value = p[f];
+    });
+  }
+
+  // ── PROFILE FORM (primer acceso) ─────────────────────────────────────────────
+
+  document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn   = document.getElementById('btnSaveProfile');
+    const errEl = document.getElementById('profileFormError');
+    errEl.classList.add('hidden');
+
+    const profile = {
+      nombre_el:         document.getElementById('pf_nombre_el').value.trim(),
+      apellido_el:       document.getElementById('pf_apellido_el').value.trim(),
+      id_cc_el:          document.getElementById('pf_id_cc_el').value.trim(),
+      telefono_el:       document.getElementById('pf_telefono_el').value.trim(),
+      email_el:          document.getElementById('pf_email_el').value.trim(),
+      nombre_ella:       document.getElementById('pf_nombre_ella').value.trim(),
+      apellido_ella:     document.getElementById('pf_apellido_ella').value.trim(),
+      id_cc_ella:        document.getElementById('pf_id_cc_ella').value.trim(),
+      telefono_ella:     document.getElementById('pf_telefono_ella').value.trim(),
+      email_ella:        document.getElementById('pf_email_ella').value.trim(),
+      direccion_entrega: document.getElementById('pf_direccion_entrega').value.trim(),
+    };
+
+    // Validación básica
+    const missing = Object.entries(profile).some(([, v]) => !v);
+    if (missing) {
+      errEl.textContent = 'Por favor completa todos los campos antes de continuar.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+      const res = await gasPost({ action: 'updateProfile', token: session.token, profile });
+      if (res.success) {
+        session.profileComplete = true;
+        session.profile = { ...session.profile, ...profile };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        showApp();
+      } else {
+        errEl.textContent = res.error || 'Error al guardar. Intenta nuevamente.';
+        errEl.classList.remove('hidden');
+      }
+    } catch (_) {
+      errEl.textContent = 'Error de conexión. Intenta nuevamente.';
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Continuar →';
+    }
+  });
 
   // ── CATALOG GRID ────────────────────────────────────────────────────────────
 
@@ -1373,7 +1727,9 @@
   // Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (!document.getElementById('catalogModalWrap').classList.contains('hidden')) closeCatalogModal();
+      if (!document.getElementById('profileEditModal').classList.contains('hidden')) closeProfileEditModal();
+      else if (!document.getElementById('sendConfirmModal').classList.contains('hidden')) closeSendConfirmModal();
+      else if (!document.getElementById('catalogModalWrap').classList.contains('hidden')) closeCatalogModal();
       else if (!document.getElementById('cartBackdrop').classList.contains('hidden')) closeCartDrawer();
     }
   });
@@ -1665,23 +2021,130 @@
     });
   }
 
-  // "Enviar Lista" — placeholder hasta integración completa de lista de bodas
+  // ── ENVIAR LISTA: popup de confirmación ──────────────────────────────────────
+
   document.getElementById('btnSendList').addEventListener('click', () => {
     if (!cart.length) return;
-    // Por ahora: guardar en GAS y mostrar mensaje
-    const savePromise = session
-      ? gasPost({ action: 'saveCart', token: session.token, items: cart })
-      : Promise.resolve({ success: true });
+    const cierre = session?.profile?.fecha_cierre_lista;
+    const bodyEl = document.getElementById('sendConfirmBody');
+    bodyEl.innerHTML = cierre
+      ? `Tu lista quedará registrada en G-Living.<br>Podrás realizar cambios hasta el <strong>${cierre}</strong>.`
+      : 'Tu lista quedará registrada en G-Living. Podrás actualizarla cuando lo desees.';
+    document.getElementById('sendConfirmBackdrop').classList.remove('hidden');
+    document.getElementById('sendConfirmModal').classList.remove('hidden');
+    closeCartDrawer();
+  });
 
-    savePromise
-      .then(res => {
-        if (res.success) {
-          showToast('Lista guardada. G-Living se pondrá en contacto contigo. ♡', 'success');
-        } else {
-          showToast('Error al guardar. Tu lista está segura localmente.', 'error');
+  document.getElementById('btnCancelSend').addEventListener('click', closeSendConfirmModal);
+  document.getElementById('sendConfirmBackdrop').addEventListener('click', closeSendConfirmModal);
+
+  function closeSendConfirmModal() {
+    document.getElementById('sendConfirmBackdrop').classList.add('hidden');
+    document.getElementById('sendConfirmModal').classList.add('hidden');
+  }
+
+  document.getElementById('btnConfirmSend').addEventListener('click', async () => {
+    if (!session) return;
+    const btn = document.getElementById('btnConfirmSend');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+      const res = await gasPost({ action: 'saveCart', token: session.token, items: cart });
+      closeSendConfirmModal();
+      if (res.success) {
+        if (res.fecha_ultimo_cambio) {
+          session.profile = session.profile || {};
+          session.profile.fecha_ultimo_cambio = res.fecha_ultimo_cambio;
+          localStorage.setItem(SESSION_KEY, JSON.stringify(session));
         }
-      })
-      .catch(() => showToast('Error de conexión. Tu lista está guardada localmente.', 'error'));
+        showToast('Lista enviada exitosamente. ¡Gracias por confiar en G-Living! ♡', 'success');
+      } else {
+        showToast('Error al enviar. Tu lista está guardada localmente.', 'error');
+      }
+    } catch (_) {
+      closeSendConfirmModal();
+      showToast('Error de conexión. Tu lista está guardada localmente.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sí, enviar mi Lista ♡';
+    }
+  });
+
+  // ── EDITAR PERFIL (botón flotante) ───────────────────────────────────────────
+
+  document.getElementById('btnFloatProfile').addEventListener('click', openProfileEditModal);
+  document.getElementById('profileEditClose').addEventListener('click', closeProfileEditModal);
+  document.getElementById('profileEditBackdrop').addEventListener('click', closeProfileEditModal);
+
+  function openProfileEditModal() {
+    const p = session?.profile || {};
+    ['nombre_el','apellido_el','id_cc_el','telefono_el','email_el',
+     'nombre_ella','apellido_ella','id_cc_ella','telefono_ella','email_ella',
+     'direccion_entrega'].forEach(f => {
+      const el = document.getElementById('pe_' + f);
+      if (el) el.value = p[f] || '';
+    });
+    document.getElementById('profileEditError').classList.add('hidden');
+    document.getElementById('profileEditBackdrop').classList.remove('hidden');
+    document.getElementById('profileEditModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeProfileEditModal() {
+    document.getElementById('profileEditBackdrop').classList.add('hidden');
+    document.getElementById('profileEditModal').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('profileEditForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn   = document.getElementById('btnSaveProfileEdit');
+    const errEl = document.getElementById('profileEditError');
+    errEl.classList.add('hidden');
+
+    const profile = {
+      nombre_el:         document.getElementById('pe_nombre_el').value.trim(),
+      apellido_el:       document.getElementById('pe_apellido_el').value.trim(),
+      id_cc_el:          document.getElementById('pe_id_cc_el').value.trim(),
+      telefono_el:       document.getElementById('pe_telefono_el').value.trim(),
+      email_el:          document.getElementById('pe_email_el').value.trim(),
+      nombre_ella:       document.getElementById('pe_nombre_ella').value.trim(),
+      apellido_ella:     document.getElementById('pe_apellido_ella').value.trim(),
+      id_cc_ella:        document.getElementById('pe_id_cc_ella').value.trim(),
+      telefono_ella:     document.getElementById('pe_telefono_ella').value.trim(),
+      email_ella:        document.getElementById('pe_email_ella').value.trim(),
+      direccion_entrega: document.getElementById('pe_direccion_entrega').value.trim(),
+    };
+
+    const missing = Object.entries(profile).some(([, v]) => !v);
+    if (missing) {
+      errEl.textContent = 'Por favor completa todos los campos.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+      const res = await gasPost({ action: 'updateProfile', token: session.token, profile });
+      if (res.success) {
+        session.profile = { ...session.profile, ...profile };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        closeProfileEditModal();
+        showToast('Datos actualizados exitosamente. ♡', 'success');
+      } else {
+        errEl.textContent = res.error || 'Error al guardar. Intenta nuevamente.';
+        errEl.classList.remove('hidden');
+      }
+    } catch (_) {
+      errEl.textContent = 'Error de conexión. Intenta nuevamente.';
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambios';
+    }
   });
 
   // ── CATALOG DATA ADAPTERS ─────────────────────────────────────────────────────
@@ -1769,10 +2232,10 @@
   }
 
   async function gasPost(payload) {
-    const res = await fetch(GAS_URL, {
+    const res = await fetch(BODAS_CONFIG.GAS_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'text/plain' },  // GAS CORS workaround
-      body:    JSON.stringify(payload),
+      body:    JSON.stringify({ ...payload, _token: BODAS_CONFIG.API_TOKEN }),
     });
     return res.json();
   }
