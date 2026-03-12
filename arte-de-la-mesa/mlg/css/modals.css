@@ -61,7 +61,7 @@
 /* ===== MODAL PRODUCTO COMPACTO ===== */
 .modal-product-content {
     width: 600px;
-    max-height: 60vh;
+    height: 82vh;           /* altura fija — no encoge con pocos variants */
     display: flex;
     flex-direction: column;
 }
@@ -424,29 +424,37 @@
 /* Tablet: cart y product más generosos */
 @media (min-width: 768px) and (max-width: 1024px) {
     .modal-cart-content    { width: 560px; }
-    .modal-product-content { width: 640px; }
+    .modal-product-content { width: 640px; height: 80vh; }
 }
 
 /* Desktop: cart y product aprovechan el espacio */
 @media (min-width: 1025px) {
     .modal-cart-content    { width: 580px; }
-    .modal-product-content { width: 660px; }
+    .modal-product-content { width: 660px; height: 82vh; }
 }
 
 @media (max-width: 768px) {
+    /* Modal producto: arriba con margen estético — no pegado al fondo */
+    #modalProduct {
+        align-items: flex-start;
+        padding-top: 5vh;
+        padding-bottom: 5vh;
+    }
+
     .modal-product-content {
         width: 95vw;
-        max-height: 62vh;
+        height: 90vh;           /* altura fija, sin recorte */
     }
 
     .modal-cart-content {
         width: 95vw;
         max-height: 90vh;
     }
-    
+
+    /* Prioridad absoluta a la foto — el cliente hace scroll en variants */
     .product-image-section {
-        height: 36vh;
-        min-height: 220px;
+        height: 52vh;
+        min-height: 300px;
     }
     
     .variant-row {
