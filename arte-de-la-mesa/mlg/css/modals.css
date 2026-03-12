@@ -863,6 +863,13 @@
     gap: var(--spacing-sm);
 }
 
+/* PC: 60% izquierda, 100% derecha */
+#btnPagar60  { order: 1; }
+#btnPagar100 { order: 2; }
+
+/* Texto descuento anticipado en negrilla */
+#wpTipAnticipado { font-weight: var(--font-weight-semibold); }
+
 .cmo-btn-pago {
     display: flex;
     flex-direction: column;
@@ -907,6 +914,10 @@
     .cmo-footer-wompi {
         grid-template-columns: 1fr;
     }
+
+    /* Mobile: 100% arriba, 60% abajo (reset del order de desktop) */
+    #btnPagar100 { order: 1; }
+    #btnPagar60  { order: 2; }
 
     .cmo-row-phone {
         grid-template-columns: 82px 1fr;
