@@ -864,52 +864,87 @@ function inicializarHojas() { setupSheets(); }
 
 // ── CREAR USUARIO (ejecutar manualmente) ─────────────────────────────────────
 /**
- * Edita los valores y ejecuta con el botón ▶ en Apps Script.
- * Solo inserta cols A–E; las demás las completa Filippo o la pareja.
+ * 1. Edita los valores entre comillas (username, clave, nombre de pareja)
+ * 2. Presiona ▶ para ejecutar
+ * 3. Revisa el log (Ver → Registros) para confirmar
  */
 function crearUsuario() {
-  // _agregarUsuario('esposos_garcia', 'clave_segura', 'María & Andrés García');
+  /* ⬇️  DESCOMENTA Y EDITA esta línea antes de ejecutar:
+  _agregarUsuario('esposos_garcia', 'clave_segura', 'María & Andrés García');
+  */
+  Logger.log('⚠️  crearUsuario: descomenta y edita la línea _agregarUsuario(...) antes de ejecutar.');
 }
 
 // ── CREAR INVITADO (ejecutar manualmente) ─────────────────────────────────────
 /**
- * Asigna credenciales de invitado a una pareja existente en la hoja Usuarios.
- * Escribe el username (col U) y el hash de la contraseña (col V).
- * Edita los valores y ejecuta con el botón ▶ en Apps Script.
+ * 1. Edita los valores: username de la pareja, username del invitado, clave del invitado
+ * 2. Presiona ▶ para ejecutar
+ * 3. Revisa el log (Ver → Registros) para confirmar
  */
 function crearInvitado() {
-  // _agregarInvitado('esposos_garcia', 'invitado_juan', 'clave123');
+  /* ⬇️  DESCOMENTA Y EDITA esta línea antes de ejecutar:
+  _agregarInvitado('esposos_garcia', 'invitado_juan', 'clave123');
+  */
+  Logger.log('⚠️  crearInvitado: descomenta y edita la línea _agregarInvitado(...) antes de ejecutar.');
 }
 
 function _agregarInvitado(coupleUsername, invitadoUser, invitadoPass) {
+  Logger.log('▶ _agregarInvitado | pareja="' + coupleUsername + '" invitado="' + invitadoUser + '"');
+  if (!coupleUsername || !invitadoUser || !invitadoPass) {
+    Logger.log('❌ Faltan parámetros: coupleUsername="' + coupleUsername + '" invitadoUser="' + invitadoUser + '" invitadoPass=' + (invitadoPass ? '(ok)' : '(vacío)'));
+    return;
+  }
+
   const ss    = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
   const sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
-  if (!sheet) { Logger.log('❌ Hoja Usuarios no encontrada.'); return; }
+  if (!sheet) {
+    Logger.log('❌ Hoja "' + CFG_BODAS.SHEET_USUARIOS + '" no encontrada. Ejecuta setupSheets() primero.');
+    return;
+  }
 
   const data = sheet.getDataRange().getValues();
+  Logger.log('ℹ️  Usuarios en hoja: ' + (data.length - 1) + ' filas de datos');
+
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0] || '').trim().toLowerCase() === coupleUsername.trim().toLowerCase()) {
+    const rowUser = String(data[i][0] || '').trim();
+    Logger.log('   fila ' + (i+1) + ': username="' + rowUser + '"');
+    if (rowUser.toLowerCase() === coupleUsername.trim().toLowerCase()) {
       sheet.getRange(i + 1, 21).setValue(invitadoUser.trim());    // Col U: invitado_user
       sheet.getRange(i + 1, 22).setValue(_sha256_(invitadoPass)); // Col V: invitado_passHash
-      Logger.log('✅ Invitado "' + invitadoUser + '" asignado a la pareja "' + coupleUsername + '".');
+      Logger.log('✅ Invitado "' + invitadoUser + '" asignado a la pareja "' + coupleUsername + '" (fila ' + (i+1) + ').');
       return;
     }
   }
-  Logger.log('❌ Pareja "' + coupleUsername + '" no encontrada en la hoja Usuarios.');
+  Logger.log('❌ Pareja "' + coupleUsername + '" no encontrada. Verifica el username exacto en col A de la hoja Usuarios.');
 }
 
 function _agregarUsuario(username, password, coupleName) {
+  Logger.log('▶ _agregarUsuario | username="' + username + '" pareja="' + coupleName + '"');
+  if (!username || !password || !coupleName) {
+    Logger.log('❌ Faltan parámetros: username="' + username + '" coupleName="' + coupleName + '" password=' + (password ? '(ok)' : '(vacío)'));
+    return;
+  }
+
   const ss    = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
   let   sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
-  if (!sheet) { setupSheets(); sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS); }
+  if (!sheet) {
+    Logger.log('⚠️  Hoja Usuarios no existe — ejecutando setupSheets()...');
+    setupSheets();
+    sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
+  }
 
   const data = sheet.getDataRange().getValues();
+  Logger.log('ℹ️  Usuarios existentes: ' + (data.length - 1));
+
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0] || '').trim().toLowerCase() === username.trim().toLowerCase()) {
-      Logger.log('❌ Usuario "' + username + '" ya existe.');
+    const rowUser = String(data[i][0] || '').trim();
+    if (rowUser.toLowerCase() === username.trim().toLowerCase()) {
+      Logger.log('❌ Usuario "' + username + '" ya existe en fila ' + (i+1) + '. No se creó duplicado.');
       return;
     }
   }
+
   sheet.appendRow([username.trim(), _sha256_(password), coupleName, true, new Date().toISOString()]);
-  Logger.log('✅ Usuario "' + username + '" creado. Pareja: ' + coupleName);
+  Logger.log('✅ Usuario "' + username + '" creado con éxito. Pareja: "' + coupleName + '"');
+  Logger.log('   PasswordHash (primeros 8 chars): ' + _sha256_(password).substring(0, 8) + '...');
 }
