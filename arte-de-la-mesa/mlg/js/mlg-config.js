@@ -8,10 +8,10 @@
 const MLG_CONFIG = {
   // Marca
   brand: {
-    name: 'MLG by Helena Caballero',
+    name: 'MLG by G-Living | Italian Living & Design | Est. 2018',
     phone: '+573004257367',
     whatsappBase: 'https://wa.me/',
-    website: 'https://www.helenacaballero.com',
+    website: 'https://g-living.github.io/multiplatform/',
   },
 
   // Imágenes

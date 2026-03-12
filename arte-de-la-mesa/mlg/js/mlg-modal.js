@@ -1874,13 +1874,13 @@ const Modal = (() => {
 
   function _drawLogoOnCard(ctx, W, BAND_H, img) {
     if (!img) {
-      // Fallback texto: "HELENA CABALLERO" en negro sobre la banda blanca
+      // Fallback texto: "G-LIVING" en negro sobre la banda blanca
       ctx.save();
       ctx.fillStyle   = '#1a1610';
       ctx.font        = 'bold 17px Georgia, serif';
       ctx.textAlign   = 'center';
       ctx.letterSpacing = '3px';
-      ctx.fillText('HELENA CABALLERO', W / 2, BAND_H / 2 + 7);
+      ctx.fillText('G-LIVING', W / 2, BAND_H / 2 + 7);
       ctx.restore();
       return;
     }

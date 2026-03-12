@@ -26,11 +26,11 @@
 
 const CFG = {
   SPREADSHEET_ID  : '1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg',
-  NOMBRE_TIENDA   : 'IMOLARTE by Helena Caballero',
+  NOMBRE_TIENDA   : 'IMOLARTE by G-Living | Italian Living & Design | Est. 2018',
   EMAIL_ADMIN     : 'filippo.massara2016@gmail.com',
   EMAIL_REMITENTE : 'filippo.massara2016@gmail.com',
   WHATSAPP        : '+573004257367',
-  WEBSITE         : 'https://www.helenacaballero.com',
+  WEBSITE         : 'https://g-living.github.io/multiplatform/',
   CATALOGO        : 'https://g-living.github.io/multiplatform/imolarte/',
   WISHLIST_ABANDON_MIN: 30,
   SHEETS: {
@@ -1265,7 +1265,7 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
     const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. Helena o alguien de nuestro equipo te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
+      <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. El equipo de G-Living te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
       <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(_roundCOP(total))}</p>
@@ -1460,7 +1460,7 @@ function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
     const subject = `📋 ${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! Helena o alguien de nuestro equipo se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
+      <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! El equipo de G-Living se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
       <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(_roundCOP(total))}</p>
@@ -1605,7 +1605,7 @@ function _emailWrapper(nombre, contenido) {
   return `
 <div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#1a1610">
   <div style="background:#1a1610;padding:28px 32px;border-radius:8px 8px 0 0">
-    <h1 style="color:#C4A05A;font-size:22px;margin:0;letter-spacing:2px">HELENA CABALLERO</h1>
+    <h1 style="color:#C4A05A;font-size:22px;margin:0;letter-spacing:2px">G-LIVING | Italian Living &amp; Design | Est. 2018</h1>
     <p style="color:#f5f0e8;font-size:13px;margin:6px 0 0">Cerámica artesanal italiana</p>
   </div>
   <div style="background:#faf8f4;padding:28px 32px;border:1px solid #e8e0d0;border-top:none">
@@ -1614,7 +1614,7 @@ function _emailWrapper(nombre, contenido) {
   </div>
   <div style="background:#1a1610;padding:12px 32px;border-radius:0 0 8px 8px;text-align:center">
     <p style="color:#888;font-size:11px;margin:0">
-      © ${new Date().getFullYear()} Helena Caballero — Imolarte · Bogotá
+      © ${new Date().getFullYear()} G-LIVING | Italian Living & Design | Est. 2018 · Bogotá
     </p>
   </div>
 </div>`;

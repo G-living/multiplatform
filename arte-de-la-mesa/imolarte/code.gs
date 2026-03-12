@@ -48,7 +48,7 @@
 //           · Huérfanas (GiftCards Estado_Pago=PENDIENTE) · Gift Cards INACTIVAS. adminDesactivarGiftCard.
 //           manualmente (acepta referencia o codigo, cualquier estado → CANCELADA).
 //           _emailGiftCardActivada — texto actualizado: "se pondrá muy feliz…" +
-//           "Gracias por confiar en HELENA CABALLERO" + footer con Código/Referencia/TxID.
+//           "Gracias por confiar en G-LIVING | Italian Living & Design | Est. 2018" + footer con Código/Referencia/TxID.
 //           CFG.WHATSAPP corregido: +573004257367 (dígitos invertidos).
 // ─ v20.14: setupDropdowns — agrega dropdown Estado_Gift en GiftCards (ACTIVA/INACTIVA/CANCELADA).
 // ─ v20.15: Fase 1 influencer — hoja Influencers + columnas Influencer_Código y Base_Comision_COP
@@ -73,12 +73,12 @@
 
 const CFG = {
   SPREADSHEET_ID  : '1lgW9-nhgM6UVL4NvYet4EIjX6fuSJV4ZHtP4lffZ5tg',
-  NOMBRE_TIENDA   : 'IMOLARTE by Helena Caballero',
+  NOMBRE_TIENDA   : 'IMOLARTE by G-Living | Italian Living & Design | Est. 2018',
   EMAIL_ADMIN     : 'filippo.massara2016@gmail.com',
   EMAIL_REMITENTE : 'filippo.massara2016@gmail.com',
   WHATSAPP        : '+573004257367',
-  WEBSITE         : 'https://www.helenacaballero.com',
-  CATALOGO        : 'https://g-living.github.io/multiplatform/imolarte/',
+  WEBSITE         : 'https://g-living.github.io/multiplatform/',
+  CATALOGO        : 'https://g-living.github.io/multiplatform/arte-de-la-mesa/imolarte/imolarte-index.html',
   WISHLIST_ABANDON_MIN: 30,
   // ── Seguridad: token compartido con frontend (config.js → Api.TOKEN)
   // Cambiar por uno propio antes de pasar a producción
@@ -1677,7 +1677,7 @@ function _emailPedidoRecibido(email, nombre, ref, productos, total) {
   try {
     const subject = `${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. Helena o alguien de nuestro equipo te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
+      <p>Hemos recibido tu lista de deseos y estamos muy felices de acompañarte en esta selección. El equipo de G-Living te contactará pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
       <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(_roundCOP(total))}</p>
@@ -1859,7 +1859,7 @@ function _emailGiftCardActivada(email, nombre, ref, codigo, valor, vigencia, des
     const destCompleto = [destNombre, destApellido].filter(Boolean).join(' ') || 'el destinatario';
     const body = _emailWrapper(nombre, `
       <p>Tu Gift Card ha sido activada exitosamente y <strong>${destCompleto}</strong> se pondrá muy feliz por este super detalle de tu parte.</p>
-      <p>Gracias por confiar en HELENA CABALLERO, ha sido un placer atenderte.</p>
+      <p>Gracias por confiar en G-LIVING | Italian Living & Design | Est. 2018, ha sido un placer atenderte.</p>
       <div style="background:#1a1610;border-radius:12px;padding:24px;text-align:center;margin:20px 0">
         <p style="color:#C4A05A;font-size:12px;letter-spacing:2px;margin:0 0 8px">CÓDIGO DE REGALO</p>
         <p style="color:#fff;font-size:28px;font-weight:bold;font-family:monospace;letter-spacing:4px;margin:0 0 8px">${codigo}</p>
@@ -1916,7 +1916,7 @@ function _emailEnviadoWA(email, nombre, ref, productos, total) {
   try {
     const subject = `${CFG.NOMBRE_TIENDA} — Hemos recibido tu lista de deseos`;
     const body = _emailWrapper(nombre, `
-      <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! Helena o alguien de nuestro equipo se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
+      <p>¡Recibimos tu lista de deseos y nos alegra mucho saber de ti! El equipo de G-Living se pondrá en contacto contigo pronto para brindarte asesoría personalizada y coordinar todos los detalles de tu pedido.</p>
       <p style="font-size:13px;color:#888">Referencia: <strong>${ref}</strong></p>
       ${_productosHTML(productos)}
       <p style="font-size:18px;font-weight:bold;color:#C4A05A;margin-top:16px">Total estimado: ${_fmtCOP(_roundCOP(total))}</p>
@@ -2177,7 +2177,7 @@ function _emailWrapper(nombre, contenido) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
 <div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#1a1610">
   <div style="background:#1a1610;padding:28px 32px;border-radius:8px 8px 0 0">
-    <h1 style="color:#C4A05A;font-size:22px;margin:0;letter-spacing:2px">HELENA CABALLERO</h1>
+    <h1 style="color:#C4A05A;font-size:22px;margin:0;letter-spacing:2px">G-LIVING | Italian Living &amp; Design | Est. 2018</h1>
     <p style="color:#f5f0e8;font-size:13px;margin:6px 0 0">Cerámica artística italiana</p>
   </div>
   <div style="background:#faf8f4;padding:28px 32px;border:1px solid #e8e0d0;border-top:none">
@@ -2186,7 +2186,7 @@ function _emailWrapper(nombre, contenido) {
   </div>
   <div style="background:#1a1610;padding:12px 32px;border-radius:0 0 8px 8px;text-align:center">
     <p style="color:#888;font-size:11px;margin:0">
-      &copy; ${new Date().getFullYear()} Helena Caballero &mdash; Imolarte &middot; Bogot&aacute;
+      &copy; ${new Date().getFullYear()} G-LIVING | Italian Living &amp; Design | Est. 2018 &middot; Bogot&aacute;
     </p>
   </div>
 </div>
@@ -2904,7 +2904,7 @@ function emailResumenHuerfanos() {
   const html = `
 <div style="font-family:Georgia,serif;max-width:680px;margin:auto;color:#1a1610">
   <div style="background:#1a1610;padding:20px 28px;border-radius:8px 8px 0 0">
-    <h1 style="color:#C4A05A;font-size:18px;margin:0;letter-spacing:2px">HELENA CABALLERO</h1>
+    <h1 style="color:#C4A05A;font-size:18px;margin:0;letter-spacing:2px">G-LIVING | Italian Living &amp; Design | Est. 2018</h1>
     <p style="color:#f5f0e8;font-size:12px;margin:4px 0 0">Monitoreo diario · ${fechaStr} (Bogotá)</p>
   </div>
   <div style="background:#faf8f4;padding:24px 28px;border:1px solid #e8e0d0;border-top:none">
@@ -3123,7 +3123,7 @@ function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
       <p style="font-size:15px;line-height:1.7">
         ¡Has alcanzado tu meta de comisiones del mes!
         y eso dice mucho de ti: de tu autenticidad, de tu amor por lo que haces y de la confianza
-        que tu comunidad deposita en ti cada vez que compartes Helena Caballero.
+        que tu comunidad deposita en ti cada vez que compartes G-Living.
       </p>
       <p style="font-size:14px;line-height:1.7;margin-top:12px">
         Gracias por llevar la cerámica artística italiana a nuevas mesas, nuevas historias y
@@ -3146,12 +3146,12 @@ function _emailInfluencerComisionGC(infl, comision, gcCodigo, gcVig) {
         Es tuya — con todo nuestro reconocimiento y afecto.
       </p>
       <p style="font-size:14px;line-height:1.7;margin-top:10px">
-        Seguimos juntos en este camino. <strong>El equipo de Helena Caballero cree en ti</strong>
+        Seguimos juntos en este camino. <strong>El equipo de G-Living cree en ti</strong>
         y está emocionado de ver hasta dónde llegaremos juntos. ¡Gracias por ser parte de esta historia!
       </p>
       <div style="margin-top:24px;text-align:center">
         <a href="${CFG.CATALOGO}" style="background:#C4A05A;color:#fff;padding:13px 32px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:bold">
-          Ver catálogo Helena Caballero
+          Ver catálogo G-Living
         </a>
       </div>
     `);
@@ -3280,7 +3280,7 @@ function _emailInfluencerMotivacion(infl, acumulado) {
       <p style="font-size:15px;line-height:1.7">
         ¡Hola ${primerNombre}! Queremos tomarnos un momento para decirte algo importante:
         <strong>creemos en ti y apreciamos enormemente tu dedicación y constancia
-        en promocionar Helena Caballero</strong>.
+        en promocionar G-Living</strong>.
       </p>
       <p style="font-size:14px;line-height:1.7;margin-top:10px">
         Esto va a ser un éxito, y somos un equipo en este camino.
@@ -3325,7 +3325,7 @@ function _emailInfluencerMotivacion(infl, acumulado) {
     `);
     GmailApp.sendEmail(
       infl.email,
-      `Tu panel de comisiones ${mesAno} — Helena Caballero`,
+      `Tu panel de comisiones ${mesAno} — G-Living`,
       '',
       { htmlBody: body }
     );
