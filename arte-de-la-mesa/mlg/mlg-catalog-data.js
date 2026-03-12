@@ -1729,3 +1729,5 @@ const MLG_FAMILIES = {
 };
 
 // Total: 81 tipos de producto · 435 SKUs con foto
+window.MLG_PRODUCT_TYPES = MLG_PRODUCT_TYPES;
+window.MLG_FAMILIES      = MLG_FAMILIES;
