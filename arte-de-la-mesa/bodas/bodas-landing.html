@@ -2232,12 +2232,28 @@
   }
 
   async function gasPost(payload) {
-    const res = await fetch(BODAS_CONFIG.GAS_URL, {
+    const res  = await fetch(BODAS_CONFIG.GAS_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'text/plain' },  // GAS CORS workaround
       body:    JSON.stringify({ ...payload, _token: BODAS_CONFIG.API_TOKEN }),
     });
-    return res.json();
+    const data = await res.json();
+    // Si el backend rechaza la sesión (token inválido / expirado / borrado),
+    // limpiar estado local y volver al login automáticamente.
+    if (!data.success && payload.action !== 'login' && _isSessionError_(data.error)) {
+      session = null;
+      cart    = [];
+      localStorage.removeItem(SESSION_KEY);
+      showToast('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 'error');
+      setTimeout(() => showLogin(), 1800);
+    }
+    return data;
+  }
+
+  function _isSessionError_(msg) {
+    if (!msg) return false;
+    const m = msg.toLowerCase();
+    return m.includes('sesión') || m.includes('token') || m.includes('sesion') || m.includes('session');
   }
 
   </script>
