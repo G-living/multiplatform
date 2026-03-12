@@ -17,8 +17,8 @@
  *      A: token | B: username | C: coupleName | D: createdAt | E: expiresAt
  *
  *   ❤️ ListaBodas
- *      A: token | B: brand | C: productId | D: productName | E: variantSku |
- *      F: variantLabel | G: precio_cop | H: qty | I: addedAt
+ *      A: token | B: coupleName | C: brand | D: productId | E: productName |
+ *      F: variantSku | G: variantLabel | H: precio_cop | I: qty | J: addedAt | K: total_cop
  *
  * DESPLIEGUE:
  *   1. Extensiones → Apps Script → pegar este código
@@ -171,6 +171,7 @@ function _logout_(token) {
 function _saveCart_(token, items) {
   const validation = _validateSession_(token);
   if (!validation.success) return validation;
+  // coupleName se usa más abajo al escribir las filas
 
   if (!Array.isArray(items)) {
     return { success: false, error: 'items debe ser un array' };
@@ -193,11 +194,18 @@ function _saveCart_(token, items) {
     sheet.deleteRow(rowsToDelete[i]);
   }
 
+  // Obtener coupleName del token (ya validado arriba)
+  const coupleName = validation.coupleName || '';
+
+  // Calcular total de toda la lista
+  const total_cop = items.reduce((s, i) => s + (i.precio_cop || 0) * (i.qty || 1), 0);
+
   // Insertar nuevos items
   const now = new Date().toISOString();
   for (const item of items) {
     sheet.appendRow([
       token,
+      coupleName,
       item.brand        || '',
       item.productId    || '',
       item.productName  || '',
@@ -206,6 +214,7 @@ function _saveCart_(token, items) {
       item.precio_cop   || 0,
       item.qty          || 1,
       now,
+      total_cop,
     ]);
   }
 
@@ -227,7 +236,7 @@ function _getCart_(token) {
 
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][0]).trim() === String(token).trim()) {
-      const [, brand, productId, productName, variantSku, variantLabel, precio_cop, qty] = data[i];
+      const [, , brand, productId, productName, variantSku, variantLabel, precio_cop, qty] = data[i];
       items.push({ brand, productId, productName, variantSku, variantLabel, precio_cop, qty });
     }
   }
@@ -316,7 +325,7 @@ function inicializarHojas() {
     },
     {
       nombre: CFG_BODAS.SHEET_LISTA,
-      headers: ['token', 'brand', 'productId', 'productName', 'variantSku', 'variantLabel', 'precio_cop', 'qty', 'addedAt'],
+      headers: ['token', 'coupleName', 'brand', 'productId', 'productName', 'variantSku', 'variantLabel', 'precio_cop', 'qty', 'addedAt', 'total_cop'],
     },
   ];
 
