@@ -918,8 +918,8 @@
         gap: var(--spacing-sm);
     }
 
-    #btnPagar100 { order: 1; width: 100%; }
-    #btnPagar60  { order: 2; width: 100%; }
+    .cmo-footer-wompi #btnPagar100 { order: 1; width: 100%; }
+    .cmo-footer-wompi #btnPagar60  { order: 2; width: 100%; }
 
     .cmo-row-phone {
         grid-template-columns: 82px 1fr;
