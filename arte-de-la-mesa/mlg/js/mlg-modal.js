@@ -12,6 +12,15 @@
 // ===== MODAL MANAGER =====
 const Modal = (() => {
 
+  // ---- Mínimo 6 unidades — familias Copas y Vasos + Platos ----
+  const _MIN6_FAMILIES = ['Copas y Vasos', 'Platos'];
+  function _needsMin6(sku) {
+    return (window.MLG_PRODUCT_TYPES || []).some(t =>
+      _MIN6_FAMILIES.includes(t.familia) &&
+      (t.variantes || []).some(v => v.sku === sku)
+    );
+  }
+
   // ---- Estado producto/familia ----
   let _currentProduct = null;
   let _currentFamily  = null;   // nombre de familia activa
@@ -139,6 +148,7 @@ const Modal = (() => {
           <button class="qty-btn" data-action="dec" data-sku="${Utils.sanitize(v.sku)}" aria-label="Reducir">−</button>
           <span class="qty-display" id="qty-${Utils.sanitize(v.sku)}">0</span>
           <button class="qty-btn" data-action="inc" data-sku="${Utils.sanitize(v.sku)}" aria-label="Aumentar">+</button>
+          <span class="qty-min6-msg" id="min6-${Utils.sanitize(v.sku)}" style="display:none;color:red;font-weight:bold;font-size:0.75em">mínimo 6 unidades</span>
         </div>
 
         <span class="variant-subtotal" id="sub-${Utils.sanitize(v.sku)}">$0</span>
@@ -164,10 +174,12 @@ const Modal = (() => {
     if (!sku || !action) return;
 
     const current = _quantities[sku] || 0;
+    const min6    = _needsMin6(sku);
     if (action === 'dec') {
-      _quantities[sku] = Math.max(0, current - 1);
+      _quantities[sku] = (min6 && current <= 6) ? 0 : Math.max(0, current - 1);
     } else if (action === 'inc') {
-      _quantities[sku] = Math.min(MLG_CONFIG.cart.maxQuantity, current + 1);
+      const next = Math.min(MLG_CONFIG.cart.maxQuantity, current + 1);
+      _quantities[sku] = (min6 && next < 6) ? 6 : next;
     }
 
     _updateVariantRow(sku);
@@ -178,6 +190,7 @@ const Modal = (() => {
     const qty = _quantities[sku] || 0;
     const qtyEl = document.getElementById(`qty-${sku}`);
     const subEl = document.getElementById(`sub-${sku}`);
+    const msgEl = document.getElementById(`min6-${sku}`);
     if (qtyEl) qtyEl.textContent = qty;
 
     if (subEl) {
@@ -185,6 +198,8 @@ const Modal = (() => {
       const subtotal = variant ? variant.price * qty : 0;
       subEl.textContent = Utils.formatPrice(subtotal);
     }
+
+    if (msgEl) msgEl.style.display = (_needsMin6(sku) && qty > 0) ? 'block' : 'none';
   }
 
   function _updateAddButton() {
@@ -193,13 +208,16 @@ const Modal = (() => {
 
     const totalQty = Object.values(_quantities).reduce((s, q) => s + q, 0);
     const totalAmount = _calculateTotal();
+    const hasInvalidMin6 = Object.entries(_quantities).some(
+      ([sku, qty]) => qty > 0 && qty < 6 && _needsMin6(sku)
+    );
 
-    if (totalQty > 0) {
+    if (totalQty > 0 && !hasInvalidMin6) {
       btn.disabled = false;
       btn.textContent = `Agregar al Carrito — ${Utils.formatPrice(totalAmount)}`;
     } else {
       btn.disabled = true;
-      btn.textContent = 'Selecciona al menos una colección';
+      btn.textContent = totalQty > 0 ? 'Cantidad mínima: 6 unidades' : 'Selecciona al menos una colección';
     }
   }
 
@@ -461,6 +479,7 @@ const Modal = (() => {
           <button class="qty-btn" data-action="dec" data-sku="${Utils.sanitize(v.sku)}" aria-label="Reducir">−</button>
           <span class="qty-display" id="fqty-${Utils.sanitize(v.sku)}">0</span>
           <button class="qty-btn" data-action="inc" data-sku="${Utils.sanitize(v.sku)}" aria-label="Aumentar">+</button>
+          <span class="qty-min6-msg" id="min6-fam-${Utils.sanitize(v.sku)}" style="display:none;color:red;font-weight:bold;font-size:0.75em">mínimo 6 unidades</span>
         </div>
         <span class="fv-subtotal" id="fsub-${Utils.sanitize(v.sku)}">$0</span>
       </div>
@@ -481,10 +500,14 @@ const Modal = (() => {
     const action = btn.dataset.action;
     if (!sku || !action) return;
 
-    const cur = _quantities[sku] || 0;
-    _quantities[sku] = action === 'dec'
-      ? Math.max(0, cur - 1)
-      : Math.min(MLG_CONFIG.cart.maxQuantity, cur + 1);
+    const cur  = _quantities[sku] || 0;
+    const min6 = _needsMin6(sku);
+    if (action === 'dec') {
+      _quantities[sku] = (min6 && cur <= 6) ? 0 : Math.max(0, cur - 1);
+    } else {
+      const next = Math.min(MLG_CONFIG.cart.maxQuantity, cur + 1);
+      _quantities[sku] = (min6 && next < 6) ? 6 : next;
+    }
 
     _updateFamilyVariantRow(sku);
     _updateFamilyFooter();
@@ -494,23 +517,28 @@ const Modal = (() => {
     const qty    = _quantities[sku] || 0;
     const qtyEl  = document.getElementById(`fqty-${sku}`);
     const subEl  = document.getElementById(`fsub-${sku}`);
+    const msgEl  = document.getElementById(`min6-fam-${sku}`);
     if (qtyEl) qtyEl.textContent = qty;
     if (subEl) {
       const variant = (_currentProduct?.variants || []).find(v => v.sku === sku);
       const ps = Utils.calcPresale(variant?.precio_cop || 0);
       subEl.textContent = Utils.formatPrice(ps.final * qty);
     }
+    if (msgEl) msgEl.style.display = (_needsMin6(sku) && qty > 0) ? 'block' : 'none';
   }
 
   function _updateFamilyFooter() {
     const total    = _calculateFamilyTotal();
     const hasItems = Object.values(_quantities).some(q => q > 0);
+    const hasInvalidMin6 = Object.entries(_quantities).some(
+      ([sku, qty]) => qty > 0 && qty < 6 && _needsMin6(sku)
+    );
 
     const totalEl = document.getElementById('familyTotalAmount');
     if (totalEl) totalEl.textContent = Utils.formatPrice(total);
 
     const btnCart = document.getElementById('familyBtnCart');
-    if (btnCart) btnCart.disabled = !hasItems;
+    if (btnCart) btnCart.disabled = !hasItems || hasInvalidMin6;
   }
 
   function _calculateFamilyTotal() {

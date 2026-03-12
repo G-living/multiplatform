@@ -911,12 +911,15 @@
         grid-template-columns: 1fr;
     }
 
+    /* Wompi: botones apilados — 100% arriba, 60% abajo */
     .cmo-footer-wompi {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
     }
 
-    /* Mobile: reset order → DOM order (100% top, 60% bottom) */
-    .cmo-footer-wompi #btnPagar60 { order: 0; }
+    #btnPagar100 { order: 1; width: 100%; }
+    #btnPagar60  { order: 2; width: 100%; }
 
     .cmo-row-phone {
         grid-template-columns: 82px 1fr;
