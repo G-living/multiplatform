@@ -71,8 +71,9 @@ const MLG_FAMILIES = {
     ],
   },
 
-  'Complementos': {
-    label: 'Complementos',
+
+  'Jarras y Botellas': {
+    label: 'Jarras y Botellas',
     images: [
       'images/products/H.BRO.SIS1.jpg',
       'images/products/H.BRO.SIS2.jpg',
@@ -80,8 +81,22 @@ const MLG_FAMILIES = {
       'images/products/H.BRO.HAL2.jpg',
       'images/products/H.BOT.AQU1.jpg',
       'images/products/H.BOT.AQU2.jpg',
+      'images/products/H.BRO.GENE1.jpg',
+      'images/products/H.BRO.PAL1.jpg',
+    ],
+  },
+
+  'Complementos': {
+    label: 'Complementos',
+    images: [
       'images/products/H.LAM.AND1.jpg',
       'images/products/H.LAM.CAL6.jpg',
+      'images/products/H.LAM.AND2.jpg',
+      'images/products/H.LAM.CAL8.jpg',
+      'images/products/H.KAN1.jpg',
+      'images/products/H.KAN2.jpg',
+      'images/products/H.MAD1.jpg',
+      'images/products/H.MAD2.jpg',
     ],
   },
 
@@ -945,10 +960,10 @@ const MLG_PRODUCT_TYPES = [
   // COMPLEMENTOS
   // ══════════════════════════════════════════
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Aquarama',
     tipo:      'Botella',
-    medidas:   '—',
+    medidas:   '1.0 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BOT.AQU1', color: 'Rubí', precio_cop: 384000, image: 'images/products/H.BOT.AQU1.jpg' },
@@ -959,10 +974,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Bona',
     tipo:      'Botella Noche',
-    medidas:   '—',
+    medidas:   '0.65 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BOT.BONA10', color: 'night Azul', precio_cop: 207000, image: 'images/products/H.BOT.BONA10.jpg' },
@@ -972,10 +987,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Bona',
     tipo:      'Botella',
-    medidas:   '—',
+    medidas:   '1.0 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BOT.BONA16', color: 'Esmerilado', precio_cop: 348000, image: 'images/products/H.BOT.BONA16.jpg' },
@@ -986,10 +1001,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Manfredo',
     tipo:      'Botella',
-    medidas:   '—',
+    medidas:   '1.0 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BOT.MAN1', color: 'Ámbar', precio_cop: 550000, image: 'images/products/H.BOT.MAN1.jpg' },
@@ -1000,10 +1015,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Orsetta',
     tipo:      'Botella',
-    medidas:   '—',
+    medidas:   '1.35 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BOT.ORS1', color: 'Blanco Gloss', precio_cop: 550000, image: 'images/products/H.BOT.ORS1.jpg' },
@@ -1014,10 +1029,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Susy',
     tipo:      'Vinagrera',
-    medidas:   '—',
+    medidas:   '150 ml c/u',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BOT5', color: 'Transparente', precio_cop: 497000, image: 'images/products/H.BOT5.jpg' },
@@ -1026,10 +1041,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Susy',
     tipo:      'Botella',
-    medidas:   '—',
+    medidas:   '150 ml',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BOT9', color: 'Transparente', precio_cop: 92000, image: 'images/products/H.BOT9.jpg' },
@@ -1037,10 +1052,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Palla',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '3.0 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.DIA21', color: 'Transparente', precio_cop: 355000, image: 'images/products/H.BRO.DIA21.jpg' },
@@ -1064,10 +1079,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Federica',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '1.2 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.FED1', color: 'Transparente', precio_cop: 370000, image: 'images/products/H.BRO.FED1.jpg' },
@@ -1080,10 +1095,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Gene Krupa',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '1.5 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.GENE1', color: 'Transparente', precio_cop: 428000, image: 'images/products/H.BRO.GENE1.jpg' },
@@ -1096,10 +1111,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Halina',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '1.6 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.HAL1', color: 'Transparente', precio_cop: 399000, image: 'images/products/H.BRO.HAL1.jpg' },
@@ -1113,10 +1128,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Maria',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '0.75 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.MAR3', color: 'Morado', precio_cop: 222000, image: 'images/products/H.BRO.MAR3.jpg' },
@@ -1125,10 +1140,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Pallina',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '2.0 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.PAL1', color: 'Transparente', precio_cop: 325000, image: 'images/products/H.BRO.PAL1.jpg' },
@@ -1147,10 +1162,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Plutone',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '1.4 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.PLU13', color: 'Negro Gloss', precio_cop: 296000, image: 'images/products/H.BRO.PLU13jpg.jpg' },
@@ -1164,10 +1179,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Roberta',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '1.2 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.ROB1', color: 'Transparente', precio_cop: 414000, image: 'images/products/H.BRO.ROB1.jpg' },
@@ -1181,10 +1196,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Sister Rosetta',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '2.4 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.SIS1', color: 'Blanco Gloss', precio_cop: 574000, image: 'images/products/H.BRO.SIS1.jpg' },
@@ -1201,10 +1216,10 @@ const MLG_PRODUCT_TYPES = [
   },
 
   {
-    familia:   'Complementos',
+    familia:   'Jarras y Botellas',
     coleccion: 'Imperial',
     tipo:      'Jarra',
-    medidas:   '—',
+    medidas:   '1.5 L',
     material:  'Acrílico',
     variantes: [
       { sku: 'H.BRO.WIN1', color: 'Transparente', precio_cop: 672000, image: 'images/products/H.BRO.WIN1.jpg' },
