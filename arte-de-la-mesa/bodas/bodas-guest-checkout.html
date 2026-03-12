@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmación de Pago · G-Living</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../mlg/css/variables.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Lato', sans-serif;
+      background: var(--color-background-secondary, #fafaf8);
+      color: var(--color-text-primary, #1a1a1a);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 56px 48px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,.10);
+      border: 1px solid var(--color-border, #e8e8e4);
+    }
+
+    .logo {
+      height: 56px;
+      object-fit: contain;
+      margin-bottom: 28px;
+    }
+
+    .status-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .status-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 0 0 12px;
+      color: var(--color-text-primary, #1a1a1a);
+    }
+
+    .status-body {
+      font-size: .9rem;
+      color: var(--color-text-secondary, #6b6b6b);
+      line-height: 1.75;
+      margin: 0 0 28px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: .85rem;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-border-light, #f0f0ec);
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-label { color: var(--color-text-tertiary, #9b9b9b); }
+    .detail-value { font-weight: 600; }
+
+    .details-box {
+      background: var(--color-background-secondary, #fafaf8);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .btn-back {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--color-accent, #c9a961);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s ease;
+    }
+
+    .btn-back:hover { background: #b8985a; }
+
+    .btn-secondary {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 28px;
+      background: none;
+      border: 1px solid var(--color-border, #e8e8e4);
+      border-radius: 6px;
+      font-family: 'Lato', sans-serif;
+      font-size: .9rem;
+      color: var(--color-text-secondary, #6b6b6b);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .15s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-text-primary);
+      color: var(--color-text-primary);
+    }
+
+    .actions { display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(0,0,0,.1); border-top-color: var(--color-accent, #c9a961);
+      border-radius: 50%; animation: spin .7s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card">
+    <img src="../mlg/images/branding/Logo-HC.jpeg"
+         alt="G-Living" class="logo" onerror="this.style.display='none'">
+    <div class="spinner" id="spinner"></div>
+    <p style="color:var(--color-text-tertiary);font-size:.9rem">Verificando pago…</p>
+  </div>
+
+  <script src="bodas-config.js"></script>
+  <script>
+  'use strict';
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const card = document.getElementById('card');
+
+    // Leer parámetros de URL que devuelve Wompi
+    const params    = new URLSearchParams(window.location.search);
+    const wompiRef  = params.get('id') || params.get('reference') || '';
+    const status    = (params.get('status') || '').toUpperCase();  // APPROVED | DECLINED | VOIDED | ERROR
+
+    // Leer checkout state guardado en sessionStorage
+    let checkoutData = null;
+    try {
+      checkoutData = JSON.parse(sessionStorage.getItem('bodas_checkout_v1') || 'null');
+    } catch (_) {}
+
+    const coupleName     = checkoutData?.coupleName     || '';
+    const nombreInvitado = checkoutData?.nombreInvitado || '';
+    const totalCop       = checkoutData?.totalCop       || 0;
+    const pagoIds        = checkoutData?.pagoIds        || [];
+    const guestToken     = checkoutData?.guestToken     || '';
+    const reference      = checkoutData?.reference      || wompiRef;
+
+    // Confirmar pago en GAS si fue aprobado
+    if (status === 'APPROVED' && pagoIds.length && guestToken) {
+      try {
+        for (const pagoId of pagoIds) {
+          await gasPost({ action: 'confirmarPagoInvitado', pagoId, wompiRef: reference });
+        }
+        // Limpiar carrito local
+        localStorage.removeItem('bodas_guest_cart_v1');
+      } catch (_) {}
+    }
+
+    // Limpiar sessionStorage
+    sessionStorage.removeItem('bodas_checkout_v1');
+
+    // Renderizar resultado
+    card.innerHTML = buildResultHTML(status, coupleName, nombreInvitado, totalCop, reference);
+  });
+
+  function buildResultHTML(status, coupleName, nombreInvitado, totalCop, reference) {
+    const logo = `<img src="../mlg/images/branding/Logo-HC.jpeg"
+                       alt="G-Living" class="logo" onerror="this.style.display='none'">`;
+
+    if (status === 'APPROVED') {
+      return `
+        ${logo}
+        <span class="status-icon">🎉</span>
+        <h1 class="status-title">¡Gracias, ${nombreInvitado || 'querido invitado'}!</h1>
+        <p class="status-body">
+          Tu regalo para <strong>${coupleName}</strong> ha sido confirmado exitosamente.<br>
+          Con cariño y gratitud, G-Living Arte de la Mesa.
+        </p>
+        <div class="details-box">
+          ${coupleName ? `<div class="detail-row"><span class="detail-label">Para</span><span class="detail-value">${coupleName}</span></div>` : ''}
+          ${totalCop   ? `<div class="detail-row"><span class="detail-label">Total pagado</span><span class="detail-value">$${Math.round(totalCop).toLocaleString('es-CO')} COP</span></div>` : ''}
+          ${reference  ? `<div class="detail-row"><span class="detail-label">Referencia</span><span class="detail-value" style="font-size:.75rem;word-break:break-all">${reference}</span></div>` : ''}
+        </div>
+        <div class="actions">
+          <a href="bodas-guest.html" class="btn-back">Ver más regalos</a>
+        </div>`;
+    }
+
+    if (status === 'DECLINED' || status === 'VOIDED') {
+      return `
+        ${logo}
+        <span class="status-icon">😔</span>
+        <h1 class="status-title">Pago no completado</h1>
+        <p class="status-body">
+          El pago no pudo procesarse. Tu selección sigue guardada —
+          puedes intentarlo nuevamente cuando desees.
+        </p>
+        ${reference ? `<div class="details-box"><div class="detail-row"><span class="detail-label">Referencia</span><span class="detail-value" style="font-size:.75rem">${reference}</span></div></div>` : ''}
+        <div class="actions">
+          <a href="bodas-guest.html" class="btn-back">Volver a la lista</a>
+        </div>`;
+    }
+
+    // Estado desconocido / error / sin parámetros
+    return `
+      ${logo}
+      <span class="status-icon">🔔</span>
+      <h1 class="status-title">Verificando tu pago</h1>
+      <p class="status-body">
+        Estamos confirmando el estado de tu transacción con Wompi.
+        Si tienes dudas, comunícate con G-Living.
+      </p>
+      ${reference ? `<div class="details-box"><div class="detail-row"><span class="detail-label">Referencia</span><span class="detail-value" style="font-size:.75rem">${reference}</span></div></div>` : ''}
+      <div class="actions">
+        <a href="bodas-guest.html" class="btn-back">Volver a la lista</a>
+        <a href="mailto:filippo.massara2016@gmail.com" class="btn-secondary">Contactar a G-Living</a>
+      </div>`;
+  }
+
+  async function gasPost(payload) {
+    const res = await fetch(BODAS_CONFIG.GAS_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body:    JSON.stringify({ ...payload, _token: BODAS_CONFIG.API_TOKEN }),
+    });
+    return res.json();
+  }
+  </script>
+</body>
+</html>
