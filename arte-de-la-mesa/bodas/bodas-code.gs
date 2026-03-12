@@ -96,7 +96,7 @@ function _login_(username, password) {
     if (
       String(uName).trim().toLowerCase() === String(username).trim().toLowerCase() &&
       String(uHash).trim() === hash &&
-      uActive === true
+      (uActive === true || String(uActive).toUpperCase() === 'TRUE')
     ) {
       // Crear sesión
       const token = Utilities.getUuid();
