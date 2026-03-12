@@ -1529,12 +1529,22 @@ gmp-placeautocomplete::part(input):focus {
    MODAL FAMILIA — modal-family-content
    =================================================== */
 .modal-family-content {
-    width: 680px;
-    max-width: 96vw;
-    max-height: 92vh;
+    width: 520px;           /* mismas dimensiones que checkout Wompi */
+    max-width: 95vw;
+    height: 90vh;           /* altura fija uniforme — igual que Wompi */
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+/* Tablet: igual que checkout */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .modal-family-content { width: 680px; }
+}
+
+/* Desktop: igual que checkout */
+@media (min-width: 1025px) {
+    .modal-family-content { width: 760px; height: 88vh; }
 }
 
 /* Header familia */
@@ -1652,6 +1662,7 @@ gmp-placeautocomplete::part(input):focus {
 /* Variantes (scrollable) */
 .family-modal-variants {
     flex: 1;
+    min-height: 0;          /* crítico: permite que flex:1 se achique → footer siempre visible */
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: var(--spacing-xs) var(--spacing-sm);
@@ -1781,13 +1792,11 @@ gmp-placeautocomplete::part(input):focus {
     white-space: nowrap;
 }
 
-/* Mobile */
-@media (max-width: 600px) {
+/* Mobile — igual que checkout, sin bottom-sheet */
+@media (max-width: 768px) {
     .modal-family-content {
-        max-height: 100vh;
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        align-self: flex-end;
-        margin-top: auto;
+        width: 95vw;
+        height: 92vh;       /* centrado natural = ~4vh margen arriba y abajo */
     }
 
     .fv-row {
