@@ -268,39 +268,34 @@ function _respond_(data, headers) {
   return output;
 }
 
-// ── FUNCIÓN PARA CREAR USUARIOS (ejecutar manualmente desde Apps Script) ─────
+// ── CREAR USUARIOS (ejecutar manualmente desde Apps Script) ──────────────────
+//
+// Edita los valores debajo y ejecuta esta función con el botón ▶
+// Para agregar varios: duplica las líneas _agregarUsuario(...) con los nuevos datos.
 
-/**
- * Crea un usuario en la hoja Usuarios.
- * Ejecutar MANUALMENTE desde el editor de Apps Script (no se llama desde el frontend).
- *
- * @param {string} username  - Nombre de usuario (ej: 'esposos_garcia')
- * @param {string} password  - Contraseña en texto plano (se guarda hasheada)
- * @param {string} coupleName - Nombre de la pareja (ej: 'María & Andrés García')
- */
-function crearUsuario(username, password, coupleName) {
-  const ss    = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
-  let sheet   = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
+function crearUsuario() {
+  _agregarUsuario('boda',  'boda',  'filofio');
+  // _agregarUsuario('esposos_garcia', 'password123', 'María & Andrés García');
+  // _agregarUsuario('esposos_lopez',  'flores2026',  'Ana & Carlos López');
+}
 
-  // Crear hoja si no existe
+function _agregarUsuario(username, password, coupleName) {
+  const ss  = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
+  let sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
   if (!sheet) {
     sheet = ss.insertSheet(CFG_BODAS.SHEET_USUARIOS);
     sheet.appendRow(['username', 'passwordHash', 'coupleName', 'active', 'createdAt']);
     sheet.getRange(1, 1, 1, 5).setFontWeight('bold');
   }
-
-  // Verificar que no exista
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]).trim().toLowerCase() === username.trim().toLowerCase()) {
+    if (String(data[i][0] || '').trim().toLowerCase() === username.trim().toLowerCase()) {
       Logger.log('❌ Usuario "' + username + '" ya existe.');
       return;
     }
   }
-
-  const hash = _sha256_(password);
-  sheet.appendRow([username.trim(), hash, coupleName, true, new Date().toISOString()]);
-  Logger.log('✅ Usuario "' + username + '" creado correctamente. Pareja: ' + coupleName);
+  sheet.appendRow([username.trim(), _sha256_(password), coupleName, true, new Date().toISOString()]);
+  Logger.log('✅ Usuario "' + username + '" creado. Pareja: ' + coupleName);
 }
 
 /**
