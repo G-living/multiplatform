@@ -131,6 +131,33 @@
     .btn-login:hover { background: var(--color-accent-hover, #b8985a); }
     .btn-login:disabled { opacity: .6; cursor: not-allowed; }
 
+    /* ── REGISTER SCREEN ────────────────────────────────────── */
+    .register-card {
+      background: #fff;
+      border: 1px solid var(--color-border, #e8e8e4);
+      border-radius: var(--radius-xl, 12px);
+      padding: var(--spacing-xl, 48px) var(--spacing-xl, 48px);
+      width: 100%;
+      max-width: 560px;
+      box-shadow: var(--shadow-large, 0 8px 24px rgba(0,0,0,.12));
+    }
+
+    .register-intro {
+      font-size: var(--font-size-sm, .875rem);
+      color: var(--color-text-secondary, #6b6b6b);
+      line-height: 1.6;
+      margin: 0 0 var(--spacing-lg, 32px);
+      text-align: center;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-sm, 16px);
+    }
+
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+
     /* ── APP HEADER ─────────────────────────────────────────── */
     .app-header {
       position: sticky;
@@ -714,6 +741,63 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════
+       REGISTRO DE INVITADO (primera vez)
+       ═══════════════════════════════════════════════════════ -->
+  <div id="registerScreen" class="login-screen hidden">
+    <div class="register-card">
+      <img src="../mlg/images/branding/Logo-HC.jpeg"
+           alt="G-Living | Arte de la Mesa"
+           class="login-logo"
+           onerror="this.style.display='none'">
+      <h1 class="login-title">Tus datos</h1>
+      <p class="register-intro">
+        Para emitirte la factura y mantenerte al tanto de nuevas colecciones,<br>
+        necesitamos registrar tu información una sola vez.
+      </p>
+
+      <form id="registerForm" class="login-form" autocomplete="on">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regNombre">Nombre *</label>
+            <input type="text" id="regNombre" name="nombre"
+                   placeholder="María" autocomplete="given-name" required>
+          </div>
+          <div class="form-group">
+            <label for="regApellido">Apellido *</label>
+            <input type="text" id="regApellido" name="apellido"
+                   placeholder="García" autocomplete="family-name" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regCC">Cédula / NIT *</label>
+            <input type="text" id="regCC" name="id_cc"
+                   placeholder="1234567890" inputmode="numeric" required>
+          </div>
+          <div class="form-group">
+            <label for="regTel">Teléfono *</label>
+            <input type="tel" id="regTel" name="telefono"
+                   placeholder="3001234567" autocomplete="tel" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email *</label>
+          <input type="email" id="regEmail" name="email"
+                 placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="regDir">Dirección</label>
+          <input type="text" id="regDir" name="direccion"
+                 placeholder="Cra 7 # 45-12, Bogotá" autocomplete="street-address">
+        </div>
+
+        <div id="registerError" class="login-error hidden"></div>
+        <button type="submit" id="btnRegister" class="btn-login">Continuar a la Lista</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
        MAIN APP
        ═══════════════════════════════════════════════════════ -->
   <div id="mainApp" class="hidden">
@@ -794,9 +878,8 @@
         <span>Total</span>
         <span class="cart-total-amount" id="cartTotalAmount">$0</span>
       </div>
-      <div class="guest-name-section">
-        <label for="inputGuestName">Tu nombre (para la pareja)</label>
-        <input type="text" id="inputGuestName" placeholder="¿Cómo te llamas?">
+      <div class="guest-name-section" id="guestNameDisplay" style="font-size:.85rem;color:var(--color-text-secondary);margin-bottom:var(--spacing-md)">
+        Regalando como: <strong id="guestNameLabel">—</strong>
       </div>
       <button class="btn-checkout" id="btnCheckout" disabled>Proceder al pago Wompi</button>
     </div>
@@ -820,7 +903,7 @@
 
   // ── ESTADO ──────────────────────────────────────────────────────────────────
 
-  let guestSession  = null;  // { guestToken, coupleUsername, coupleName, fecha_boda, invitado_user }
+  let guestSession  = null;  // { guestToken, coupleUsername, coupleName, fecha_boda, invitado_user, profileComplete, profile }
   let wishlist      = [];    // items de la lista de la pareja
   let cart          = [];    // items que el invitado quiere regalar
   let modalItem     = null;  // item activo en modal
@@ -837,7 +920,11 @@
         if (s && s.guestToken) {
           guestSession = s;
           loadCart();
-          loadWishlist();
+          if (guestSession.profileComplete) {
+            loadWishlist();
+          } else {
+            showRegisterScreen();
+          }
           return;
         }
       } catch (_) {}
@@ -863,15 +950,21 @@
       const res = await gasPost({ action: 'loginGuest', invitado_user, password });
       if (res.success) {
         guestSession = {
-          guestToken:     res.guestToken,
-          coupleUsername: res.coupleUsername,
-          coupleName:     res.coupleName,
-          fecha_boda:     res.fecha_boda,
-          invitado_user:  res.invitado_user,
+          guestToken:      res.guestToken,
+          coupleUsername:  res.coupleUsername,
+          coupleName:      res.coupleName,
+          fecha_boda:      res.fecha_boda,
+          invitado_user:   res.invitado_user,
+          profileComplete: res.profileComplete || false,
+          profile:         res.profile || null,
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(guestSession));
         loadCart();
-        loadWishlist();
+        if (guestSession.profileComplete) {
+          loadWishlist();
+        } else {
+          showRegisterScreen();
+        }
       } else {
         errEl.textContent = res.error || 'Acceso no válido. Verifica tus credenciales.';
         errEl.classList.remove('hidden');
@@ -887,10 +980,79 @@
     }
   });
 
+  // ── REGISTRO DE INVITADO ─────────────────────────────────────────────────────
+
+  function showRegisterScreen() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainApp').classList.add('hidden');
+    document.getElementById('registerScreen').classList.remove('hidden');
+    // Pre-rellenar si ya hay datos parciales
+    if (guestSession.profile) {
+      const p = guestSession.profile;
+      document.getElementById('regNombre').value   = p.nombre    || '';
+      document.getElementById('regApellido').value = p.apellido  || '';
+      document.getElementById('regCC').value       = p.id_cc     || '';
+      document.getElementById('regTel').value      = p.telefono  || '';
+      document.getElementById('regEmail').value    = p.email     || '';
+      document.getElementById('regDir').value      = p.direccion || '';
+    }
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn   = document.getElementById('btnRegister');
+    const errEl = document.getElementById('registerError');
+    errEl.classList.add('hidden');
+
+    const profile = {
+      nombre:    document.getElementById('regNombre').value.trim(),
+      apellido:  document.getElementById('regApellido').value.trim(),
+      id_cc:     document.getElementById('regCC').value.trim(),
+      telefono:  document.getElementById('regTel').value.trim(),
+      email:     document.getElementById('regEmail').value.trim(),
+      direccion: document.getElementById('regDir').value.trim(),
+    };
+
+    if (!profile.nombre || !profile.apellido || !profile.id_cc || !profile.email) {
+      errEl.textContent = 'Por favor completa los campos obligatorios (*)';
+      errEl.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+      const res = await gasPost({
+        action:       'saveGuestProfile',
+        invitado_user: guestSession.invitado_user,
+        guestToken:   guestSession.guestToken,
+        profile,
+      });
+      if (res.success) {
+        guestSession.profileComplete = true;
+        guestSession.profile         = profile;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(guestSession));
+        document.getElementById('registerScreen').classList.add('hidden');
+        loadWishlist();
+      } else {
+        errEl.textContent = res.error || 'Error al guardar. Intenta nuevamente.';
+        errEl.classList.remove('hidden');
+      }
+    } catch (_) {
+      errEl.textContent = 'Error de conexión. Intenta nuevamente.';
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Continuar a la Lista';
+    }
+  });
+
   // ── CARGAR WISHLIST ──────────────────────────────────────────────────────────
 
   async function loadWishlist() {
     document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('registerScreen').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
     document.getElementById('headerCoupleName').textContent = guestSession.coupleName;
     document.getElementById('sectionTitle').textContent =
@@ -1107,6 +1269,11 @@
   }
 
   function renderCartDrawer() {
+    // Mostrar nombre del invitado desde el perfil
+    const p    = guestSession && guestSession.profile || {};
+    const name = [p.nombre, p.apellido].filter(Boolean).join(' ') || guestSession && guestSession.invitado_user || '';
+    document.getElementById('guestNameLabel').textContent = name || '—';
+
     const container = document.getElementById('cartDrawerItems');
     container.innerHTML = '';
 
@@ -1158,12 +1325,9 @@
   document.getElementById('btnCheckout').addEventListener('click', async () => {
     if (!cart.length || !guestSession) return;
 
-    const nombreInvitado = document.getElementById('inputGuestName').value.trim();
-    if (!nombreInvitado) {
-      showToast('Por favor ingresa tu nombre para continuar.', 'error');
-      document.getElementById('inputGuestName').focus();
-      return;
-    }
+    const p              = guestSession.profile || {};
+    const nombreInvitado = [p.nombre, p.apellido].filter(Boolean).join(' ')
+                          || guestSession.invitado_user;
 
     const btn = document.getElementById('btnCheckout');
     btn.disabled = true;

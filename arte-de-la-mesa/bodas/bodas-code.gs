@@ -32,6 +32,11 @@
  *      F:productId | G:variantSku | H:productName | I:qty | J:precio_cop
  *      K:wompiReference | L:timestamp
  *
+ *   👤 Invitados (9 cols)  ← datos para facturación y cross-selling
+ *      A:invitado_user | B:nombre | C:apellido | D:id_cc | E:telefono
+ *      F:email | G:direccion | H:createdAt | I:updatedAt
+ *      → Se completa en el formulario de registro al primer acceso del invitado
+ *
  * API TOKEN: bodas-GLv2-XkP9mTqR7hNwJ3sE
  *   Todos los requests deben incluir: { _token: '...', action: '...', ... }
  *
@@ -57,8 +62,9 @@ const CFG_BODAS = {
   SHEET_USUARIOS: 'Usuarios',
   SHEET_SESIONES: 'Sesiones',
   SHEET_LISTA:    'ListaBodas',
-  SHEET_PAGOS:    'PagosInvitados',
-  EMAIL_FILIPPO:  'filippo.massara2016@gmail.com',
+  SHEET_PAGOS:      'PagosInvitados',
+  SHEET_INVITADOS:  'Invitados',
+  EMAIL_FILIPPO:    'filippo.massara2016@gmail.com',
   TZ_BOGOTA:      'America/Bogota',
 };
 
@@ -83,10 +89,12 @@ function doPost(e) {
       case 'getCart':               result = _getCart_(body.token);                                  break;
       case 'clearCart':             result = _clearCart_(body.token);                                break;
       case 'updateProfile':         result = _updateProfile_(body.token, body.profile);              break;
-      case 'loginGuest':            result = _loginGuest_(body.invitado_user, body.password);        break;
-      case 'getGuestList':          result = _getGuestList_(body.invitado_user, body.guestToken);    break;
-      case 'createPedidoInvitado':  result = _createPedidoInvitado_(body.guestToken, body.pedido);  break;
-      case 'confirmarPagoInvitado': result = _confirmarPagoInvitado_(body.pagoId, body.wompiRef);   break;
+      case 'loginGuest':            result = _loginGuest_(body.invitado_user, body.password);                    break;
+      case 'getGuestList':          result = _getGuestList_(body.invitado_user, body.guestToken);                break;
+      case 'createPedidoInvitado':  result = _createPedidoInvitado_(body.guestToken, body.pedido);              break;
+      case 'confirmarPagoInvitado': result = _confirmarPagoInvitado_(body.pagoId, body.wompiRef);               break;
+      case 'saveGuestProfile':      result = _saveGuestProfile_(body.invitado_user, body.guestToken, body.profile); break;
+      case 'getGuestProfile':       result = _getGuestProfile_(body.invitado_user, body.guestToken);             break;
       default:                      result = { success: false, error: 'Acción no reconocida: ' + action };
     }
 
@@ -479,19 +487,112 @@ function _loginGuest_(invitado_user, password) {
     const rowHash   = String(row[21] || '').trim(); // Col V: invitado_passHash
 
     if (rowUser.toLowerCase() === invitado_user.trim().toLowerCase() && rowHash === hash) {
-      const guestToken = 'G-' + Utilities.getUuid();
+      const guestToken    = 'G-' + Utilities.getUuid();
+      const profileComplete = _guestProfileExists_(ss, rowUser);
       return {
-        success:        true,
-        guestToken:     guestToken,
-        coupleUsername: String(row[0]),
-        coupleName:     String(row[2]),
-        fecha_boda:     String(row[5] || ''),
-        invitado_user:  rowUser,
+        success:         true,
+        guestToken:      guestToken,
+        coupleUsername:  String(row[0]),
+        coupleName:      String(row[2]),
+        fecha_boda:      String(row[5] || ''),
+        invitado_user:   rowUser,
+        profileComplete: profileComplete,
+        profile:         profileComplete ? _getGuestProfileData_(ss, rowUser) : null,
       };
     }
   }
 
   return { success: false, error: 'Acceso no válido' };
+}
+
+// ── INVITADOS: PERFIL (DATOS PARA FACTURACIÓN Y CROSS-SELLING) ───────────────
+
+function _saveGuestProfile_(invitado_user, guestToken, profile) {
+  if (!guestToken || !guestToken.startsWith('G-')) {
+    return { success: false, error: 'Sesión de invitado no válida' };
+  }
+  if (!profile || !profile.nombre || !profile.apellido || !profile.id_cc || !profile.email) {
+    return { success: false, error: 'Nombre, apellido, cédula y email son obligatorios' };
+  }
+
+  const ss    = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
+  let   sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS);
+  if (!sheet) { setupSheets(); sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS); }
+
+  const now  = Utilities.formatDate(new Date(), CFG_BODAS.TZ_BOGOTA, 'yyyy-MM-dd HH:mm:ss');
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === invitado_user.trim().toLowerCase()) {
+      // Actualizar fila existente (cols B–H, updatedAt en col I)
+      sheet.getRange(i + 1, 2, 1, 8).setValues([[
+        profile.nombre     || '',
+        profile.apellido   || '',
+        profile.id_cc      || '',
+        profile.telefono   || '',
+        profile.email      || '',
+        profile.direccion  || '',
+        data[i][7],   // createdAt: no tocar
+        now,          // updatedAt
+      ]]);
+      return { success: true, updated: true };
+    }
+  }
+
+  // Registro nuevo
+  sheet.appendRow([
+    invitado_user.trim(),
+    profile.nombre     || '',
+    profile.apellido   || '',
+    profile.id_cc      || '',
+    profile.telefono   || '',
+    profile.email      || '',
+    profile.direccion  || '',
+    now,   // createdAt
+    now,   // updatedAt
+  ]);
+  return { success: true, updated: false };
+}
+
+function _getGuestProfile_(invitado_user, guestToken) {
+  if (!guestToken || !guestToken.startsWith('G-')) {
+    return { success: false, error: 'Sesión de invitado no válida' };
+  }
+  const ss      = SpreadsheetApp.openById(CFG_BODAS.SHEET_ID);
+  const profile = _getGuestProfileData_(ss, invitado_user);
+  if (!profile) return { success: true, profileComplete: false, profile: null };
+  return { success: true, profileComplete: true, profile };
+}
+
+function _guestProfileExists_(ss, invitado_user) {
+  const sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS);
+  if (!sheet) return false;
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === invitado_user.trim().toLowerCase()) {
+      return !!String(data[i][1] || '').trim(); // nombre presente = completo
+    }
+  }
+  return false;
+}
+
+function _getGuestProfileData_(ss, invitado_user) {
+  const sheet = ss.getSheetByName(CFG_BODAS.SHEET_INVITADOS);
+  if (!sheet) return null;
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === invitado_user.trim().toLowerCase()) {
+      return {
+        nombre:    String(data[i][1] || ''),
+        apellido:  String(data[i][2] || ''),
+        id_cc:     String(data[i][3] || ''),
+        telefono:  String(data[i][4] || ''),
+        email:     String(data[i][5] || ''),
+        direccion: String(data[i][6] || ''),
+      };
+    }
+  }
+  return null;
 }
 
 // ── INVITADOS: VER LISTA ──────────────────────────────────────────────────────
@@ -673,6 +774,13 @@ function setupSheets() {
       headers: [
         'pagoId','coupleUsername','coupleName','invitado_user','nombreInvitado',
         'productId','variantSku','productName','qty','precio_cop','wompiReference','timestamp',
+      ],
+    },
+    {
+      nombre:  CFG_BODAS.SHEET_INVITADOS,
+      headers: [
+        'invitado_user','nombre','apellido','id_cc','telefono','email','direccion',
+        'createdAt','updatedAt',
       ],
     },
   ];
