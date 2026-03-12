@@ -339,3 +339,22 @@ function inicializarHojas() {
 
   Logger.log('🎉 Inicialización completa.');
 }
+
+/**
+ * Genera el hash SHA-256 de una contraseña para ingresarla manualmente en la hoja Usuarios.
+ *
+ * USO:
+ *   1. Cambia 'tu-password-aqui' por la contraseña real
+ *   2. Ejecuta esta función desde Apps Script
+ *   3. Abre "Registro de ejecución" y copia el hash (64 caracteres)
+ *   4. Pégalo en la columna B (passwordHash) de la hoja Usuarios
+ *
+ * En la hoja Usuarios, las columnas deben ser:
+ *   A: username  |  B: [hash de 64 chars]  |  C: coupleName  |  D: TRUE  |  E: (opcional, fecha)
+ */
+function obtenerHash() {
+  const password = 'tu-password-aqui'; // ← cambia esto
+  const hash = _sha256_(password);
+  Logger.log('🔑 Hash para "' + password + '":');
+  Logger.log(hash);
+}
