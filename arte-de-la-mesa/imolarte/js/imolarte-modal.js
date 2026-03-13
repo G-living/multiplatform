@@ -1597,7 +1597,7 @@ const Modal = (() => {
       const resp = await fetch(cfg.signatureWorkerUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reference, amountInCents: amountCents, currency: cfg.currency }),
+        body: JSON.stringify({ reference, amountInCents: amountCents, currency: cfg.currency, apiToken: cfg.apiToken }),
       });
       if (resp.ok) {
         const r = await resp.json();
@@ -2207,7 +2207,7 @@ const Modal = (() => {
           const resp = await fetch(cfg.signatureWorkerUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reference, amountInCents: amountCts, currency: cfg.currency }),
+            body: JSON.stringify({ reference, amountInCents: amountCts, currency: cfg.currency, apiToken: cfg.apiToken }),
           });
           if (resp.ok) {
             const r = await resp.json();

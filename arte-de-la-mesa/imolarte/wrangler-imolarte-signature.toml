@@ -1,0 +1,12 @@
+# wrangler-imolarte-signature.toml — IMOLARTE Signature Generator Worker
+# Deploy:  cd arte-de-la-mesa/imolarte && npx wrangler deploy --config wrangler-imolarte-signature.toml
+# Secrets:
+#   npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-imolarte-signature.toml
+#     Sandbox value: test_integrity_C7XirmACW88BPGAnYUYnxVQLGJmsOIt2
+#   npx wrangler secret put API_TOKEN --config wrangler-imolarte-signature.toml
+#     Value: e_Z9in_KWciZdhVjoKl6ps471XOrlJi5lzV55WalUBA
+
+name               = "imolarte-signature-generator"
+main               = "imolarte-signature-generator.js"
+compatibility_date = "2026-02-16"
+compatibility_flags = ["nodejs_compat"]
