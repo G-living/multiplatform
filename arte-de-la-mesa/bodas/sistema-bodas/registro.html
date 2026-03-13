@@ -320,6 +320,18 @@
       border-color: var(--brown);
       box-shadow: 0 0 0 3px rgba(139,111,94,.12);
     }
+
+    /* ── Birthday notice ─────────────────────────────── */
+    .birthday-notice {
+      background: #fff8f0;
+      border: 1.5px solid #f0d4b8;
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      font-size: .82rem;
+      color: #7a4a2a;
+      margin-bottom: 10px;
+      line-height: 1.55;
+    }
   </style>
 </head>
 <body>
@@ -446,7 +458,8 @@
         <div class="field-msg" id="errEmailElConf"></div>
       </div>
       <div class="form-group">
-        <label>Día y mes de cumpleaños <span class="hint">(sin año)</span></label>
+        <div class="birthday-notice">🎂 ¡Tu fecha especial nos importa! Regístrala para recibir sorpresas, promociones exclusivas y un saludo especial de G-Living en tu día.</div>
+        <label>Día y mes de cumpleaños <span class="req">*</span></label>
         <div class="birthday-row">
           <div>
             <select id="cumpleDiaEl">
@@ -465,6 +478,7 @@
             </select>
           </div>
         </div>
+        <div class="field-msg" id="errCumpleEl"></div>
       </div>
 
       <!-- ELLA -->
@@ -521,7 +535,8 @@
         <div class="field-msg" id="errEmailEllaConf"></div>
       </div>
       <div class="form-group">
-        <label>Día y mes de cumpleaños <span class="hint">(sin año)</span></label>
+        <div class="birthday-notice">🎂 ¡Tu fecha especial nos importa! Regístrala para recibir sorpresas, promociones exclusivas y un saludo especial de G-Living en tu día.</div>
+        <label>Día y mes de cumpleaños <span class="req">*</span></label>
         <div class="birthday-row">
           <div>
             <select id="cumpleDiaElla">
@@ -540,6 +555,7 @@
             </select>
           </div>
         </div>
+        <div class="field-msg" id="errCumpleElla"></div>
       </div>
 
       <div class="form-error" id="errStep1"></div>
@@ -661,6 +677,25 @@ async function gasPost(body) {
   return res.json();
 }
 
+// ── CONTROLES DE INPUT ────────────────────────────────────────────────────────
+
+// Nombres: solo letras, acentos y espacios
+const LETTERS_RX = /[^A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]/g;
+['nombreEl','apellidoEl','nombreElla','apellidoElla'].forEach(id => {
+  $(id).addEventListener('input', function() {
+    const pos = this.selectionStart;
+    this.value = this.value.replace(LETTERS_RX, '');
+    try { this.setSelectionRange(pos, pos); } catch(e) {}
+  });
+});
+
+// Documento: solo números
+['ccEl','ccElla'].forEach(id => {
+  $(id).addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '');
+  });
+});
+
 // ── POBLAR SELECTORES DE DÍA ──────────────────────────────────────────────────
 
 function populateDays(selectId) {
@@ -744,38 +779,69 @@ $('btnStep1').addEventListener('click', () => {
   clearFormErr('errStep1');
   let valid = true;
 
-  const fields = [
-    ['nombreEl',   'errNombreEl',   'Nombre de él es requerido'],
-    ['apellidoEl', 'errApellidoEl', 'Apellido de él es requerido'],
-    ['emailEl',    'errEmailEl',    'Email de él es requerido'],
-    ['nombreElla',   'errNombreElla',   'Nombre de ella es requerida'],
-    ['apellidoElla', 'errApellidoElla', 'Apellido de ella es requerido'],
-    ['emailElla',    'errEmailElla',    'Email de ella es requerido'],
+  const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const ONLY_LETTERS_RX = /^[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]+$/;
+
+  // Nombres — requeridos y solo letras
+  const nameFields = [
+    ['nombreEl',   'errNombreEl',   'Nombre de él es requerido',   'Solo letras en el nombre de él'],
+    ['apellidoEl', 'errApellidoEl', 'Apellido de él es requerido', 'Solo letras en el apellido de él'],
+    ['nombreElla',   'errNombreElla',   'Nombre de ella es requerido',   'Solo letras en el nombre de ella'],
+    ['apellidoElla', 'errApellidoElla', 'Apellido de ella es requerido', 'Solo letras en el apellido de ella'],
   ];
-  for (const [fId, eId, msg] of fields) {
+  for (const [fId, eId, reqMsg, fmtMsg] of nameFields) {
     clearFieldErr(eId);
-    if (!$(fId).value.trim()) { showErr(eId, msg); valid = false; }
+    const val = $(fId).value.trim();
+    if (!val) { showErr(eId, reqMsg); valid = false; }
+    else if (!ONLY_LETTERS_RX.test(val)) { showErr(eId, fmtMsg); valid = false; }
   }
 
+  // Documento — requerido y solo números
   clearFieldErr('errDocEl');
-  if (!$('ccEl').value.trim()) { showErr('errDocEl', 'Número de documento de él es requerido'); valid = false; }
+  const ccElVal = $('ccEl').value.trim();
+  if (!ccElVal) { showErr('errDocEl', 'Número de documento de él es requerido'); valid = false; }
+  else if (!/^\d+$/.test(ccElVal)) { showErr('errDocEl', 'El documento solo debe contener números'); valid = false; }
+
+  clearFieldErr('errDocElla');
+  const ccEllaVal = $('ccElla').value.trim();
+  if (!ccEllaVal) { showErr('errDocElla', 'Número de documento de ella es requerido'); valid = false; }
+  else if (!/^\d+$/.test(ccEllaVal)) { showErr('errDocElla', 'El documento solo debe contener números'); valid = false; }
+
+  // Teléfono — requerido
   clearFieldErr('errTelEl');
   if (!$('telEl').value.trim()) { showErr('errTelEl', 'Teléfono de él es requerido'); valid = false; }
-  clearFieldErr('errDocElla');
-  if (!$('ccElla').value.trim()) { showErr('errDocElla', 'Número de documento de ella es requerido'); valid = false; }
   clearFieldErr('errTelElla');
   if (!$('telElla').value.trim()) { showErr('errTelElla', 'Teléfono de ella es requerido'); valid = false; }
 
-  // Validar emails
-  const emailEl   = $('emailEl').value.trim().toLowerCase();
-  const emailElC  = $('emailElConf').value.trim().toLowerCase();
-  if (emailEl && emailElC && emailEl !== emailElC) {
+  // Email — requerido, formato válido con @
+  clearFieldErr('errEmailEl');
+  const emailEl = $('emailEl').value.trim().toLowerCase();
+  if (!emailEl) { showErr('errEmailEl', 'Email de él es requerido'); valid = false; }
+  else if (!EMAIL_RX.test(emailEl)) { showErr('errEmailEl', 'Email inválido (debe contener @)'); valid = false; }
+
+  clearFieldErr('errEmailElla');
+  const emailElla = $('emailElla').value.trim().toLowerCase();
+  if (!emailElla) { showErr('errEmailElla', 'Email de ella es requerido'); valid = false; }
+  else if (!EMAIL_RX.test(emailElla)) { showErr('errEmailElla', 'Email inválido (debe contener @)'); valid = false; }
+
+  // Confirmación de emails
+  const emailElC = $('emailElConf').value.trim().toLowerCase();
+  if (emailEl && EMAIL_RX.test(emailEl) && emailElC && emailEl !== emailElC) {
     showErr('errEmailElConf', 'Los emails no coinciden'); valid = false;
   }
-  const emailElla  = $('emailElla').value.trim().toLowerCase();
   const emailEllaC = $('emailEllaConf').value.trim().toLowerCase();
-  if (emailElla && emailEllaC && emailElla !== emailEllaC) {
+  if (emailElla && EMAIL_RX.test(emailElla) && emailEllaC && emailElla !== emailEllaC) {
     showErr('errEmailEllaConf', 'Los emails no coinciden'); valid = false;
+  }
+
+  // Cumpleaños — requerido
+  clearFieldErr('errCumpleEl');
+  if (!$('cumpleDiaEl').value || !$('cumpleMesEl').value) {
+    showErr('errCumpleEl', 'El cumpleaños de él es requerido (día y mes)'); valid = false;
+  }
+  clearFieldErr('errCumpleElla');
+  if (!$('cumpleDiaElla').value || !$('cumpleMesElla').value) {
+    showErr('errCumpleElla', 'El cumpleaños de ella es requerido (día y mes)'); valid = false;
   }
 
   if (valid) goToStep(2);
