@@ -1646,11 +1646,28 @@
           } else {
             showApp();
           }
+          // Refrescar lista_inactiva desde el backend (el localStorage puede estar obsoleto)
+          _refreshListaStatus_();
           return;
         }
       } catch (_) {}
     }
     showLogin();
+  }
+
+  async function _refreshListaStatus_() {
+    try {
+      const res = await gasPost({ action: 'validate', token: session.token });
+      if (!res.success) return;
+      const fresh = res.lista_inactiva || false;
+      if (session.lista_inactiva !== fresh) {
+        session.lista_inactiva = fresh;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        // Actualizar overlay sin re-renderizar todo
+        const el = document.getElementById('inactivaOverlay');
+        if (el) el.classList.toggle('hidden', !fresh);
+      }
+    } catch (_) {}
   }
 
   // ── LOGIN ───────────────────────────────────────────────────────────────────
