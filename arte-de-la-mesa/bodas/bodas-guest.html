@@ -590,8 +590,30 @@
     .cart-drawer-items { flex: 1; overflow-y: auto; padding: var(--spacing-md) var(--spacing-lg); }
 
     .cart-item {
-      display: grid; grid-template-columns: 1fr auto; gap: 8px;
+      display: grid; grid-template-columns: 48px 1fr auto; gap: 10px;
       padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-border-light);
+      align-items: start;
+    }
+
+    .cart-item-thumb {
+      width: 48px; height: 48px; border-radius: var(--radius-sm);
+      overflow: hidden; background: var(--color-background-secondary, #fafaf8);
+      flex-shrink: 0; cursor: zoom-in;
+      border: 1px solid var(--color-border-light);
+    }
+
+    .cart-item-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: opacity var(--transition-fast);
+      display: block;
+    }
+
+    .cart-item-thumb:hover img { opacity: 0.82; }
+
+    .cart-item-thumb-empty {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: var(--color-text-tertiary);
     }
 
     .cart-item-name { font-weight: 600; font-size: var(--font-size-sm); margin: 0 0 2px; }
@@ -869,7 +891,10 @@
   <div id="cartBackdrop" class="cart-backdrop hidden"></div>
   <div id="cartDrawer" class="cart-drawer" role="dialog" aria-modal="true" aria-label="Mi selección">
     <div class="cart-drawer-header">
-      <h3 class="cart-drawer-title">Mi selección</h3>
+      <div>
+        <h3 class="cart-drawer-title">Mi selección</h3>
+        <p id="cartLastModified" style="font-size:.75rem;color:var(--color-text-tertiary);margin:2px 0 0;"></p>
+      </div>
       <button class="cart-drawer-close" id="cartDrawerClose" aria-label="Cerrar">×</button>
     </div>
     <div class="cart-drawer-items" id="cartDrawerItems"></div>
@@ -900,6 +925,7 @@
 
   const SESSION_KEY = 'bodas_guest_session_v1';
   const CART_KEY    = 'bodas_guest_cart_v1';
+  const CART_TS_KEY = 'bodas_guest_cart_ts_v1';
 
   // ── ESTADO ──────────────────────────────────────────────────────────────────
 
@@ -1228,6 +1254,7 @@
 
   function saveCartLocal() {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    localStorage.setItem(CART_TS_KEY, new Date().toISOString());
   }
 
   function loadCart() {
@@ -1274,6 +1301,19 @@
     const name = [p.nombre, p.apellido].filter(Boolean).join(' ') || guestSession && guestSession.invitado_user || '';
     document.getElementById('guestNameLabel').textContent = name || '—';
 
+    // Timestamp última modificación
+    const tsRaw = localStorage.getItem(CART_TS_KEY);
+    const tsEl  = document.getElementById('cartLastModified');
+    if (tsRaw) {
+      const d = new Date(tsRaw);
+      tsEl.textContent = 'Última modificación: ' + d.toLocaleString('es-CO', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      });
+    } else {
+      tsEl.textContent = '';
+    }
+
     const container = document.getElementById('cartDrawerItems');
     container.innerHTML = '';
 
@@ -1293,9 +1333,17 @@
 
     for (const [idx, item] of cart.entries()) {
       total += item.precio_cop * item.qty;
-      const el = document.createElement('div');
+      const el     = document.createElement('div');
       el.className = 'cart-item';
+      const imgSrc = getItemImage(item);
+      const thumbHtml = imgSrc
+        ? `<div class="cart-item-thumb" data-img="${imgSrc}" title="Ampliar imagen">
+             <img src="${imgSrc}" alt="${item.productName}" loading="lazy"
+                  onerror="this.parentElement.innerHTML='<div class=cart-item-thumb-empty>♡</div>'">
+           </div>`
+        : `<div class="cart-item-thumb"><div class="cart-item-thumb-empty">♡</div></div>`;
       el.innerHTML = `
+        ${thumbHtml}
         <div>
           <p class="cart-item-name">${item.productName}</p>
           <p class="cart-item-variant">${(item.brand || '').toUpperCase()} · ${item.variantLabel} · ×${item.qty}</p>
@@ -1316,6 +1364,16 @@
         saveCartLocal();
         updateCartBadge();
         renderCartDrawer();
+      });
+    });
+
+    // Zoom al hacer click en miniatura
+    container.querySelectorAll('.cart-item-thumb[data-img]').forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const src = thumb.dataset.img;
+        if (!src) return;
+        document.getElementById('imgExpandSrc').src = src;
+        document.getElementById('imgExpandOverlay').classList.remove('hidden');
       });
     });
   }

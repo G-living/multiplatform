@@ -86,11 +86,12 @@ const COL_USR = {
   ID_CC_ELLA:     15,
   TEL_ELLA:       16,
   EMAIL_ELLA:     17,
-  DIRECCION:      18,
-  FECHA_CAMBIO:   19,
-  INVITADO_USER:  20,
-  INVITADO_PASS:  21,
-  ESTADO_LISTA:   22,
+  DIRECCION:        18,
+  FECHA_CAMBIO:     19,
+  INVITADO_USER:    20,
+  INVITADO_PASS:    21,
+  ESTADO_LISTA:     22,
+  HISTORIAL_CAMBIOS:23,  // col X — acumula diffs "timestamp: campo: viejo→nuevo"
 };
 
 // Índices de columna (base 0) — hoja ListaBodas
@@ -327,11 +328,37 @@ function _updateProfile_(token, profile) {
   const sheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
   if (!sheet) return { success: false, error: 'Hoja Usuarios no encontrada' };
 
+  const FIELD_MAP = [
+    ['nombre_el',         COL_USR.NOMBRE_EL],
+    ['apellido_el',       COL_USR.APELLIDO_EL],
+    ['id_cc_el',          COL_USR.ID_CC_EL],
+    ['telefono_el',       COL_USR.TEL_EL],
+    ['email_el',          COL_USR.EMAIL_EL],
+    ['nombre_ella',       COL_USR.NOMBRE_ELLA],
+    ['apellido_ella',     COL_USR.APELLIDO_ELLA],
+    ['id_cc_ella',        COL_USR.ID_CC_ELLA],
+    ['telefono_ella',     COL_USR.TEL_ELLA],
+    ['email_ella',        COL_USR.EMAIL_ELLA],
+    ['direccion_entrega', COL_USR.DIRECCION],
+  ];
+
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (!_normalizedEquals_(data[i][COL_USR.USERNAME], validation.username)) continue;
-    // Cols I–S (1-based 9–19) = 11 campos, escritura en lote
-    sheet.getRange(i + 1, COL_USR.NOMBRE_EL + 1, 1, 11).setValues([[
+
+    const row = data[i];
+    const now = _nowBogota_();
+
+    // Calcular diff campo por campo
+    const diffs = [];
+    for (const [key, colIdx] of FIELD_MAP) {
+      const oldVal = String(row[colIdx] || '').trim();
+      const newVal = String(profile[key] || '').trim();
+      if (oldVal !== newVal) diffs.push(key + ': "' + oldVal + '"→"' + newVal + '"');
+    }
+
+    // Cols I–S (11 campos) + FECHA_CAMBIO = 12 valores en lote
+    sheet.getRange(i + 1, COL_USR.NOMBRE_EL + 1, 1, 12).setValues([[
       profile.nombre_el         || '',
       profile.apellido_el       || '',
       profile.id_cc_el          || '',
@@ -343,7 +370,17 @@ function _updateProfile_(token, profile) {
       profile.telefono_ella     || '',
       profile.email_ella        || '',
       profile.direccion_entrega || '',
+      now,                             // FECHA_CAMBIO (col T)
     ]]);
+
+    // Acumular historial en col X si hubo cambios
+    if (diffs.length) {
+      const prevHist  = String(row[COL_USR.HISTORIAL_CAMBIOS] || '').trim();
+      const newEntry  = '[' + now + '] ' + diffs.join(' | ');
+      const newHist   = prevHist ? prevHist + '\n' + newEntry : newEntry;
+      sheet.getRange(i + 1, COL_USR.HISTORIAL_CAMBIOS + 1).setValue(newHist);
+    }
+
     return { success: true };
   }
   return { success: false, error: 'Usuario no encontrado' };
@@ -890,23 +927,14 @@ function setupSheets() {
 function inicializarHojas() { setupSheets(); }
 
 // ── CREAR USUARIO (ejecutar manualmente) ─────────────────────────────────────
-/**
- * 1. Descomenta y edita la línea _agregarUsuario(...)
- * 2. Presiona ▶ para ejecutar
- * 3. Revisa Ver → Registros para confirmar
- */
+// Edita los valores entre comillas '' y presiona ▶ Ejecutar
 function crearUsuario() {
   _agregarUsuario('pareja_garcia', 'clave2026', 'María & Andrés García');
 }
 
 // ── CREAR INVITADO (ejecutar manualmente) ─────────────────────────────────────
-/**
- * 1. Descomenta y edita la línea _agregarInvitado(...)
- *    Primer argumento: username de la pareja (col A en Usuarios)
- *    Segundo: username del invitado | Tercero: contraseña del invitado
- * 2. Presiona ▶ para ejecutar
- * 3. Revisa Ver → Registros para confirmar
- */
+// Primer arg: username de la pareja | Segundo: username invitado | Tercero: contraseña invitado
+// Edita los valores entre comillas '' y presiona ▶ Ejecutar
 function crearInvitado() {
   _agregarInvitado('pareja_garcia', 'invitado_juan', 'clave123');
 }
