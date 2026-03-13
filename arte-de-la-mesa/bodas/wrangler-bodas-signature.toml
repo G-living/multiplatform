@@ -1,0 +1,12 @@
+# wrangler-bodas-signature.toml — Bodas Signature Generator Worker
+# Deploy:  cd arte-de-la-mesa/bodas && npx wrangler deploy --config wrangler-bodas-signature.toml
+# Secrets:
+#   npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-bodas-signature.toml
+#     Sandbox value: test_integrity_C7XirmACW88BPGAnYUYnxVQLGJmsOIt2
+#   npx wrangler secret put API_TOKEN --config wrangler-bodas-signature.toml
+#     Value: bodas-GLv2-XkP9mTqR7hNwJ3sE
+
+name               = "bodas-signature-generator"
+main               = "bodas-signature-generator.js"
+compatibility_date = "2026-02-16"
+compatibility_flags = ["nodejs_compat"]
