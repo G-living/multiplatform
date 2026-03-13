@@ -1516,10 +1516,10 @@
         const sigRes = await fetch(BODAS_CONFIG.SIGN_WORKER, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ reference, amount_in_cents: totalCop * 100, currency: 'COP' }),
+          body:    JSON.stringify({ reference, amountInCents: totalCop * 100, currency: 'COP', apiToken: BODAS_CONFIG.API_TOKEN }),
         });
         const sigData = await sigRes.json();
-        integrity = sigData.signature || '';
+        integrity = sigData.integritySignature || '';
       } catch (_) {
         // Si falla la firma, el checkout de Wompi la rechazará
       }

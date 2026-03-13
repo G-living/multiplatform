@@ -1,8 +1,11 @@
-// signature-generator.js
-// Cloudflare Worker — Genera firma SHA-256 de integridad para Wompi (MLG)
-// Deploy: cd arte-de-la-mesa/mlg && npx wrangler deploy --config wrangler-signature.toml
-// Secrets: npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-signature.toml
-//          npx wrangler secret put API_TOKEN           --config wrangler-signature.toml
+// bodas-signature-generator.js
+// Cloudflare Worker — Genera firma SHA-256 de integridad para Wompi (Bodas)
+// Deploy: cd arte-de-la-mesa/bodas && npx wrangler deploy --config wrangler-bodas-signature.toml
+// Secrets:
+//   npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-bodas-signature.toml
+//     Sandbox value: test_integrity_C7XirmACW88BPGAnYUYnxVQLGJmsOIt2
+//   npx wrangler secret put API_TOKEN --config wrangler-bodas-signature.toml
+//     Value: bodas-GLv2-XkP9mTqR7hNwJ3sE
 
 export default {
   async fetch(request, env) {
@@ -10,7 +13,7 @@ export default {
       'Access-Control-Allow-Origin': 'https://g-living.github.io',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
 
     if (request.method === 'OPTIONS') {
@@ -33,10 +36,11 @@ export default {
         });
       }
 
+      // ── Validar parámetros requeridos ─────────────────────────
       if (!reference || !amountInCents || typeof amountInCents !== 'number' || amountInCents <= 0) {
         return new Response(JSON.stringify({ error: 'Missing or invalid reference/amountInCents' }), {
           status: 400,
-          headers: corsHeaders
+          headers: corsHeaders,
         });
       }
 
@@ -44,10 +48,11 @@ export default {
       if (!integrityKey) {
         return new Response(JSON.stringify({ error: 'Server configuration error' }), {
           status: 500,
-          headers: corsHeaders
+          headers: corsHeaders,
         });
       }
 
+      // ── Generar firma SHA-256 ─────────────────────────────────
       const concat = `${reference}${amountInCents}${currency}${integrityKey}`;
       const encoder = new TextEncoder();
       const data = encoder.encode(concat);
@@ -57,13 +62,13 @@ export default {
 
       return new Response(
         JSON.stringify({ integritySignature: signature, reference, amountInCents, currency }),
-        { status: 200, headers: corsHeaders }
+        { status: 200, headers: corsHeaders },
       );
     } catch (err) {
       return new Response(JSON.stringify({ error: 'Signature generation failed' }), {
         status: 500,
-        headers: corsHeaders
+        headers: corsHeaders,
       });
     }
-  }
+  },
 };
