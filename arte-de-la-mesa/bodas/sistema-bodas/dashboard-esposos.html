@@ -312,6 +312,109 @@
       border-radius:6px; font-family:monospace; font-size:.95rem;
       margin:4px 0 16px; letter-spacing:.05em;
     }
+
+    /* ── CATALOG MODAL ──────────────────────────────────── */
+    .catalog-modal-backdrop {
+      position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1300;
+    }
+    .catalog-modal {
+      position:fixed; inset:0; z-index:1400;
+      display:flex; align-items:stretch; justify-content:center;
+      padding:32px; overflow-y:auto;
+    }
+    @media (max-width:640px) { .catalog-modal { padding:0; align-items:flex-end; } }
+    .catalog-modal-box {
+      background:#fff; border-radius:12px; width:100%; max-width:960px;
+      max-height:calc(100vh - 64px); display:flex; flex-direction:column;
+      box-shadow:0 24px 64px rgba(0,0,0,.25); overflow:hidden; align-self:center;
+    }
+    @media (max-width:640px) { .catalog-modal-box { border-radius:12px 12px 0 0; max-height:92vh; } }
+    .catalog-modal-header {
+      display:flex; align-items:center; gap:16px;
+      padding:16px 32px; border-bottom:1px solid var(--border); flex-shrink:0;
+    }
+    .catalog-modal-logo { height:32px; object-fit:contain; }
+    .catalog-modal-brand-name {
+      font-family:var(--font-display); font-size:1.1rem; font-weight:600; flex:1;
+    }
+    .catalog-modal-close {
+      width:36px; height:36px; border:1px solid var(--border);
+      border-radius:50%; background:none; font-size:18px; line-height:1;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      color:var(--text-muted); flex-shrink:0;
+    }
+    .catalog-modal-close:hover { border-color:var(--text); color:var(--text); }
+    .catalog-modal-body {
+      display:grid; grid-template-columns:1fr 1fr; flex:1; min-height:0; overflow:hidden;
+    }
+    @media (max-width:680px) { .catalog-modal-body { grid-template-columns:1fr; overflow-y:auto; } }
+    .catalog-photo-panel {
+      background:#fafaf8; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; padding:32px;
+      border-right:1px solid var(--border); position:relative; overflow:hidden;
+    }
+    .catalog-product-img { max-width:100%; max-height:320px; object-fit:contain; border-radius:8px; transition:opacity .3s; }
+    .catalog-comodin-img { max-width:80px; object-fit:contain; border-radius:4px; margin-top:12px; opacity:.85; }
+    .catalog-controls-panel {
+      display:flex; flex-direction:column; overflow-y:auto; padding:24px 32px; gap:16px;
+    }
+    .family-selector-wrap { display:flex; align-items:center; gap:12px; }
+    .family-label { font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); white-space:nowrap; }
+    .family-dropdown {
+      flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:8px;
+      font-family:var(--font-body); font-size:.85rem; color:var(--text);
+      background:#fafaf8; cursor:pointer; outline:none;
+    }
+    .family-dropdown:focus { border-color:var(--brown); }
+    .catalog-product-name { font-family:var(--font-display); font-size:1.15rem; font-weight:600; margin:0; line-height:1.3; }
+    .catalog-product-meta { font-size:.83rem; color:var(--text-muted); margin:0; }
+    .product-nav {
+      display:flex; align-items:center; gap:12px; padding:8px 0;
+      border-top:1px solid #f0ebe8; border-bottom:1px solid #f0ebe8;
+    }
+    .cm-nav-arrow {
+      width:36px; height:36px; border:1px solid var(--border); border-radius:50%;
+      background:none; font-size:18px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; color:var(--text-muted);
+    }
+    .cm-nav-arrow:hover:not(:disabled) { border-color:var(--brown); color:var(--brown); background:var(--brown-light); }
+    .cm-nav-arrow:disabled { opacity:.35; cursor:not-allowed; }
+    .nav-counter { flex:1; text-align:center; font-size:.83rem; color:var(--text-muted); }
+    .variants-panel { display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; }
+    .variant-row {
+      display:flex; align-items:center; gap:10px; padding:8px 10px;
+      border:1px solid #f0ebe8; border-radius:8px; cursor:pointer; transition:all .15s;
+    }
+    .variant-row:hover { border-color:var(--brown-light); background:#fafaf8; }
+    .variant-row.selected { border-color:var(--brown); background:#fffbf4; }
+    .variant-comodin { width:28px; height:28px; object-fit:contain; border-radius:4px; flex-shrink:0; }
+    .variant-label { flex:1; font-size:.85rem; }
+    .variant-sku { font-size:11px; color:var(--text-muted); }
+    .variant-price { font-size:.85rem; font-weight:600; color:var(--brown-dark); white-space:nowrap; }
+    .product-footer {
+      display:flex; align-items:center; gap:16px; padding-top:8px;
+      border-top:1px solid #f0ebe8; flex-shrink:0;
+    }
+    .cm-qty-control {
+      display:flex; align-items:center; border:1px solid var(--border); border-radius:8px; overflow:hidden; flex-shrink:0;
+    }
+    .cm-qty-btn {
+      width:34px; height:34px; border:none; background:#fafaf8; font-size:18px;
+      cursor:pointer; color:var(--text-muted); display:flex; align-items:center; justify-content:center;
+    }
+    .cm-qty-btn:hover { background:var(--brown-light); color:var(--brown-dark); }
+    .cm-qty-value {
+      min-width:36px; text-align:center; font-weight:600; font-size:.95rem; padding:0 4px;
+      border-left:1px solid var(--border); border-right:1px solid var(--border);
+    }
+    .cm-price-display { font-size:.95rem; font-weight:600; color:var(--brown-dark); flex:1; text-align:right; }
+    .cm-btn-add {
+      flex-shrink:0; padding:10px 18px; background:var(--brown); color:#fff; border:none;
+      border-radius:8px; font-family:var(--font-body); font-size:.85rem; font-weight:600;
+      cursor:pointer; white-space:nowrap;
+    }
+    .cm-btn-add:hover:not(:disabled) { background:var(--brown-dark); }
+    .cm-btn-add:disabled { background:var(--border); color:var(--text-muted); cursor:not-allowed; }
   </style>
 </head>
 <body>
@@ -409,8 +512,8 @@
         <div class="hidden" id="addMoreSection" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
           <p style="font-size:.85rem;color:var(--text-muted);margin:0 0 12px">Agregar más productos desde:</p>
           <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <a href="../../mlg/mlg-index.html?mode=bodas" class="btn btn-secondary btn-sm">Catálogo MLG</a>
-            <a href="../../imolarte/imolarte-index.html?mode=bodas" class="btn btn-secondary btn-sm">Catálogo Imolarte</a>
+            <button onclick="openCatalogModal(CATALOGS[0])" class="btn btn-secondary btn-sm">Catálogo MLG</button>
+            <button onclick="openCatalogModal(CATALOGS[1])" class="btn btn-secondary btn-sm">Catálogo Imolarte</button>
           </div>
         </div>
       </div>
@@ -584,9 +687,55 @@
   </div>
 </div>
 
+<!-- ══ CATALOG MODAL ══════════════════════════════════════════════════════ -->
+<div id="catalogBackdrop" class="catalog-modal-backdrop hidden"></div>
+<div id="catalogModalWrap" class="catalog-modal hidden" role="dialog"
+     aria-modal="true" aria-labelledby="catalogModalTitle">
+  <div class="catalog-modal-box">
+    <div class="catalog-modal-header">
+      <img id="catalogModalLogo" src="" alt="" class="catalog-modal-logo" style="display:none" onerror="this.style.display='none'">
+      <span id="catalogModalTitle" class="catalog-modal-brand-name"></span>
+      <button class="catalog-modal-close" id="catalogModalClose" aria-label="Cerrar">×</button>
+    </div>
+    <div class="catalog-modal-body">
+      <div class="catalog-photo-panel">
+        <img id="catalogProductImg" src="" alt="" class="catalog-product-img">
+        <img id="catalogComodinImg" src="" alt="" class="catalog-comodin-img hidden">
+      </div>
+      <div class="catalog-controls-panel">
+        <div class="family-selector-wrap">
+          <span class="family-label">Familia</span>
+          <select id="familyDropdown" class="family-dropdown" aria-label="Seleccionar familia"></select>
+        </div>
+        <div>
+          <h3 id="catalogProductName" class="catalog-product-name"></h3>
+          <p id="catalogProductMeta" class="catalog-product-meta"></p>
+        </div>
+        <div class="product-nav">
+          <button class="cm-nav-arrow" id="navPrev" aria-label="Anterior">&#8592;</button>
+          <span class="nav-counter" id="navCounter">1 / 1</span>
+          <button class="cm-nav-arrow" id="navNext" aria-label="Siguiente">&#8594;</button>
+        </div>
+        <div class="variants-panel" id="variantsPanel"></div>
+        <div class="product-footer">
+          <div class="cm-qty-control">
+            <button class="cm-qty-btn" id="qtyMinus" aria-label="Menos">−</button>
+            <span class="cm-qty-value" id="qtyValue">1</span>
+            <button class="cm-qty-btn" id="qtyPlus" aria-label="Más">+</button>
+          </div>
+          <div class="cm-price-display" id="priceDisplay">—</div>
+          <button class="cm-btn-add" id="btnAddToList" disabled>♡ Agregar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
+<script src="../../mlg/mlg-catalog-data.js"></script>
+<script src="../../imolarte/js/imolarte-catalog-data.js"></script>
 <script src="config.js"></script>
 <script>
 'use strict';
@@ -1103,6 +1252,233 @@ $('btnCloseCredModal').addEventListener('click', () => {
   $('loadingScreen').classList.add('hidden');
   $('loginScreen').classList.remove('hidden');
 })();
+
+// ── CATÁLOGOS EMBEBIDOS ────────────────────────────────────────────────────────
+
+const CATALOGS = [
+  {
+    id: 'mlg', name: 'Mario Luca Giusti', active: true, type: 'mlg',
+    logo:     '../../mlg/images/branding/Logo-HC.jpeg',
+    basePath: '../../mlg/',
+  },
+  {
+    id: 'imolarte', name: 'IMOLARTE', active: true, type: 'imolarte',
+    logo:     '../../imolarte/images/branding/logo-imolarte.png',
+    basePath: '../../imolarte/',
+  },
+];
+
+// Estado del modal
+let _cmCatalog  = null;
+let _cmFamily   = null;
+let _cmProducts = [];
+let _cmIndex    = 0;
+let _cmVariant  = null;
+let _cmQty      = 1;
+
+function openCatalogModal(cat) {
+  _cmCatalog = cat; _cmVariant = null; _cmQty = 1;
+  const logo = $('catalogModalLogo');
+  if (cat.logo) { logo.src = cat.logo; logo.style.display = 'block'; }
+  else { logo.style.display = 'none'; }
+  $('catalogModalTitle').textContent = cat.name;
+
+  const families = _cmGetFamilies(cat);
+  const dd = $('familyDropdown');
+  dd.innerHTML = '';
+  for (const f of families) {
+    const opt = document.createElement('option');
+    opt.value = f; opt.textContent = f;
+    dd.appendChild(opt);
+  }
+  _cmFamily = families[0] || null;
+  _cmLoadFamily(_cmFamily);
+
+  $('catalogBackdrop').classList.remove('hidden');
+  $('catalogModalWrap').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCatalogModal() {
+  $('catalogBackdrop').classList.add('hidden');
+  $('catalogModalWrap').classList.add('hidden');
+  document.body.style.overflow = '';
+  _cmCatalog = null;
+}
+
+$('catalogModalClose').addEventListener('click', closeCatalogModal);
+$('catalogBackdrop').addEventListener('click', closeCatalogModal);
+
+$('familyDropdown').addEventListener('change', e => {
+  _cmFamily = e.target.value; _cmLoadFamily(_cmFamily);
+});
+
+$('navPrev').addEventListener('click', () => {
+  if (_cmIndex > 0) { _cmIndex--; _cmRenderProduct(); }
+});
+$('navNext').addEventListener('click', () => {
+  if (_cmIndex < _cmProducts.length - 1) { _cmIndex++; _cmRenderProduct(); }
+});
+
+$('qtyMinus').addEventListener('click', () => { if (_cmQty > 1) { _cmQty--; _cmUpdateQty(); } });
+$('qtyPlus').addEventListener('click',  () => { if (_cmQty < 99) { _cmQty++; _cmUpdateQty(); } });
+$('btnAddToList').addEventListener('click', _cmAddToList);
+
+function _cmLoadFamily(familyName) {
+  if (!_cmCatalog || !familyName) return;
+  _cmProducts = _cmGetProducts(_cmCatalog, familyName);
+  _cmIndex = 0; _cmVariant = null; _cmQty = 1;
+  _cmRenderProduct();
+}
+
+function _cmRenderProduct() {
+  if (!_cmProducts.length) return;
+  const p = _cmProducts[_cmIndex];
+  $('navPrev').disabled = _cmIndex === 0;
+  $('navNext').disabled = _cmIndex === _cmProducts.length - 1;
+  $('navCounter').textContent = `${_cmIndex + 1} / ${_cmProducts.length}`;
+  $('catalogProductName').textContent = _cmProductName(p, _cmCatalog);
+  $('catalogProductMeta').textContent = _cmProductMeta(p, _cmCatalog);
+  _cmVariant = null; _cmQty = 1;
+  _cmUpdateQty(); _cmUpdateAddBtn();
+  _cmSetPhoto(_cmDefaultImg(p, _cmCatalog));
+  $('catalogComodinImg').classList.add('hidden');
+  _cmRenderVariants(p);
+}
+
+function _cmRenderVariants(product) {
+  const panel = $('variantsPanel');
+  const variants = _cmGetVariants(product, _cmCatalog);
+  panel.innerHTML = '';
+  for (const v of variants) {
+    const row = document.createElement('div');
+    row.className = 'variant-row';
+    row.setAttribute('role', 'radio'); row.setAttribute('tabindex', '0');
+    const thumb = v.comodinImage
+      ? `<img src="${v.comodinImage}" alt="${v.label}" class="variant-comodin" loading="lazy">`
+      : `<span style="width:28px;height:28px;background:var(--brown-light);border-radius:4px;display:block;flex-shrink:0"></span>`;
+    row.innerHTML = `${thumb}<span class="variant-label">${v.label}</span><span class="variant-sku">${v.sku}</span><span class="variant-price">${fmtCOP(v.precio_cop)}</span>`;
+    row.addEventListener('click', () => _cmSelectVariant(v, row, panel, product));
+    row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _cmSelectVariant(v, row, panel, product); } });
+    panel.appendChild(row);
+  }
+}
+
+function _cmSelectVariant(variant, rowEl, panelEl, product) {
+  panelEl.querySelectorAll('.variant-row').forEach(r => { r.classList.remove('selected'); r.setAttribute('aria-checked', 'false'); });
+  rowEl.classList.add('selected'); rowEl.setAttribute('aria-checked', 'true');
+  _cmVariant = variant;
+  _cmUpdateQty(); _cmUpdateAddBtn();
+  _cmSetPhoto(variant.image || _cmDefaultImg(product, _cmCatalog));
+  const comodinEl = $('catalogComodinImg');
+  if (variant.comodinImage && _cmCatalog.type === 'imolarte') {
+    comodinEl.src = variant.comodinImage; comodinEl.classList.remove('hidden');
+  } else { comodinEl.classList.add('hidden'); }
+}
+
+function _cmSetPhoto(src) {
+  const img = $('catalogProductImg');
+  if (!src) { img.src = ''; return; }
+  img.style.opacity = '0';
+  img.onload  = () => { img.style.opacity = '1'; };
+  img.onerror = () => { img.style.opacity = '0.3'; };
+  img.src = src;
+}
+
+function _cmUpdateQty() {
+  $('qtyValue').textContent = _cmQty;
+  const price = _cmVariant ? _cmVariant.precio_cop * _cmQty : null;
+  $('priceDisplay').textContent = price ? fmtCOP(price) : '—';
+}
+
+function _cmUpdateAddBtn() {
+  const btn = $('btnAddToList');
+  btn.disabled = !_cmVariant;
+  btn.textContent = _cmVariant ? '♡ Agregar a mi Lista' : '← Selecciona variante';
+}
+
+function _cmAddToList() {
+  if (!_cmVariant || !_cmCatalog) return;
+  const product  = _cmProducts[_cmIndex];
+  const existing = cartItems.find(i => i.variantSku === _cmVariant.sku);
+  if (existing) {
+    existing.qty += _cmQty;
+  } else {
+    cartItems.push({
+      brand:        _cmCatalog.id,
+      productId:    _cmProductId(product, _cmCatalog),
+      productName:  _cmProductName(product, _cmCatalog),
+      variantSku:   _cmVariant.sku,
+      variantLabel: _cmVariant.label,
+      precio_cop:   _cmVariant.precio_cop,
+      qty:          _cmQty,
+      imageUrl:     _cmVariant.image || _cmDefaultImg(product, _cmCatalog),
+    });
+  }
+  isDirty = true;
+  renderCart();
+  debounceSave();
+  showToast('♡', _cmVariant.label + ' agregado', null, 3000);
+}
+
+// ── DATA ADAPTERS ──────────────────────────────────────────────────────────────
+
+function _cmGetFamilies(cat) {
+  if (cat.type === 'mlg')      return Object.keys(window.MLG_FAMILIES || {});
+  if (cat.type === 'imolarte') return Object.keys(window.CATALOG_FAMILIES || {});
+  return [];
+}
+
+function _cmGetProducts(cat, familyName) {
+  if (cat.type === 'mlg')
+    return (window.MLG_PRODUCT_TYPES || []).filter(p => p.familia === familyName);
+  if (cat.type === 'imolarte') {
+    const ids = (window.CATALOG_FAMILIES || {})[familyName] || [];
+    const byId = window.CATALOG_BY_ID || {};
+    return ids.map(id => byId[id]).filter(Boolean);
+  }
+  return [];
+}
+
+function _cmProductName(p, cat) {
+  if (cat.type === 'mlg') return `${p.coleccion} · ${p.tipo}`;
+  return p.name || '';
+}
+
+function _cmProductMeta(p, cat) {
+  if (cat.type === 'mlg') return [p.medidas, p.material].filter(Boolean).join(' · ');
+  return p.codigo ? `Código: ${p.codigo}` : '';
+}
+
+function _cmProductId(p, cat) {
+  if (cat.type === 'mlg') return `${p.coleccion}-${p.tipo}`.replace(/\s+/g, '-');
+  return p.id || '';
+}
+
+function _cmDefaultImg(p, cat) {
+  if (cat.type === 'mlg') {
+    const v = p.variantes && p.variantes[0];
+    return v ? cat.basePath + v.image : '';
+  }
+  return p.image ? cat.basePath + p.image : '';
+}
+
+function _cmGetVariants(p, cat) {
+  if (cat.type === 'mlg') {
+    return (p.variantes || []).map(v => ({
+      sku: v.sku, label: v.color, precio_cop: v.precio_cop,
+      image: cat.basePath + v.image, comodinImage: null,
+    }));
+  }
+  if (cat.type === 'imolarte') {
+    return (p.variants || []).map(v => ({
+      sku: v.sku, label: v.coleccion, precio_cop: v.precio_cop,
+      image: p.image ? cat.basePath + p.image : '',
+      comodinImage: v.foto_comodin ? cat.basePath + v.foto_comodin : null,
+    }));
+  }
+  return [];
+}
 </script>
 </body>
 </html>
