@@ -752,13 +752,10 @@ const $ = id => document.getElementById(id);
 // ── API ────────────────────────────────────────────────────────────────────────
 
 async function gasPost(body) {
-  const payload = { ...body, _token: BODAS_V3_CONFIG.API_TOKEN };
-  const params  = new URLSearchParams();
-  params.append('data', JSON.stringify(payload));
   const res = await fetch(BODAS_V3_CONFIG.GAS_URL, {
-    method:   'POST',
-    redirect: 'follow',
-    body:     params,
+    method:  'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body:    JSON.stringify({ ...body, _token: BODAS_V3_CONFIG.API_TOKEN }),
   });
   return res.json();
 }
