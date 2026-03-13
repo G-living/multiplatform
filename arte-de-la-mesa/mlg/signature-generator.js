@@ -2,12 +2,13 @@
 // Cloudflare Worker — Genera firma SHA-256 de integridad para Wompi (MLG)
 // Deploy: cd arte-de-la-mesa/mlg && npx wrangler deploy --config wrangler-signature.toml
 // Secrets: npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-signature.toml
+//          npx wrangler secret put API_TOKEN           --config wrangler-signature.toml
 
 export default {
   async fetch(request, env) {
     const corsHeaders = {
       'Access-Control-Allow-Origin': 'https://g-living.github.io',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Content-Type': 'application/json'
     };
@@ -22,7 +23,15 @@ export default {
 
     try {
       const body = await request.json();
-      const { reference, amountInCents, currency = 'COP' } = body;
+      const { reference, amountInCents, currency = 'COP', apiToken } = body;
+
+      // ── Validar API token ─────────────────────────────────────
+      if (!env.API_TOKEN || apiToken !== env.API_TOKEN) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: corsHeaders,
+        });
+      }
 
       if (!reference || !amountInCents || typeof amountInCents !== 'number' || amountInCents <= 0) {
         return new Response(JSON.stringify({ error: 'Missing or invalid reference/amountInCents' }), {
