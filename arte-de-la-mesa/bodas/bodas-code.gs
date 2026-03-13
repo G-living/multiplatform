@@ -9,16 +9,17 @@
  *
  * HOJAS REQUERIDAS:
  *
- *   📋 Usuarios (23 cols A–W)
- *      A:username | B:passwordHash | C:coupleName | D:active | E:createdAt
+ *   📋 Usuarios (22 cols A–V)
+ *      A:username | B:passwordHash | C:coupleName | D:estado_lista | E:createdAt
  *      F:fecha_boda | G:fecha_apertura_lista | H:fecha_cierre_lista
  *      I:nombre_el | J:apellido_el | K:id_cc_el | L:telefono_el | M:email_el
  *      N:nombre_ella | O:apellido_ella | P:id_cc_ella | Q:telefono_ella | R:email_ella
- *      S:direccion_entrega | T:fecha_ultimo_cambio | U:invitado_user | V:invitado_passHash
- *      W:estado_lista  → dropdown ACTIVA / BLOQUEADA (Filippo lo cambia manualmente)
- *      → Cols A–H y U–W: Filippo inserta/gestiona manualmente
+ *      S:direccion_entrega | T:invitado_user | U:invitado_passHash | V:historial_cambios
+ *      → Col D: ACTIVA / INACTIVA (Filippo controla; se auto-cierra al pasar fecha_cierre_lista)
+ *      → Cols A–H: Filippo inserta/gestiona manualmente
  *      → Cols I–S: la pareja actualiza vía formulario / botón flotante ✏️
- *      → Col T: sistema actualiza automáticamente al guardar wishlist
+ *      → Col G: sistema escribe al primer envío de lista
+ *      → Col V: sistema acumula diffs de cambios de perfil
  *
  *   🔑 Sesiones (5 cols)
  *      A:token | B:username | C:coupleName | D:createdAt | E:expiresAt
@@ -66,32 +67,30 @@ const CFG_BODAS = {
   TZ_BOGOTA:      'America/Bogota',
 };
 
-// Índices de columna (base 0) — hoja Usuarios
+// Índices de columna (base 0) — hoja Usuarios (22 cols A–V)
 const COL_USR = {
-  USERNAME:       0,
-  PASSWORD_HASH:  1,
-  COUPLE_NAME:    2,
-  ACTIVE:         3,
-  CREATED_AT:     4,
-  FECHA_BODA:     5,
-  FECHA_APERTURA: 6,
-  FECHA_CIERRE:   7,
-  NOMBRE_EL:      8,
-  APELLIDO_EL:    9,
-  ID_CC_EL:       10,
-  TEL_EL:         11,
-  EMAIL_EL:       12,
-  NOMBRE_ELLA:    13,
-  APELLIDO_ELLA:  14,
-  ID_CC_ELLA:     15,
-  TEL_ELLA:       16,
-  EMAIL_ELLA:     17,
-  DIRECCION:        18,
-  FECHA_CAMBIO:     19,
-  INVITADO_USER:    20,
-  INVITADO_PASS:    21,
-  ESTADO_LISTA:     22,
-  HISTORIAL_CAMBIOS:23,  // col X — acumula diffs "timestamp: campo: viejo→nuevo"
+  USERNAME:         0,   // A
+  PASSWORD_HASH:    1,   // B
+  COUPLE_NAME:      2,   // C
+  ESTADO_LISTA:     3,   // D — ACTIVA / INACTIVA
+  CREATED_AT:       4,   // E
+  FECHA_BODA:       5,   // F
+  FECHA_APERTURA:   6,   // G — sistema escribe al primer envío
+  FECHA_CIERRE:     7,   // H — al superarse, auto-cierra la lista
+  NOMBRE_EL:        8,   // I
+  APELLIDO_EL:      9,   // J
+  ID_CC_EL:         10,  // K
+  TEL_EL:           11,  // L
+  EMAIL_EL:         12,  // M
+  NOMBRE_ELLA:      13,  // N
+  APELLIDO_ELLA:    14,  // O
+  ID_CC_ELLA:       15,  // P
+  TEL_ELLA:         16,  // Q
+  EMAIL_ELLA:       17,  // R
+  DIRECCION:        18,  // S
+  INVITADO_USER:    19,  // T
+  INVITADO_PASS:    20,  // U
+  HISTORIAL_CAMBIOS:21,  // V — diffs acumulados de cambios de perfil
 };
 
 // Índices de columna (base 0) — hoja ListaBodas
@@ -213,7 +212,6 @@ function _login_(username, password) {
     if (!_normalizedEquals_(row[COL_USR.USERNAME], username)) continue;
     if (String(row[COL_USR.PASSWORD_HASH]).trim() !== hash)   continue;
 
-    const isActive    = (row[COL_USR.ACTIVE] === true || String(row[COL_USR.ACTIVE]).toUpperCase() === 'TRUE');
     const estadoLista = String(row[COL_USR.ESTADO_LISTA] || 'ACTIVA').trim().toUpperCase();
     const token       = Utilities.getUuid();
     const now         = new Date();
@@ -233,7 +231,6 @@ function _login_(username, password) {
       expiresAt:       exp.toISOString(),
       profileComplete: !!String(row[COL_USR.NOMBRE_EL] || '').trim(),
       profile:         _rowToProfile_(row),
-      restricted:      !isActive,
       lista_inactiva:  estadoLista !== 'ACTIVA',
     };
   }
@@ -272,11 +269,18 @@ function _getProfileByUsername_(ss, username) {
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (!_normalizedEquals_(data[i][COL_USR.USERNAME], username)) continue;
-    const estadoLista = String(data[i][COL_USR.ESTADO_LISTA] || 'ACTIVA').trim().toUpperCase();
+    const row         = data[i];
+    const estadoLista = String(row[COL_USR.ESTADO_LISTA] || 'ACTIVA').trim().toUpperCase();
+    const fechaCierre = String(row[COL_USR.FECHA_CIERRE]  || '').trim();
+    const isExpired   = fechaCierre && new Date(fechaCierre) < new Date();
+    // Auto-cerrar si fecha_cierre pasó y aún figura como ACTIVA
+    if (isExpired && estadoLista === 'ACTIVA') {
+      sheet.getRange(i + 1, COL_USR.ESTADO_LISTA + 1).setValue('INACTIVA');
+    }
     return {
-      profileComplete: !!String(data[i][COL_USR.NOMBRE_EL] || '').trim(),
-      profile:         _rowToProfile_(data[i]),
-      lista_inactiva:  estadoLista !== 'ACTIVA',
+      profileComplete: !!String(row[COL_USR.NOMBRE_EL] || '').trim(),
+      profile:         _rowToProfile_(row),
+      lista_inactiva:  estadoLista !== 'ACTIVA' || isExpired,
     };
   }
   return {};
@@ -298,7 +302,6 @@ function _rowToProfile_(row) {
     telefono_ella:        String(row[COL_USR.TEL_ELLA]       || ''),
     email_ella:           String(row[COL_USR.EMAIL_ELLA]     || ''),
     direccion_entrega:    String(row[COL_USR.DIRECCION]      || ''),
-    fecha_ultimo_cambio:  String(row[COL_USR.FECHA_CAMBIO]   || ''),
   };
 }
 
@@ -361,8 +364,8 @@ function _updateProfile_(token, profile) {
       if (oldVal !== newVal) diffs.push(key + ': "' + oldVal + '"→"' + newVal + '"');
     }
 
-    // Cols I–S (11 campos) + FECHA_CAMBIO = 12 valores en lote
-    sheet.getRange(i + 1, COL_USR.NOMBRE_EL + 1, 1, 12).setValues([[
+    // Cols I–S (11 campos) en lote
+    sheet.getRange(i + 1, COL_USR.NOMBRE_EL + 1, 1, 11).setValues([[
       profile.nombre_el         || '',
       profile.apellido_el       || '',
       profile.id_cc_el          || '',
@@ -374,7 +377,6 @@ function _updateProfile_(token, profile) {
       profile.telefono_ella     || '',
       profile.email_ella        || '',
       profile.direccion_entrega || '',
-      now,                             // FECHA_CAMBIO (col T)
     ]]);
 
     // Acumular historial en col X si hubo cambios
@@ -401,7 +403,7 @@ function _saveCart_(token, items) {
   const sheet = ss.getSheetByName(CFG_BODAS.SHEET_LISTA);
   if (!sheet) return { success: false, error: 'Hoja ListaBodas no encontrada' };
 
-  const isFirstSend = !validation.profile || !validation.profile.fecha_ultimo_cambio;
+  const isFirstSend = !validation.profile || !validation.profile.fecha_apertura_lista;
   const coupleName  = validation.coupleName || '';
   const total_cop   = items.reduce((s, it) => s + (it.precio_cop || 0) * (it.qty || 1), 0);
   const now         = _nowBogota_();
@@ -450,16 +452,18 @@ function _saveCart_(token, items) {
     }
   }
 
-  // Actualizar fecha_ultimo_cambio en Usuarios (col T)
+  // Escribir fecha_apertura_lista en primer envío (col G)
   const usrSheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
   let profileData = validation.profile || {};
   if (usrSheet) {
     const usrData = usrSheet.getDataRange().getValues();
     for (let i = 1; i < usrData.length; i++) {
       if (!_normalizedEquals_(usrData[i][COL_USR.USERNAME], validation.username)) continue;
-      usrSheet.getRange(i + 1, COL_USR.FECHA_CAMBIO + 1).setValue(now);
+      if (isFirstSend) {
+        usrSheet.getRange(i + 1, COL_USR.FECHA_APERTURA + 1).setValue(now);
+      }
       profileData = _rowToProfile_(usrData[i]);
-      profileData.fecha_ultimo_cambio = now;
+      if (isFirstSend) profileData.fecha_apertura_lista = now;
       break;
     }
   }
@@ -469,7 +473,7 @@ function _saveCart_(token, items) {
   try { _enviarEmailFilippo_(coupleName, profileData, items, total_cop, now); }
   catch (err) { Logger.log('Email Filippo error: ' + err.message); }
 
-  return { success: true, saved: items.length, fecha_ultimo_cambio: now };
+  return { success: true, saved: items.length, fecha_apertura_lista: isFirstSend ? now : profileData.fecha_apertura_lista };
 }
 
 // ── LISTA DE BODAS: OBTENER ───────────────────────────────────────────────────
@@ -853,16 +857,14 @@ function setupSheets() {
     {
       nombre:  CFG_BODAS.SHEET_USUARIOS,
       headers: [
-        'username','passwordHash','coupleName','active','createdAt',
+        'username','passwordHash','coupleName','estado_lista','createdAt',
         'fecha_boda','fecha_apertura_lista','fecha_cierre_lista',
         'nombre_el','apellido_el','id_cc_el','telefono_el','email_el',
         'nombre_ella','apellido_ella','id_cc_ella','telefono_ella','email_ella',
-        'direccion_entrega','fecha_ultimo_cambio','invitado_user','invitado_passHash',
-        'estado_lista',
+        'direccion_entrega','invitado_user','invitado_passHash','historial_cambios',
       ],
       dropdowns: [
-        { col: 4,  values: ['TRUE','FALSE']       },  // D: active
-        { col: 23, values: ['ACTIVA','BLOQUEADA'] },  // W: estado_lista
+        { col: 4, values: ['ACTIVA','INACTIVA'] },  // D: estado_lista
       ],
     },
     {
@@ -931,22 +933,31 @@ function setupSheets() {
 function inicializarHojas() { setupSheets(); }
 
 // ── CREAR USUARIO (ejecutar manualmente) ─────────────────────────────────────
-// Edita los valores entre comillas '' y presiona ▶ Ejecutar
+// Edita los valores y presiona ▶ Ejecutar
 function crearUsuario() {
-  _agregarUsuario('pareja_garcia', 'clave2026', 'María & Andrés García');
+  _agregarUsuario(
+    'pareja_garcia',          // col A: username
+    'clave2026',              // col B: password  (se guarda como hash)
+    'María & Andrés García',  // col C: coupleName
+    '2026-12-15',             // col F: fecha_boda
+    '2026-11-30'              // col H: fecha_cierre_lista
+  );
 }
 
 // ── CREAR INVITADO (ejecutar manualmente) ─────────────────────────────────────
-// Primer arg: username de la pareja | Segundo: username invitado | Tercero: contraseña invitado
-// Edita los valores entre comillas '' y presiona ▶ Ejecutar
+// Edita los valores y presiona ▶ Ejecutar
 function crearInvitado() {
-  _agregarInvitado('pareja_garcia', 'invitado_juan', 'clave123');
+  _agregarInvitado(
+    'pareja_garcia',   // col A: username_pareja  (debe existir)
+    'invitado_juan',   // col T: invitado_user
+    'clave123'         // col U: invitado_pass    (se guarda como hash)
+  );
 }
 
-function _agregarUsuario(username, password, coupleName) {
+function _agregarUsuario(username, password, coupleName, fechaBoda, fechaCierre) {
   Logger.log('▶ crearUsuario | username="' + username + '" pareja="' + coupleName + '"');
   if (!username || !password || !coupleName) {
-    Logger.log('❌ Faltan parámetros.');
+    Logger.log('❌ Faltan parámetros (username, password, coupleName son obligatorios).');
     return;
   }
 
@@ -969,8 +980,18 @@ function _agregarUsuario(username, password, coupleName) {
   }
 
   const hash = _sha256_(password);
-  sheet.appendRow([username.trim(), hash, coupleName, true, new Date().toISOString()]);
-  Logger.log('✅ Usuario "' + username + '" creado. Pareja: "' + coupleName + '"');
+  // A:username | B:hash | C:coupleName | D:estado_lista | E:createdAt | F:fecha_boda | G:fecha_apertura(vacía) | H:fecha_cierre
+  sheet.appendRow([
+    username.trim(),
+    hash,
+    coupleName,
+    'ACTIVA',
+    new Date().toISOString(),
+    fechaBoda   || '',
+    '',              // G: fecha_apertura_lista — sistema escribe al primer envío
+    fechaCierre || '',
+  ]);
+  Logger.log('✅ Usuario "' + username + '" creado. Pareja: "' + coupleName + '" | Boda: ' + (fechaBoda || '—') + ' | Cierre: ' + (fechaCierre || '—'));
   Logger.log('   Hash (8 chars): ' + hash.substring(0, 8) + '...');
 }
 

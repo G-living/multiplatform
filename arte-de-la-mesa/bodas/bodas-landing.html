@@ -823,17 +823,6 @@
       padding: var(--spacing-md, 24px) var(--spacing-lg, 32px);
     }
 
-    /* ── RESTRICTED BANNER ──────────────────────────────────── */
-    .restricted-banner {
-      background: #fff8e1;
-      border-top: 3px solid #f5c518;
-      padding: 16px var(--spacing-lg, 32px);
-      font-size: var(--font-size-sm);
-      color: #7a5c00;
-      line-height: 1.6;
-      text-align: center;
-    }
-    .restricted-banner strong { color: #5a3e00; }
 
     /* ── LISTA INACTIVA OVERLAY ──────────────────────────────── */
     .inactiva-overlay {
@@ -1277,14 +1266,6 @@
       </div>
     </header>
 
-    <!-- Restricted banner (visible solo cuando active=FALSE) -->
-    <div id="restrictedBanner" class="restricted-banner hidden">
-      En este momento su lista de bodas se encuentra <strong>restringida</strong>.
-      Para recibir atención prioritaria y aclarar cualquier duda, por favor comuníquese con
-      <strong>G-LIVING | Italian Living &amp; Design</strong> a la mayor brevedad posible.
-      Estaremos encantados de ayudarles.
-    </div>
-
     <!-- Main content -->
     <main class="app-main">
       <div class="section-header">
@@ -1701,7 +1682,6 @@
           expiresAt:       res.expiresAt,
           profileComplete: res.profileComplete,
           profile:         res.profile || {},
-          restricted:      res.restricted || false,
           lista_inactiva:  res.lista_inactiva || false,
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
@@ -1753,13 +1733,6 @@
       document.getElementById('inactivaOverlay').classList.remove('hidden');
     } else {
       document.getElementById('inactivaOverlay').classList.add('hidden');
-    }
-    // Restricted mode: show banner, hide profile edit button
-    if (session?.restricted) {
-      document.getElementById('restrictedBanner').classList.remove('hidden');
-      document.getElementById('btnFloatProfile').classList.add('hidden');
-    } else {
-      document.getElementById('restrictedBanner').classList.add('hidden');
     }
     renderCatalogGrid();
   }
@@ -2077,10 +2050,6 @@
 
   function addToList() {
     if (!selectedVariant || !currentCatalog) return;
-    if (session?.restricted) {
-      showToast('La lista está restringida. Contacte a G-Living para más información.', 'error');
-      return;
-    }
     const product = familyProducts[currentIndex];
 
     // Buscar si ya existe el mismo SKU en el carrito
@@ -2185,7 +2154,7 @@
       return;
     }
 
-    document.getElementById('btnSendList').disabled = session?.restricted || false;
+    document.getElementById('btnSendList').disabled = false;
 
     let total = 0;
     for (const [idx, item] of cart.entries()) {
@@ -2198,7 +2167,6 @@
                   onerror="this.parentElement.innerHTML='<div class=cart-item-thumb-empty>♡</div>'">
            </div>`
         : `<div class="cart-item-thumb"><div class="cart-item-thumb-empty">♡</div></div>`;
-      const isRestricted = session?.restricted;
       el.innerHTML = `
         ${thumbHtml}
         <div>
@@ -2208,10 +2176,8 @@
         </div>
         <div class="cart-item-actions">
           <input class="cart-qty-input" type="number" min="1" max="99"
-                 value="${item.qty}" data-idx="${idx}" aria-label="Cantidad"
-                 ${isRestricted ? 'disabled' : ''}>
-          <button class="cart-remove-btn" data-idx="${idx}" aria-label="Eliminar"
-                  ${isRestricted ? 'disabled style="opacity:.4;cursor:not-allowed"' : ''}>✕</button>
+                 value="${item.qty}" data-idx="${idx}" aria-label="Cantidad">
+          <button class="cart-remove-btn" data-idx="${idx}" aria-label="Eliminar">✕</button>
         </div>
       `;
       container.appendChild(el);
@@ -2297,9 +2263,9 @@
       closeSendConfirmModal();
       if (res.success) {
         localStorage.setItem(CART_TS_KEY, new Date().toISOString());
-        if (res.fecha_ultimo_cambio) {
+        if (res.fecha_apertura_lista) {
           session.profile = session.profile || {};
-          session.profile.fecha_ultimo_cambio = res.fecha_ultimo_cambio;
+          session.profile.fecha_apertura_lista = res.fecha_apertura_lista;
           localStorage.setItem(SESSION_KEY, JSON.stringify(session));
         }
         showToast('Lista enviada exitosamente. ¡Gracias por confiar en G-Living! ♡', 'success');
