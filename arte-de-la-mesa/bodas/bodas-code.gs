@@ -213,10 +213,11 @@ function _login_(username, password) {
     if (!_normalizedEquals_(row[COL_USR.USERNAME], username)) continue;
     if (String(row[COL_USR.PASSWORD_HASH]).trim() !== hash)   continue;
 
-    const isActive   = (row[COL_USR.ACTIVE] === true || String(row[COL_USR.ACTIVE]).toUpperCase() === 'TRUE');
-    const token      = Utilities.getUuid();
-    const now        = new Date();
-    const exp        = new Date(now.getTime() + CFG_BODAS.SESSION_TTL_H * 3600 * 1000);
+    const isActive    = (row[COL_USR.ACTIVE] === true || String(row[COL_USR.ACTIVE]).toUpperCase() === 'TRUE');
+    const estadoLista = String(row[COL_USR.ESTADO_LISTA] || 'ACTIVA').trim().toUpperCase();
+    const token       = Utilities.getUuid();
+    const now         = new Date();
+    const exp         = new Date(now.getTime() + CFG_BODAS.SESSION_TTL_H * 3600 * 1000);
 
     const sesSheet = ss.getSheetByName(CFG_BODAS.SHEET_SESIONES);
     if (sesSheet) {
@@ -233,6 +234,7 @@ function _login_(username, password) {
       profileComplete: !!String(row[COL_USR.NOMBRE_EL] || '').trim(),
       profile:         _rowToProfile_(row),
       restricted:      !isActive,
+      lista_inactiva:  estadoLista !== 'ACTIVA',
     };
   }
 
@@ -270,9 +272,11 @@ function _getProfileByUsername_(ss, username) {
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (!_normalizedEquals_(data[i][COL_USR.USERNAME], username)) continue;
+    const estadoLista = String(data[i][COL_USR.ESTADO_LISTA] || 'ACTIVA').trim().toUpperCase();
     return {
       profileComplete: !!String(data[i][COL_USR.NOMBRE_EL] || '').trim(),
       profile:         _rowToProfile_(data[i]),
+      lista_inactiva:  estadoLista !== 'ACTIVA',
     };
   }
   return {};
@@ -738,8 +742,8 @@ function _getGuestList_(invitado_user, guestToken) {
   for (let i = 1; i < usrData.length; i++) {
     if (!_normalizedEquals_(usrData[i][COL_USR.INVITADO_USER], invitado_user)) continue;
     const estadoLista = String(usrData[i][COL_USR.ESTADO_LISTA] || 'ACTIVA').trim().toUpperCase();
-    if (estadoLista === 'BLOQUEADA') {
-      return { success: false, error: 'La lista de bodas no está disponible en este momento.' };
+    if (estadoLista !== 'ACTIVA') {
+      return { success: true, lista_inactiva: true, coupleName: '', items: [] };
     }
     coupleName = String(usrData[i][COL_USR.COUPLE_NAME]);
     break;
