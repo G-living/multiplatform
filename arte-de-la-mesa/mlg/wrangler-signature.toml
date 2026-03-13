@@ -1,6 +1,7 @@
 # wrangler-signature.toml — MLG Signature Generator Worker
 # Deploy:  npx wrangler deploy --config wrangler-signature.toml
 # Secret:  npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-signature.toml
+#          Sandbox value: test_integrity_C7XirmACW88BPGAnYUYnxVQLGJmsOIt2
 
 name             = "mlg-signature-generator"
 main             = "signature-generator.js"

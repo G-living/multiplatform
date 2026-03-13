@@ -1,0 +1,19 @@
+# wrangler-bodas-webhook.toml — Bodas Wompi Webhook Worker
+# Deploy:  npx wrangler deploy --config wrangler-bodas-webhook.toml
+# Secrets: npx wrangler secret put WOMPI_EVENTS_SECRET --config wrangler-bodas-webhook.toml
+#          Sandbox value: test_events_76DJugcdc24rUuj2uspinP3fwFRVCckn
+#          npx wrangler secret put GAS_URL             --config wrangler-bodas-webhook.toml
+#          npx wrangler secret put GAS_API_TOKEN       --config wrangler-bodas-webhook.toml
+#
+# GAS_URL values:
+#   v3 (sistema-bodas): https://script.google.com/macros/s/AKfycbzKOHfuwv-_dTVHx1okGASmTfCGE9OcqagPGngqlbKX4_zzdWHdKZqKCPKt9kSgJxg/exec
+#   v2 (bodas classic): https://script.google.com/macros/s/AKfycbzEcnqlH80fJbVLEk34dzFc-Tu5IpBzTeVB0j4flb6tuFHifM6PAK_l4fnocEGR5-Ho/exec
+#
+# GAS_API_TOKEN values:
+#   v3: bodas-GLv3-SbQ8rKpX2mTn4wYz
+#   v2: bodas-GLv2-XkP9mTqR7hNwJ3sE
+
+name               = "bodas-wompi-webhook"
+main               = "bodas-wompi-webhook.js"
+compatibility_date = "2026-02-16"
+compatibility_flags = ["nodejs_compat"]

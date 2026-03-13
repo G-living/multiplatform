@@ -15,7 +15,7 @@ const BODAS_V3_CONFIG = {
   API_TOKEN: 'bodas-GLv3-SbQ8rKpX2mTn4wYz',
 
   // ── Wompi ──────────────────────────────────────────────────
-  WOMPI_PUB_KEY: 'pub_prod_PENDIENTE',   // clave pública Wompi producción
+  WOMPI_PUB_KEY: 'pub_test_rT7K8rzYnk2Ec8Lv25tRL3JIof6b6Lwp',   // clave pública Wompi sandbox
   SIGN_WORKER:   'https://mlg-signature-generator.filippo-massara2016.workers.dev/bodas',
 
   // ── URLs internas ──────────────────────────────────────────

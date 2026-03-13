@@ -1,6 +1,7 @@
 # wrangler-webhook.toml — MLG Wompi Webhook Worker
 # Deploy:  npx wrangler deploy --config wrangler-webhook.toml
 # Secrets: npx wrangler secret put WOMPI_EVENTS_SECRET --config wrangler-webhook.toml
+#          Sandbox value: test_events_76DJugcdc24rUuj2uspinP3fwFRVCckn
 #          npx wrangler secret put GOOGLE_SHEETS_WEBHOOK_URL --config wrangler-webhook.toml
 #          npx wrangler secret put GAS_API_TOKEN --config wrangler-webhook.toml
 
