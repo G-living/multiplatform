@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago de Regalo · G-Living</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Wompi Widget -->
+  <script src="https://checkout.wompi.co/widget.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --brown:       #8b6f5e;
+      --brown-dark:  #5a3e35;
+      --brown-light: #f5ede8;
+      --cream:       #fffaf7;
+      --border:      #e8ddd8;
+      --text:        #3a2e2a;
+      --text-muted:  #9e8a7e;
+      --error:       #c0392b;
+      --success:     #4a7c59;
+      --radius:      10px;
+      --font-display: 'Playfair Display', serif;
+      --font-body:    'Lato', sans-serif;
+    }
+
+    body { margin:0; font-family:var(--font-body); background:var(--cream); color:var(--text); min-height:100vh; }
+    .hidden { display:none !important; }
+
+    .spinner {
+      display:inline-block; width:14px; height:14px;
+      border:2px solid rgba(255,255,255,.4); border-top-color:#fff;
+      border-radius:50%; animation:spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── HEADER ──────────────────────────── */
+    .site-header {
+      background:#fff; border-bottom:1px solid var(--border);
+      padding:0 32px; height:60px; display:flex; align-items:center;
+      justify-content:space-between;
+    }
+    .header-brand { font-family:var(--font-display); font-size:1.1rem; letter-spacing:2px; color:var(--brown); }
+    .btn-back {
+      background:none; border:none; cursor:pointer; color:var(--brown);
+      font-size:.83rem; font-family:var(--font-body); text-decoration:underline;
+    }
+    .btn-back:hover { color:var(--brown-dark); }
+
+    /* ── LAYOUT ──────────────────────────── */
+    .page-wrap {
+      max-width:860px; margin:0 auto; padding:40px 24px 80px;
+      display:grid; grid-template-columns:1fr 300px; gap:32px;
+    }
+    @media (max-width:700px) {
+      .page-wrap { grid-template-columns:1fr; }
+      .order-summary { order:-1; }
+    }
+
+    /* ── FORMULARIO ──────────────────────── */
+    .section-title {
+      font-family:var(--font-display); font-size:1.25rem;
+      color:var(--brown-dark); margin:0 0 24px;
+    }
+    .section-label {
+      font-size:.7rem; font-weight:700; letter-spacing:.12em;
+      text-transform:uppercase; color:var(--brown);
+      margin:28px 0 16px; padding-bottom:8px;
+      border-bottom:1px solid var(--brown-light);
+    }
+    .section-label:first-child { margin-top:0; }
+
+    .form-row { display:grid; gap:16px; grid-template-columns:1fr 1fr; }
+    @media (max-width:480px) { .form-row { grid-template-columns:1fr; } }
+
+    .form-group { margin-bottom:16px; }
+    label {
+      display:block; font-size:.72rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:6px;
+    }
+    .req { color:var(--brown); }
+
+    input[type="text"], input[type="email"], input[type="tel"] {
+      width:100%; padding:10px 14px; border:1.5px solid var(--border);
+      border-radius:var(--radius); font-size:.9rem; font-family:var(--font-body);
+      color:var(--text); background:#fff; outline:none;
+      transition:border-color .2s,box-shadow .2s; appearance:none;
+    }
+    input:focus { border-color:var(--brown); box-shadow:0 0 0 3px rgba(139,111,94,.12); }
+    input.err { border-color:var(--error); }
+    input.ok  { border-color:var(--success); }
+
+    .field-msg { font-size:.72rem; margin-top:4px; }
+    .field-msg.err { color:var(--error); }
+    .field-msg.ok  { color:var(--success); }
+
+    /* ── BOTÓN PAGAR ─────────────────────── */
+    .btn-pay {
+      width:100%; padding:15px; background:var(--brown-dark); color:#fff;
+      border:none; border-radius:var(--radius); font-family:var(--font-body);
+      font-size:.9rem; font-weight:700; letter-spacing:.1em;
+      text-transform:uppercase; cursor:pointer; transition:background .2s;
+      margin-top:24px; display:flex; align-items:center; justify-content:center; gap:10px;
+    }
+    .btn-pay:hover:not(:disabled) { background:var(--brown); }
+    .btn-pay:disabled { opacity:.5; cursor:not-allowed; }
+
+    .form-error {
+      background:#fdf0ee; border:1.5px solid #e8b4ae; border-radius:var(--radius);
+      padding:12px 16px; font-size:.85rem; color:var(--error); margin-top:16px; display:none;
+    }
+    .form-error.show { display:block; }
+
+    .legal-note {
+      font-size:.75rem; color:var(--text-muted); text-align:center;
+      margin-top:12px; line-height:1.7;
+    }
+
+    /* ── ORDER SUMMARY ───────────────────── */
+    .order-card {
+      background:#fff; border:1px solid var(--border);
+      border-radius:var(--radius); padding:24px; height:fit-content;
+      position:sticky; top:20px;
+    }
+    .order-title { font-family:var(--font-display); font-size:1rem; color:var(--brown-dark); margin:0 0 20px; }
+    .order-item  { font-size:.88rem; margin-bottom:12px; }
+    .order-label { color:var(--text-muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; }
+    .order-value { font-weight:600; color:var(--brown-dark); margin-top:2px; }
+    .order-total {
+      border-top:2px solid var(--border); margin-top:16px; padding-top:16px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .order-total-label { font-size:.9rem; font-weight:700; color:var(--brown-dark); }
+    .order-total-val   { font-size:1.1rem; font-weight:700; color:var(--brown); }
+
+    /* ── ÉXITO ───────────────────────────── */
+    .success-screen {
+      min-height:100vh; display:flex; align-items:center;
+      justify-content:center; padding:40px 24px;
+    }
+    .success-card {
+      background:#fff; border:1px solid var(--border); border-radius:16px;
+      padding:48px 44px; max-width:480px; width:100%; text-align:center;
+      box-shadow:0 8px 32px rgba(90,62,53,.08);
+    }
+    .success-icon  { font-size:3rem; margin-bottom:16px; }
+    .success-title { font-family:var(--font-display); font-size:1.6rem; color:var(--brown-dark); margin:0 0 12px; }
+    .success-msg   { font-size:.9rem; color:var(--text-muted); line-height:1.8; margin:0 0 28px; }
+    .btn-return {
+      display:inline-block; padding:12px 28px; background:var(--brown); color:#fff;
+      border-radius:var(--radius); font-family:var(--font-body); font-size:.83rem;
+      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      text-decoration:none; transition:background .2s;
+    }
+    .btn-return:hover { background:var(--brown-dark); }
+  </style>
+</head>
+<body>
+
+<!-- ══ PANTALLA DE ÉXITO ══════════════════════════════════════════════ -->
+<div class="success-screen hidden" id="successScreen">
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <h2 class="success-title">¡Gracias por tu regalo!</h2>
+    <p class="success-msg" id="successMsg">Tu pago fue procesado exitosamente. La pareja recibirá tu obsequio con todo el cariño.</p>
+    <a href="guest.html" class="btn-return">Volver a la lista</a>
+  </div>
+</div>
+
+<!-- ══ APP: CHECKOUT ══════════════════════════════════════════════════ -->
+<div id="appScreen">
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-brand">G-LIVING</div>
+    <button class="btn-back" onclick="history.back()">← Volver a la lista</button>
+  </header>
+
+  <div class="page-wrap">
+
+    <!-- Formulario -->
+    <main>
+      <h2 class="section-title">Completa tu regalo</h2>
+
+      <form id="checkoutForm" novalidate>
+
+        <div class="section-label">Tus datos</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inNombre">Nombre <span class="req">*</span></label>
+            <input type="text" id="inNombre" placeholder="María" autocomplete="given-name">
+            <div class="field-msg" id="errNombre"></div>
+          </div>
+          <div class="form-group">
+            <label for="inApellido">Apellido <span class="req">*</span></label>
+            <input type="text" id="inApellido" placeholder="García" autocomplete="family-name">
+            <div class="field-msg" id="errApellido"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inCc">Cédula <span class="req">*</span></label>
+          <input type="text" id="inCc" placeholder="1234567890" autocomplete="off" inputmode="numeric">
+          <div class="field-msg" id="errCc"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="inEmail">Email <span class="req">*</span></label>
+          <input type="email" id="inEmail" placeholder="maria@ejemplo.com" autocomplete="email">
+          <div class="field-msg" id="errEmail"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="inEmailConf">Confirmar email <span class="req">*</span></label>
+          <input type="email" id="inEmailConf" placeholder="maria@ejemplo.com" autocomplete="off">
+          <div class="field-msg" id="errEmailConf"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="inTel">Teléfono</label>
+          <input type="tel" id="inTel" placeholder="3001234567" autocomplete="tel">
+        </div>
+
+        <div class="form-error" id="formErr"></div>
+
+        <button type="submit" class="btn-pay" id="btnPay">
+          Ir al pago seguro →
+        </button>
+        <p class="legal-note">Pago seguro procesado por Wompi. G-Living no almacena datos de tarjeta.</p>
+      </form>
+    </main>
+
+    <!-- Resumen de orden -->
+    <aside class="order-summary">
+      <div class="order-card">
+        <div class="order-title">Resumen de tu regalo</div>
+
+        <div class="order-item">
+          <div class="order-label">Para</div>
+          <div class="order-value" id="sumCoupleName">—</div>
+        </div>
+        <div class="order-item">
+          <div class="order-label">Producto</div>
+          <div class="order-value" id="sumProductName">—</div>
+        </div>
+        <div class="order-item">
+          <div class="order-label">Variante</div>
+          <div class="order-value" id="sumVariant">—</div>
+        </div>
+        <div class="order-item">
+          <div class="order-label">Cantidad</div>
+          <div class="order-value" id="sumQty">—</div>
+        </div>
+
+        <div class="order-total">
+          <span class="order-total-label">Total</span>
+          <span class="order-total-val" id="sumTotal">—</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+// ── CARGAR DATOS DE SESIÓN / PEDIDO ──────────────────────────────────────────
+
+const checkoutRaw = sessionStorage.getItem('bodas_checkout');
+if (!checkoutRaw) { window.location.href = 'guest.html'; }
+
+const CHECKOUT = JSON.parse(checkoutRaw || '{}');
+const ITEM     = CHECKOUT.item  || {};
+const SESSION  = CHECKOUT.guestSession || {};
+
+// ── API ────────────────────────────────────────────────────────────────────────
+
+async function gasPost(body) {
+  const res = await fetch(BODAS_V3_CONFIG.GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...body, _token: BODAS_V3_CONFIG.API_TOKEN }),
+  });
+  return res.json();
+}
+
+// ── RELLENAR RESUMEN ──────────────────────────────────────────────────────────
+
+function fmtCOP(n) { return '$' + Number(n||0).toLocaleString('es-CO'); }
+
+$('sumCoupleName').textContent  = SESSION.coupleName  || '—';
+$('sumProductName').textContent = ITEM.productName    || '—';
+$('sumVariant').textContent     = ITEM.variantLabel   || '—';
+$('sumQty').textContent         = CHECKOUT.qty        || 1;
+$('sumTotal').textContent       = fmtCOP(CHECKOUT.total_cop);
+
+// ── PRE-CARGAR PERFIL DEL INVITADO ───────────────────────────────────────────
+
+(async () => {
+  try {
+    const res = await gasPost({
+      action:       'getGuestProfile',
+      invitado_user: SESSION.invitado_user,
+      guestToken:    SESSION.guestToken,
+    });
+    if (res.profileComplete && res.profile) {
+      const p = res.profile;
+      if ($('inNombre'))   $('inNombre').value   = p.nombre    || '';
+      if ($('inApellido')) $('inApellido').value = p.apellido  || '';
+      if ($('inCc'))       $('inCc').value       = p.id_cc     || '';
+      if ($('inEmail'))    $('inEmail').value     = p.email     || '';
+      if ($('inEmailConf'))$('inEmailConf').value = p.email     || '';
+      if ($('inTel'))      $('inTel').value       = p.telefono  || '';
+    }
+  } catch (_) {}
+})();
+
+// ── VALIDACIÓN ────────────────────────────────────────────────────────────────
+
+function setFieldState(inputId, errId, isOk, msg) {
+  const inp = $(inputId);
+  const err = $(errId);
+  if (!inp || !err) return;
+  inp.classList.toggle('err', !isOk && !!msg);
+  inp.classList.toggle('ok',   isOk);
+  err.textContent  = isOk ? '' : msg;
+  err.className    = 'field-msg' + (isOk ? '' : ' err');
+}
+
+// Email confirm en tiempo real
+$('inEmailConf').addEventListener('input', () => {
+  const email = $('inEmail').value.trim().toLowerCase();
+  const conf  = $('inEmailConf').value.trim().toLowerCase();
+  if (!conf) return;
+  const match = email === conf;
+  setFieldState('inEmailConf', 'errEmailConf', match, match ? '' : 'Los emails no coinciden');
+  if (match) {
+    $('errEmailConf').textContent = '✓ Emails coinciden';
+    $('errEmailConf').className   = 'field-msg ok';
+  }
+});
+
+function validate() {
+  let ok = true;
+
+  const nombre = $('inNombre').value.trim();
+  if (!nombre) { setFieldState('inNombre', 'errNombre', false, 'Nombre requerido'); ok = false; }
+  else setFieldState('inNombre', 'errNombre', true, '');
+
+  const apellido = $('inApellido').value.trim();
+  if (!apellido) { setFieldState('inApellido', 'errApellido', false, 'Apellido requerido'); ok = false; }
+  else setFieldState('inApellido', 'errApellido', true, '');
+
+  const cc = $('inCc').value.trim();
+  if (!cc) { setFieldState('inCc', 'errCc', false, 'Cédula requerida'); ok = false; }
+  else setFieldState('inCc', 'errCc', true, '');
+
+  const email = $('inEmail').value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { setFieldState('inEmail', 'errEmail', false, 'Email válido requerido'); ok = false; }
+  else setFieldState('inEmail', 'errEmail', true, '');
+
+  const emailConf = $('inEmailConf').value.trim().toLowerCase();
+  if (email && emailConf !== email) { setFieldState('inEmailConf', 'errEmailConf', false, 'Los emails no coinciden'); ok = false; }
+
+  return ok;
+}
+
+// ── FIRMA WOMPI ───────────────────────────────────────────────────────────────
+
+async function getWompiSignature(reference, amountCents) {
+  const res = await fetch(BODAS_V3_CONFIG.SIGN_WORKER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reference, amountInCents: amountCents }),
+  });
+  const data = await res.json();
+  return data.signature || data.integritySignature || '';
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────────
+
+$('checkoutForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('formErr').classList.remove('show');
+  if (!validate()) return;
+
+  const btn = $('btnPay');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner"></span> Procesando...';
+
+  const nombre   = $('inNombre').value.trim();
+  const apellido = $('inApellido').value.trim();
+  const cc       = $('inCc').value.trim();
+  const email    = $('inEmail').value.trim().toLowerCase();
+  const telefono = $('inTel').value.trim();
+
+  // Guardar perfil del invitado (para futuros accesos)
+  try {
+    await gasPost({
+      action:        'saveGuestProfile',
+      invitado_user:  SESSION.invitado_user,
+      guestToken:     SESSION.guestToken,
+      profile: { nombre, apellido, id_cc: cc, email, telefono },
+    });
+  } catch (_) {}
+
+  // Generar referencia y firma Wompi
+  const reference    = CHECKOUT.pagoId + '-' + Date.now();
+  const amountCents  = Math.round(CHECKOUT.total_cop * 100);
+
+  try {
+    const signature = await getWompiSignature(reference, amountCents);
+
+    // Abrir widget Wompi
+    const checkout = new WidgetCheckout({
+      currency:           'COP',
+      amountInCents:      amountCents,
+      reference:          reference,
+      publicKey:          BODAS_V3_CONFIG.WOMPI_PUB_KEY,
+      signature:          { integrity: signature },
+      customerData: {
+        email:          email,
+        fullName:       nombre + ' ' + apellido,
+        phoneNumber:    telefono,
+        phoneNumberPrefix: '+57',
+        legalId:        cc,
+        legalIdType:    'CC',
+      },
+    });
+
+    checkout.open(async result => {
+      const tx = result.transaction;
+      if (tx && tx.status === 'APPROVED') {
+        // Confirmar pago en GAS
+        try {
+          await gasPost({
+            action:   'confirmarPagoInvitado',
+            pagoId:   CHECKOUT.pagoId,
+            wompiRef: tx.id || reference,
+          });
+        } catch (_) {}
+
+        sessionStorage.removeItem('bodas_checkout');
+
+        // Mostrar pantalla de éxito
+        $('appScreen').classList.add('hidden');
+        $('successScreen').classList.remove('hidden');
+        $('successMsg').textContent =
+          `Tu regalo de ${fmtCOP(CHECKOUT.total_cop)} para ${SESSION.coupleName} fue procesado exitosamente. ¡Qué gesto tan hermoso!`;
+
+      } else {
+        $('formErr').textContent = 'El pago no fue completado. Intenta nuevamente.';
+        $('formErr').classList.add('show');
+      }
+
+      btn.disabled  = false;
+      btn.textContent = 'Ir al pago seguro →';
+    });
+
+  } catch (err) {
+    $('formErr').textContent = 'Error al conectar con el sistema de pago. Intenta más tarde.';
+    $('formErr').classList.add('show');
+    btn.disabled  = false;
+    btn.textContent = 'Ir al pago seguro →';
+  }
+});
+</script>
+</body>
+</html>
