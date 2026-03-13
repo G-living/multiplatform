@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Bodas · G-Living</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --brown:       #8b6f5e;
+      --brown-dark:  #5a3e35;
+      --brown-light: #f5ede8;
+      --cream:       #fffaf7;
+      --border:      #e8ddd8;
+      --text:        #3a2e2a;
+      --text-muted:  #9e8a7e;
+      --error:       #c0392b;
+      --success:     #4a7c59;
+      --radius:      10px;
+      --font-display: 'Playfair Display', serif;
+      --font-body:    'Lato', sans-serif;
+    }
+
+    body { margin:0; font-family:var(--font-body); background:var(--cream); color:var(--text); min-height:100vh; }
+    .hidden { display:none !important; }
+
+    /* ── LOADING ─────────────────────────── */
+    .loading-screen {
+      position:fixed; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; background:var(--cream);
+      z-index:1000; gap:16px;
+    }
+    .spinner {
+      width:40px; height:40px; border:3px solid var(--brown-light);
+      border-top-color:var(--brown); border-radius:50%; animation:spin .8s linear infinite;
+    }
+    .spinner-sm {
+      display:inline-block; width:14px; height:14px;
+      border:2px solid rgba(255,255,255,.4); border-top-color:#fff;
+      border-radius:50%; animation:spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── LOGIN ───────────────────────────── */
+    .login-screen {
+      min-height:100vh; display:flex; align-items:center;
+      justify-content:center; padding:24px; background:var(--cream);
+    }
+    .login-card {
+      background:#fff; border:1px solid var(--border); border-radius:16px;
+      padding:48px 44px; width:100%; max-width:420px;
+      box-shadow:0 8px 32px rgba(90,62,53,.10); text-align:center;
+    }
+    .login-logo { font-family:var(--font-display); font-size:1.5rem; letter-spacing:3px; color:var(--brown); margin:0 0 4px; }
+    .login-sub  { font-size:.7rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-muted); margin:0 0 28px; }
+    .login-title { font-family:var(--font-display); font-size:1.8rem; font-weight:600; margin:0 0 6px; color:var(--brown-dark); }
+    .login-subtitle { font-size:.85rem; color:var(--text-muted); margin:0 0 32px; }
+
+    /* ── FORMS ───────────────────────────── */
+    .form-group { margin-bottom:18px; text-align:left; }
+    label {
+      display:block; font-size:.72rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:6px;
+    }
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
+      width:100%; padding:10px 14px; border:1.5px solid var(--border);
+      border-radius:var(--radius); font-size:.9rem; font-family:var(--font-body);
+      color:var(--text); background:#fff; outline:none;
+      transition:border-color .2s,box-shadow .2s; appearance:none;
+    }
+    input:focus { border-color:var(--brown); box-shadow:0 0 0 3px rgba(139,111,94,.12); }
+    .form-error {
+      background:#fdf0ee; border:1.5px solid #e8b4ae; border-radius:var(--radius);
+      padding:12px 16px; font-size:.85rem; color:var(--error); margin-top:12px; display:none;
+    }
+    .form-error.show { display:block; }
+
+    /* ── BUTTONS ─────────────────────────── */
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:12px 22px; border-radius:var(--radius); font-family:var(--font-body);
+      font-size:.83rem; font-weight:700; letter-spacing:.08em;
+      text-transform:uppercase; cursor:pointer; border:none; transition:all .2s;
+    }
+    .btn-primary { background:var(--brown); color:#fff; }
+    .btn-primary:hover:not(:disabled) { background:var(--brown-dark); }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-full { width:100%; margin-top:8px; }
+
+    /* ── OVERLAY INACTIVA/CERRADA ────────── */
+    .overlay-screen {
+      min-height:100vh; display:flex; align-items:center;
+      justify-content:center; padding:40px 24px; text-align:center;
+    }
+    .overlay-card {
+      background:#fff; border:1px solid var(--border); border-radius:16px;
+      padding:48px 40px; max-width:480px; width:100%;
+      box-shadow:0 8px 32px rgba(90,62,53,.08);
+    }
+    .overlay-icon { font-size:2.8rem; margin-bottom:16px; }
+    .overlay-title { font-family:var(--font-display); font-size:1.5rem; font-weight:600; color:var(--brown-dark); margin:0 0 12px; }
+    .overlay-msg   { font-size:.9rem; color:var(--text-muted); line-height:1.8; margin:0; }
+
+    /* ── HEADER ──────────────────────────── */
+    .site-header {
+      background:#fff; border-bottom:1px solid var(--border);
+      padding:0 32px; height:60px; display:flex; align-items:center;
+      justify-content:space-between; position:sticky; top:0; z-index:100;
+    }
+    .header-brand { font-family:var(--font-display); font-size:1.1rem; letter-spacing:2px; color:var(--brown); }
+    .header-couple { font-size:.9rem; color:var(--text-muted); font-family:var(--font-display); font-style:italic; }
+    .btn-logout { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:.78rem; text-decoration:underline; font-family:var(--font-body); }
+    .btn-logout:hover { color:var(--error); }
+    .header-right { display:flex; align-items:center; gap:16px; }
+
+    /* ── HERO ────────────────────────────── */
+    .list-hero {
+      background:linear-gradient(135deg, #8b6f5e 0%, #5a3e35 100%);
+      color:#fff; text-align:center; padding:48px 32px;
+    }
+    .list-hero h1 { font-family:var(--font-display); font-size:2rem; margin:0 0 8px; }
+    .list-hero p  { font-size:.95rem; opacity:.85; margin:0; }
+    .list-hero .fecha { margin-top:12px; font-size:.82rem; opacity:.7; letter-spacing:.05em; }
+
+    /* ── CATÁLOGO ─────────────────────────── */
+    .catalog-wrap { max-width:1100px; margin:0 auto; padding:40px 24px 80px; }
+
+    .catalog-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:28px; flex-wrap:wrap; gap:16px;
+    }
+    .catalog-title { font-family:var(--font-display); font-size:1.4rem; color:var(--brown-dark); margin:0; }
+    .catalog-count { font-size:.85rem; color:var(--text-muted); }
+
+    .product-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px;
+    }
+
+    .product-card {
+      background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+      overflow:hidden; transition:box-shadow .2s; cursor:pointer;
+    }
+    .product-card:hover { box-shadow:0 6px 20px rgba(90,62,53,.12); }
+
+    .product-img-wrap {
+      aspect-ratio:1/1; overflow:hidden; background:var(--cream);
+    }
+    .product-img {
+      width:100%; height:100%; object-fit:cover; display:block;
+      transition:transform .3s;
+    }
+    .product-card:hover .product-img { transform:scale(1.04); }
+    .product-no-img {
+      width:100%; height:100%; display:flex; align-items:center;
+      justify-content:center; font-size:2rem; color:var(--border);
+    }
+
+    .product-body { padding:14px 16px 16px; }
+    .product-brand { font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin:0 0 4px; }
+    .product-name  { font-size:.92rem; font-weight:600; color:var(--brown-dark); margin:0 0 4px; line-height:1.4; }
+    .product-variant { font-size:.8rem; color:var(--text-muted); margin:0 0 10px; }
+    .product-price { font-size:.95rem; font-weight:700; color:var(--brown); margin:0 0 10px; }
+
+    .product-availability {
+      font-size:.75rem; padding:3px 8px; border-radius:20px; display:inline-block; margin-bottom:10px;
+    }
+    .avail-available { background:#f0f7f3; color:var(--success); }
+    .avail-partial   { background:#fff8f0; color:#7a4f1e; }
+    .avail-complete  { background:#fdf0ee; color:var(--error); }
+
+    .btn-gift {
+      width:100%; padding:10px; background:var(--brown); color:#fff;
+      border:none; border-radius:var(--radius); font-family:var(--font-body);
+      font-size:.8rem; font-weight:700; letter-spacing:.08em;
+      text-transform:uppercase; cursor:pointer; transition:background .2s;
+    }
+    .btn-gift:hover:not(:disabled) { background:var(--brown-dark); }
+    .btn-gift:disabled { background:var(--border); color:var(--text-muted); cursor:not-allowed; }
+
+    /* ── MODAL REGALO ────────────────────── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(58,46,42,.55);
+      display:flex; align-items:center; justify-content:center;
+      z-index:200; padding:20px;
+    }
+    .modal {
+      background:#fff; border-radius:16px; padding:36px 40px;
+      max-width:480px; width:100%;
+      box-shadow:0 16px 48px rgba(0,0,0,.18);
+    }
+    .modal-header { margin-bottom:20px; }
+    .modal-title  { font-family:var(--font-display); font-size:1.3rem; color:var(--brown-dark); margin:0 0 6px; }
+    .modal-sub    { font-size:.85rem; color:var(--text-muted); margin:0; }
+    .modal-close  { float:right; background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--text-muted); margin-top:-4px; }
+    .modal-close:hover { color:var(--text); }
+
+    /* Qty control en modal */
+    .modal-qty { display:flex; align-items:center; gap:12px; margin:16px 0; }
+    .modal-qty label { margin:0; flex-shrink:0; }
+    .qty-btn {
+      width:32px; height:32px; border-radius:50%; border:1.5px solid var(--border);
+      background:#fff; cursor:pointer; font-size:1rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center; color:var(--brown);
+    }
+    .qty-btn:hover { border-color:var(--brown); background:var(--brown-light); }
+    .qty-num { font-size:1rem; font-weight:700; min-width:24px; text-align:center; }
+
+    .total-preview {
+      background:var(--brown-light); border-radius:var(--radius);
+      padding:12px 16px; font-size:.9rem; display:flex;
+      justify-content:space-between; margin:16px 0;
+    }
+    .total-preview strong { color:var(--brown); }
+
+    .modal-btn-row { display:flex; gap:12px; margin-top:8px; }
+    .btn-cancel {
+      flex:1; padding:12px; background:#fff; border:1.5px solid var(--border);
+      border-radius:var(--radius); font-family:var(--font-body); font-size:.83rem;
+      font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+      cursor:pointer; color:var(--text-muted); transition:all .2s;
+    }
+    .btn-cancel:hover { border-color:var(--brown); color:var(--brown); }
+    .btn-pay {
+      flex:2; padding:12px; background:var(--brown); color:#fff; border:none;
+      border-radius:var(--radius); font-family:var(--font-body); font-size:.83rem;
+      font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+      cursor:pointer; transition:background .2s;
+    }
+    .btn-pay:hover:not(:disabled) { background:var(--brown-dark); }
+    .btn-pay:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* ── EMPTY ────────────────────────────── */
+    .empty-state { text-align:center; padding:64px 24px; color:var(--text-muted); }
+    .empty-state h3 { font-family:var(--font-display); font-size:1.2rem; color:var(--brown-dark); margin:0 0 8px; }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <div style="font-size:.85rem;color:var(--text-muted)">Cargando lista...</div>
+</div>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════ -->
+<div class="login-screen hidden" id="loginScreen">
+  <div class="login-card">
+    <p class="login-logo">G-LIVING</p>
+    <p class="login-sub">Arte de la Mesa</p>
+    <h1 class="login-title">Lista de Bodas</h1>
+    <p class="login-subtitle">Ingresa con las credenciales que te compartió la pareja</p>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="loginUser">Usuario</label>
+        <input type="text" id="loginUser" placeholder="invitados_..." autocomplete="username" autocapitalize="none">
+      </div>
+      <div class="form-group">
+        <label for="loginPass">Contraseña</label>
+        <input type="password" id="loginPass" autocomplete="current-password">
+      </div>
+      <div class="form-error" id="loginErr"></div>
+      <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Ver lista</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══ OVERLAY: LISTA INACTIVA ════════════════════════════════════════ -->
+<div class="overlay-screen hidden" id="inactivaScreen">
+  <div class="overlay-card">
+    <div class="overlay-icon">⏸️</div>
+    <h2 class="overlay-title">Lista temporalmente pausada</h2>
+    <p class="overlay-msg">La pareja está realizando algunos ajustes en su lista. Vuelve pronto para poder hacerles un regalo.</p>
+    <p style="margin-top:20px;font-size:.82rem;color:var(--text-muted)">
+      <a href="#" onclick="logout()" style="color:var(--brown);text-decoration:none">← Volver al inicio</a>
+    </p>
+  </div>
+</div>
+
+<!-- ══ OVERLAY: LISTA CERRADA ═════════════════════════════════════════ -->
+<div class="overlay-screen hidden" id="cerradaScreen">
+  <div class="overlay-card">
+    <div class="overlay-icon">💍</div>
+    <h2 class="overlay-title">Lista cerrada</h2>
+    <p class="overlay-msg">El período de la lista de bodas ha finalizado. ¡Gracias por tu cariño hacia la pareja!</p>
+    <p style="margin-top:20px;font-size:.82rem;color:var(--text-muted)">
+      <a href="#" onclick="logout()" style="color:var(--brown);text-decoration:none">← Volver al inicio</a>
+    </p>
+  </div>
+</div>
+
+<!-- ══ APP: LISTA ═════════════════════════════════════════════════════ -->
+<div id="appScreen" class="hidden">
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-brand">G-LIVING</div>
+    <div class="header-couple" id="headerCoupleName"></div>
+    <div class="header-right">
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="list-hero">
+    <h1 id="heroTitle">Lista de Bodas</h1>
+    <p>Elije el regalo perfecto para celebrarles</p>
+    <div class="fecha" id="heroFecha"></div>
+  </div>
+
+  <!-- Catalog -->
+  <div class="catalog-wrap">
+    <div class="catalog-header">
+      <h2 class="catalog-title">Sus regalos</h2>
+      <div class="catalog-count" id="catalogCount"></div>
+    </div>
+
+    <div class="empty-state hidden" id="emptyState">
+      <h3>Lista vacía</h3>
+      <p>La pareja aún no ha agregado productos.</p>
+    </div>
+
+    <div class="product-grid" id="productGrid"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Detalle de regalo ═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="giftModal">
+  <div class="modal">
+    <div class="modal-header">
+      <button class="modal-close" id="closeGiftModal">✕</button>
+      <div class="modal-title" id="modalProductName"></div>
+      <div class="modal-sub" id="modalProductVariant"></div>
+    </div>
+
+    <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px">
+      Precio unitario: <strong id="modalPrice" style="color:var(--brown)"></strong>
+    </div>
+    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:16px" id="modalAvailDesc"></div>
+
+    <div class="modal-qty">
+      <label>Cantidad:</label>
+      <button class="qty-btn" id="qtyDown">−</button>
+      <span class="qty-num" id="qtyNum">1</span>
+      <button class="qty-btn" id="qtyUp">+</button>
+    </div>
+
+    <div class="total-preview">
+      <span>Total de tu regalo</span>
+      <strong id="modalTotal"></strong>
+    </div>
+
+    <div class="form-error" id="modalErr"></div>
+
+    <div class="modal-btn-row">
+      <button class="btn-cancel" id="cancelGiftModal">Cancelar</button>
+      <button class="btn-pay"    id="btnPagarRegalo">Continuar al pago →</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+'use strict';
+
+// ── ESTADO GLOBAL ──────────────────────────────────────────────────────────────
+
+let GUEST_SESSION = null;  // { guestToken, coupleUsername, coupleName, invitado_user, ... }
+let listItems     = [];    // items de la lista de la pareja
+let selectedItem  = null;  // item seleccionado para regalo
+let selectedQty   = 1;
+
+const $ = id => document.getElementById(id);
+
+// ── API ────────────────────────────────────────────────────────────────────────
+
+async function gasPost(body) {
+  const res = await fetch(BODAS_V3_CONFIG.GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...body, _token: BODAS_V3_CONFIG.API_TOKEN }),
+  });
+  return res.json();
+}
+
+// ── LOGOUT ────────────────────────────────────────────────────────────────────
+
+function logout() {
+  localStorage.removeItem(BODAS_V3_CONFIG.GUEST_SESSION_KEY);
+  location.reload();
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const errEl = $('loginErr');
+  errEl.classList.remove('show');
+
+  const btn = $('loginBtn');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner-sm"></span>';
+
+  try {
+    const res = await gasPost({
+      action:       'loginGuest',
+      invitado_user: $('loginUser').value.trim(),
+      password:      $('loginPass').value,
+    });
+    if (res.success) {
+      localStorage.setItem(BODAS_V3_CONFIG.GUEST_SESSION_KEY, JSON.stringify(res));
+      await initApp(res);
+    } else {
+      errEl.textContent = res.error || 'Credenciales inválidas';
+      errEl.classList.add('show');
+    }
+  } catch (_) {
+    errEl.textContent = 'Error de conexión. Intente nuevamente.';
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled  = false;
+    btn.textContent = 'Ver lista';
+  }
+});
+
+// ── RENDER LISTA ──────────────────────────────────────────────────────────────
+
+function fmtCOP(n) { return '$' + Number(n||0).toLocaleString('es-CO'); }
+
+function availLabel(qty, qtyPurchased) {
+  const remaining = qty - qtyPurchased;
+  if (remaining <= 0) return { cls: 'avail-complete',  txt: 'Completamente regalado' };
+  if (qtyPurchased > 0) return { cls: 'avail-partial', txt: `${qtyPurchased} de ${qty} ya regalados` };
+  return { cls: 'avail-available', txt: qty > 1 ? `${qty} unidades deseadas` : 'Deseado' };
+}
+
+function renderList() {
+  const grid = $('productGrid');
+
+  if (listItems.length === 0) {
+    $('emptyState').classList.remove('hidden');
+    grid.innerHTML = '';
+    $('catalogCount').textContent = '';
+    return;
+  }
+
+  $('emptyState').classList.add('hidden');
+  $('catalogCount').textContent = listItems.length + ' producto' + (listItems.length !== 1 ? 's' : '');
+
+  grid.innerHTML = listItems.map((item, i) => {
+    const remaining = (item.qty || 0) - (item.qty_purchased || 0);
+    const avail     = availLabel(item.qty || 1, item.qty_purchased || 0);
+    const soldOut   = remaining <= 0;
+
+    return `<div class="product-card" onclick="openGiftModal(${i})">
+      <div class="product-img-wrap">
+        <div class="product-no-img">🎁</div>
+      </div>
+      <div class="product-body">
+        <div class="product-brand">${item.brand || ''}</div>
+        <div class="product-name">${item.productName || ''}</div>
+        <div class="product-variant">${item.variantLabel || ''}</div>
+        <div class="product-price">${fmtCOP(item.precio_cop)}</div>
+        <span class="product-availability ${avail.cls}">${avail.txt}</span><br>
+        <button class="btn-gift" onclick="event.stopPropagation();openGiftModal(${i})" ${soldOut?'disabled':''}>
+          ${soldOut ? 'Ya regalado' : 'Regalar este producto'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL REGALO ──────────────────────────────────────────────────────────────
+
+function openGiftModal(idx) {
+  selectedItem = listItems[idx];
+  const remaining = (selectedItem.qty || 1) - (selectedItem.qty_purchased || 0);
+  if (remaining <= 0) return;
+
+  selectedQty = 1;
+  $('modalProductName').textContent  = selectedItem.productName || '';
+  $('modalProductVariant').textContent = selectedItem.variantLabel || '';
+  $('modalPrice').textContent        = fmtCOP(selectedItem.precio_cop);
+  $('modalAvailDesc').textContent    = remaining === 1
+    ? 'Queda 1 unidad por regalar'
+    : `Quedan ${remaining} unidades por regalar`;
+  $('modalErr').classList.remove('show');
+  updateModalQty(remaining);
+  $('giftModal').classList.remove('hidden');
+}
+
+function updateModalQty(maxQty) {
+  const max = Math.max(1, maxQty || 1);
+  selectedQty = Math.min(Math.max(1, selectedQty), max);
+  $('qtyNum').textContent   = selectedQty;
+  $('qtyDown').disabled     = selectedQty <= 1;
+  $('qtyUp').disabled       = selectedQty >= max;
+  $('modalTotal').textContent = fmtCOP((selectedItem?.precio_cop || 0) * selectedQty);
+}
+
+$('qtyDown').addEventListener('click', () => {
+  selectedQty--;
+  const remaining = (selectedItem.qty||1) - (selectedItem.qty_purchased||0);
+  updateModalQty(remaining);
+});
+$('qtyUp').addEventListener('click', () => {
+  selectedQty++;
+  const remaining = (selectedItem.qty||1) - (selectedItem.qty_purchased||0);
+  updateModalQty(remaining);
+});
+
+function closeModal() { $('giftModal').classList.add('hidden'); selectedItem = null; }
+$('closeGiftModal').addEventListener('click', closeModal);
+$('cancelGiftModal').addEventListener('click', closeModal);
+
+// ── IR AL CHECKOUT ────────────────────────────────────────────────────────────
+
+$('btnPagarRegalo').addEventListener('click', async () => {
+  if (!selectedItem || !GUEST_SESSION) return;
+
+  $('modalErr').classList.remove('show');
+  const btn = $('btnPagarRegalo');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner-sm"></span>';
+
+  // Crear pedido en GAS
+  try {
+    const guestProfile = JSON.parse(localStorage.getItem(BODAS_V3_CONFIG.GUEST_SESSION_KEY) || '{}');
+    const nombreInvitado = guestProfile.profile?.nombre
+      ? guestProfile.profile.nombre + ' ' + (guestProfile.profile.apellido || '')
+      : 'Invitado';
+
+    const pedido = {
+      coupleUsername: GUEST_SESSION.coupleUsername,
+      coupleName:     GUEST_SESSION.coupleName,
+      invitado_user:  GUEST_SESSION.invitado_user,
+      nombreInvitado: nombreInvitado.trim(),
+      productId:      selectedItem.productId,
+      variantSku:     selectedItem.variantSku,
+      productName:    selectedItem.productName,
+      qty:            selectedQty,
+      precio_cop:     selectedItem.precio_cop,
+    };
+
+    const res = await gasPost({
+      action:     'createPedidoInvitado',
+      guestToken: GUEST_SESSION.guestToken,
+      pedido,
+    });
+
+    if (res.success) {
+      // Guardar datos del pedido para checkout
+      const checkoutData = {
+        pagoId:        res.pagoId,
+        item:          selectedItem,
+        qty:           selectedQty,
+        total_cop:     selectedItem.precio_cop * selectedQty,
+        guestSession:  GUEST_SESSION,
+      };
+      sessionStorage.setItem('bodas_checkout', JSON.stringify(checkoutData));
+      window.location.href = BODAS_V3_CONFIG.URL_CHECKOUT;
+    } else {
+      $('modalErr').textContent = res.error || 'Error al procesar';
+      $('modalErr').classList.add('show');
+    }
+  } catch (_) {
+    $('modalErr').textContent = 'Error de conexión';
+    $('modalErr').classList.add('show');
+  } finally {
+    btn.disabled  = false;
+    btn.textContent = 'Continuar al pago →';
+  }
+});
+
+// ── INICIALIZAR APP ───────────────────────────────────────────────────────────
+
+async function initApp(session) {
+  GUEST_SESSION = session;
+  $('loginScreen').classList.add('hidden');
+
+  if (session.lista_inactiva) {
+    $('inactivaScreen').classList.remove('hidden');
+    return;
+  }
+  if (session.lista_cerrada) {
+    $('cerradaScreen').classList.remove('hidden');
+    return;
+  }
+
+  $('appScreen').classList.remove('hidden');
+  $('headerCoupleName').textContent = 'Lista de ' + (session.coupleName || '');
+  $('heroTitle').textContent        = 'Lista de Bodas de ' + (session.coupleName || '');
+  if (session.fecha_boda) {
+    const d = new Date(session.fecha_boda + 'T12:00:00');
+    $('heroFecha').textContent = d.toLocaleDateString('es-CO', { year:'numeric', month:'long', day:'numeric' });
+  }
+
+  // Cargar lista
+  try {
+    const res = await gasPost({
+      action:       'getGuestList',
+      invitado_user: session.invitado_user,
+      guestToken:    session.guestToken,
+    });
+
+    if (res.lista_inactiva) { $('appScreen').classList.add('hidden'); $('inactivaScreen').classList.remove('hidden'); return; }
+    if (res.lista_cerrada)  { $('appScreen').classList.add('hidden'); $('cerradaScreen').classList.remove('hidden');  return; }
+
+    if (res.success) listItems = res.items || [];
+  } catch (_) {}
+
+  renderList();
+}
+
+// ── BOOTSTRAP ─────────────────────────────────────────────────────────────────
+
+(async () => {
+  const saved = localStorage.getItem(BODAS_V3_CONFIG.GUEST_SESSION_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.guestToken) {
+        $('loadingScreen').classList.add('hidden');
+        await initApp(parsed);
+        return;
+      }
+    } catch (_) {}
+    localStorage.removeItem(BODAS_V3_CONFIG.GUEST_SESSION_KEY);
+  }
+  $('loadingScreen').classList.add('hidden');
+  $('loginScreen').classList.remove('hidden');
+})();
+</script>
+</body>
+</html>

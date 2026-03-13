@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro · Lista de Bodas · G-Living</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Google Maps / Places API -->
+  <script>
+    ((g)=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+    ({key: "AIzaSyBCHhJjFYCVJ-Yq_nX0VY326Kt-_Khu7r0", v: "weekly"});
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --brown:       #8b6f5e;
+      --brown-dark:  #5a3e35;
+      --brown-light: #f5ede8;
+      --cream:       #fffaf7;
+      --border:      #e8ddd8;
+      --text:        #3a2e2a;
+      --text-muted:  #9e8a7e;
+      --error:       #c0392b;
+      --success:     #4a7c59;
+      --radius:      10px;
+      --font-display: 'Playfair Display', serif;
+      --font-body:    'Lato', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ── LAYOUT ──────────────────────────────────── */
+    .page-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px 60px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 560px;
+      box-shadow: 0 8px 32px rgba(90,62,53,.10);
+    }
+
+    /* ── HEADER ──────────────────────────────────── */
+    .card-header { text-align: center; margin-bottom: 36px; }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+      color: var(--brown);
+      margin: 0 0 4px;
+    }
+    .logo-sub {
+      font-size: .7rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0 0 24px;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0 0 6px;
+      color: var(--brown-dark);
+    }
+    .card-subtitle {
+      font-size: .85rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* ── STEPPER ─────────────────────────────────── */
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 36px;
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: #fff;
+      transition: all .3s;
+    }
+    .step-item.active   .step-circle { border-color: var(--brown); background: var(--brown); color: #fff; }
+    .step-item.done     .step-circle { border-color: var(--success); background: var(--success); color: #fff; }
+    .step-label {
+      font-size: .68rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .step-item.active .step-label { color: var(--brown); font-weight: 600; }
+    .step-connector {
+      width: 48px;
+      height: 2px;
+      background: var(--border);
+      margin: 0 4px;
+      margin-bottom: 22px;
+      transition: background .3s;
+    }
+    .step-connector.done { background: var(--success); }
+
+    /* ── FORMULARIO ──────────────────────────────── */
+    .section-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--brown);
+      margin: 28px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--brown-light);
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    .form-row { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+    .form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 480px) {
+      .form-row, .form-row.cols-3 { grid-template-columns: 1fr; }
+      .card { padding: 36px 24px; }
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .req { color: var(--brown); }
+    .hint { font-size: .7rem; color: var(--text-muted); font-weight: 400; letter-spacing: 0; text-transform: none; margin-left: 4px; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: .9rem;
+      font-family: var(--font-body);
+      color: var(--text);
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      appearance: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--brown);
+      box-shadow: 0 0 0 3px rgba(139,111,94,.12);
+    }
+    input.err { border-color: var(--error); }
+    input.ok  { border-color: var(--success); }
+
+    .field-msg {
+      font-size: .72rem;
+      margin-top: 4px;
+      display: none;
+    }
+    .field-msg.err-msg { color: var(--error); display: block; }
+    .field-msg.ok-msg  { color: var(--success); display: block; }
+
+    /* Cumpleaños: DD / MM */
+    .birthday-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ── BOTONES ──────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 24px;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+    .btn-primary {
+      background: var(--brown);
+      color: #fff;
+      width: 100%;
+      margin-top: 28px;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--brown-dark); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--brown);
+      border: 1.5px solid var(--border);
+      width: 100%;
+      margin-top: 12px;
+    }
+    .btn-secondary:hover { border-color: var(--brown); background: var(--brown-light); }
+
+    /* ── MENSAJES ────────────────────────────────── */
+    .form-error {
+      background: #fdf0ee;
+      border: 1.5px solid #e8b4ae;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: .85rem;
+      color: var(--error);
+      margin-top: 16px;
+      display: none;
+    }
+    .form-error.show { display: block; }
+
+    .form-success {
+      background: #f0f7f3;
+      border: 1.5px solid #aed6bc;
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      color: var(--success);
+      margin-top: 16px;
+      display: none;
+    }
+    .form-success.show { display: block; }
+    .form-success h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 1.2rem; }
+    .form-success p  { margin: 0; font-size: .9rem; line-height: 1.7; }
+
+    /* ── FOOTER ──────────────────────────────────── */
+    .card-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: .82rem;
+      color: var(--text-muted);
+    }
+    .card-footer a { color: var(--brown); text-decoration: none; font-weight: 600; }
+    .card-footer a:hover { text-decoration: underline; }
+
+    /* ── LOADING SPINNER ─────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Places autocomplete dropdown ────────────── */
+    .pac-container { z-index: 9999; font-family: var(--font-body); }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <div class="card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <p class="logo-text">G-LIVING</p>
+      <p class="logo-sub">Arte de la Mesa</p>
+      <h1 class="card-title">Lista de Bodas</h1>
+      <p class="card-subtitle">Crea tu cuenta y comienza a elegir sus regalos</p>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="step-item active" id="stepItem0">
+        <div class="step-circle">1</div>
+        <div class="step-label">Acceso</div>
+      </div>
+      <div class="step-connector" id="stepConn0"></div>
+      <div class="step-item" id="stepItem1">
+        <div class="step-circle">2</div>
+        <div class="step-label">Datos</div>
+      </div>
+      <div class="step-connector" id="stepConn1"></div>
+      <div class="step-item" id="stepItem2">
+        <div class="step-circle">3</div>
+        <div class="step-label">Boda</div>
+      </div>
+    </div>
+
+    <!-- ══ PASO 0: Código de invitación + credenciales ══ -->
+    <div id="step0">
+      <div class="section-label">Código de acceso</div>
+
+      <div class="form-group">
+        <label for="invCode">Código de invitación <span class="req">*</span></label>
+        <input type="text" id="invCode" placeholder="Ej. GLIVING-2026" autocomplete="off" spellcheck="false" autocapitalize="characters">
+        <div class="field-msg" id="errInvCode"></div>
+      </div>
+
+      <div class="section-label">Sus credenciales de acceso</div>
+
+      <div class="form-group">
+        <label for="username">Nombre de usuario <span class="req">*</span> <span class="hint">(solo letras, números y _)</span></label>
+        <input type="text" id="username" placeholder="ej. juan_y_maria" autocomplete="username" spellcheck="false" autocapitalize="none">
+        <div class="field-msg" id="errUsername"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Contraseña <span class="req">*</span></label>
+          <input type="password" id="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          <div class="field-msg" id="errPassword"></div>
+        </div>
+        <div class="form-group">
+          <label for="passwordConf">Confirmar contraseña <span class="req">*</span></label>
+          <input type="password" id="passwordConf" placeholder="Repetir contraseña" autocomplete="new-password">
+          <div class="field-msg" id="errPasswordConf"></div>
+        </div>
+      </div>
+
+      <div class="form-error" id="errStep0"></div>
+
+      <button class="btn btn-primary" id="btnStep0">Continuar →</button>
+    </div>
+
+    <!-- ══ PASO 1: Datos personales de la pareja ══ -->
+    <div id="step1" class="hidden">
+
+      <!-- ÉL -->
+      <div class="section-label">Él</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombreEl">Nombre(s) <span class="req">*</span></label>
+          <input type="text" id="nombreEl" placeholder="Juan" autocomplete="given-name">
+          <div class="field-msg" id="errNombreEl"></div>
+        </div>
+        <div class="form-group">
+          <label for="apellidoEl">Apellido(s) <span class="req">*</span></label>
+          <input type="text" id="apellidoEl" placeholder="Gómez" autocomplete="family-name">
+          <div class="field-msg" id="errApellidoEl"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ccEl">Cédula</label>
+          <input type="text" id="ccEl" placeholder="1234567890" autocomplete="off" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label for="telEl">Teléfono</label>
+          <input type="tel" id="telEl" placeholder="3001234567" autocomplete="tel">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="emailEl">Email <span class="req">*</span></label>
+        <input type="email" id="emailEl" placeholder="juan@ejemplo.com" autocomplete="email">
+        <div class="field-msg" id="errEmailEl"></div>
+      </div>
+      <div class="form-group">
+        <label for="emailElConf">Confirmar email <span class="req">*</span></label>
+        <input type="email" id="emailElConf" placeholder="juan@ejemplo.com" autocomplete="off">
+        <div class="field-msg" id="errEmailElConf"></div>
+      </div>
+      <div class="form-group">
+        <label>Día y mes de cumpleaños <span class="hint">(sin año)</span></label>
+        <div class="birthday-row">
+          <div>
+            <select id="cumpleDiaEl">
+              <option value="">Día</option>
+            </select>
+          </div>
+          <div>
+            <select id="cumpleMesEl">
+              <option value="">Mes</option>
+              <option value="01">Enero</option><option value="02">Febrero</option>
+              <option value="03">Marzo</option><option value="04">Abril</option>
+              <option value="05">Mayo</option><option value="06">Junio</option>
+              <option value="07">Julio</option><option value="08">Agosto</option>
+              <option value="09">Septiembre</option><option value="10">Octubre</option>
+              <option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ELLA -->
+      <div class="section-label">Ella</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombreElla">Nombre(s) <span class="req">*</span></label>
+          <input type="text" id="nombreElla" placeholder="María" autocomplete="off">
+          <div class="field-msg" id="errNombreElla"></div>
+        </div>
+        <div class="form-group">
+          <label for="apellidoElla">Apellido(s) <span class="req">*</span></label>
+          <input type="text" id="apellidoElla" placeholder="Rodríguez" autocomplete="off">
+          <div class="field-msg" id="errApellidoElla"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ccElla">Cédula</label>
+          <input type="text" id="ccElla" placeholder="1234567890" autocomplete="off" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label for="telElla">Teléfono</label>
+          <input type="tel" id="telElla" placeholder="3001234567" autocomplete="off">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="emailElla">Email <span class="req">*</span></label>
+        <input type="email" id="emailElla" placeholder="maria@ejemplo.com" autocomplete="off">
+        <div class="field-msg" id="errEmailElla"></div>
+      </div>
+      <div class="form-group">
+        <label for="emailEllaConf">Confirmar email <span class="req">*</span></label>
+        <input type="email" id="emailEllaConf" placeholder="maria@ejemplo.com" autocomplete="off">
+        <div class="field-msg" id="errEmailEllaConf"></div>
+      </div>
+      <div class="form-group">
+        <label>Día y mes de cumpleaños <span class="hint">(sin año)</span></label>
+        <div class="birthday-row">
+          <div>
+            <select id="cumpleDiaElla">
+              <option value="">Día</option>
+            </select>
+          </div>
+          <div>
+            <select id="cumpleMesElla">
+              <option value="">Mes</option>
+              <option value="01">Enero</option><option value="02">Febrero</option>
+              <option value="03">Marzo</option><option value="04">Abril</option>
+              <option value="05">Mayo</option><option value="06">Junio</option>
+              <option value="07">Julio</option><option value="08">Agosto</option>
+              <option value="09">Septiembre</option><option value="10">Octubre</option>
+              <option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-error" id="errStep1"></div>
+      <button class="btn btn-primary" id="btnStep1">Continuar →</button>
+      <button class="btn btn-secondary" id="btnBack1">← Volver</button>
+    </div>
+
+    <!-- ══ PASO 2: Datos de la boda ══ -->
+    <div id="step2" class="hidden">
+
+      <div class="section-label">Fecha de la boda</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fechaBoda">Fecha de la boda</label>
+          <input type="date" id="fechaBoda">
+        </div>
+        <div class="form-group">
+          <label for="fechaCierre">Cierre de la lista <span class="req">*</span></label>
+          <input type="date" id="fechaCierre">
+          <div class="field-msg" id="errFechaCierre"></div>
+        </div>
+      </div>
+
+      <div class="section-label">Dirección de entrega</div>
+      <div class="form-group">
+        <label for="dirEntrega">Dirección <span class="hint">(búsqueda automática)</span></label>
+        <input type="text" id="dirEntrega" placeholder="Calle 80 # 10-25, Bogotá" autocomplete="off">
+      </div>
+
+      <div class="form-error" id="errStep2"></div>
+
+      <div class="form-success hidden" id="successMsg">
+        <h3>¡Bienvenidos a G-Living!</h3>
+        <p>Su cuenta ha sido creada. En un momento los redirigimos a su panel donde podrán comenzar a elegir sus regalos.</p>
+      </div>
+
+      <button class="btn btn-primary" id="btnStep2">Crear cuenta</button>
+      <button class="btn btn-secondary" id="btnBack2">← Volver</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      ¿Ya tienen cuenta? <a href="dashboard-esposos.html">Ingresen aquí</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+'use strict';
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+
+const $ = id => document.getElementById(id);
+
+function showErr(fieldId, msg) {
+  const el = $(fieldId);
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'field-msg err-msg';
+  const inp = el.previousElementSibling;
+  if (inp && inp.tagName === 'INPUT') inp.classList.add('err');
+}
+function clearFieldErr(fieldId) {
+  const el = $(fieldId);
+  if (!el) return;
+  el.className = 'field-msg';
+  const inp = el.previousElementSibling;
+  if (inp && inp.tagName === 'INPUT') inp.classList.remove('err', 'ok');
+}
+function showOk(fieldId, msg) {
+  const el = $(fieldId);
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'field-msg ok-msg';
+  const inp = el.previousElementSibling;
+  if (inp && inp.tagName === 'INPUT') inp.classList.add('ok');
+}
+function formErr(errId, msg) {
+  const el = $(errId);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function clearFormErr(errId) {
+  const el = $(errId);
+  el.classList.remove('show');
+}
+
+async function gasPost(body) {
+  const res = await fetch(BODAS_V3_CONFIG.GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...body, _token: BODAS_V3_CONFIG.API_TOKEN }),
+  });
+  return res.json();
+}
+
+// ── POBLAR SELECTORES DE DÍA ──────────────────────────────────────────────────
+
+function populateDays(selectId) {
+  const sel = $(selectId);
+  for (let d = 1; d <= 31; d++) {
+    const opt  = document.createElement('option');
+    opt.value  = d.toString().padStart(2, '0');
+    opt.text   = d;
+    sel.appendChild(opt);
+  }
+}
+populateDays('cumpleDiaEl');
+populateDays('cumpleDiaElla');
+
+// ── STEPPER ────────────────────────────────────────────────────────────────────
+
+let currentStep = 0;
+
+function goToStep(n) {
+  ['step0','step1','step2'].forEach((id, i) => $(id).classList.toggle('hidden', i !== n));
+
+  ['stepItem0','stepItem1','stepItem2'].forEach((id, i) => {
+    const el = $(id);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  });
+  ['stepConn0','stepConn1'].forEach((id, i) => {
+    $(id).classList.toggle('done', i < n);
+  });
+
+  currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── STEP 0: código + credenciales ────────────────────────────────────────────
+
+$('btnStep0').addEventListener('click', () => {
+  clearFormErr('errStep0');
+  let valid = true;
+
+  clearFieldErr('errInvCode');
+  const code = $('invCode').value.trim();
+  if (!code) { showErr('errInvCode', 'Ingrese el código de invitación'); valid = false; }
+
+  clearFieldErr('errUsername');
+  const usr = $('username').value.trim().toLowerCase();
+  if (!usr) { showErr('errUsername', 'El nombre de usuario es requerido'); valid = false; }
+  else if (!/^[a-z0-9_]{3,30}$/.test(usr)) {
+    showErr('errUsername', 'Solo letras minúsculas, números y _ (3–30 caracteres)'); valid = false;
+  }
+
+  clearFieldErr('errPassword');
+  const pwd = $('password').value;
+  if (!pwd || pwd.length < 6) { showErr('errPassword', 'Mínimo 6 caracteres'); valid = false; }
+
+  clearFieldErr('errPasswordConf');
+  const pwd2 = $('passwordConf').value;
+  if (pwd2 !== pwd) { showErr('errPasswordConf', 'Las contraseñas no coinciden'); valid = false; }
+
+  if (valid) goToStep(1);
+});
+
+// ── STEP 1: datos de la pareja ────────────────────────────────────────────────
+
+// Validación en tiempo real de emails
+function setupEmailConfirm(emailId, confId, errId) {
+  const confInput = $(confId);
+  confInput.addEventListener('input', () => {
+    const email = $(emailId).value.trim().toLowerCase();
+    const conf  = confInput.value.trim().toLowerCase();
+    clearFieldErr(errId);
+    if (conf && email && conf === email) showOk(errId, '✓ Emails coinciden');
+    else if (conf && email && conf !== email) showErr(errId, 'Los emails no coinciden');
+  });
+}
+setupEmailConfirm('emailEl',   'emailElConf',   'errEmailElConf');
+setupEmailConfirm('emailElla', 'emailEllaConf', 'errEmailEllaConf');
+
+$('btnStep1').addEventListener('click', () => {
+  clearFormErr('errStep1');
+  let valid = true;
+
+  const fields = [
+    ['nombreEl',   'errNombreEl',   'Nombre de él es requerido'],
+    ['apellidoEl', 'errApellidoEl', 'Apellido de él es requerido'],
+    ['emailEl',    'errEmailEl',    'Email de él es requerido'],
+    ['nombreElla',   'errNombreElla',   'Nombre de ella es requerida'],
+    ['apellidoElla', 'errApellidoElla', 'Apellido de ella es requerido'],
+    ['emailElla',    'errEmailElla',    'Email de ella es requerido'],
+  ];
+  for (const [fId, eId, msg] of fields) {
+    clearFieldErr(eId);
+    if (!$(fId).value.trim()) { showErr(eId, msg); valid = false; }
+  }
+
+  // Validar emails
+  const emailEl   = $('emailEl').value.trim().toLowerCase();
+  const emailElC  = $('emailElConf').value.trim().toLowerCase();
+  if (emailEl && emailElC && emailEl !== emailElC) {
+    showErr('errEmailElConf', 'Los emails no coinciden'); valid = false;
+  }
+  const emailElla  = $('emailElla').value.trim().toLowerCase();
+  const emailEllaC = $('emailEllaConf').value.trim().toLowerCase();
+  if (emailElla && emailEllaC && emailElla !== emailEllaC) {
+    showErr('errEmailEllaConf', 'Los emails no coinciden'); valid = false;
+  }
+
+  if (valid) goToStep(2);
+});
+
+$('btnBack1').addEventListener('click', () => goToStep(0));
+
+// ── STEP 2: datos de la boda ──────────────────────────────────────────────────
+
+// Google Places autocomplete para dirección
+let placesAutocomplete = null;
+async function initPlaces() {
+  try {
+    const { Autocomplete } = await google.maps.importLibrary('places');
+    placesAutocomplete = new Autocomplete($('dirEntrega'), {
+      componentRestrictions: { country: 'co' },
+      fields: ['formatted_address'],
+    });
+    placesAutocomplete.addListener('place_changed', () => {
+      const place = placesAutocomplete.getPlace();
+      if (place.formatted_address) $('dirEntrega').value = place.formatted_address;
+    });
+  } catch (_) {}
+}
+initPlaces();
+
+$('btnBack2').addEventListener('click', () => goToStep(1));
+
+$('btnStep2').addEventListener('click', async () => {
+  clearFormErr('errStep2');
+  let valid = true;
+
+  const fechaCierre = $('fechaCierre').value;
+  clearFieldErr('errFechaCierre');
+  if (!fechaCierre) {
+    showErr('errFechaCierre', 'La fecha de cierre es requerida'); valid = false;
+  } else if (new Date(fechaCierre) < new Date()) {
+    showErr('errFechaCierre', 'La fecha de cierre debe ser en el futuro'); valid = false;
+  }
+
+  if (!valid) return;
+
+  const btn = $('btnStep2');
+  btn.disabled   = true;
+  btn.innerHTML  = '<span class="spinner"></span> Creando cuenta...';
+
+  // Armar cumpleaños DD/MM
+  const cumpleEl   = [$('cumpleDiaEl').value, $('cumpleMesEl').value].filter(Boolean).join('/') || '';
+  const cumpleElla = [$('cumpleDiaElla').value, $('cumpleMesElla').value].filter(Boolean).join('/') || '';
+
+  const payload = {
+    action:              'registerCouple',
+    invitationCode:      $('invCode').value.trim(),
+    username:            $('username').value.trim().toLowerCase(),
+    password:            $('password').value,
+    nombre_el:           $('nombreEl').value.trim(),
+    apellido_el:         $('apellidoEl').value.trim(),
+    id_cc_el:            $('ccEl').value.trim(),
+    telefono_el:         $('telEl').value.trim(),
+    email_el:            $('emailEl').value.trim().toLowerCase(),
+    cumple_el:           cumpleEl,
+    nombre_ella:         $('nombreElla').value.trim(),
+    apellido_ella:       $('apellidoElla').value.trim(),
+    id_cc_ella:          $('ccElla').value.trim(),
+    telefono_ella:       $('telElla').value.trim(),
+    email_ella:          $('emailElla').value.trim().toLowerCase(),
+    cumple_ella:         cumpleElla,
+    fecha_boda:          $('fechaBoda').value,
+    fecha_cierre_lista:  fechaCierre,
+    direccion_entrega:   $('dirEntrega').value.trim(),
+  };
+
+  try {
+    const res = await gasPost(payload);
+    if (res.success) {
+      $('successMsg').classList.remove('hidden');
+      $('successMsg').style.display = 'block';
+      btn.classList.add('hidden');
+      $('btnBack2').classList.add('hidden');
+      setTimeout(() => {
+        window.location.href = 'dashboard-esposos.html';
+      }, 2800);
+    } else {
+      formErr('errStep2', res.error || 'Error al crear la cuenta. Intente nuevamente.');
+      btn.disabled  = false;
+      btn.innerHTML = 'Crear cuenta';
+    }
+  } catch (err) {
+    formErr('errStep2', 'Error de conexión. Verifique su internet e intente nuevamente.');
+    btn.disabled  = false;
+    btn.innerHTML = 'Crear cuenta';
+  }
+});
+</script>
+</body>
+</html>

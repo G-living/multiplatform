@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Lista de Bodas · G-Living</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Google Maps / Places API -->
+  <script>
+    ((g)=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+    ({key: "AIzaSyBCHhJjFYCVJ-Yq_nX0VY326Kt-_Khu7r0", v: "weekly"});
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --brown:       #8b6f5e;
+      --brown-dark:  #5a3e35;
+      --brown-light: #f5ede8;
+      --cream:       #fffaf7;
+      --border:      #e8ddd8;
+      --text:        #3a2e2a;
+      --text-muted:  #9e8a7e;
+      --error:       #c0392b;
+      --success:     #4a7c59;
+      --warning:     #b7860b;
+      --radius:      10px;
+      --font-display: 'Playfair Display', serif;
+      --font-body:    'Lato', sans-serif;
+    }
+
+    body { margin:0; font-family:var(--font-body); background:var(--cream); color:var(--text); min-height:100vh; }
+    .hidden { display:none !important; }
+    .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+
+    /* ── LOADING ──────────────────────────────────── */
+    .loading-screen {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--cream); z-index: 1000; flex-direction: column; gap: 16px;
+    }
+    .loading-screen .spinner {
+      width:40px; height:40px;
+      border: 3px solid var(--brown-light);
+      border-top-color: var(--brown);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-sm {
+      display:inline-block; width:14px; height:14px;
+      border:2px solid rgba(255,255,255,.4); border-top-color:#fff;
+      border-radius:50%; animation:spin .6s linear infinite;
+    }
+
+    /* ── LOGIN ────────────────────────────────────── */
+    .login-screen {
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; padding: 24px; background: var(--cream);
+    }
+    .login-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 16px; padding: 48px 44px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 8px 32px rgba(90,62,53,.10); text-align: center;
+    }
+    .login-logo-text { font-family:var(--font-display); font-size:1.5rem; letter-spacing:3px; color:var(--brown); margin:0 0 4px; }
+    .login-logo-sub  { font-size:.7rem; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-muted); margin:0 0 28px; }
+    .login-title     { font-family:var(--font-display); font-size:1.8rem; font-weight:600; margin:0 0 6px; color:var(--brown-dark); }
+    .login-subtitle  { font-size:.85rem; color:var(--text-muted); margin:0 0 32px; }
+
+    /* ── FORMS ────────────────────────────────────── */
+    .form-group { margin-bottom: 18px; text-align: left; }
+    label {
+      display: block; font-size:.72rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:6px;
+    }
+    input[type="text"], input[type="email"], input[type="password"],
+    input[type="tel"], input[type="date"], select, textarea {
+      width:100%; padding:10px 14px; border:1.5px solid var(--border);
+      border-radius:var(--radius); font-size:.9rem; font-family:var(--font-body);
+      color:var(--text); background:#fff; outline:none; transition:border-color .2s,box-shadow .2s;
+      appearance:none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color:var(--brown); box-shadow:0 0 0 3px rgba(139,111,94,.12);
+    }
+    .field-err { font-size:.72rem; color:var(--error); margin-top:4px; display:none; }
+    .field-ok  { font-size:.72rem; color:var(--success); margin-top:4px; display:none; }
+
+    /* ── BOTONES ──────────────────────────────────── */
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:12px 22px; border-radius:var(--radius); font-family:var(--font-body);
+      font-size:.83rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      cursor:pointer; border:none; transition:all .2s;
+    }
+    .btn-primary   { background:var(--brown); color:#fff; }
+    .btn-primary:hover:not(:disabled) { background:var(--brown-dark); }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-full { width:100%; margin-top:8px; }
+    .btn-secondary { background:transparent; color:var(--brown); border:1.5px solid var(--border); }
+    .btn-secondary:hover { border-color:var(--brown); background:var(--brown-light); }
+    .btn-danger { background:#c0392b; color:#fff; }
+    .btn-danger:hover { background:#a93226; }
+    .btn-sm { padding:7px 14px; font-size:.75rem; }
+
+    .form-error {
+      background:#fdf0ee; border:1.5px solid #e8b4ae; border-radius:var(--radius);
+      padding:12px 16px; font-size:.85rem; color:var(--error); margin-top:12px; display:none;
+    }
+    .form-error.show { display:block; }
+
+    /* ── HEADER ───────────────────────────────────── */
+    .site-header {
+      background:#fff; border-bottom:1px solid var(--border);
+      padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:100;
+    }
+    .header-brand { font-family:var(--font-display); font-size:1.1rem; letter-spacing:2px; color:var(--brown); }
+    .header-user  { display:flex; align-items:center; gap:16px; font-size:.83rem; color:var(--text-muted); }
+    .header-user strong { color:var(--brown-dark); }
+    .btn-logout { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:.78rem; text-decoration:underline; font-family:var(--font-body); }
+    .btn-logout:hover { color:var(--error); }
+
+    /* ── ESTADO BANNER ────────────────────────────── */
+    .estado-banner {
+      padding:14px 32px; font-size:.85rem; display:flex;
+      align-items:center; gap:12px;
+    }
+    .estado-banner.borrador { background:#fff8f0; border-bottom:1px solid #f5e0c8; color:#7a4f1e; }
+    .estado-banner.activa   { background:#f0f7f3; border-bottom:1px solid #aed6bc; color:#2e6644; }
+    .estado-banner.inactiva { background:#fff3cd; border-bottom:1px solid #ffc107; color:#856404; }
+    .estado-banner.cerrada  { background:#f8f0f7; border-bottom:1px solid #c8aed6; color:#5a2e6e; }
+    .estado-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .borrador .estado-dot { background:#d4883a; }
+    .activa   .estado-dot { background:#4a7c59; }
+    .inactiva .estado-dot { background:#ffc107; }
+    .cerrada  .estado-dot { background:#9b59b6; }
+    .estado-banner strong { font-weight:700; }
+
+    /* ── LAYOUT PRINCIPAL ─────────────────────────── */
+    .main-layout {
+      max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px;
+      display: grid; grid-template-columns: 1fr 340px; gap: 32px;
+    }
+    @media (max-width: 860px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .sidebar { order: -1; }
+    }
+
+    /* ── TABS ─────────────────────────────────────── */
+    .tab-bar {
+      display:flex; border-bottom:2px solid var(--border); margin-bottom:28px; gap:0;
+    }
+    .tab-btn {
+      padding:10px 20px; background:none; border:none; border-bottom:2px solid transparent;
+      margin-bottom:-2px; font-family:var(--font-body); font-size:.83rem; font-weight:700;
+      letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted);
+      cursor:pointer; transition:all .2s;
+    }
+    .tab-btn:hover { color:var(--brown); }
+    .tab-btn.active { color:var(--brown); border-bottom-color:var(--brown); }
+
+    /* ── LISTA ────────────────────────────────────── */
+    .section-title {
+      font-family:var(--font-display); font-size:1.25rem; font-weight:600;
+      color:var(--brown-dark); margin:0 0 20px;
+    }
+    .cart-empty {
+      text-align:center; padding:48px 24px; color:var(--text-muted);
+    }
+    .cart-empty-icon { font-size:2.5rem; margin-bottom:12px; }
+    .cart-empty h3   { font-family:var(--font-display); font-size:1.1rem; margin:0 0 8px; color:var(--brown-dark); }
+    .cart-empty p    { font-size:.85rem; line-height:1.7; margin:0; }
+
+    .cart-item {
+      display:flex; align-items:flex-start; gap:14px; padding:16px 0;
+      border-bottom:1px solid var(--border);
+    }
+    .cart-item:last-child { border-bottom:none; }
+    .item-info { flex:1; min-width:0; }
+    .item-brand { font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin:0 0 3px; }
+    .item-name  { font-size:.9rem; font-weight:600; color:var(--brown-dark); margin:0 0 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .item-variant { font-size:.8rem; color:var(--text-muted); margin:0 0 6px; }
+    .item-price { font-size:.88rem; font-weight:700; color:var(--brown); }
+    .item-purchased { font-size:.75rem; color:var(--success); margin-top:3px; }
+
+    .qty-ctrl {
+      display:flex; align-items:center; gap:8px; margin-top:8px;
+    }
+    .qty-btn {
+      width:26px; height:26px; border-radius:50%; border:1.5px solid var(--border);
+      background:#fff; cursor:pointer; font-size:.9rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center; color:var(--brown);
+      transition:all .2s;
+    }
+    .qty-btn:hover:not(:disabled) { border-color:var(--brown); background:var(--brown-light); }
+    .qty-btn:disabled { opacity:.3; cursor:not-allowed; }
+    .qty-num { font-size:.88rem; font-weight:700; min-width:20px; text-align:center; }
+
+    .btn-remove {
+      background:none; border:none; cursor:pointer; color:var(--text-muted);
+      font-size:.75rem; text-decoration:underline; margin-top:6px;
+      font-family:var(--font-body); display:block;
+    }
+    .btn-remove:hover:not(:disabled) { color:var(--error); }
+    .btn-remove:disabled { opacity:.3; cursor:not-allowed; }
+
+    .item-locked { opacity:.6; }
+    .lock-badge { font-size:.7rem; background:#f0f7f3; color:var(--success); border-radius:4px; padding:2px 6px; margin-top:4px; display:inline-block; }
+
+    /* ── PERFIL ───────────────────────────────────── */
+    .profile-form { max-width: 560px; }
+    .profile-section { margin-bottom: 28px; }
+    .profile-section-title {
+      font-size:.72rem; font-weight:700; letter-spacing:.12em;
+      text-transform:uppercase; color:var(--brown);
+      margin:0 0 16px; padding-bottom:8px;
+      border-bottom:1px solid var(--brown-light);
+    }
+    .form-row { display:grid; gap:16px; grid-template-columns:1fr 1fr; }
+    .birthday-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    @media (max-width:480px) { .form-row, .birthday-row { grid-template-columns:1fr; } }
+
+    /* ── SIDEBAR ──────────────────────────────────── */
+    .sidebar-card {
+      background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+      padding:24px; margin-bottom:20px;
+    }
+    .sidebar-title {
+      font-family:var(--font-display); font-size:1rem; font-weight:600;
+      color:var(--brown-dark); margin:0 0 16px;
+    }
+    .summary-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:.85rem; }
+    .summary-row + .summary-row { border-top:1px solid var(--border); }
+    .summary-total {
+      display:flex; justify-content:space-between; padding:12px 0 0;
+      margin-top:8px; border-top:2px solid var(--border);
+      font-weight:700; font-size:.95rem;
+    }
+    .summary-total .val { color:var(--brown); }
+
+    /* Credenciales invitado */
+    .cred-box {
+      background:var(--brown-light); border-radius:var(--radius);
+      padding:16px; font-size:.85rem; line-height:1.9;
+    }
+    .cred-box code {
+      background:#fff; padding:2px 6px; border-radius:4px;
+      font-family:monospace; font-size:.85rem;
+    }
+    .cred-warn { font-size:.75rem; color:var(--text-muted); margin-top:10px; line-height:1.6; }
+
+    /* Botón finalizar */
+    .btn-finalize {
+      width:100%; padding:14px; background:var(--brown-dark); color:#fff;
+      border:none; border-radius:var(--radius); font-family:var(--font-body);
+      font-size:.85rem; font-weight:700; letter-spacing:.1em;
+      text-transform:uppercase; cursor:pointer; transition:background .2s;
+    }
+    .btn-finalize:hover:not(:disabled) { background:var(--brown); }
+    .btn-finalize:disabled { opacity:.45; cursor:not-allowed; }
+
+    /* ── TOASTS DE ONBOARDING ─────────────────────── */
+    .toast-container {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      z-index:500; width:min(420px, calc(100vw - 40px));
+      pointer-events:none;
+    }
+    .toast {
+      background:var(--brown-dark); color:#fff; border-radius:12px;
+      padding:16px 20px; font-size:.88rem; line-height:1.6;
+      box-shadow:0 8px 24px rgba(0,0,0,.2); pointer-events:all;
+      display:flex; align-items:flex-start; gap:12px; animation:slideUp .4s ease;
+    }
+    @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:none; opacity:1; } }
+    .toast-icon { font-size:1.4rem; flex-shrink:0; margin-top:1px; }
+    .toast-body { flex:1; }
+    .toast-title { font-weight:700; margin-bottom:3px; }
+    .toast-close {
+      background:none; border:none; color:rgba(255,255,255,.6);
+      cursor:pointer; font-size:1rem; padding:0; flex-shrink:0;
+    }
+    .toast-close:hover { color:#fff; }
+
+    /* ── MODAL FINALIZAR ──────────────────────────── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(58,46,42,.55);
+      display:flex; align-items:center; justify-content:center;
+      z-index:200; padding:20px;
+    }
+    .modal {
+      background:#fff; border-radius:16px; padding:36px 40px;
+      max-width:480px; width:100%; text-align:center;
+      box-shadow:0 16px 48px rgba(0,0,0,.18);
+    }
+    .modal h2 { font-family:var(--font-display); font-size:1.5rem; color:var(--brown-dark); margin:0 0 12px; }
+    .modal p  { font-size:.9rem; color:var(--text-muted); line-height:1.8; margin:0 0 24px; }
+    .modal-btns { display:flex; gap:12px; justify-content:center; }
+
+    /* ── MODAL CREDENCIALES (post-finalizar) ──────── */
+    .cred-modal-content code {
+      display:block; background:var(--brown-light); padding:6px 12px;
+      border-radius:6px; font-family:monospace; font-size:.95rem;
+      margin:4px 0 16px; letter-spacing:.05em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <div style="font-size:.85rem;color:var(--text-muted)">Cargando su lista...</div>
+</div>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════ -->
+<div class="login-screen hidden" id="loginScreen">
+  <div class="login-card">
+    <p class="login-logo-text">G-LIVING</p>
+    <p class="login-logo-sub">Arte de la Mesa</p>
+    <h1 class="login-title">Lista de Bodas</h1>
+    <p class="login-subtitle">Acceso exclusivo para parejas</p>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="loginUser">Usuario</label>
+        <input type="text" id="loginUser" placeholder="su_usuario" autocomplete="username" autocapitalize="none">
+      </div>
+      <div class="form-group">
+        <label for="loginPass">Contraseña</label>
+        <input type="password" id="loginPass" autocomplete="current-password">
+      </div>
+      <div class="form-error" id="loginErr"></div>
+      <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Ingresar</button>
+    </form>
+
+    <p style="margin-top:24px;font-size:.82rem;color:var(--text-muted);text-align:center">
+      ¿Primera vez? <a href="registro.html" style="color:var(--brown);font-weight:600;text-decoration:none">Crear cuenta</a>
+    </p>
+  </div>
+</div>
+
+<!-- ══ APP PRINCIPAL ══════════════════════════════════════════════════ -->
+<div id="appScreen" class="hidden">
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-brand">G-LIVING · Bodas</div>
+    <div class="header-user">
+      <span>Hola, <strong id="headerCoupleName"></strong></span>
+      <button class="btn-logout" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- Estado banner -->
+  <div class="estado-banner hidden" id="estadoBanner">
+    <div class="estado-dot"></div>
+    <div><strong id="estadoTitle"></strong> — <span id="estadoDesc"></span></div>
+  </div>
+
+  <!-- Layout -->
+  <div class="main-layout">
+
+    <!-- COLUMNA PRINCIPAL -->
+    <main>
+      <!-- Tabs -->
+      <div class="tab-bar" id="tabBar">
+        <button class="tab-btn active" data-tab="lista">Mi Lista</button>
+        <button class="tab-btn" data-tab="perfil">Mis Datos</button>
+      </div>
+
+      <!-- ── TAB: LISTA ── -->
+      <div id="tabLista">
+        <h2 class="section-title" id="listaTitle">Nuestra Lista de Bodas</h2>
+
+        <!-- Estado: ACTIVA — lista publicada -->
+        <div class="hidden" id="activaNotice" style="background:#f0f7f3;border:1px solid #aed6bc;border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;font-size:.85rem;color:#2e6644">
+          <strong>Su lista está publicada.</strong> Sus invitados ya pueden acceder con las credenciales que recibieron por email. No es posible realizar cambios sin contactar a G-Living.
+        </div>
+
+        <!-- Estado: INACTIVA -->
+        <div class="hidden" id="inactivaNotice" style="background:#fff3cd;border:1px solid #ffc107;border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;font-size:.85rem;color:#856404">
+          <strong>Lista temporalmente pausada.</strong> Sus invitados ven un aviso de pausa. Ustedes pueden modificar los productos no adquiridos.
+        </div>
+
+        <!-- Estado: CERRADA -->
+        <div class="hidden" id="cerradaNotice" style="background:#f8f0f7;border:1px solid #c8aed6;border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;font-size:.85rem;color:#5a2e6e">
+          <strong>Lista cerrada.</strong> El período de su lista ha finalizado. Pronto nos pondremos en contacto para coordinar la entrega.
+        </div>
+
+        <div id="cartEmpty" class="cart-empty hidden">
+          <div class="cart-empty-icon">💍</div>
+          <h3>Su lista está vacía</h3>
+          <p>Exploren nuestros catálogos y agreguen los productos que los enamoren.<br>Cuando estén listos, publiquen su lista para sus invitados.</p>
+        </div>
+
+        <div id="cartItems"></div>
+
+        <!-- Solo en BORRADOR/INACTIVA: botones de catálogo -->
+        <div class="hidden" id="addMoreSection" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+          <p style="font-size:.85rem;color:var(--text-muted);margin:0 0 12px">Agregar más productos desde:</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <a href="../../mlg/mlg-index.html?mode=bodas" class="btn btn-secondary btn-sm">Catálogo MLG</a>
+            <a href="../../imolarte/imolarte-index.html?mode=bodas" class="btn btn-secondary btn-sm">Catálogo Imolarte</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: PERFIL ── -->
+      <div id="tabPerfil" class="hidden">
+        <h2 class="section-title">Datos de la Pareja</h2>
+        <form id="profileForm" novalidate class="profile-form">
+
+          <div class="profile-section">
+            <div class="profile-section-title">Él</div>
+            <div class="form-row">
+              <div class="form-group"><label>Nombre(s)</label><input type="text" id="pNombreEl" placeholder="Juan" autocomplete="given-name"></div>
+              <div class="form-group"><label>Apellido(s)</label><input type="text" id="pApellidoEl" placeholder="Gómez" autocomplete="family-name"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Cédula</label><input type="text" id="pCcEl" placeholder="1234567890" inputmode="numeric"></div>
+              <div class="form-group"><label>Teléfono</label><input type="tel" id="pTelEl" placeholder="3001234567" autocomplete="tel"></div>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="pEmailEl" placeholder="juan@ejemplo.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label>Confirmar email</label>
+              <input type="email" id="pEmailElConf" placeholder="juan@ejemplo.com" autocomplete="off">
+              <div class="field-err" id="errPEmailEl"></div>
+              <div class="field-ok"  id="okPEmailEl"></div>
+            </div>
+            <div class="form-group">
+              <label>Cumpleaños (día / mes)</label>
+              <div class="birthday-row">
+                <select id="pCumpleDiaEl"><option value="">Día</option></select>
+                <select id="pCumpleMesEl">
+                  <option value="">Mes</option>
+                  <option value="01">Enero</option><option value="02">Febrero</option>
+                  <option value="03">Marzo</option><option value="04">Abril</option>
+                  <option value="05">Mayo</option><option value="06">Junio</option>
+                  <option value="07">Julio</option><option value="08">Agosto</option>
+                  <option value="09">Septiembre</option><option value="10">Octubre</option>
+                  <option value="11">Noviembre</option><option value="12">Diciembre</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <div class="profile-section-title">Ella</div>
+            <div class="form-row">
+              <div class="form-group"><label>Nombre(s)</label><input type="text" id="pNombreElla" placeholder="María" autocomplete="off"></div>
+              <div class="form-group"><label>Apellido(s)</label><input type="text" id="pApellidoElla" placeholder="Rodríguez" autocomplete="off"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Cédula</label><input type="text" id="pCcElla" placeholder="1234567890" inputmode="numeric"></div>
+              <div class="form-group"><label>Teléfono</label><input type="tel" id="pTelElla" placeholder="3001234567" autocomplete="off"></div>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="pEmailElla" placeholder="maria@ejemplo.com" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label>Confirmar email</label>
+              <input type="email" id="pEmailEllaConf" placeholder="maria@ejemplo.com" autocomplete="off">
+              <div class="field-err" id="errPEmailElla"></div>
+              <div class="field-ok"  id="okPEmailElla"></div>
+            </div>
+            <div class="form-group">
+              <label>Cumpleaños (día / mes)</label>
+              <div class="birthday-row">
+                <select id="pCumpleDiaElla"><option value="">Día</option></select>
+                <select id="pCumpleMesElla">
+                  <option value="">Mes</option>
+                  <option value="01">Enero</option><option value="02">Febrero</option>
+                  <option value="03">Marzo</option><option value="04">Abril</option>
+                  <option value="05">Mayo</option><option value="06">Junio</option>
+                  <option value="07">Julio</option><option value="08">Agosto</option>
+                  <option value="09">Septiembre</option><option value="10">Octubre</option>
+                  <option value="11">Noviembre</option><option value="12">Diciembre</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <div class="profile-section-title">Boda y entrega</div>
+            <div class="form-row">
+              <div class="form-group"><label>Fecha de la boda</label><input type="date" id="pFechaBoda"></div>
+              <div class="form-group"><label>Cierre de lista</label><input type="date" id="pFechaCierre" readonly style="background:#faf5f2;cursor:not-allowed" title="El cierre fue definido al crear la cuenta"></div>
+            </div>
+            <div class="form-group">
+              <label>Dirección de entrega</label>
+              <input type="text" id="pDireccion" placeholder="Calle 80 # 10-25, Bogotá" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="form-error" id="profileErr"></div>
+          <div id="profileSuccess" style="display:none;background:#f0f7f3;border:1px solid #aed6bc;border-radius:var(--radius);padding:12px 16px;font-size:.85rem;color:var(--success);margin-top:12px">
+            ✓ Datos actualizados correctamente
+          </div>
+          <button type="submit" class="btn btn-primary" id="btnSaveProfile">Guardar cambios</button>
+        </form>
+      </div>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- Resumen -->
+      <div class="sidebar-card">
+        <div class="sidebar-title">Resumen</div>
+        <div class="summary-row"><span>Productos</span><span id="summaryItems">0</span></div>
+        <div class="summary-row"><span>Unidades</span><span id="summaryUnits">0</span></div>
+        <div class="summary-total">
+          <span>Total estimado</span>
+          <span class="val" id="summaryTotal">$0</span>
+        </div>
+      </div>
+
+      <!-- Credenciales invitado (solo ACTIVA/INACTIVA/CERRADA) -->
+      <div class="sidebar-card hidden" id="credCard">
+        <div class="sidebar-title">Acceso para invitados</div>
+        <div class="cred-box">
+          <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:6px">Usuario</div>
+          <code id="credUser"></code>
+          <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:6px">Contraseña</div>
+          <div id="credPassArea" style="font-size:.8rem;color:var(--text-muted);font-style:italic">La contraseña fue enviada por email al publicar la lista.</div>
+        </div>
+      </div>
+
+      <!-- Botón finalizar (solo BORRADOR) -->
+      <div class="hidden" id="finalizeCard">
+        <div class="sidebar-card">
+          <div class="sidebar-title">¿Listos para publicar?</div>
+          <p style="font-size:.83rem;color:var(--text-muted);line-height:1.7;margin:0 0 16px">
+            Cuando finalicen su lista, sus invitados recibirán un usuario y contraseña para acceder y hacerles regalos. Una vez publicada, la lista no podrá modificarse.
+          </p>
+          <button class="btn-finalize" id="btnFinalize" disabled>Publicar lista</button>
+          <p style="font-size:.72rem;color:var(--text-muted);margin:10px 0 0;text-align:center">Se requiere mínimo 1 producto</p>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- ══ MODAL: Confirmar publicar ══ -->
+<div class="modal-overlay hidden" id="modalFinalize">
+  <div class="modal">
+    <h2>Publicar lista</h2>
+    <p>Una vez publicada, su lista quedará <strong>congelada</strong> para modificaciones y sus invitados recibirán acceso para hacerles regalos. ¿Confirman?</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" id="btnCancelFinalize">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmFinalize">Sí, publicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Credenciales post-publicación ══ -->
+<div class="modal-overlay hidden" id="modalCredenciales">
+  <div class="modal cred-modal-content">
+    <h2>¡Su lista está publicada!</h2>
+    <p>Compartan estas credenciales con sus invitados. La contraseña no se volverá a mostrar.</p>
+    <div style="text-align:left;margin:16px 0">
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:4px">Usuario</div>
+      <code id="newCredUser"></code>
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:4px">Contraseña</div>
+      <code id="newCredPass"></code>
+    </div>
+    <p style="font-size:.8rem;color:var(--text-muted)">También les enviamos esta información por email.</p>
+    <button class="btn btn-primary" id="btnCloseCredModal">Entendido</button>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="config.js"></script>
+<script>
+'use strict';
+
+// ── ESTADO GLOBAL ──────────────────────────────────────────────────────────────
+
+let SESSION   = null;  // { token, username, coupleName, estado, profile }
+let cartItems = [];    // array de items del carrito
+let purchasedQtys = {}; // { variantSku: qty } — cantidades compradas por invitados
+let isDirty   = false; // cart has unsaved changes
+
+const $ = id => document.getElementById(id);
+
+// ── API ────────────────────────────────────────────────────────────────────────
+
+async function gasPost(body) {
+  const res = await fetch(BODAS_V3_CONFIG.GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...body, _token: BODAS_V3_CONFIG.API_TOKEN }),
+  });
+  return res.json();
+}
+
+// ── TOASTS ─────────────────────────────────────────────────────────────────────
+
+function showToast(icon, title, msg, duration = 5000) {
+  const container = $('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `
+    <div class="toast-icon">${icon}</div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      ${msg ? `<div>${msg}</div>` : ''}
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+  container.appendChild(t);
+  if (duration > 0) setTimeout(() => t.remove(), duration);
+}
+
+// ── ONBOARDING ────────────────────────────────────────────────────────────────
+
+const ONBOARDING_STEPS = [
+  { key: 'welcome',   icon: '💍', title: '¡Bienvenidos a su lista!', msg: 'Aquí podrán agregar los productos que desean recibir como regalo. Comiencen por explorar los catálogos.' },
+  { key: 'catalog',   icon: '✨', title: 'Exploren los catálogos',   msg: 'Hagan clic en "Catálogo MLG" o "Catálogo Imolarte" para descubrir nuestras colecciones y agregar piezas a su lista.' },
+  { key: 'finalize',  icon: '🎉', title: 'Cuando estén listos...',   msg: 'Presionen "Publicar lista" en el panel derecho para que sus invitados puedan acceder y hacerles regalos.' },
+];
+
+function runOnboarding() {
+  const progress = JSON.parse(localStorage.getItem(BODAS_V3_CONFIG.ONBOARDING_KEY) || '{}');
+  let delay = 500;
+  for (const step of ONBOARDING_STEPS) {
+    if (!progress[step.key]) {
+      setTimeout(() => {
+        showToast(step.icon, step.title, step.msg, 8000);
+        progress[step.key] = true;
+        localStorage.setItem(BODAS_V3_CONFIG.ONBOARDING_KEY, JSON.stringify(progress));
+      }, delay);
+      delay += 9000;
+    }
+  }
+}
+
+// Toasts contextuales en carrito
+function checkCartToasts() {
+  const progress = JSON.parse(localStorage.getItem(BODAS_V3_CONFIG.ONBOARDING_KEY) || '{}');
+  if (!progress['first_item'] && cartItems.length >= 1) {
+    showToast('🛍️', '¡Primer producto agregado!', 'Sigan descubriendo piezas que los enamoren.', 6000);
+    progress['first_item'] = true;
+    localStorage.setItem(BODAS_V3_CONFIG.ONBOARDING_KEY, JSON.stringify(progress));
+  }
+  if (!progress['ten_items'] && cartItems.length >= 10) {
+    showToast('🌟', '¡Su lista crece beautifully!', 'Cuando estén listos, publiquen su lista para sus invitados.', 6000);
+    progress['ten_items'] = true;
+    localStorage.setItem(BODAS_V3_CONFIG.ONBOARDING_KEY, JSON.stringify(progress));
+  }
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    $('tabLista').classList.toggle('hidden',  btn.dataset.tab !== 'lista');
+    $('tabPerfil').classList.toggle('hidden', btn.dataset.tab !== 'perfil');
+  });
+});
+
+// ── CARRITO: RENDER ────────────────────────────────────────────────────────────
+
+function fmtCOP(n) { return '$' + Number(n || 0).toLocaleString('es-CO'); }
+
+function renderCart() {
+  const container = $('cartItems');
+  const estado = SESSION?.estado || 'BORRADOR';
+  const editable = estado === 'BORRADOR' || estado === 'INACTIVA';
+
+  if (cartItems.length === 0) {
+    $('cartEmpty').classList.remove('hidden');
+    container.innerHTML = '';
+  } else {
+    $('cartEmpty').classList.add('hidden');
+    container.innerHTML = cartItems.map((item, i) => {
+      const sku      = String(item.variantSku || '');
+      const bought   = purchasedQtys[sku] || 0;
+      const isLocked = bought > 0;
+      const canDec   = editable && item.qty > Math.max(1, bought);
+      const canRem   = editable && bought === 0;
+
+      return `<div class="cart-item ${isLocked ? 'item-locked':''}" data-idx="${i}">
+        <div class="item-info">
+          <div class="item-brand">${item.brand || ''}</div>
+          <div class="item-name">${item.productName || ''}</div>
+          <div class="item-variant">${item.variantLabel || ''}</div>
+          <div class="item-price">${fmtCOP(item.precio_cop)}</div>
+          ${bought > 0 ? `<div class="item-purchased">✓ ${bought} comprado(s) por invitados</div><span class="lock-badge">No eliminable</span>` : ''}
+          ${editable ? `<div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeQty(${i},-1)" ${canDec?'':'disabled'}>−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+          </div>
+          <button class="btn-remove" onclick="removeItem(${i})" ${canRem?'':'disabled'}>Eliminar</button>` :
+          `<div style="font-size:.83rem;color:var(--text-muted);margin-top:6px">Cantidad: ${item.qty}</div>`}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Resumen
+  const total = cartItems.reduce((s, it) => s + (it.precio_cop||0) * (it.qty||1), 0);
+  const units = cartItems.reduce((s, it) => s + (it.qty||1), 0);
+  $('summaryItems').textContent = cartItems.length;
+  $('summaryUnits').textContent = units;
+  $('summaryTotal').textContent = fmtCOP(total);
+
+  // Botón finalizar
+  const btnFin = $('btnFinalize');
+  if (btnFin) btnFin.disabled = cartItems.length < BODAS_V3_CONFIG.MIN_ITEMS_TO_FINALIZE;
+
+  checkCartToasts();
+}
+
+function changeQty(idx, delta) {
+  const item   = cartItems[idx];
+  const sku    = String(item.variantSku || '');
+  const bought = purchasedQtys[sku] || 0;
+  const min    = Math.max(1, bought);
+  item.qty     = Math.max(min, item.qty + delta);
+  isDirty = true;
+  renderCart();
+  debounceSave();
+}
+
+function removeItem(idx) {
+  cartItems.splice(idx, 1);
+  isDirty = true;
+  renderCart();
+  debounceSave();
+}
+
+// ── CARRITO: GUARDAR (debounce 1.5s) ─────────────────────────────────────────
+
+let saveTimer = null;
+function debounceSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveCart, 1500);
+}
+
+async function saveCart() {
+  if (!SESSION || !isDirty) return;
+  try {
+    await gasPost({ action: 'saveCart', token: SESSION.token, items: cartItems });
+    isDirty = false;
+  } catch (_) {}
+}
+
+// ── CARRITO: CARGAR ────────────────────────────────────────────────────────────
+
+async function loadCart() {
+  try {
+    const [cartRes, purchRes] = await Promise.all([
+      gasPost({ action: 'getCart',          token: SESSION.token }),
+      gasPost({ action: 'getPurchasedQtys', token: SESSION.token }),
+    ]);
+    if (cartRes.success)  cartItems    = cartRes.items || [];
+    if (purchRes.success) purchasedQtys = purchRes.purchasedQtys || {};
+  } catch (_) {}
+  renderCart();
+}
+
+// ── PERFIL ─────────────────────────────────────────────────────────────────────
+
+function populateDaysSelect(selectId) {
+  const sel = $(selectId);
+  for (let d = 1; d <= 31; d++) {
+    const opt = document.createElement('option');
+    opt.value = d.toString().padStart(2,'0');
+    opt.text  = d;
+    sel.appendChild(opt);
+  }
+}
+['pCumpleDiaEl','pCumpleDiaElla'].forEach(populateDaysSelect);
+
+function fillProfile(p) {
+  if (!p) return;
+  [
+    ['pNombreEl',    p.nombre_el],
+    ['pApellidoEl',  p.apellido_el],
+    ['pCcEl',        p.id_cc_el],
+    ['pTelEl',       p.telefono_el],
+    ['pEmailEl',     p.email_el],
+    ['pEmailElConf', p.email_el],
+    ['pNombreElla',  p.nombre_ella],
+    ['pApellidoElla',p.apellido_ella],
+    ['pCcElla',      p.id_cc_ella],
+    ['pTelElla',     p.telefono_ella],
+    ['pEmailElla',   p.email_ella],
+    ['pEmailEllaConf',p.email_ella],
+    ['pFechaBoda',   p.fecha_boda],
+    ['pFechaCierre', p.fecha_cierre],
+    ['pDireccion',   p.direccion_entrega],
+  ].forEach(([id, val]) => { if ($(id)) $(id).value = val || ''; });
+
+  // Cumpleaños DD/MM
+  if (p.cumple_el) {
+    const [dd, mm] = p.cumple_el.split('/');
+    if ($('pCumpleDiaEl')) $('pCumpleDiaEl').value = dd || '';
+    if ($('pCumpleMesEl')) $('pCumpleMesEl').value = mm || '';
+  }
+  if (p.cumple_ella) {
+    const [dd, mm] = p.cumple_ella.split('/');
+    if ($('pCumpleDiaElla')) $('pCumpleDiaElla').value = dd || '';
+    if ($('pCumpleMesElla')) $('pCumpleMesElla').value = mm || '';
+  }
+}
+
+// Email confirm validation
+function setupEmailConf(emailId, confId, errId, okId) {
+  $(confId).addEventListener('input', () => {
+    const email = $(emailId).value.trim().toLowerCase();
+    const conf  = $(confId).value.trim().toLowerCase();
+    $(errId).style.display = 'none';
+    $(okId).style.display  = 'none';
+    if (conf && email && conf === email) $(okId).style.display = 'block';
+    else if (conf && conf !== email) $(errId).style.display = 'block';
+  });
+}
+setupEmailConf('pEmailEl',   'pEmailElConf',   'errPEmailEl',   'okPEmailEl');
+setupEmailConf('pEmailElla', 'pEmailEllaConf', 'errPEmailElla', 'okPEmailElla');
+
+// Google Places para dirección del perfil
+async function initPlacesProfile() {
+  try {
+    const { Autocomplete } = await google.maps.importLibrary('places');
+    const ac = new Autocomplete($('pDireccion'), {
+      componentRestrictions: { country: 'co' },
+      fields: ['formatted_address'],
+    });
+    ac.addListener('place_changed', () => {
+      const place = ac.getPlace();
+      if (place.formatted_address) $('pDireccion').value = place.formatted_address;
+    });
+  } catch (_) {}
+}
+initPlacesProfile();
+
+$('profileForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('profileErr').classList.remove('show');
+  $('profileSuccess').style.display = 'none';
+
+  // Validar emails coinciden
+  const emailEl   = $('pEmailEl').value.trim().toLowerCase();
+  const emailElC  = $('pEmailElConf').value.trim().toLowerCase();
+  const emailElla  = $('pEmailElla').value.trim().toLowerCase();
+  const emailEllaC = $('pEmailEllaConf').value.trim().toLowerCase();
+  if (emailEl && emailElC && emailEl !== emailElC) {
+    $('errPEmailEl').style.display = 'block';
+    return;
+  }
+  if (emailElla && emailEllaC && emailElla !== emailEllaC) {
+    $('errPEmailElla').style.display = 'block';
+    return;
+  }
+
+  const btn = $('btnSaveProfile');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner-sm"></span> Guardando...';
+
+  const cumpleEl   = [$('pCumpleDiaEl').value, $('pCumpleMesEl').value].filter(Boolean).join('/') || '';
+  const cumpleElla = [$('pCumpleDiaElla').value, $('pCumpleMesElla').value].filter(Boolean).join('/') || '';
+
+  const profile = {
+    nombre_el:         $('pNombreEl').value.trim(),
+    apellido_el:       $('pApellidoEl').value.trim(),
+    id_cc_el:          $('pCcEl').value.trim(),
+    telefono_el:       $('pTelEl').value.trim(),
+    email_el:          emailEl,
+    cumple_el:         cumpleEl,
+    nombre_ella:       $('pNombreElla').value.trim(),
+    apellido_ella:     $('pApellidoElla').value.trim(),
+    id_cc_ella:        $('pCcElla').value.trim(),
+    telefono_ella:     $('pTelElla').value.trim(),
+    email_ella:        emailElla,
+    cumple_ella:       cumpleElla,
+    fecha_boda:        $('pFechaBoda').value,
+    direccion_entrega: $('pDireccion').value.trim(),
+  };
+
+  try {
+    const res = await gasPost({ action: 'updateProfile', token: SESSION.token, profile });
+    if (res.success) {
+      $('profileSuccess').style.display = 'block';
+      SESSION.profile = { ...SESSION.profile, ...profile };
+      setTimeout(() => { $('profileSuccess').style.display = 'none'; }, 3000);
+    } else {
+      $('profileErr').textContent = res.error || 'Error al guardar';
+      $('profileErr').classList.add('show');
+    }
+  } catch (_) {
+    $('profileErr').textContent = 'Error de conexión';
+    $('profileErr').classList.add('show');
+  } finally {
+    btn.disabled  = false;
+    btn.textContent = 'Guardar cambios';
+  }
+});
+
+// ── ESTADO: RENDER BANNER ─────────────────────────────────────────────────────
+
+function applyEstado(estado) {
+  const banner = $('estadoBanner');
+  banner.className = 'estado-banner ' + estado.toLowerCase();
+  banner.classList.remove('hidden');
+
+  const configs = {
+    BORRADOR: { title: 'En construcción', desc: 'Seleccionen sus productos y publiquen cuando estén listos.' },
+    ACTIVA:   { title: 'Lista publicada',  desc: 'Sus invitados ya pueden acceder y hacer regalos.' },
+    INACTIVA: { title: 'Pausada temporalmente', desc: 'Sus invitados ven un aviso. Pueden editar productos no comprados.' },
+    CERRADA:  { title: 'Lista cerrada',   desc: 'El período finalizó. Nos pondremos en contacto para coordinar la entrega.' },
+  };
+  const cfg = configs[estado] || configs['BORRADOR'];
+  $('estadoTitle').textContent = cfg.title;
+  $('estadoDesc').textContent  = cfg.desc;
+
+  // Mostrar/ocultar secciones según estado
+  const isBorrador = estado === 'BORRADOR';
+  const isActiva   = estado === 'ACTIVA';
+  const isInactiva = estado === 'INACTIVA';
+  const isCerrada  = estado === 'CERRADA';
+
+  $('activaNotice').classList.toggle('hidden',  !isActiva);
+  $('inactivaNotice').classList.toggle('hidden', !isInactiva);
+  $('cerradaNotice').classList.toggle('hidden',  !isCerrada);
+  $('addMoreSection').classList.toggle('hidden', !(isBorrador || isInactiva));
+  $('finalizeCard').classList.toggle('hidden',    !isBorrador);
+  $('credCard').classList.toggle('hidden',        isBorrador);
+
+  // Campos de perfil: bloquear fecha_cierre siempre
+  $('pFechaBoda').disabled  = isCerrada;
+  $('pDireccion').disabled  = isCerrada;
+}
+
+// ── LOGOUT ────────────────────────────────────────────────────────────────────
+
+$('btnLogout').addEventListener('click', async () => {
+  if (SESSION) {
+    try { await gasPost({ action: 'logout', token: SESSION.token }); } catch (_) {}
+  }
+  localStorage.removeItem(BODAS_V3_CONFIG.SESSION_KEY);
+  SESSION = null;
+  location.reload();
+});
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const errEl = $('loginErr');
+  errEl.classList.remove('show');
+
+  const btn = $('loginBtn');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner-sm"></span>';
+
+  try {
+    const res = await gasPost({
+      action:   'login',
+      username: $('loginUser').value.trim(),
+      password: $('loginPass').value,
+    });
+    if (res.success) {
+      localStorage.setItem(BODAS_V3_CONFIG.SESSION_KEY, JSON.stringify(res));
+      await initApp(res);
+    } else {
+      errEl.textContent = res.error || 'Error de acceso';
+      errEl.classList.add('show');
+    }
+  } catch (_) {
+    errEl.textContent = 'Error de conexión';
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled  = false;
+    btn.textContent = 'Ingresar';
+  }
+});
+
+// ── INICIALIZAR APP ───────────────────────────────────────────────────────────
+
+async function initApp(session) {
+  SESSION = session;
+
+  // Mostrar app, ocultar login
+  $('loginScreen').classList.add('hidden');
+  $('appScreen').classList.remove('hidden');
+
+  $('headerCoupleName').textContent = session.coupleName || '';
+  $('credUser').textContent = session.invitado_user || '—';
+
+  // Aplicar estado visual
+  applyEstado(session.estado || 'BORRADOR');
+
+  // Llenar perfil
+  fillProfile(session.profile);
+
+  // Cargar carrito
+  await loadCart();
+
+  // Onboarding (solo BORRADOR, primera vez)
+  if (session.estado === 'BORRADOR') {
+    const progress = JSON.parse(localStorage.getItem(BODAS_V3_CONFIG.ONBOARDING_KEY) || '{}');
+    if (!progress['welcome']) runOnboarding();
+  }
+}
+
+// ── FINALIZAR LISTA ───────────────────────────────────────────────────────────
+
+$('btnFinalize').addEventListener('click', () => {
+  $('modalFinalize').classList.remove('hidden');
+});
+$('btnCancelFinalize').addEventListener('click', () => {
+  $('modalFinalize').classList.add('hidden');
+});
+
+$('btnConfirmFinalize').addEventListener('click', async () => {
+  const btn = $('btnConfirmFinalize');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner-sm"></span> Publicando...';
+
+  try {
+    const res = await gasPost({ action: 'finalizeList', token: SESSION.token });
+    $('modalFinalize').classList.add('hidden');
+
+    if (res.success) {
+      SESSION.estado        = 'ACTIVA';
+      SESSION.invitado_user = res.invitado_user;
+      applyEstado('ACTIVA');
+
+      // Mostrar credenciales
+      $('newCredUser').textContent = res.invitado_user;
+      $('newCredPass').textContent = res.invitado_pass;
+      $('modalCredenciales').classList.remove('hidden');
+
+      // Actualizar sidebar
+      $('credUser').textContent = res.invitado_user;
+
+      // Actualizar sesión en localStorage
+      const saved = JSON.parse(localStorage.getItem(BODAS_V3_CONFIG.SESSION_KEY) || '{}');
+      saved.estado        = 'ACTIVA';
+      saved.invitado_user = res.invitado_user;
+      localStorage.setItem(BODAS_V3_CONFIG.SESSION_KEY, JSON.stringify(saved));
+    } else {
+      showToast('⚠️', 'Error', res.error || 'No se pudo publicar la lista', 6000);
+    }
+  } catch (_) {
+    showToast('⚠️', 'Error de conexión', 'Intente nuevamente', 6000);
+  } finally {
+    btn.disabled  = false;
+    btn.textContent = 'Sí, publicar';
+  }
+});
+
+$('btnCloseCredModal').addEventListener('click', () => {
+  $('modalCredenciales').classList.add('hidden');
+  renderCart();
+});
+
+// ── BOOTSTRAP ─────────────────────────────────────────────────────────────────
+
+(async () => {
+  // Verificar sesión guardada
+  const saved = localStorage.getItem(BODAS_V3_CONFIG.SESSION_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.token) {
+        const res = await gasPost({ action: 'validate', token: parsed.token });
+        if (res.success) {
+          $('loadingScreen').classList.add('hidden');
+          await initApp({ ...parsed, ...res });
+          return;
+        }
+      }
+    } catch (_) {}
+    localStorage.removeItem(BODAS_V3_CONFIG.SESSION_KEY);
+  }
+
+  // Mostrar login
+  $('loadingScreen').classList.add('hidden');
+  $('loginScreen').classList.remove('hidden');
+})();
+</script>
+</body>
+</html>
