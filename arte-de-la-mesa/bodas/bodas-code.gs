@@ -403,10 +403,9 @@ function _saveCart_(token, items) {
   const sheet = ss.getSheetByName(CFG_BODAS.SHEET_LISTA);
   if (!sheet) return { success: false, error: 'Hoja ListaBodas no encontrada' };
 
-  const isFirstSend = !validation.profile || !validation.profile.fecha_apertura_lista;
-  const coupleName  = validation.coupleName || '';
-  const total_cop   = items.reduce((s, it) => s + (it.precio_cop || 0) * (it.qty || 1), 0);
-  const now         = _nowBogota_();
+  const coupleName = validation.coupleName || '';
+  const total_cop  = items.reduce((s, it) => s + (it.precio_cop || 0) * (it.qty || 1), 0);
+  const now        = _nowBogota_();
 
   // Mapa de filas activas: variantSku → número de fila (1-based)
   const allData    = sheet.getDataRange().getValues();
@@ -417,6 +416,9 @@ function _saveCart_(token, items) {
     const accion = String(allData[i][COL_LISTA.ACCION]      || '').trim();
     if (accion !== 'removido') activeRows[sku] = i + 1;
   }
+
+  // Primer envío: no había ítems activos en ListaBodas antes de este guardado
+  const isFirstSend = Object.keys(activeRows).length === 0 && items.length > 0;
 
   const newSkus = new Set(items.map(it => String(it.variantSku || '').trim()));
 
@@ -452,18 +454,13 @@ function _saveCart_(token, items) {
     }
   }
 
-  // Escribir fecha_apertura_lista en primer envío (col G)
-  const usrSheet = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
+  const usrSheet  = ss.getSheetByName(CFG_BODAS.SHEET_USUARIOS);
   let profileData = validation.profile || {};
   if (usrSheet) {
     const usrData = usrSheet.getDataRange().getValues();
     for (let i = 1; i < usrData.length; i++) {
       if (!_normalizedEquals_(usrData[i][COL_USR.USERNAME], validation.username)) continue;
-      if (isFirstSend) {
-        usrSheet.getRange(i + 1, COL_USR.FECHA_APERTURA + 1).setValue(now);
-      }
       profileData = _rowToProfile_(usrData[i]);
-      if (isFirstSend) profileData.fecha_apertura_lista = now;
       break;
     }
   }
@@ -473,7 +470,7 @@ function _saveCart_(token, items) {
   try { _enviarEmailFilippo_(coupleName, profileData, items, total_cop, now); }
   catch (err) { Logger.log('Email Filippo error: ' + err.message); }
 
-  return { success: true, saved: items.length, fecha_apertura_lista: isFirstSend ? now : profileData.fecha_apertura_lista };
+  return { success: true, saved: items.length };
 }
 
 // ── LISTA DE BODAS: OBTENER ───────────────────────────────────────────────────
@@ -980,18 +977,21 @@ function _agregarUsuario(username, password, coupleName, fechaBoda, fechaCierre)
   }
 
   const hash = _sha256_(password);
-  // A:username | B:hash | C:coupleName | D:estado_lista | E:createdAt | F:fecha_boda | G:fecha_apertura(vacía) | H:fecha_cierre
+  const now  = _nowBogota_();
+  // A:username | B:hash | C:coupleName | D:estado_lista | E:createdAt
+  // F:fecha_boda | G:fecha_apertura_lista | H:fecha_cierre_lista
   sheet.appendRow([
     username.trim(),
     hash,
     coupleName,
-    'ACTIVA',
-    new Date().toISOString(),
+    'ACTIVA',        // D: lista activa desde el momento de creación
+    now,             // E: createdAt
     fechaBoda   || '',
-    '',              // G: fecha_apertura_lista — sistema escribe al primer envío
+    now,             // G: fecha_apertura_lista = timestamp de creación
     fechaCierre || '',
   ]);
-  Logger.log('✅ Usuario "' + username + '" creado. Pareja: "' + coupleName + '" | Boda: ' + (fechaBoda || '—') + ' | Cierre: ' + (fechaCierre || '—'));
+  Logger.log('✅ Usuario "' + username + '" creado — lista ACTIVA desde ' + now);
+  Logger.log('   Pareja: "' + coupleName + '" | Boda: ' + (fechaBoda || '—') + ' | Cierre lista: ' + (fechaCierre || '—'));
   Logger.log('   Hash (8 chars): ' + hash.substring(0, 8) + '...');
 }
 

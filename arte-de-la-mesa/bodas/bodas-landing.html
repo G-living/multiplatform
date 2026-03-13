@@ -2263,11 +2263,6 @@
       closeSendConfirmModal();
       if (res.success) {
         localStorage.setItem(CART_TS_KEY, new Date().toISOString());
-        if (res.fecha_apertura_lista) {
-          session.profile = session.profile || {};
-          session.profile.fecha_apertura_lista = res.fecha_apertura_lista;
-          localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        }
         showToast('Lista enviada exitosamente. ¡Gracias por confiar en G-Living! ♡', 'success');
       } else {
         showToast('Error al enviar. Tu lista está guardada localmente.', 'error');
