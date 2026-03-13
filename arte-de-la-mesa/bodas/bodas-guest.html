@@ -717,6 +717,62 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── LISTA INACTIVA OVERLAY ──────────────────────────────── */
+    .inactiva-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9900;
+      background: rgba(250, 248, 244, 0.88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-lg, 32px);
+    }
+
+    .inactiva-card {
+      background: #fff;
+      border: 1px solid var(--color-border, #e8e8e4);
+      border-radius: var(--radius-lg, 16px);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.10);
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .inactiva-card .inactiva-logo {
+      width: 72px; height: auto;
+      margin-bottom: var(--spacing-lg, 32px);
+      border-radius: var(--radius-sm, 4px);
+    }
+
+    .inactiva-card h2 {
+      font-family: var(--font-display);
+      font-size: var(--font-size-xl, 1.25rem);
+      color: var(--color-text-primary);
+      margin: 0 0 12px; font-weight: 600;
+    }
+
+    .inactiva-card p {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.7; margin: 0 0 24px;
+    }
+
+    .inactiva-brand {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-accent-dark, #a07c30);
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      border-bottom: 1px solid var(--color-accent, #c9a961);
+      padding-bottom: 2px;
+    }
+
     .spinner {
       width: 20px; height: 20px;
       border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
@@ -911,6 +967,38 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════
+       LISTA INACTIVA OVERLAY
+       ═══════════════════════════════════════════════════════ -->
+  <div id="inactivaOverlay" class="inactiva-overlay hidden" role="alertdialog" aria-modal="true">
+    <div class="inactiva-card">
+      <img src="../mlg/images/branding/Logo-HC.jpeg" alt="G-Living" class="inactiva-logo"
+           onerror="this.style.display='none'">
+      <h2>Lista temporalmente restringida</h2>
+      <p>
+        Esta lista de bodas se encuentra momentáneamente pausada.<br>
+        Todos los productos y selecciones están seguros y serán retomados al reactivarla.
+      </p>
+      <p>
+        Para recibir atención prioritaria y más información,<br>
+        no dude en comunicarse con nuestro equipo:
+      </p>
+      <a class="inactiva-brand" href="https://g-living.co" target="_blank" rel="noopener">
+        G-LIVING | Italian Living &amp; Design
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       IMAGE EXPAND OVERLAY
+       ═══════════════════════════════════════════════════════ -->
+  <div id="imgExpandOverlay" class="img-expand-overlay hidden"
+       role="dialog" aria-modal="true" aria-label="Ampliar imagen"
+       style="position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10500;display:flex;align-items:center;justify-content:center;cursor:zoom-out">
+    <img id="imgExpandSrc" src="" alt="Ampliar imagen"
+         style="max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 48px rgba(0,0,0,.4);object-fit:contain">
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
        TOAST
        ═══════════════════════════════════════════════════════ -->
   <div class="toast-container" id="toastContainer"></div>
@@ -1098,6 +1186,12 @@
 
       if (!res.success) {
         grid.innerHTML = `<p style="color:var(--color-error);text-align:center;grid-column:1/-1">${res.error || 'Error al cargar la lista.'}</p>`;
+        return;
+      }
+
+      if (res.lista_inactiva) {
+        document.getElementById('inactivaOverlay').classList.remove('hidden');
+        grid.innerHTML = '';
         return;
       }
 
@@ -1505,11 +1599,23 @@
     return res.json();
   }
 
+  // Image expand overlay — close on click
+  document.getElementById('imgExpandOverlay').addEventListener('click', () => {
+    document.getElementById('imgExpandOverlay').classList.add('hidden');
+    document.getElementById('imgExpandSrc').src = '';
+  });
+
   // Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (!document.getElementById('modalWrap').classList.contains('hidden')) closeProductModal();
-      else if (!document.getElementById('cartBackdrop').classList.contains('hidden')) closeCartDrawer();
+      if (!document.getElementById('imgExpandOverlay').classList.contains('hidden')) {
+        document.getElementById('imgExpandOverlay').classList.add('hidden');
+        document.getElementById('imgExpandSrc').src = '';
+      } else if (!document.getElementById('modalWrap').classList.contains('hidden')) {
+        closeProductModal();
+      } else if (!document.getElementById('cartBackdrop').classList.contains('hidden')) {
+        closeCartDrawer();
+      }
     }
   });
 
