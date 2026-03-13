@@ -890,23 +890,14 @@ function setupSheets() {
 function inicializarHojas() { setupSheets(); }
 
 // ── CREAR USUARIO (ejecutar manualmente) ─────────────────────────────────────
-/**
- * 1. Descomenta y edita la línea _agregarUsuario(...)
- * 2. Presiona ▶ para ejecutar
- * 3. Revisa Ver → Registros para confirmar
- */
+// Edita los valores entre comillas '' y presiona ▶ Ejecutar
 function crearUsuario() {
   _agregarUsuario('pareja_garcia', 'clave2026', 'María & Andrés García');
 }
 
 // ── CREAR INVITADO (ejecutar manualmente) ─────────────────────────────────────
-/**
- * 1. Descomenta y edita la línea _agregarInvitado(...)
- *    Primer argumento: username de la pareja (col A en Usuarios)
- *    Segundo: username del invitado | Tercero: contraseña del invitado
- * 2. Presiona ▶ para ejecutar
- * 3. Revisa Ver → Registros para confirmar
- */
+// Primer arg: username de la pareja | Segundo: username invitado | Tercero: contraseña invitado
+// Edita los valores entre comillas '' y presiona ▶ Ejecutar
 function crearInvitado() {
   _agregarInvitado('pareja_garcia', 'invitado_juan', 'clave123');
 }
