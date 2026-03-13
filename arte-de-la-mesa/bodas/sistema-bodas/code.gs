@@ -109,6 +109,11 @@ const C = {
   INV_PASS_HASH:    22,  // W
   HISTORIAL:        23,  // X
   CLOSURE_EMAIL:    24,  // Y — SI/NO
+  ID_TIPO_EL:       25,  // Z  — tipo doc él   (CC/CE/PA/TI/NIT)
+  ID_TIPO_ELLA:     26,  // AA — tipo doc ella
+  BARRIO:           27,  // AB — barrio entrega
+  CIUDAD:           28,  // AC — ciudad entrega
+  NOTAS:            29,  // AD — notas esposos
 };
 
 // Índices col ListaBodas (base 0)
@@ -194,7 +199,13 @@ function _validateGuestToken_(t) {
 
 function doPost(e) {
   try {
-    const body   = JSON.parse(e.postData.contents);
+    // Soporta URLSearchParams (sin preflight CORS) y JSON
+    let body;
+    if (e.parameter && e.parameter.data) {
+      body = JSON.parse(e.parameter.data);
+    } else {
+      body = JSON.parse(e.postData.contents);
+    }
     const action = body.action || '';
 
     if (body._token !== CFG_B.API_TOKEN) {
@@ -239,9 +250,9 @@ function doGet(e) {
 /**
  * body: {
  *   invitationCode, username, password,
- *   nombre_el, apellido_el, id_cc_el, telefono_el, email_el, cumple_el,
- *   nombre_ella, apellido_ella, id_cc_ella, telefono_ella, email_ella, cumple_ella,
- *   fecha_boda, fecha_cierre_lista, direccion_entrega
+ *   nombre_el, apellido_el, id_tipo_el, id_cc_el, telefono_el, email_el, cumple_el,
+ *   nombre_ella, apellido_ella, id_tipo_ella, id_cc_ella, telefono_ella, email_ella, cumple_ella,
+ *   fecha_boda, fecha_cierre_lista, direccion_entrega, barrio_entrega, ciudad_entrega, notas
  * }
  */
 function _registerCouple_(body) {
@@ -319,6 +330,11 @@ function _registerCouple_(body) {
     '',                                          // W: invitado_passHash
     '',                                          // X: historial_cambios
     'NO',                                        // Y: closure_email_sent
+    String(body.id_tipo_el          || ''),     // Z: tipo doc él
+    String(body.id_tipo_ella        || ''),     // AA: tipo doc ella
+    String(body.barrio_entrega      || ''),     // AB: barrio entrega
+    String(body.ciudad_entrega      || ''),     // AC: ciudad entrega
+    String(body.notas               || ''),     // AD: notas esposos
   ]);
 
   // 6. Email de bienvenida
@@ -461,6 +477,9 @@ function _rowToProfile_(row) {
     email_ella:        String(row[C.EMAIL_ELLA]     || ''),
     cumple_ella:       String(row[C.CUMPLE_ELLA]    || ''),
     direccion_entrega: String(row[C.DIRECCION]      || ''),
+    barrio_entrega:    String(row[C.BARRIO]         || ''),
+    ciudad_entrega:    String(row[C.CIUDAD]         || ''),
+    notas:             String(row[C.NOTAS]          || ''),
   };
 }
 
@@ -506,6 +525,9 @@ function _updateProfile_(token, profile) {
     ['email_ella',        C.EMAIL_ELLA],
     ['cumple_ella',       C.CUMPLE_ELLA],
     ['direccion_entrega', C.DIRECCION],
+    ['barrio_entrega',    C.BARRIO],
+    ['ciudad_entrega',    C.CIUDAD],
+    ['notas',             C.NOTAS],
   ];
 
   const data = sh.getDataRange().getValues();
@@ -537,6 +559,14 @@ function _updateProfile_(token, profile) {
       profile.cumple_ella       || '',
       profile.direccion_entrega || '',
     ]]);
+    // Cols AB–AD (barrio, ciudad, notas)
+    if (profile.barrio_entrega !== undefined || profile.ciudad_entrega !== undefined || profile.notas !== undefined) {
+      sh.getRange(i + 1, C.BARRIO + 1, 1, 3).setValues([[
+        profile.barrio_entrega || '',
+        profile.ciudad_entrega || '',
+        profile.notas          || '',
+      ]]);
+    }
 
     if (diffs.length) {
       const prev    = String(row[C.HISTORIAL] || '').trim();

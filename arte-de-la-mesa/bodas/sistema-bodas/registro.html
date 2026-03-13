@@ -297,6 +297,29 @@
 
     /* ── Places autocomplete dropdown ────────────── */
     .pac-container { z-index: 9999; font-family: var(--font-body); }
+
+    /* ── Documento y Teléfono inline ────────────── */
+    .doc-row   { display: grid; grid-template-columns: 120px 1fr; gap: 8px; }
+    .phone-row { display: grid; grid-template-columns: 95px 1fr; gap: 8px; }
+
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: .9rem;
+      font-family: var(--font-body);
+      color: var(--text);
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      resize: vertical;
+      min-height: 90px;
+    }
+    textarea:focus {
+      border-color: var(--brown);
+      box-shadow: 0 0 0 3px rgba(139,111,94,.12);
+    }
   </style>
 </head>
 <body>
@@ -383,15 +406,34 @@
           <div class="field-msg" id="errApellidoEl"></div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="ccEl">Cédula</label>
-          <input type="text" id="ccEl" placeholder="1234567890" autocomplete="off" inputmode="numeric">
+      <div class="form-group">
+        <label>Documento <span class="req">*</span></label>
+        <div class="doc-row">
+          <select id="docTipoEl">
+            <option value="CC">CC</option>
+            <option value="CE">CE</option>
+            <option value="PA">Pasaporte</option>
+            <option value="TI">TI</option>
+            <option value="NIT">NIT</option>
+          </select>
+          <input type="text" id="ccEl" placeholder="Número de documento" autocomplete="off" inputmode="numeric">
         </div>
-        <div class="form-group">
-          <label for="telEl">Teléfono</label>
+        <div class="field-msg" id="errDocEl"></div>
+      </div>
+      <div class="form-group">
+        <label>Teléfono <span class="req">*</span></label>
+        <div class="phone-row">
+          <select id="telPrefEl">
+            <option value="+57">+57 CO</option>
+            <option value="+1">+1 US</option>
+            <option value="+34">+34 ES</option>
+            <option value="+52">+52 MX</option>
+            <option value="+54">+54 AR</option>
+            <option value="+58">+58 VE</option>
+          </select>
           <input type="tel" id="telEl" placeholder="3001234567" autocomplete="tel">
         </div>
+        <div class="field-msg" id="errTelEl"></div>
       </div>
       <div class="form-group">
         <label for="emailEl">Email <span class="req">*</span></label>
@@ -439,15 +481,34 @@
           <div class="field-msg" id="errApellidoElla"></div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="ccElla">Cédula</label>
-          <input type="text" id="ccElla" placeholder="1234567890" autocomplete="off" inputmode="numeric">
+      <div class="form-group">
+        <label>Documento <span class="req">*</span></label>
+        <div class="doc-row">
+          <select id="docTipoElla">
+            <option value="CC">CC</option>
+            <option value="CE">CE</option>
+            <option value="PA">Pasaporte</option>
+            <option value="TI">TI</option>
+            <option value="NIT">NIT</option>
+          </select>
+          <input type="text" id="ccElla" placeholder="Número de documento" autocomplete="off" inputmode="numeric">
         </div>
-        <div class="form-group">
-          <label for="telElla">Teléfono</label>
+        <div class="field-msg" id="errDocElla"></div>
+      </div>
+      <div class="form-group">
+        <label>Teléfono <span class="req">*</span></label>
+        <div class="phone-row">
+          <select id="telPrefElla">
+            <option value="+57">+57 CO</option>
+            <option value="+1">+1 US</option>
+            <option value="+34">+34 ES</option>
+            <option value="+52">+52 MX</option>
+            <option value="+54">+54 AR</option>
+            <option value="+58">+58 VE</option>
+          </select>
           <input type="tel" id="telElla" placeholder="3001234567" autocomplete="off">
         </div>
+        <div class="field-msg" id="errTelElla"></div>
       </div>
       <div class="form-group">
         <label for="emailElla">Email <span class="req">*</span></label>
@@ -492,8 +553,9 @@
       <div class="section-label">Fecha de la boda</div>
       <div class="form-row">
         <div class="form-group">
-          <label for="fechaBoda">Fecha de la boda</label>
+          <label for="fechaBoda">Fecha de la boda <span class="req">*</span></label>
           <input type="date" id="fechaBoda">
+          <div class="field-msg" id="errFechaBoda"></div>
         </div>
         <div class="form-group">
           <label for="fechaCierre">Cierre de la lista <span class="req">*</span></label>
@@ -505,7 +567,25 @@
       <div class="section-label">Dirección de entrega</div>
       <div class="form-group">
         <label for="dirEntrega">Dirección <span class="hint">(búsqueda automática)</span></label>
-        <input type="text" id="dirEntrega" placeholder="Calle 80 # 10-25, Bogotá" autocomplete="off">
+        <input type="text" id="dirEntrega" placeholder="Calle 80 # 10-25" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="barrioEntrega">Barrio <span class="req">*</span></label>
+          <input type="text" id="barrioEntrega" placeholder="Chapinero" autocomplete="off">
+          <div class="field-msg" id="errBarrio"></div>
+        </div>
+        <div class="form-group">
+          <label for="ciudadEntrega">Ciudad <span class="req">*</span></label>
+          <input type="text" id="ciudadEntrega" placeholder="Bogotá" autocomplete="off">
+          <div class="field-msg" id="errCiudad"></div>
+        </div>
+      </div>
+
+      <div class="section-label">Notas para el equipo</div>
+      <div class="form-group">
+        <label for="notasEsposos">Notas de los esposos para el equipo de G-LIVING | Italian Living &amp; Design</label>
+        <textarea id="notasEsposos" placeholder="Ej. Tienen preferencia por vajillas de cerámica italiana, colores tierra..."></textarea>
       </div>
 
       <div class="form-error" id="errStep2"></div>
@@ -569,10 +649,14 @@ function clearFormErr(errId) {
 }
 
 async function gasPost(body) {
+  // URLSearchParams evita CORS preflight (no envia Content-Type: application/json)
+  const payload = { ...body, _token: BODAS_V3_CONFIG.API_TOKEN };
+  const params  = new URLSearchParams();
+  params.append('data', JSON.stringify(payload));
   const res = await fetch(BODAS_V3_CONFIG.GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...body, _token: BODAS_V3_CONFIG.API_TOKEN }),
+    method:   'POST',
+    redirect: 'follow',
+    body:     params,
   });
   return res.json();
 }
@@ -673,6 +757,15 @@ $('btnStep1').addEventListener('click', () => {
     if (!$(fId).value.trim()) { showErr(eId, msg); valid = false; }
   }
 
+  clearFieldErr('errDocEl');
+  if (!$('ccEl').value.trim()) { showErr('errDocEl', 'Número de documento de él es requerido'); valid = false; }
+  clearFieldErr('errTelEl');
+  if (!$('telEl').value.trim()) { showErr('errTelEl', 'Teléfono de él es requerido'); valid = false; }
+  clearFieldErr('errDocElla');
+  if (!$('ccElla').value.trim()) { showErr('errDocElla', 'Número de documento de ella es requerido'); valid = false; }
+  clearFieldErr('errTelElla');
+  if (!$('telElla').value.trim()) { showErr('errTelElla', 'Teléfono de ella es requerido'); valid = false; }
+
   // Validar emails
   const emailEl   = $('emailEl').value.trim().toLowerCase();
   const emailElC  = $('emailElConf').value.trim().toLowerCase();
@@ -692,20 +785,65 @@ $('btnBack1').addEventListener('click', () => goToStep(0));
 
 // ── STEP 2: datos de la boda ──────────────────────────────────────────────────
 
-// Google Places autocomplete para dirección
-let placesAutocomplete = null;
+// Google Places autocomplete — patrón MLG (rellena dirección + barrio + ciudad)
 async function initPlaces() {
   try {
-    const { Autocomplete } = await google.maps.importLibrary('places');
-    placesAutocomplete = new Autocomplete($('dirEntrega'), {
-      componentRestrictions: { country: 'co' },
-      fields: ['formatted_address'],
+    await google.maps.importLibrary('places');
+  } catch (e) {
+    setTimeout(initPlaces, 500);
+    return;
+  }
+  const input = $('dirEntrega');
+  if (!input || input.dataset.pacInit) return;
+  input.dataset.pacInit = '1';
+  input.setAttribute('autocomplete', 'off');
+
+  const ac = new google.maps.places.Autocomplete(input, {
+    componentRestrictions: { country: 'co' },
+    fields: ['address_components', 'formatted_address'],
+    types:  ['address'],
+  });
+
+  ac.addListener('place_changed', () => {
+    const place = ac.getPlace();
+    if (!place || !place.address_components) return;
+
+    const comps = place.address_components;
+    let via = '', numero = '', barrio = '', ciudad = '';
+
+    comps.forEach(comp => {
+      const types = comp.types || [];
+      const txt   = comp.long_name || '';
+      if (types.includes('route'))          via    = txt;
+      if (types.includes('street_number'))  numero = txt;
+      if (!barrio && (
+        types.includes('neighborhood')        ||
+        types.includes('sublocality_level_1') ||
+        types.includes('sublocality_level_2') ||
+        types.includes('sublocality')
+      )) barrio = txt;
+      if (!ciudad && (
+        types.includes('locality') ||
+        types.includes('administrative_area_level_2')
+      )) ciudad = txt;
     });
-    placesAutocomplete.addListener('place_changed', () => {
-      const place = placesAutocomplete.getPlace();
-      if (place.formatted_address) $('dirEntrega').value = place.formatted_address;
-    });
-  } catch (_) {}
+
+    input.value = via
+      ? via + (numero ? ' # ' + numero : '')
+      : (place.formatted_address || '').split(',')[0].trim();
+
+    const barrioEl = $('barrioEntrega');
+    if (barrioEl) {
+      if (barrio) {
+        barrioEl.value = barrio;
+      } else {
+        const parts = (place.formatted_address || '').split(',');
+        if (parts.length >= 2) barrioEl.value = parts[1].trim();
+      }
+    }
+    const ciudadEl = $('ciudadEntrega');
+    if (ciudadEl && ciudad) ciudadEl.value = ciudad;
+  });
 }
 initPlaces();
 
@@ -715,6 +853,11 @@ $('btnStep2').addEventListener('click', async () => {
   clearFormErr('errStep2');
   let valid = true;
 
+  clearFieldErr('errFechaBoda');
+  if (!$('fechaBoda').value) {
+    showErr('errFechaBoda', 'La fecha de boda es requerida'); valid = false;
+  }
+
   const fechaCierre = $('fechaCierre').value;
   clearFieldErr('errFechaCierre');
   if (!fechaCierre) {
@@ -722,6 +865,11 @@ $('btnStep2').addEventListener('click', async () => {
   } else if (new Date(fechaCierre) < new Date()) {
     showErr('errFechaCierre', 'La fecha de cierre debe ser en el futuro'); valid = false;
   }
+
+  clearFieldErr('errBarrio');
+  if (!$('barrioEntrega').value.trim()) { showErr('errBarrio', 'El barrio es requerido'); valid = false; }
+  clearFieldErr('errCiudad');
+  if (!$('ciudadEntrega').value.trim()) { showErr('errCiudad', 'La ciudad es requerida'); valid = false; }
 
   if (!valid) return;
 
@@ -740,19 +888,24 @@ $('btnStep2').addEventListener('click', async () => {
     password:            $('password').value,
     nombre_el:           $('nombreEl').value.trim(),
     apellido_el:         $('apellidoEl').value.trim(),
+    id_tipo_el:          $('docTipoEl').value,
     id_cc_el:            $('ccEl').value.trim(),
-    telefono_el:         $('telEl').value.trim(),
+    telefono_el:         $('telPrefEl').value + ' ' + $('telEl').value.trim(),
     email_el:            $('emailEl').value.trim().toLowerCase(),
     cumple_el:           cumpleEl,
     nombre_ella:         $('nombreElla').value.trim(),
     apellido_ella:       $('apellidoElla').value.trim(),
+    id_tipo_ella:        $('docTipoElla').value,
     id_cc_ella:          $('ccElla').value.trim(),
-    telefono_ella:       $('telElla').value.trim(),
+    telefono_ella:       $('telPrefElla').value + ' ' + $('telElla').value.trim(),
     email_ella:          $('emailElla').value.trim().toLowerCase(),
     cumple_ella:         cumpleElla,
     fecha_boda:          $('fechaBoda').value,
     fecha_cierre_lista:  fechaCierre,
     direccion_entrega:   $('dirEntrega').value.trim(),
+    barrio_entrega:      $('barrioEntrega').value.trim(),
+    ciudad_entrega:      $('ciudadEntrega').value.trim(),
+    notas:               $('notasEsposos').value.trim(),
   };
 
   try {
