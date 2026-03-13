@@ -1275,25 +1275,31 @@ let _cmQty      = 1;
 
 function openCatalogModal(cat) {
   _cmCatalog = cat; _cmVariant = null; _cmQty = 1;
+
+  // Mostrar el modal primero para que cualquier error posterior no lo bloquee
+  $('catalogBackdrop').classList.remove('hidden');
+  $('catalogModalWrap').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
   const logo = $('catalogModalLogo');
   if (cat.logo) { logo.src = cat.logo; logo.style.display = 'block'; }
   else { logo.style.display = 'none'; }
   $('catalogModalTitle').textContent = cat.name;
 
-  const families = _cmGetFamilies(cat);
-  const dd = $('familyDropdown');
-  dd.innerHTML = '';
-  for (const f of families) {
-    const opt = document.createElement('option');
-    opt.value = f; opt.textContent = f;
-    dd.appendChild(opt);
+  try {
+    const families = _cmGetFamilies(cat);
+    const dd = $('familyDropdown');
+    dd.innerHTML = '';
+    for (const f of families) {
+      const opt = document.createElement('option');
+      opt.value = f; opt.textContent = f;
+      dd.appendChild(opt);
+    }
+    _cmFamily = families[0] || null;
+    _cmLoadFamily(_cmFamily);
+  } catch (err) {
+    console.error('Error cargando catálogo:', err);
   }
-  _cmFamily = families[0] || null;
-  _cmLoadFamily(_cmFamily);
-
-  $('catalogBackdrop').classList.remove('hidden');
-  $('catalogModalWrap').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
 }
 
 function closeCatalogModal() {
