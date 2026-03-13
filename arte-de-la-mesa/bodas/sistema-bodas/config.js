@@ -11,7 +11,7 @@
 const BODAS_V3_CONFIG = {
 
   // ── Backend ────────────────────────────────────────────────
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbzuvc8d_EpzzuiiWX9FRudG9X7EtuZ5z2-6oxmKOjehOdKyzkj5zD9DnrtEwk6EEY1W/exec',  // reemplazar tras desplegar code.gs como webapp
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbzEcnqlH80fJbVLEk34dzFc-Tu5IpBzTeVB0j4flb6tuFHifM6PAK_l4fnocEGR5-Ho/exec',  // reemplazar tras desplegar code.gs como webapp
   API_TOKEN: 'bodas-GLv3-SbQ8rKpX2mTn4wYz',
 
   // ── Wompi ──────────────────────────────────────────────────
