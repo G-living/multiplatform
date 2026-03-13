@@ -67,7 +67,7 @@
 // ── CONFIGURACIÓN ─────────────────────────────────────────────────────────────
 
 const CFG_B = {
-  SHEET_ID:        'REEMPLAZAR_CON_ID_DE_SPREADSHEET',
+  SHEET_ID:        '1ZUnUzQ8V_rpXjsY43VRUsi7ag2l88pUHMKk--HbscrI',
   SESSION_TTL_H:   72,
   CORS_ORIGIN:     'https://g-living.github.io',
   API_TOKEN:       'bodas-GLv3-SbQ8rKpX2mTn4wYz',
