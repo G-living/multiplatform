@@ -1,4 +1,5 @@
 /* ===== TTT - modals.css ===== */
+/* Adaptado de Imolarte modals.css — Tessitura Toscana Telerie */
 
 /* ===== MODAL BASE ===== */
 .modal {
@@ -35,12 +36,12 @@
     position: absolute;
     top: var(--spacing-sm);
     right: var(--spacing-sm);
-    width: 36px; height: 36px;
+    width: 40px; height: 40px;
     background: var(--color-error);
     color: var(--color-background);
     border: none;
     border-radius: var(--radius-full);
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     line-height: 1;
     cursor: pointer;
     display: flex;
@@ -55,18 +56,34 @@
 
 /* ===== MODAL PRODUCTO TTT ===== */
 .ttt-modal-content {
-    width: 500px;
-    max-width: 96vw;
-    height: 92vh;
-    max-height: 760px;
+    width: 520px;
+    max-width: 95vw;
+    height: 90vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
+/* ── Cabecera categoría ── */
+.ttt-modal-header {
+    padding: var(--spacing-xs) var(--spacing-md);
+    padding-right: 56px; /* espacio botón cerrar */
+    border-bottom: 1px solid var(--color-border-light);
+    flex-shrink: 0;
+    background: var(--color-background-secondary);
+}
 
-/* ── SECCIÓN FOTO ── */
-.ttt-modal-photo-section {
+.ttt-modal-cat-label {
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-wider);
+    text-transform: uppercase;
+    color: var(--color-accent);
+}
+
+/* ── Sección foto ── */
+.ttt-modal-img-section {
     position: relative;
     display: flex;
     align-items: stretch;
@@ -83,6 +100,7 @@
     justify-content: center;
     background: #f5f5f3;
     min-height: 0;
+    cursor: zoom-in;
 }
 
 .ttt-modal-img {
@@ -91,6 +109,7 @@
     object-fit: cover;
     display: block;
     transition: opacity 0.25s ease;
+    pointer-events: none;
 }
 
 .ttt-modal-img-placeholder {
@@ -103,65 +122,48 @@
     font-size: var(--font-size-sm);
 }
 
-/* Flechas laterales de foto */
-.ttt-photo-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px; height: 36px;
-    background: rgba(255,255,255,0.85);
+/* Flechas de producto ← → */
+.ttt-nav-btn {
+    width: 40px;
+    background: transparent;
     border: none;
-    border-radius: var(--radius-full);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-text-primary);
-    box-shadow: var(--shadow-small);
+    color: var(--color-text-secondary);
     transition: all var(--transition-fast);
-    z-index: 5;
+    flex-shrink: 0;
+    padding: 0;
 }
 
-.ttt-photo-nav:hover { background: #fff; box-shadow: var(--shadow-medium); }
-.ttt-photo-nav--prev { left: 8px; }
+.ttt-nav-btn:hover:not(:disabled) {
+    color: var(--color-accent);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.ttt-nav-btn:disabled {
+    opacity: 0.2;
+    cursor: default;
+}
 
 /* Columna derecha: flecha next + share */
-.ttt-photo-nav-right {
+.ttt-nav-right {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 0 8px;
-    background: transparent;
+    gap: 10px;
+    padding: 0 4px;
 }
-
-.ttt-photo-nav--next {
-    position: static;
-    transform: none;
-    width: 36px; height: 36px;
-    background: rgba(255,255,255,0.85);
-    border: none;
-    border-radius: var(--radius-full);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-primary);
-    box-shadow: var(--shadow-small);
-    transition: all var(--transition-fast);
-}
-
-.ttt-photo-nav--next:hover { background: #fff; box-shadow: var(--shadow-medium); }
 
 /* Share button — visible solo en mobile */
 .ttt-btn-share {
-    width: 32px; height: 32px;
+    width: 34px; height: 34px;
     background: var(--color-accent);
     border: none;
     border-radius: var(--radius-full);
     cursor: pointer;
-    display: none; /* oculto en desktop */
     align-items: center;
     justify-content: center;
     color: #fff;
@@ -172,28 +174,24 @@
 
 .ttt-btn-share:hover { background: var(--color-accent-hover); }
 
-@media (max-width: 768px) {
-    .ttt-btn-share { display: flex; }
-}
-
-
-/* ── CONTROLES − contador + ── */
+/* ── Controles foto − N/M + ── */
 .ttt-photo-controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    padding: 8px 0;
+    gap: 14px;
+    padding: 6px 0;
     border-bottom: 1px solid var(--color-border-light);
     flex-shrink: 0;
+    background: var(--color-background-secondary);
 }
 
 .ttt-photo-ctrl-btn {
-    width: 32px; height: 32px;
-    background: var(--color-background-secondary);
+    width: 28px; height: 28px;
+    background: var(--color-background);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 300;
     cursor: pointer;
     display: flex;
@@ -202,6 +200,7 @@
     color: var(--color-text-primary);
     transition: all var(--transition-fast);
     line-height: 1;
+    padding: 0;
 }
 
 .ttt-photo-ctrl-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
@@ -209,41 +208,44 @@
 .ttt-photo-counter {
     font-family: var(--font-body);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-regular);
     color: var(--color-text-tertiary);
     letter-spacing: var(--letter-spacing-wide);
-    min-width: 40px;
+    min-width: 36px;
     text-align: center;
 }
 
-
-/* ── INFO PRODUCTO ── */
+/* ── Info producto ── */
 .ttt-modal-product-info {
-    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs);
     flex-shrink: 0;
     border-bottom: 1px solid var(--color-border-light);
 }
 
+.ttt-modal-product-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-sm);
+}
+
 .ttt-modal-product-title {
     font-family: var(--font-display);
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-regular);
     letter-spacing: var(--letter-spacing-widest);
     text-transform: uppercase;
     color: var(--color-text-primary);
-    margin: 0 0 2px;
+    margin: 0;
     line-height: var(--line-height-tight);
-    padding-right: 44px; /* espacio para el botón cerrar */
 }
 
-.ttt-modal-product-cat {
+.ttt-modal-product-counter {
     font-family: var(--font-body);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-regular);
-    letter-spacing: var(--letter-spacing-wider);
-    text-transform: uppercase;
-    color: var(--color-accent);
-    margin: 0 0 6px;
+    color: var(--color-text-tertiary);
+    letter-spacing: var(--letter-spacing-wide);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .ttt-modal-product-desc {
@@ -252,30 +254,37 @@
     font-weight: var(--font-weight-light);
     color: var(--color-text-secondary);
     line-height: var(--line-height-relaxed);
-    margin: 0 0 4px;
+    margin: 4px 0 2px;
 }
 
 .ttt-modal-product-material {
     font-family: var(--font-body);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-regular);
     color: var(--color-text-tertiary);
     margin: 0;
     font-style: italic;
 }
 
-
-/* ── MEDIDAS ARRAY ── */
+/* ── Medidas array ── */
 .ttt-modal-medidas-wrap {
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-light) transparent;
+}
+
+.ttt-modal-medidas-wrap::-webkit-scrollbar { width: 4px; }
+.ttt-modal-medidas-wrap::-webkit-scrollbar-thumb {
+    background: var(--color-accent-light);
+    border-radius: var(--radius-full);
 }
 
 .ttt-medidas-header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    padding: 6px var(--spacing-md);
+    grid-template-columns: 36px 1fr 72px 72px 64px;
+    gap: 6px;
+    padding: 5px var(--spacing-md);
     background: var(--color-background-secondary);
     border-bottom: 1px solid var(--color-border);
     font-family: var(--font-body);
@@ -289,48 +298,76 @@
     z-index: 2;
 }
 
-.ttt-medidas-list { padding: 4px 0; }
+.ttt-medidas-list { padding: 2px 0; }
 
-.ttt-medida-row {
+/* Fila de medida: thumbnail | medida/sku | precio | qty | subtotal */
+.ttt-fv-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 36px 1fr 72px 72px 64px;
+    gap: 6px;
     align-items: center;
-    padding: 10px var(--spacing-md);
+    padding: 8px var(--spacing-md);
     border-bottom: 1px solid var(--color-border-light);
     transition: background var(--transition-fast);
 }
 
-.ttt-medida-row:hover { background: var(--color-background-secondary); }
-.ttt-medida-row:last-child { border-bottom: none; }
+.ttt-fv-row:hover { background: var(--color-background-secondary); }
+.ttt-fv-row:last-child { border-bottom: none; }
 
-.ttt-medida-size {
-    font-family: var(--font-body);
-    font-size: var(--font-size-sm);
+.ttt-fv-thumb {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.ttt-fv-thumb:hover { transform: scale(1.15); box-shadow: var(--shadow-small); }
+
+.ttt-fv-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ttt-fv-medida {
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
+    line-height: var(--line-height-tight);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.ttt-medida-price {
-    font-family: var(--font-body);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-regular);
-    color: var(--color-accent);
+.ttt-fv-sku {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
 }
 
-.ttt-medida-qty {
+.ttt-fv-price {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    text-align: right;
+}
+
+.ttt-fv-qty {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 3px;
 }
 
 .ttt-qty-btn {
-    width: 28px; height: 28px;
+    width: 22px; height: 22px;
     background: var(--color-background-secondary);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 400;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -341,15 +378,21 @@
     padding: 0;
 }
 
-.ttt-qty-btn:hover { border-color: var(--color-accent); color: var(--color-accent); background: #fff; }
+.ttt-qty-btn:hover { background: var(--color-accent-light); border-color: var(--color-accent); }
 
 .ttt-qty-display {
-    font-family: var(--font-body);
-    font-size: var(--font-size-sm);
+    min-width: 18px;
+    text-align: center;
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
-    min-width: 20px;
-    text-align: center;
+}
+
+.ttt-fv-subtotal {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent);
+    text-align: right;
 }
 
 .ttt-medidas-empty {
@@ -359,8 +402,7 @@
     font-size: var(--font-size-sm);
 }
 
-
-/* ── FOOTER MODAL ── */
+/* ── Footer ── */
 .ttt-modal-footer {
     padding: var(--spacing-sm) var(--spacing-md);
     border-top: 1px solid var(--color-border);
@@ -385,19 +427,58 @@
 
 .ttt-modal-total-amount {
     font-family: var(--font-display);
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-semibold);
     color: var(--color-accent);
 }
 
 .ttt-btn-cart {
     width: 100%;
-    padding: 14px;
+    padding: 13px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     font-size: var(--font-size-sm);
+}
+
+
+/* ===== MODAL ZOOM TTT ===== */
+#tttModalZoom {
+    z-index: calc(var(--z-modal) + 100);
+}
+
+.ttt-zoom-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    cursor: pointer;
+}
+
+.ttt-zoom-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+    max-width: 90vw;
+    max-height: 90vh;
+    z-index: calc(var(--z-modal) + 101);
+}
+
+.ttt-zoom-close {
+    position: fixed;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    z-index: calc(var(--z-modal) + 102);
+}
+
+.ttt-zoom-image {
+    max-width: 80vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-hover);
 }
 
 
@@ -442,6 +523,8 @@
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-light) transparent;
 }
 
 .ttt-cart-item {
@@ -490,11 +573,7 @@
     gap: 6px;
 }
 
-.ttt-cart-qty-selector {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+.ttt-cart-qty-selector { display: flex; align-items: center; gap: 6px; }
 
 .ttt-cart-qty-btn {
     width: 26px; height: 26px;
@@ -576,17 +655,22 @@
     font-size: var(--font-size-sm);
 }
 
+/* Badge pulse */
+@keyframes badgePulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+.badge-pulse { animation: badgePulse 0.3s ease; }
 
-/* ===== RESPONSIVE MODAL ===== */
+
+/* ===== RESPONSIVE ===== */
+@media (min-width: 1025px) {
+    .ttt-modal-content { width: 600px; height: 88vh; }
+}
+
 @media (max-width: 540px) {
-    .ttt-modal-content {
-        width: 100vw;
-        max-width: 100vw;
-        height: 100vh;
-        max-height: 100vh;
-        border-radius: 0;
-    }
-
+    .ttt-modal-content,
     .ttt-cart-content {
         width: 100vw;
         max-width: 100vw;
@@ -595,12 +679,12 @@
         border-radius: 0;
     }
 
-    .ttt-modal-product-title {
-        font-size: var(--font-size-base);
-    }
+    .ttt-modal-product-title { font-size: var(--font-size-base); }
 
     .ttt-medidas-header,
-    .ttt-medida-row {
+    .ttt-fv-row {
+        grid-template-columns: 32px 1fr 62px 64px 52px;
+        gap: 4px;
         padding-left: var(--spacing-sm);
         padding-right: var(--spacing-sm);
     }

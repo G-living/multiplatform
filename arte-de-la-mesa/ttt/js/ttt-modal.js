@@ -1,29 +1,33 @@
-// @version    v1.0  @file ttt-modal.js  @updated 2026-03-14  @session fix-mlg-404-error-aSVYy
+// @version    v2.0  @file ttt-modal.js  @updated 2026-03-14  @session fix-mlg-404-error-aSVYy
 /* ===== TTT - ttt-modal.js =====
- * Modal producto TTT:
- *  - Galería de fotos con botones − / + (y flechas ← → teclado)
- *  - Foto inicial aleatoria; contador N/Total
+ * Modal producto TTT — clonado de Imolarte family modal:
+ *  - Imagen principal: Gallery_Image del producto (foto 0)
+ *  - Flechas ← → navegan entre productos de la misma categoría
+ *  - Botones − / + bajo la foto ciclan las fotos del producto actual
+ *  - Contador fotos (1/N) y contador productos (N de M)
  *  - Botón Compartir (solo mobile, Web Share API)
- *  - Nombre patrón + categoría + descripción + material
- *  - Array de medidas: medida | €precio | qty [− qty +]
- *  - Botón "Agregar al carrito" sticky abajo
- * Modal carrito: ver detalle + fork WA / Wompi
+ *  - Array medidas: miniatura expandible | medida | SKU | €precio | -qty+ | subtotal
+ *  - Footer sticky: total + Agregar al carrito
+ *  - Modal Zoom para miniaturas y foto principal
+ *  - Modal Carrito: detalle + enviar por WhatsApp
  * ============================================ */
 
 'use strict';
 
 const Modal = (() => {
 
-  // ---- Estado producto ----
-  let _product    = null;    // TTT product object actual
-  let _imgIdx     = 0;       // índice de foto visible (0-based)
-  let _imgList    = [];      // lista de URLs de fotos
-  let _quantities = {};      // { sku: qty } por medida
+  // ---- Estado ----
+  let _product       = null;   // producto actual
+  let _catalogList   = [];     // lista de navegación (misma categoría en filtrado activo)
+  let _productIdx    = 0;      // índice en _catalogList
+  let _imgList       = [];     // URLs de fotos del producto actual
+  let _imgIdx        = 0;      // índice de foto visible
+  let _quantities    = {};     // { sku: qty }
   let _focusTrapCleanup = null;
-  let _prevFocus  = null;
+  let _prevFocus     = null;
 
   // -------------------------------------------------------
-  // OPEN / CLOSE HELPERS
+  // HELPERS APERTURA / CIERRE
   // -------------------------------------------------------
   function _openModal(id) {
     const modal = document.getElementById(id);
@@ -31,7 +35,7 @@ const Modal = (() => {
     _prevFocus = document.activeElement;
     modal.classList.add('is-open');
     document.body.style.overflow = 'hidden';
-    const content = modal.querySelector('.modal-content');
+    const content = modal.querySelector('.modal-content, .ttt-zoom-content');
     if (content) {
       content.scrollTop = 0;
       if (_focusTrapCleanup) _focusTrapCleanup();
@@ -53,22 +57,35 @@ const Modal = (() => {
   // -------------------------------------------------------
   // ABRIR MODAL PRODUCTO
   // -------------------------------------------------------
-  function openProduct(product) {
-    if (!product) return;
-    _product    = product;
-    _quantities = {};
-    (product.medidas || []).forEach(m => { _quantities[m.sku] = 0; });
+  function openProduct(prod) {
+    if (!prod) return;
+    _product = prod;
 
-    // Construir lista de imágenes
-    _imgList = (product.images || []).map(f => ImageManager.productSrc(f));
+    // Lista de navegación: productos de la misma categoría en el filtrado activo
+    const all = (typeof Catalog !== 'undefined' && Catalog.getFiltered)
+      ? Catalog.getFiltered()
+      : (window.TTT_PRODUCTS || []);
+    _catalogList = all.filter(p => p.categoria === prod.categoria);
+    if (_catalogList.length === 0) _catalogList = [prod];
+    _productIdx = Math.max(0, _catalogList.findIndex(p => p.sku === prod.sku));
+
+    _loadProduct(_catalogList[_productIdx] || prod);
+    _ensureProductModal();
+    _renderProductModal();
+    _openModal('tttModalProduct');
+  }
+
+  function _loadProduct(prod) {
+    _product    = prod;
+    _quantities = {};
+    (prod.medidas || []).forEach(m => { _quantities[m.sku] = 0; });
+
+    // Fotos principales del producto
+    _imgList = (prod.images || []).map(f => ImageManager.productSrc(f));
     if (_imgList.length === 0) _imgList = [TTT_CONFIG.images.placeholder];
 
     // Foto inicial aleatoria
     _imgIdx = _imgList.length > 1 ? Math.floor(Math.random() * _imgList.length) : 0;
-
-    _ensureProductModal();
-    _renderProductModal();
-    _openModal('tttModalProduct');
   }
 
   // -------------------------------------------------------
@@ -91,17 +108,24 @@ const Modal = (() => {
         <!-- Cerrar -->
         <button class="modal-close" id="tttModalClose" aria-label="Cerrar">×</button>
 
-        <!-- ── SECCIÓN FOTO ── -->
-        <div class="ttt-modal-photo-section">
+        <!-- ── CABECERA CATEGORÍA ── -->
+        <div class="ttt-modal-header">
+          <span class="ttt-modal-cat-label" id="tttModalCatLabel"></span>
+        </div>
 
-          <!-- Flechas laterales (← →) -->
-          <button class="ttt-photo-nav ttt-photo-nav--prev" id="tttPhotoPrev" aria-label="Foto anterior">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <!-- ── SECCIÓN FOTO ── -->
+        <div class="ttt-modal-img-section">
+
+          <!-- Flecha: producto anterior -->
+          <button class="ttt-nav-btn ttt-nav-prev" id="tttNavPrev" aria-label="Producto anterior">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
 
-          <div class="ttt-modal-img-wrap">
-            <img id="tttMainImg" class="ttt-modal-img"
+          <!-- Foto principal -->
+          <div class="ttt-modal-img-wrap" id="tttImgWrap">
+            <img id="tttMainImg" class="ttt-modal-img ttt-modal-img--zoomable"
               src="" alt=""
+              title="Ampliar"
               onerror="this.onerror=null;this.src='${TTT_CONFIG.images.placeholder}'"
             >
             <div id="tttImgPlaceholder" class="ttt-modal-img-placeholder" style="display:none">
@@ -109,12 +133,12 @@ const Modal = (() => {
             </div>
           </div>
 
-          <div class="ttt-photo-nav-right">
-            <button class="ttt-photo-nav ttt-photo-nav--next" id="tttPhotoNext" aria-label="Foto siguiente">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <!-- Columna derecha: flecha producto siguiente + share -->
+          <div class="ttt-nav-right">
+            <button class="ttt-nav-btn ttt-nav-next" id="tttNavNext" aria-label="Producto siguiente">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-            <!-- Share — solo visible en mobile vía CSS -->
-            <button class="ttt-btn-share" id="tttBtnShare" aria-label="Compartir">
+            <button class="ttt-btn-share" id="tttBtnShare" aria-label="Compartir producto" style="display:none">
               <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
@@ -126,7 +150,7 @@ const Modal = (() => {
 
         </div>
 
-        <!-- Controles de foto: − contador + -->
+        <!-- ── CONTROLES FOTO: − contador + ── -->
         <div class="ttt-photo-controls">
           <button class="ttt-photo-ctrl-btn" id="tttPhotoDec" aria-label="Foto anterior">−</button>
           <span class="ttt-photo-counter" id="tttPhotoCounter">1 / 1</span>
@@ -135,8 +159,10 @@ const Modal = (() => {
 
         <!-- ── INFO PRODUCTO ── -->
         <div class="ttt-modal-product-info">
-          <h2 class="ttt-modal-product-title" id="tttProductTitle"></h2>
-          <p class="ttt-modal-product-cat" id="tttProductCat"></p>
+          <div class="ttt-modal-product-title-row">
+            <h2 class="ttt-modal-product-title" id="tttProductTitle"></h2>
+            <span class="ttt-modal-product-counter" id="tttProductCounter"></span>
+          </div>
           <p class="ttt-modal-product-desc" id="tttProductDesc"></p>
           <p class="ttt-modal-product-material" id="tttProductMaterial"></p>
         </div>
@@ -144,9 +170,11 @@ const Modal = (() => {
         <!-- ── MEDIDAS ARRAY ── -->
         <div class="ttt-modal-medidas-wrap">
           <div class="ttt-medidas-header">
-            <span>Medida</span>
+            <span></span>
+            <span>Medida / SKU</span>
             <span>Precio</span>
             <span>Cantidad</span>
+            <span>Subtotal</span>
           </div>
           <div id="tttMedidasList" class="ttt-medidas-list"></div>
         </div>
@@ -162,7 +190,7 @@ const Modal = (() => {
               <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
             </svg>
-            Agregar al carrito
+            Selecciona al menos una medida
           </button>
         </div>
 
@@ -174,66 +202,92 @@ const Modal = (() => {
     // ── Eventos ──
     document.getElementById('tttModalClose')?.addEventListener('click',  () => _closeModal('tttModalProduct'));
     document.getElementById('tttModalOverlay')?.addEventListener('click', () => _closeModal('tttModalProduct'));
-    document.getElementById('tttPhotoPrev')?.addEventListener('click', () => _navPhoto(-1));
-    document.getElementById('tttPhotoNext')?.addEventListener('click', () => _navPhoto(+1));
-    document.getElementById('tttPhotoDec')?.addEventListener('click',  () => _navPhoto(-1));
-    document.getElementById('tttPhotoInc')?.addEventListener('click',  () => _navPhoto(+1));
-    document.getElementById('tttBtnCart')?.addEventListener('click',   _addToCart);
 
-    // Flechas de teclado
-    modal.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft')  { e.preventDefault(); _navPhoto(-1); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); _navPhoto(+1); }
-      if (e.key === 'Escape')     { _closeModal('tttModalProduct'); }
+    // Flechas: navegan PRODUCTOS
+    document.getElementById('tttNavPrev')?.addEventListener('click', () => _navProduct(-1));
+    document.getElementById('tttNavNext')?.addEventListener('click', () => _navProduct(+1));
+
+    // −/+: navegan FOTOS del producto actual
+    document.getElementById('tttPhotoDec')?.addEventListener('click', () => _navPhoto(-1));
+    document.getElementById('tttPhotoInc')?.addEventListener('click', () => _navPhoto(+1));
+
+    // Foto principal → zoom
+    document.getElementById('tttMainImg')?.addEventListener('click', () => {
+      const src = _imgList[_imgIdx];
+      if (src) openZoom(src, _product?.patron || '');
     });
+
+    // Delegación en lista medidas: zoom en miniatura + qty buttons
+    document.getElementById('tttMedidasList')?.addEventListener('click', _handleMedidaClick);
+
+    // Carrito
+    document.getElementById('tttBtnCart')?.addEventListener('click', _addToCart);
 
     // Share button
     document.getElementById('tttBtnShare')?.addEventListener('click', async () => {
-      if (!navigator.share) return;
-      const prod = _product;
-      if (!prod) return;
-      const url = `${location.origin}${location.pathname}?p=${prod.sku}`;
+      if (!navigator.share || !_product) return;
+      const url = `${location.origin}${location.pathname}?p=${_product.sku}`;
       try {
         await navigator.share({
-          title: `${prod.patron} — ${Utils.catLabel(prod.categoria)}`,
+          title: `${_product.patron} — ${Utils.catLabel(_product.categoria)}`,
           url,
         });
       } catch (_) { /* cancelado */ }
     });
 
-    // Delegación qty buttons en medidas list
-    document.getElementById('tttMedidasList')?.addEventListener('click', _handleQtyClick);
+    // Teclado: ← → navegan productos; Escape cierra
+    modal.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); _navProduct(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); _navProduct(+1); }
+      if (e.key === 'Escape')     { _closeModal('tttModalProduct'); }
+    });
   }
 
   // -------------------------------------------------------
-  // RENDER CONTENIDO DEL MODAL
+  // RENDER MODAL PRODUCTO
   // -------------------------------------------------------
   function _renderProductModal() {
     const prod = _product;
     if (!prod) return;
 
-    // Foto
+    // Categoría label
+    const catEl = document.getElementById('tttModalCatLabel');
+    if (catEl) catEl.textContent = Utils.catLabel(prod.categoria);
+
+    // Foto principal
     _updatePhoto();
 
-    // Info
-    const titleEl    = document.getElementById('tttProductTitle');
-    const catEl      = document.getElementById('tttProductCat');
+    // Título + contador productos
+    const titleEl   = document.getElementById('tttProductTitle');
+    const counterEl = document.getElementById('tttProductCounter');
+    if (titleEl) titleEl.textContent = prod.patron || prod.name || '';
+    if (counterEl) {
+      counterEl.textContent = _catalogList.length > 1
+        ? `${_productIdx + 1} / ${_catalogList.length}`
+        : '';
+    }
+
+    // Descripción + material
     const descEl     = document.getElementById('tttProductDesc');
     const materialEl = document.getElementById('tttProductMaterial');
-    const shareBtn   = document.getElementById('tttBtnShare');
-
-    if (titleEl)    titleEl.textContent    = prod.patron || prod.name || '';
-    if (catEl)      catEl.textContent      = Utils.catLabel(prod.categoria);
-    if (descEl)     descEl.textContent     = prod.shortDesc || '';
+    if (descEl) descEl.textContent = prod.shortDesc || '';
     if (materialEl) {
-      materialEl.textContent = prod.material ? `Material: ${prod.material}` : '';
+      materialEl.textContent = prod.material ? `${prod.material}` : '';
       materialEl.style.display = prod.material ? '' : 'none';
     }
+
+    // Share button (solo mobile con Web Share API)
+    const shareBtn = document.getElementById('tttBtnShare');
     if (shareBtn) {
       shareBtn.dataset.sku = prod.sku;
-      // Ocultar si no hay Web Share API
-      shareBtn.style.display = navigator.share ? '' : 'none';
+      shareBtn.style.display = navigator.share ? 'flex' : 'none';
     }
+
+    // Flechas: deshabilitar en extremos
+    const prevBtn = document.getElementById('tttNavPrev');
+    const nextBtn = document.getElementById('tttNavNext');
+    if (prevBtn) prevBtn.disabled = _productIdx === 0;
+    if (nextBtn) nextBtn.disabled = _productIdx === _catalogList.length - 1;
 
     // Medidas
     _renderMedidas();
@@ -241,7 +295,24 @@ const Modal = (() => {
   }
 
   // -------------------------------------------------------
-  // FOTO NAVIGATION
+  // NAVEGACIÓN PRODUCTOS (flechas laterales)
+  // -------------------------------------------------------
+  function _navProduct(dir) {
+    const newIdx = _productIdx + dir;
+    if (newIdx < 0 || newIdx >= _catalogList.length) return;
+    _productIdx = newIdx;
+    _loadProduct(_catalogList[_productIdx]);
+    _renderProductModal();
+
+    // Scroll al top de medidas
+    const wrap = document.querySelector('.ttt-modal-medidas-wrap');
+    if (wrap) wrap.scrollTop = 0;
+    const content = document.querySelector('.ttt-modal-content');
+    if (content) content.scrollTop = 0;
+  }
+
+  // -------------------------------------------------------
+  // NAVEGACIÓN FOTOS (−/+ bajo la imagen)
   // -------------------------------------------------------
   function _navPhoto(dir) {
     if (_imgList.length <= 1) return;
@@ -250,23 +321,23 @@ const Modal = (() => {
   }
 
   function _updatePhoto() {
-    const imgEl = document.getElementById('tttMainImg');
-    const phEl  = document.getElementById('tttImgPlaceholder');
+    const imgEl     = document.getElementById('tttMainImg');
+    const phEl      = document.getElementById('tttImgPlaceholder');
     const counterEl = document.getElementById('tttPhotoCounter');
 
     const src = _imgList[_imgIdx] || TTT_CONFIG.images.placeholder;
 
     if (imgEl) {
-      imgEl.style.display = '';
-      if (phEl) phEl.style.display = 'none';
-
       const preload = new Image();
       preload.onload = () => {
         imgEl.src = src;
         imgEl.alt = _product?.patron || '';
+        imgEl.style.display = '';
+        if (phEl) phEl.style.display = 'none';
       };
       preload.onerror = () => {
-        imgEl.src = TTT_CONFIG.images.placeholder;
+        imgEl.style.display = 'none';
+        if (phEl) phEl.style.display = 'flex';
       };
       preload.src = src;
     }
@@ -275,16 +346,18 @@ const Modal = (() => {
       counterEl.textContent = `${_imgIdx + 1} / ${_imgList.length}`;
     }
 
-    // Ocultar botones si solo hay 1 foto
+    // Ocultar controles si solo hay 1 foto
     const hasMultiple = _imgList.length > 1;
-    ['tttPhotoPrev','tttPhotoNext','tttPhotoDec','tttPhotoInc'].forEach(id => {
+    ['tttPhotoDec', 'tttPhotoInc'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.visibility = hasMultiple ? '' : 'hidden';
     });
+    if (counterEl) counterEl.style.visibility = hasMultiple ? '' : 'hidden';
   }
 
   // -------------------------------------------------------
   // MEDIDAS ARRAY
+  // Cada fila: [miniatura] [medida / sku] [precio] [-qty+] [subtotal]
   // -------------------------------------------------------
   function _renderMedidas() {
     const list = document.getElementById('tttMedidasList');
@@ -297,54 +370,83 @@ const Modal = (() => {
     }
 
     list.innerHTML = medidas.map(m => {
-      const safeSkuId = m.sku.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const precioFmt = Utils.formatPrice(m.precio);
+      const safeSkuId  = m.sku.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const imgSrc     = m.imagen
+        ? ImageManager.productSrc(m.imagen)
+        : (_imgList[0] || TTT_CONFIG.images.placeholder);
+      const precioFmt  = Utils.formatPrice(m.precio);
+
       return `
-        <div class="ttt-medida-row" data-sku="${Utils.sanitize(m.sku)}">
-          <span class="ttt-medida-size">${Utils.sanitize(m.medida || '—')}</span>
-          <span class="ttt-medida-price">${Utils.sanitize(precioFmt)}</span>
-          <div class="ttt-medida-qty">
-            <button class="ttt-qty-btn" data-action="dec" data-sku="${Utils.sanitize(m.sku)}" aria-label="Reducir cantidad">−</button>
-            <span class="ttt-qty-display" id="tttQty_${safeSkuId}">0</span>
-            <button class="ttt-qty-btn" data-action="inc" data-sku="${Utils.sanitize(m.sku)}" aria-label="Aumentar cantidad">+</button>
+        <div class="ttt-fv-row" data-sku="${Utils.sanitize(m.sku)}">
+          <img
+            class="ttt-fv-thumb"
+            src="${Utils.sanitize(imgSrc)}"
+            alt="${Utils.sanitize(m.medida || '')}"
+            loading="lazy"
+            data-zoom-src="${Utils.sanitize(imgSrc)}"
+            data-zoom-alt="${Utils.sanitize(m.medida || '')}"
+            title="Ampliar"
+            onerror="this.style.visibility='hidden'"
+          >
+          <div class="ttt-fv-info">
+            <span class="ttt-fv-medida">${Utils.sanitize(m.medida || '—')}</span>
+            <span class="ttt-fv-sku">${Utils.sanitize(m.sku)}</span>
           </div>
+          <span class="ttt-fv-price">${Utils.sanitize(precioFmt)}</span>
+          <div class="ttt-fv-qty">
+            <button class="ttt-qty-btn" data-action="dec" data-sku="${Utils.sanitize(m.sku)}" aria-label="Reducir">−</button>
+            <span class="ttt-qty-display" id="tttQty_${safeSkuId}">0</span>
+            <button class="ttt-qty-btn" data-action="inc" data-sku="${Utils.sanitize(m.sku)}" aria-label="Aumentar">+</button>
+          </div>
+          <span class="ttt-fv-subtotal" id="tttSub_${safeSkuId}">€0</span>
         </div>
       `;
     }).join('');
   }
 
-  function _handleQtyClick(e) {
+  function _handleMedidaClick(e) {
+    // Zoom en miniatura
+    const thumb = e.target.closest('.ttt-fv-thumb');
+    if (thumb && thumb.dataset.zoomSrc) {
+      openZoom(thumb.dataset.zoomSrc, thumb.dataset.zoomAlt || '');
+      return;
+    }
+
+    // Qty buttons
     const btn = e.target.closest('.ttt-qty-btn');
     if (!btn) return;
     const sku    = btn.dataset.sku;
     const action = btn.dataset.action;
     if (!sku || !action) return;
 
-    const current = _quantities[sku] || 0;
-    if (action === 'dec') {
-      _quantities[sku] = Math.max(0, current - 1);
-    } else {
-      _quantities[sku] = Math.min(TTT_CONFIG.cart.maxQuantity, current + 1);
-    }
+    const cur = _quantities[sku] || 0;
+    _quantities[sku] = action === 'dec'
+      ? Math.max(0, cur - 1)
+      : Math.min(TTT_CONFIG.cart.maxQuantity, cur + 1);
 
     _updateMedidaRow(sku);
     _updateFooter();
   }
 
   function _updateMedidaRow(sku) {
-    const qty = _quantities[sku] || 0;
+    const qty    = _quantities[sku] || 0;
     const safeId = sku.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const qtyEl = document.getElementById(`tttQty_${safeId}`);
+    const qtyEl  = document.getElementById(`tttQty_${safeId}`);
+    const subEl  = document.getElementById(`tttSub_${safeId}`);
     if (qtyEl) qtyEl.textContent = qty;
+    if (subEl) {
+      const medida  = (_product?.medidas || []).find(m => m.sku === sku);
+      const subtotal = medida ? medida.precio * qty : 0;
+      subEl.textContent = Utils.formatPrice(subtotal);
+    }
   }
 
   // -------------------------------------------------------
   // FOOTER — total + estado botón
   // -------------------------------------------------------
   function _updateFooter() {
-    const totalEl = document.getElementById('tttTotalAmount');
-    const btn     = document.getElementById('tttBtnCart');
-
+    const totalEl  = document.getElementById('tttTotalAmount');
+    const btn      = document.getElementById('tttBtnCart');
     const total    = _calcTotal();
     const totalQty = Object.values(_quantities).reduce((s, q) => s + q, 0);
 
@@ -394,6 +496,43 @@ const Modal = (() => {
   }
 
   // -------------------------------------------------------
+  // MODAL ZOOM
+  // -------------------------------------------------------
+  function openZoom(src, alt = '') {
+    _ensureZoomModal();
+    const img = document.getElementById('tttZoomImage');
+    if (img) {
+      img.src = src || TTT_CONFIG.images.placeholder;
+      img.alt = alt;
+      img.onerror = () => { img.onerror = null; img.src = TTT_CONFIG.images.placeholder; };
+    }
+    _openModal('tttModalZoom');
+  }
+
+  function _ensureZoomModal() {
+    if (document.getElementById('tttModalZoom')) return;
+
+    const modal = document.createElement('div');
+    modal.id        = 'tttModalZoom';
+    modal.className = 'modal';
+    modal.style.zIndex = String(parseInt(getComputedStyle(document.documentElement)
+      .getPropertyValue('--z-modal').trim() || '1400') + 100);
+
+    modal.innerHTML = `
+      <div class="ttt-zoom-overlay" id="tttZoomOverlay"></div>
+      <div class="ttt-zoom-content">
+        <button class="modal-close ttt-zoom-close" id="tttZoomClose" aria-label="Cerrar">×</button>
+        <img id="tttZoomImage" class="ttt-zoom-image" src="" alt="">
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.getElementById('tttZoomClose')?.addEventListener('click',   () => _closeModal('tttModalZoom'));
+    document.getElementById('tttZoomOverlay')?.addEventListener('click', () => _closeModal('tttModalZoom'));
+    modal.addEventListener('keydown', e => { if (e.key === 'Escape') _closeModal('tttModalZoom'); });
+  }
+
+  // -------------------------------------------------------
   // MODAL CARRITO
   // -------------------------------------------------------
   function openCart() {
@@ -422,15 +561,12 @@ const Modal = (() => {
           <h2 class="ttt-cart-title" id="tttCartTitle">Tu selección</h2>
         </div>
 
-        <!-- Estado vacío -->
         <div id="cartEmpty" class="ttt-cart-empty" style="display:none">
           <p>No hay artículos en tu selección.</p>
         </div>
 
-        <!-- Items -->
         <div id="cartItems" class="ttt-cart-items"></div>
 
-        <!-- Footer -->
         <div id="cartFooter" class="ttt-cart-footer" style="display:none">
           <div class="ttt-cart-total-row">
             <span>Total estimado:</span>
@@ -450,7 +586,6 @@ const Modal = (() => {
     `;
 
     document.body.appendChild(modal);
-
     document.getElementById('tttCartClose')?.addEventListener('click',   () => _closeModal('tttModalCart'));
     document.getElementById('tttCartOverlay')?.addEventListener('click', () => _closeModal('tttModalCart'));
     document.getElementById('tttBtnWishlist')?.addEventListener('click', _handleWishlist);
@@ -469,9 +604,10 @@ const Modal = (() => {
   return {
     openProduct,
     openCart,
+    openZoom,
   };
 
 })();
 
 window.Modal = Modal;
-Logger.log('ttt-modal.js cargado ✓');
+Logger.log('ttt-modal.js v2 cargado ✓');

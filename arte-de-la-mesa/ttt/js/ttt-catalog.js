@@ -287,10 +287,14 @@ const Catalog = (() => {
 
   function getAllProducts() { return _all; }
 
+  // Devuelve la lista filtrada activa — usada por Modal para navegar entre productos
+  function getFiltered() { return _filtered; }
+
   return {
     init,
     findProduct,
     getAllProducts,
+    getFiltered,
     stopRotations:  _stopAllRotations,
     startRotations: _startAllRotations,
   };
