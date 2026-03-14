@@ -1581,6 +1581,7 @@ gmp-placeautocomplete::part(input):focus {
 /* Desktop: igual que checkout */
 @media (min-width: 1025px) {
     .modal-family-content { width: 760px; height: 88vh; }
+    .btn-share { display: none !important; }
 }
 
 /* Header familia */

@@ -147,18 +147,12 @@
     cursor: default;
 }
 
-/* Columna derecha: flecha next + share */
-.ttt-nav-right {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 0 4px;
-}
-
-/* Share button — visible solo en mobile */
+/* Share button — pie de la fotografía, alineado con el botón X — solo mobile/tablet */
 .ttt-btn-share {
+    display: none; /* JS lo muestra con 'flex' si navigator.share existe */
+    position: absolute;
+    bottom: var(--spacing-sm);
+    right: var(--spacing-sm);
     width: 34px; height: 34px;
     background: var(--color-accent);
     border: none;
@@ -170,6 +164,7 @@
     box-shadow: var(--shadow-small);
     transition: background var(--transition-fast);
     flex-shrink: 0;
+    z-index: 2;
 }
 
 .ttt-btn-share:hover { background: var(--color-accent-hover); }
@@ -667,6 +662,7 @@
 /* ===== RESPONSIVE ===== */
 @media (min-width: 1025px) {
     .ttt-modal-content { width: 600px; height: 88vh; }
+    .ttt-btn-share { display: none !important; }
 }
 
 @media (max-width: 540px) {
