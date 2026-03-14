@@ -135,7 +135,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Mantel",
     material:  "100% lino",
     images:    ["TT1000000334.jpg", "TT1000000335.jpg", "TT1000002270.jpg", "TT1000000336.jpg", "TT1000002902.jpg", "TT1000004178.jpg", "TT1000004108.jpg"],
-    medidas:   [{"sku": "NT130125-020067", "medida": "Cuadrado 170x170cm", "precio": 3102500, "imagen": "TT1000000334.jpg"}, {"sku": "NT130126-020067", "medida": "Rectangular 160x230cm", "precio": 3595250, "imagen": "TT1000000334.jpg"}, {"sku": "NT130127-020067", "medida": "Rectangular 170x270cm", "precio": 4088000, "imagen": "TT1000000334.jpg"}, {"sku": "NT260068-020067", "medida": "Única talla", "precio": 5566250, "imagen": "TT1000000334.jpg"}],
+    medidas:   [{"sku": "NT130125-020067", "medida": "Cuadrado 170x170cm", "precio": 3102500, "imagen": "TT1000000334.jpg"}, {"sku": "NT130126-020067", "medida": "Rectangular 160x230cm", "precio": 3595250, "imagen": "TT1000000334.jpg"}, {"sku": "NT130127-020067", "medida": "Rectangular 170x270cm", "precio": 4088000, "imagen": "TT1000000334.jpg"}, {"sku": "NT260068-020067", "medida": "Rectangular 170x360cm", "precio": 5566250, "imagen": "TT1000000334.jpg"}],
   },
   {
     sku:       "CYNAR_TOVAGLIE",
@@ -705,7 +705,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000003890.jpg", "TT1000004025.jpg", "TT1000003892.jpg", "TT1000003891.jpg", "TT1000004094.jpg"],
-    medidas:   [{"sku": "NT260001-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000003890.jpg"}],
+    medidas:   [{"sku": "NT260001-020067", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000003890.jpg"}],
   },
   {
     sku:       "BARNUM_RUNNER",
@@ -745,7 +745,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000003917.jpg", "TT1000003916.jpg", "TT1000003915.jpg", "TT1000004104.jpg"],
-    medidas:   [{"sku": "NT260006-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000003917.jpg"}],
+    medidas:   [{"sku": "NT260006-020067", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000003917.jpg"}],
   },
   {
     sku:       "CAMASTRA_RUNNER",
@@ -795,7 +795,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000004107.jpeg", "TT1000004021.jpg", "TT1000004108.jpg"],
-    medidas:   [{"sku": "NT260069-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000004107.jpeg"}],
+    medidas:   [{"sku": "NT260069-020067", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000004107.jpeg"}],
   },
   {
     sku:       "CYNAR_RUNNER",
@@ -825,7 +825,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% cotone",
     images:    ["TT1000003939.jpg", "TT1000003936.jpg", "TT1000003941.jpg", "TT1000003940.jpg", "TT1000004113.jpg"],
-    medidas:   [{"sku": "NT260016-080067", "medida": "Única talla", "precio": 693500, "imagen": "TT1000003939.jpg"}],
+    medidas:   [{"sku": "NT260016-080067", "medida": "45x170cm", "precio": 693500, "imagen": "TT1000003939.jpg"}],
   },
   {
     sku:       "ETOILE_RUNNER",
@@ -1005,7 +1005,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000003885.jpeg", "TT1000003079.jpg", "TT1000003056.jpg", "TT1000003108.jpg"],
-    medidas:   [{"sku": "NT190095-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000003885.jpeg"}],
+    medidas:   [{"sku": "NT190095-020067", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000003885.jpeg"}],
   },
   {
     sku:       "ONDIVA_RUNNER",
@@ -1015,7 +1015,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000003977.jpg", "TT1000004134.jpg", "TT1000004189.jpg", "TT1000003976.jpg", "TT1000004139.jpg"],
-    medidas:   [{"sku": "NT260047-010017", "medida": "Única talla", "precio": 1076750, "imagen": "TT1000003977.jpg"}],
+    medidas:   [{"sku": "NT260047-010017", "medida": "45x170cm", "precio": 1076750, "imagen": "TT1000003977.jpg"}],
   },
   {
     sku:       "ONIRICA_RUNNER",
@@ -1025,7 +1025,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% cotone",
     images:    ["TT1000004003.jpg", "TT1000004179.jpg", "TT1000004004.jpg", "TT1000004190.jpg", "TT1000004144.jpg"],
-    medidas:   [{"sku": "NT260033-010037", "medida": "Única talla", "precio": 693500, "imagen": "TT1000004003.jpg"}],
+    medidas:   [{"sku": "NT260033-010037", "medida": "45x170cm", "precio": 693500, "imagen": "TT1000004003.jpg"}],
   },
   {
     sku:       "PAPYRO_RUNNER",
@@ -1138,16 +1138,6 @@ const TTT_PRODUCTS = [
     medidas:   [{"sku": "NT250141-010037", "medida": "45x170cm", "precio": 693500, "imagen": "TT1000003845.jpg"}],
   },
   {
-    sku:       "SCHIACCIANOCI_RUNNER",
-    name:      "SCHIACCIANOCI",
-    patron:    "SCHIACCIANOCI CAMINO DE MESA",
-    categoria: "runner",
-    shortDesc: "Camino de mesa",
-    material:  "100% lino",
-    images:    ["TT1000003112.jpg", "TT1000003077.jpg", "TT1000003093.jpg", "TT1000003094.jpg", "TT1000003095.jpg", "TT1000000092.jpg"],
-    medidas:   [{"sku": "NT210121-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000003112.jpg"}],
-  },
-  {
     sku:       "SELVATICA_RUNNER",
     name:      "SELVATICA",
     patron:    "SELVATICA CAMINO DE MESA",
@@ -1155,7 +1145,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000004029.jpg", "TT1000004180.jpg", "TT1000004030.jpg", "TT1000004158.jpg"],
-    medidas:   [{"sku": "NT260025-020067", "medida": "Única talla", "precio": 1076750, "imagen": "TT1000004029.jpg"}],
+    medidas:   [{"sku": "NT260025-020067", "medida": "45x170cm", "precio": 1076750, "imagen": "TT1000004029.jpg"}],
   },
   {
     sku:       "SEVILLANA_RUNNER",
@@ -1165,7 +1155,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000003098.jpg", "TT1000003078.jpg", "TT1000003099.jpg", "TT1000003114.jpg"],
-    medidas:   [{"sku": "NT180001-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000003098.jpg"}],
+    medidas:   [{"sku": "NT180001-020067", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000003098.jpg"}],
   },
   {
     sku:       "SPIGO_RUNNER",
