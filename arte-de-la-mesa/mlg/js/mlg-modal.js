@@ -468,7 +468,7 @@ const Modal = (() => {
     if (shareBtn) {
       shareBtn.dataset.productId   = prod.id;
       shareBtn.dataset.productName = prod.name;
-      shareBtn.style.display       = navigator.share ? '' : 'none';
+      shareBtn.style.display       = navigator.share ? 'flex' : 'none';
     }
 
     // Contador
