@@ -1165,7 +1165,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000003118.jpg", "TT1000003076.jpg", "TT1000003054.jpg", "TT1000003115.jpg"],
-    medidas:   [{"sku": "NT190032-010017", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000003118.jpg"}],
+    medidas:   [{"sku": "NT190032-010017", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000003118.jpg"}],
   },
   {
     sku:       "SUNGARDEN_RUNNER",
@@ -1225,7 +1225,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000004163.jpeg", "TT1000004024.jpg", "TT1000004164.jpg"],
-    medidas:   [{"sku": "NT260071-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000004163.jpeg"}],
+    medidas:   [{"sku": "NT260071-020067", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000004163.jpeg"}],
   },
   {
     sku:       "TULI_RUNNER",
@@ -1245,7 +1245,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "100% lino",
     images:    ["TT1000004054.jpg", "TT1000004053.jpg", "TT1000004056.jpg", "TT1000004055.jpg", "TT1000004168.jpg"],
-    medidas:   [{"sku": "NT260042-020067", "medida": "Única talla", "precio": 1131500, "imagen": "TT1000004054.jpg"}],
+    medidas:   [{"sku": "NT260042-020067", "medida": "50x170cm", "precio": 1131500, "imagen": "TT1000004054.jpg"}],
   },
   {
     sku:       "VIE_EN_ROSE_RUNNER",
@@ -1265,7 +1265,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Camino de mesa",
     material:  "55%lino 45%cotone",
     images:    ["TT1000004083.jpg", "TT1000004023.jpg", "TT1000004193.jpg", "TT1000004192.jpg", "TT1000004176.jpg"],
-    medidas:   [{"sku": "NT260011-020067", "medida": "Única talla", "precio": 930750, "imagen": "TT1000004083.jpg"}],
+    medidas:   [{"sku": "NT260011-020067", "medida": "50x170cm", "precio": 930750, "imagen": "TT1000004083.jpg"}],
   },
   {
     sku:       "ZAKURO_RUNNER",
@@ -1345,7 +1345,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Servilleta",
     material:  "100% lino",
     images:    ["TT1000003923.jpg", "TT1000004188.jpg", "TT1000003926.jpg", "TT1000003924.jpg", "TT1000003925.jpg", "TT1000004104.jpg"],
-    medidas:   [{"sku": "NT260057-020067", "medida": "Única talla", "precio": 1551250, "imagen": "TT1000003923.jpg"}],
+    medidas:   [{"sku": "NT260057-020067", "medida": "46x46cm", "precio": 1551250, "imagen": "TT1000003923.jpg"}],
   },
   {
     sku:       "CHRISTMAS_CAROL_TOVAGLIOLI",
