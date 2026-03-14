@@ -1,0 +1,15 @@
+# wrangler-ttt-signature.toml — TTT Signature Generator Worker
+# Deploy:  cd arte-de-la-mesa/ttt && npx wrangler deploy --config wrangler-ttt-signature.toml
+# Secrets:
+#   npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-ttt-signature.toml
+#     Sandbox value: test_integrity_C7XirmACW88BPGAnYUYnxVQLGJmsOIt2
+#   npx wrangler secret put API_TOKEN --config wrangler-ttt-signature.toml
+#     Value: ttt_tLaO8fenZj_FyP0HCW8N5KdzXZe28rSSYZyUy_j6
+#
+# Echo test (verificar que el worker está vivo):
+#   curl "https://ttt-signature-generator.<tu-subdominio>.workers.dev?cmd=echo"
+
+name               = "ttt-signature-generator"
+main               = "ttt-signature-generator.js"
+compatibility_date = "2026-02-16"
+compatibility_flags = ["nodejs_compat"]

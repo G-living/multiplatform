@@ -1,0 +1,17 @@
+# wrangler-ttt-webhook.toml — TTT Wompi Webhook Worker
+# Deploy:  cd arte-de-la-mesa/ttt && npx wrangler deploy --config wrangler-ttt-webhook.toml
+# Secrets:
+#   npx wrangler secret put WOMPI_EVENTS_SECRET --config wrangler-ttt-webhook.toml
+#     Sandbox value: test_events_76DJugcdc24rUuj2uspinP3fwFRVCckn
+#   npx wrangler secret put GOOGLE_SHEETS_WEBHOOK_URL --config wrangler-ttt-webhook.toml
+#     Value: https://script.google.com/macros/s/AKfycbyDbEdP5a5AhzhpcVGKCK1iS10uw02cscTMG62pW68fw_5PDOVs1RV8lhBcebr-1mEc/exec
+#   npx wrangler secret put GAS_API_TOKEN --config wrangler-ttt-webhook.toml
+#     Value: ttt_tLaO8fenZj_FyP0HCW8N5KdzXZe28rSSYZyUy_j6
+#
+# Echo test (verificar que el worker está vivo):
+#   curl "https://ttt-wompi-webhook.<tu-subdominio>.workers.dev?cmd=echo"
+
+name               = "ttt-wompi-webhook"
+main               = "ttt-wompi-webhook.js"
+compatibility_date = "2026-02-16"
+compatibility_flags = ["nodejs_compat"]
