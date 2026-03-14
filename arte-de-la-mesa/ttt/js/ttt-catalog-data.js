@@ -1595,7 +1595,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% poliestere",
     images:    ["TT1000003903.jpg", "TT1000003902.jpg", "TT1000003905.jpg", "TT1000003904.jpg", "TT1000004100.jpg"],
-    medidas:   [{"sku": "NT260059-060427", "medida": "Única talla", "precio": 748250, "imagen": "TT1000003903.jpg"}],
+    medidas:   [{"sku": "NT260059-060427", "medida": "37x48cm", "precio": 748250, "imagen": "TT1000003903.jpg"}],
   },
   {
     sku:       "CAMASTRA_TOVAGLIETTA",
@@ -1645,7 +1645,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% lino",
     images:    ["TT1000004082.jpg", "TT1000004111.jpeg", "TT1000004113.jpg"],
-    medidas:   [{"sku": "NT260063-080037", "medida": "Única talla", "precio": 1259250, "imagen": "TT1000004082.jpg"}],
+    medidas:   [{"sku": "NT260063-080037", "medida": "37x48cm", "precio": 1259250, "imagen": "TT1000004082.jpg"}],
   },
   {
     sku:       "FAIRY_TREES_TOVAGLIETTA",
@@ -1665,7 +1665,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% lino",
     images:    ["TT1000003954.jpg", "TT1000004115.jpeg", "TT1000003956.jpg", "TT1000003955.jpg", "TT1000004117.jpg"],
-    medidas:   [{"sku": "NT260064-080037", "medida": "Única talla", "precio": 1259250, "imagen": "TT1000003954.jpg"}],
+    medidas:   [{"sku": "NT260064-080037", "medida": "37x48cm", "precio": 1259250, "imagen": "TT1000003954.jpg"}],
   },
   {
     sku:       "FLYBY_TOVAGLIETTA",
@@ -1735,7 +1735,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% poliestere (riciclato al 95%)",
     images:    ["TT1000004119.jpeg", "TT1000003408.jpg", "TT1000003407.jpg", "TT1000003406.jpg", "TT1000003399.jpg", "TT1000003401.jpg", "TT1000004120.jpg"],
-    medidas:   [{"sku": "NT250057-050017", "medida": "37x48cm", "precio": 748250, "imagen": "TT1000004119.jpeg"}, {"sku": "NT260065-080037", "medida": "Única talla", "precio": 1259250, "imagen": "TT1000004119.jpeg"}],
+    medidas:   [{"sku": "NT250057-050017", "medida": "37x48cm", "precio": 748250, "imagen": "TT1000004119.jpeg"}, {"sku": "NT260065-080037", "medida": "37x48cm", "precio": 748250, "imagen": "TT1000004119.jpeg"}],
   },
   {
     sku:       "LEOLEAF_TOVAGLIETTA",
