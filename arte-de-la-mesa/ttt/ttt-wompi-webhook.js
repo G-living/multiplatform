@@ -1,32 +1,12 @@
 // ttt-wompi-webhook.js
 // Cloudflare Worker — Recibe confirmaciones de pago de Wompi y actualiza Google Sheets (TTT)
 // Deploy: cd arte-de-la-mesa/ttt && npx wrangler deploy --config wrangler-ttt-webhook.toml
-// Secrets:
-//   npx wrangler secret put WOMPI_EVENTS_SECRET        --config wrangler-ttt-webhook.toml
-//   npx wrangler secret put GAS_URL        --config wrangler-ttt-webhook.toml
-//   npx wrangler secret put GAS_API_TOKEN  --config wrangler-ttt-webhook.toml
+// Secrets: npx wrangler secret put WOMPI_EVENTS_SECRET --config wrangler-ttt-webhook.toml
+//          npx wrangler secret put GOOGLE_SHEETS_WEBHOOK_URL --config wrangler-ttt-webhook.toml
+//          npx wrangler secret put GAS_API_TOKEN --config wrangler-ttt-webhook.toml
 
 export default {
   async fetch(request, env) {
-    const corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json',
-    };
-
-    // ── CMD: echo (diagnóstico GET) ────────────────────────────
-    const url = new URL(request.url);
-    if (url.searchParams.get('cmd') === 'echo') {
-      return new Response(JSON.stringify({
-        ok:      true,
-        worker:  'ttt-wompi-webhook',
-        version: 'v1.0',
-        time:    new Date().toISOString(),
-        method:  request.method,
-        gasConfigured: !!env.GAS_URL,
-        eventsSecretConfigured: !!env.WOMPI_EVENTS_SECRET,
-      }), { status: 200, headers: corsHeaders });
-    }
-
     if (request.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 });
     }
@@ -156,11 +136,11 @@ async function verifyWompiSignature(request, payload, eventsSecret) {
  */
 async function updateGoogleSheets(env, pedidoId, transactionId, amountInCents, status, paymentMethod) {
   try {
-    const SHEETS_URL = env.GAS_URL;
+    const SHEETS_URL = env.GOOGLE_SHEETS_WEBHOOK_URL;
     const API_TOKEN  = env.GAS_API_TOKEN;
 
     if (!SHEETS_URL) {
-      console.error('GAS_URL no configurado');
+      console.error('GOOGLE_SHEETS_WEBHOOK_URL no configurado');
       return false;
     }
     if (!API_TOKEN) {
@@ -169,8 +149,8 @@ async function updateGoogleSheets(env, pedidoId, transactionId, amountInCents, s
     }
 
     const body = {
-      action:  'updatePayment',
-      _token:  API_TOKEN,
+      action:        'updatePayment',
+      _token:        API_TOKEN,
       data: {
         pedidoId,
         transactionId,
