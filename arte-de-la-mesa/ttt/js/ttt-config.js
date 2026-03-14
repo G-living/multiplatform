@@ -22,8 +22,8 @@ const TTT_CONFIG = {
   },
 
   checkout: {
-    currency:        'EUR',
-    currencySymbol:  '€',
+    currency:        'COP',
+    currencySymbol:  '$',
     // Cloudflare Worker signature (clonar de imolarte cuando esté listo)
     signatureWorkerUrl: '',
     wompiPublicKey:   '',
@@ -125,7 +125,7 @@ const Utils = {
       '',
       ...lines,
       '',
-      `*Total estimado: ${Utils.formatPrice(total)} EUR*`,
+      `*Total estimado: ${Utils.formatPrice(total)} COP*`,
       '',
       'Me interesan estas piezas. ¿Podrían confirmar disponibilidad y condiciones de envío?',
     ].join('\n');
