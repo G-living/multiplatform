@@ -3,8 +3,8 @@
 // Deploy: cd arte-de-la-mesa/ttt && npx wrangler deploy --config wrangler-ttt-webhook.toml
 // Secrets:
 //   npx wrangler secret put WOMPI_EVENTS_SECRET        --config wrangler-ttt-webhook.toml
-//   npx wrangler secret put GOOGLE_SHEETS_WEBHOOK_URL  --config wrangler-ttt-webhook.toml
-//   npx wrangler secret put GAS_API_TOKEN              --config wrangler-ttt-webhook.toml
+//   npx wrangler secret put GAS_URL        --config wrangler-ttt-webhook.toml
+//   npx wrangler secret put GAS_API_TOKEN  --config wrangler-ttt-webhook.toml
 
 export default {
   async fetch(request, env) {
@@ -22,7 +22,7 @@ export default {
         version: 'v1.0',
         time:    new Date().toISOString(),
         method:  request.method,
-        gasConfigured: !!env.GOOGLE_SHEETS_WEBHOOK_URL,
+        gasConfigured: !!env.GAS_URL,
         eventsSecretConfigured: !!env.WOMPI_EVENTS_SECRET,
       }), { status: 200, headers: corsHeaders });
     }
@@ -156,11 +156,11 @@ async function verifyWompiSignature(request, payload, eventsSecret) {
  */
 async function updateGoogleSheets(env, pedidoId, transactionId, amountInCents, status, paymentMethod) {
   try {
-    const SHEETS_URL = env.GOOGLE_SHEETS_WEBHOOK_URL;
+    const SHEETS_URL = env.GAS_URL;
     const API_TOKEN  = env.GAS_API_TOKEN;
 
     if (!SHEETS_URL) {
-      console.error('GOOGLE_SHEETS_WEBHOOK_URL no configurado');
+      console.error('GAS_URL no configurado');
       return false;
     }
     if (!API_TOKEN) {
