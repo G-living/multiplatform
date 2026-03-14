@@ -1465,7 +1465,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Servilleta",
     material:  "100% lino",
     images:    ["TT1000003989.jpg", "TT1000003988.jpg", "TT1000003991.jpg", "TT1000003990.jpg", "TT1000004138.png", "TT1000004139.jpg"],
-    medidas:   [{"sku": "NT260058-010017", "medida": "Única talla", "precio": 1551250, "imagen": "TT1000003989.jpg"}],
+    medidas:   [{"sku": "NT260058-010017", "medida": "46x46cm", "precio": 1551250, "imagen": "TT1000003989.jpg"}],
   },
   {
     sku:       "PAPYRO_TOVAGLIOLI",
@@ -1486,16 +1486,6 @@ const TTT_PRODUCTS = [
     material:  "100% lino",
     images:    ["TT1000003481.jpg", "TT1000003482.jpg", "TT1000003483.jpg", "TT1000003477.jpg"],
     medidas:   [{"sku": "NT250053-020067", "medida": "46x46cm", "precio": 1551250, "imagen": "TT1000003481.jpg"}],
-  },
-  {
-    sku:       "PETRA_TOVAGLIOLI",
-    name:      "PETRA",
-    patron:    "PETRA SERVILLETA",
-    categoria: "tovaglioli",
-    shortDesc: "Servilleta",
-    material:  "100% canapa",
-    images:    ["TT1000003109.jpg", "TT1000003167.jpg", "TT1000003130.jpg"],
-    medidas:   [{"sku": "NT210063-010017", "medida": "Única talla", "precio": 182500, "imagen": "TT1000003109.jpg"}],
   },
   {
     sku:       "PIEVE_TOVAGLIOLI",
@@ -1575,7 +1565,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% lino",
     images:    ["TT1000004079.jpg", "TT1000004090.jpeg", "TT1000004089.jpg"],
-    medidas:   [{"sku": "NT260062-080037", "medida": "Única talla", "precio": 1259250, "imagen": "TT1000004079.jpg"}],
+    medidas:   [{"sku": "NT260062-080037", "medida": "37x48cm", "precio": 1259250, "imagen": "TT1000004079.jpg"}],
   },
   {
     sku:       "AGNES_TOVAGLIETTA",
@@ -1765,7 +1755,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% lino",
     images:    ["TT1000004122.jpg", "TT1000004121.jpg", "TT1000004124.jpg"],
-    medidas:   [{"sku": "NT260066-080037", "medida": "Única talla", "precio": 1259250, "imagen": "TT1000004122.jpg"}],
+    medidas:   [{"sku": "NT260066-080037", "medida": "37x48cm", "precio": 1259250, "imagen": "TT1000004122.jpg"}],
   },
   {
     sku:       "MARZAPEPE_TOVAGLIETTA",
@@ -1825,7 +1815,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% lino",
     images:    ["TT1000003985.jpeg", "TT1000003984.jpeg", "TT1000003987.png", "TT1000003986.png", "TT1000004139.jpg"],
-    medidas:   [{"sku": "NT260067-080037", "medida": "Única talla", "precio": 1259250, "imagen": "TT1000003985.jpeg"}],
+    medidas:   [{"sku": "NT260067-080037", "medida": "37x48cm", "precio": 1259250, "imagen": "TT1000003985.jpeg"}],
   },
   {
     sku:       "ORIGAMI_TOVAGLIETTA",
