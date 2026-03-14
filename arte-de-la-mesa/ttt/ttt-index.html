@@ -104,15 +104,219 @@
     <div id="productsGrid"></div>
   </main>
 
-  <!-- CARRITO FLOTANTE -->
-  <button class="cart-float" id="cartButton" aria-label="Ver selección">
-    <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-      <line x1="3" y1="6" x2="21" y2="6"/>
-      <path d="M16 10a4 4 0 01-8 0"/>
-    </svg>
-    <span class="cart-badge" id="cartBadge" style="display:none">0</span>
-  </button>
+  <!-- BOTONES FLOTANTES: GIFT + CARRITO -->
+  <div class="float-buttons-stack">
+    <button class="gift-float" id="giftButton" aria-label="Gift Card G-Living">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+        <rect x="3" y="10" width="18" height="11" rx="1"/>
+        <rect x="1" y="6"  width="22" height="4"  rx="1"/>
+        <line x1="12" y1="6" x2="12" y2="21"/>
+        <path d="M12 6 C12 6 8 6 8 3 C8 1 12 1 12 6"/>
+        <path d="M12 6 C12 6 16 6 16 3 C16 1 12 1 12 6"/>
+      </svg>
+      <span class="gift-label">BONO</span>
+    </button>
+    <button class="cart-float" id="cartButton" aria-label="Ver selección">
+      <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+    </button>
+  </div>
+
+  <!-- ==========================================
+       MODAL GIFT
+  =========================================== -->
+  <div class="modal" id="modalGift" role="dialog" aria-modal="true" aria-labelledby="giftModalTitle">
+    <div class="modal-overlay" id="modalGiftOverlay"></div>
+    <div class="modal-content modal-gift">
+      <button class="modal-close" id="closeGift" aria-label="Cerrar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="modal-gift-body">
+        <div id="giftStep1">
+          <h2 class="modal-gift-title" id="giftModalTitle">Gift Card</h2>
+          <p class="modal-gift-subtitle">Elige el valor — tu tarjeta se genera al instante</p>
+          <div class="gift-card-preview">
+            <canvas id="giftCanvas" width="540" height="340" aria-label="Preview Gift Card G-Living"></canvas>
+          </div>
+          <div class="gift-amount-wrap">
+            <label class="cmo-label" for="giftAmount">
+              Valor del Gift Card (EUR) <span class="cmo-req">*</span>
+              <span class="cmo-hint"> — mínimo €100</span>
+            </label>
+            <div class="gift-amount-input-wrap">
+              <span class="gift-amount-prefix">€</span>
+              <input class="cmo-input gift-amount-input" type="text" id="giftAmount" name="giftAmount"
+                     inputmode="numeric" autocomplete="off" placeholder="150">
+            </div>
+            <span class="cmo-error" id="giftErrAmount"></span>
+          </div>
+          <div class="gift-card-info" id="giftCardInfo" style="display:none">
+            <div class="gift-info-row">
+              <span class="gift-info-label">Código:</span>
+              <span class="gift-info-value gift-code-display" id="giftCodeDisplay">—</span>
+            </div>
+            <div class="gift-info-row">
+              <span class="gift-info-label">Válido hasta:</span>
+              <span class="gift-info-value" id="giftValidUntil">—</span>
+            </div>
+          </div>
+          <button class="btn btn-primary gift-next-btn" id="giftBtnNext" disabled>
+            Continuar con los datos →
+          </button>
+        </div>
+
+        <div id="giftStep2" style="display:none">
+          <button class="gift-back-btn" id="giftBtnBack">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Volver
+          </button>
+          <h2 class="modal-gift-title">Datos del regalo</h2>
+          <p class="modal-gift-subtitle">Gift Card por <strong id="giftSelectedLabel"></strong></p>
+          <form id="formGift" novalidate>
+            <div class="cmo-section-label">Quien regala</div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfNombre">Nombre <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfNombre" name="gfNombre" autocomplete="given-name" placeholder="María" required>
+                <span class="cmo-error" id="gfErrNombre"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfApellido">Apellido <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfApellido" name="gfApellido" autocomplete="family-name" placeholder="García" required>
+                <span class="cmo-error" id="gfErrApellido"></span>
+              </div>
+            </div>
+            <div class="cmo-birthday-promo">
+              🎂 <strong>¡Tu fecha especial nos importa!</strong> Regístrala para recibir sorpresas,
+              promociones exclusivas y un saludo especial de G-Living en tu día.
+            </div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCumpleDia">Día de cumpleaños <span class="cmo-req">*</span></label>
+                <select class="cmo-input cmo-select" id="gfCumpleDia" name="gfCumpleDia" required>
+                  <option value="">— Día —</option>
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                  <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                  <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                  <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                  <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+                  <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+                  <option value="19">19</option><option value="20">20</option><option value="21">21</option>
+                  <option value="22">22</option><option value="23">23</option><option value="24">24</option>
+                  <option value="25">25</option><option value="26">26</option><option value="27">27</option>
+                  <option value="28">28</option><option value="29">29</option><option value="30">30</option>
+                  <option value="31">31</option>
+                </select>
+                <span class="cmo-error" id="gfErrCumpleDia"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfCumpleMes">Mes de cumpleaños <span class="cmo-req">*</span></label>
+                <select class="cmo-input cmo-select" id="gfCumpleMes" name="gfCumpleMes" required>
+                  <option value="">— Mes —</option>
+                  <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                  <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                  <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                  <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+                </select>
+                <span class="cmo-error" id="gfErrCumpleMes"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfEmail">Email <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="email" id="gfEmail" name="gfEmail" autocomplete="email" placeholder="maria@ejemplo.com" required>
+              <span class="cmo-error" id="gfErrEmail"></span>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfEmailConf">Confirmar email <span class="cmo-req">*</span></label>
+              <input class="cmo-input" type="email" id="gfEmailConf" name="gfEmailConf" autocomplete="off" placeholder="maria@ejemplo.com" required>
+              <span class="cmo-error" id="gfErrEmailConf"></span>
+              <span class="cmo-success" id="gfOkEmailConf" style="display:none">✓ Emails coinciden</span>
+            </div>
+            <div class="cmo-row-phone">
+              <div class="cmo-group cmo-group-prefix">
+                <label class="cmo-label" for="gfPais">País</label>
+                <select class="cmo-input cmo-select" id="gfPais" name="gfPais">
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+              </div>
+              <div class="cmo-group cmo-group-tel">
+                <label class="cmo-label" for="gfTel">Teléfono <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="tel" id="gfTel" name="gfTel" autocomplete="tel" placeholder="3001234567" required>
+                <span class="cmo-error" id="gfErrTel"></span>
+              </div>
+            </div>
+            <div class="cmo-section-label">Para quién es el regalo</div>
+            <div class="cmo-row-2">
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfRecNombre">Nombre destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecNombre" name="gfRecNombre" placeholder="María" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecNombre"></span>
+              </div>
+              <div class="cmo-group">
+                <label class="cmo-label" for="gfRecApellido">Apellido destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="text" id="gfRecApellido" name="gfRecApellido" placeholder="García" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecApellido"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfRecEmail">Email destinatario <span class="cmo-req">*</span></label>
+              <span class="cmo-hint-block">Enviaremos el código de regalo por email y WhatsApp</span>
+              <input class="cmo-input" type="email" id="gfRecEmail" name="gfRecEmail" placeholder="email@ejemplo.com" required autocomplete="off">
+              <span class="cmo-error" id="gfErrRecEmail"></span>
+            </div>
+            <div class="cmo-row-phone">
+              <div class="cmo-group cmo-group-prefix">
+                <label class="cmo-label" for="gfRecPais">País</label>
+                <select class="cmo-input cmo-select" id="gfRecPais" name="gfRecPais">
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+              </div>
+              <div class="cmo-group cmo-group-tel">
+                <label class="cmo-label" for="gfRecTel">WhatsApp destinatario <span class="cmo-req">*</span></label>
+                <input class="cmo-input" type="tel" id="gfRecTel" name="gfRecTel" placeholder="3001234567" required autocomplete="off">
+                <span class="cmo-error" id="gfErrRecTel"></span>
+              </div>
+            </div>
+            <div class="cmo-group">
+              <label class="cmo-label" for="gfMensaje">Mensaje personalizado</label>
+              <textarea class="cmo-input cmo-textarea" id="gfMensaje" name="gfMensaje" rows="2" placeholder="Ej: Con cariño para tu cumpleaños…"></textarea>
+            </div>
+            <div class="cmo-check-wrap" style="margin-top:16px">
+              <input type="checkbox" id="gfCheckTyC" name="gfCheckTyC" required>
+              <label for="gfCheckTyC" class="cmo-check-label">
+                Acepto los <span class="cmo-legal-link" id="btnOpenTyCGift" role="button" tabindex="0">términos y condiciones</span> y la <span class="cmo-legal-link" id="btnOpenDatosGift" role="button" tabindex="0">política de privacidad</span>. <span class="cmo-req">*</span>
+              </label>
+            </div>
+            <span class="cmo-error" id="gfErrTyC"></span>
+            <div class="cmo-gift-total">
+              <span class="cmo-gift-total-label">Total a pagar:</span>
+              <span class="cmo-gift-total-amount" id="giftTotalDisplay">€0</span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-add-cart" id="giftBtnPagar">
+              Enviar solicitud Gift Card
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- TOAST -->
   <div class="toast-notification" id="toast" style="display:none" role="alert" aria-live="polite">
@@ -135,6 +339,105 @@
   document.getElementById('cartButton')?.addEventListener('click', () => {
     if (window.Modal?.openCart) Modal.openCart();
   });
+
+  // ── GIFT button → abre modal gift ──
+  (function() {
+    var giftBtn    = document.getElementById('giftButton');
+    var modal      = document.getElementById('modalGift');
+    var overlay    = document.getElementById('modalGiftOverlay');
+    var closeBtn   = document.getElementById('closeGift');
+    var step1      = document.getElementById('giftStep1');
+    var step2      = document.getElementById('giftStep2');
+    var backBtn    = document.getElementById('giftBtnBack');
+    var nextBtn    = document.getElementById('giftBtnNext');
+    var amountInput= document.getElementById('giftAmount');
+    var totalDisp  = document.getElementById('giftTotalDisplay');
+    var selectedLbl= document.getElementById('giftSelectedLabel');
+
+    function openGift() {
+      if (!modal) return;
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      if (step1) step1.style.display = '';
+      if (step2) step2.style.display = 'none';
+      _drawGiftCanvas();
+    }
+
+    function closeGift() {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
+    function _drawGiftCanvas() {
+      var canvas = document.getElementById('giftCanvas');
+      if (!canvas || !canvas.getContext) return;
+      var ctx = canvas.getContext('2d');
+      canvas.width  = 540;
+      canvas.height = 340;
+      // fondo degradado
+      var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, '#1a1610');
+      grad.addColorStop(1, '#2e2519');
+      ctx.fillStyle = grad;
+      ctx.roundRect ? ctx.roundRect(0,0,canvas.width,canvas.height,18) : ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fill();
+      // línea dorada decorativa
+      ctx.strokeStyle = '#C9A961';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(16, 16, canvas.width-32, canvas.height-32);
+      // logo text
+      ctx.fillStyle = '#C9A961';
+      ctx.font = 'italic 22px Georgia, serif';
+      ctx.fillText('G-Living', 36, 60);
+      ctx.fillStyle = 'rgba(201,169,97,0.6)';
+      ctx.font = '10px Arial, sans-serif';
+      ctx.letterSpacing = '3px';
+      ctx.fillText('ITALIAN LIVING & DESIGN', 36, 80);
+      // TTT label
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = '11px Arial, sans-serif';
+      ctx.fillText('Tessitura Toscana Telerie', 36, canvas.height - 50);
+      // Gift Card label
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 32px Georgia, serif';
+      ctx.fillText('Gift Card', 36, canvas.height - 24);
+    }
+
+    if (giftBtn)  giftBtn.addEventListener('click', openGift);
+    if (overlay)  overlay.addEventListener('click', closeGift);
+    if (closeBtn) closeBtn.addEventListener('click', closeGift);
+
+    if (backBtn) backBtn.addEventListener('click', function() {
+      if (step1) step1.style.display = '';
+      if (step2) step2.style.display = 'none';
+    });
+
+    if (amountInput && nextBtn) {
+      amountInput.addEventListener('input', function() {
+        var raw = this.value.replace(/\D/g,'');
+        var val = parseInt(raw, 10) || 0;
+        nextBtn.disabled = val < 100;
+        if (totalDisp) totalDisp.textContent = val ? '€' + val.toLocaleString('es-CO') : '€0';
+      });
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', function() {
+      var raw = (amountInput?.value || '').replace(/\D/g,'');
+      var val = parseInt(raw, 10) || 0;
+      if (val < 100) return;
+      if (selectedLbl) selectedLbl.textContent = '€' + val.toLocaleString('es-CO');
+      if (step1) step1.style.display = 'none';
+      if (step2) step2.style.display = '';
+    });
+
+    var formGift = document.getElementById('formGift');
+    if (formGift) formGift.addEventListener('submit', function(e) {
+      e.preventDefault();
+      Toast.show('Solicitud enviada — nos pondremos en contacto pronto', 'success', 4000);
+      closeGift();
+    });
+  })();
 
   // ── Botón Aa — tamaño de texto (3 niveles) ──
   (function() {
