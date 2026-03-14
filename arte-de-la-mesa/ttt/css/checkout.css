@@ -1,0 +1,982 @@
+/* ===== TTT — checkout.css ===== */
+/* Tessitura Toscana Telerie | G-Living | Est. 2018 */
+
+/* -------------------------------------------------------
+   LAYOUT PRINCIPAL
+------------------------------------------------------- */
+.checkout-main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--spacing-lg) var(--spacing-md);
+    min-height: 80vh;
+}
+
+.checkout-breadcrumb {
+    margin-bottom: var(--spacing-md);
+}
+
+.breadcrumb-link {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.breadcrumb-link:hover {
+    color: var(--color-accent);
+}
+
+/* Layout dos columnas */
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: var(--spacing-xl);
+    align-items: start;
+}
+
+/* -------------------------------------------------------
+   ESTADOS
+------------------------------------------------------- */
+.checkout-loading,
+.checkout-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: var(--spacing-md);
+    color: var(--color-text-secondary);
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+}
+
+.checkout-empty-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Confirmación */
+.checkout-confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-md);
+}
+
+.confirmation-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-full);
+    background: var(--color-success);
+    color: white;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.confirmation-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.confirmation-message {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    max-width: 480px;
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-sm);
+}
+
+.confirmation-ref {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    font-family: monospace;
+}
+
+/* -------------------------------------------------------
+   RESUMEN DE PEDIDO (columna izquierda)
+------------------------------------------------------- */
+.checkout-summary {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: sticky;
+    top: var(--spacing-lg);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    cursor: pointer;
+    user-select: none;
+}
+
+.summary-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+}
+
+.summary-toggle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    transition: transform var(--transition-fast);
+}
+
+.summary-items {
+    padding: 0 var(--spacing-md);
+    max-height: 360px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-light) transparent;
+}
+
+.summary-items::-webkit-scrollbar { width: 3px; }
+.summary-items::-webkit-scrollbar-thumb {
+    background: var(--color-accent-light);
+    border-radius: var(--radius-full);
+}
+
+.summary-item {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: var(--spacing-xs);
+    align-items: center;
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.summary-item:last-child { border-bottom: none; }
+
+.summary-item-img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    background: var(--color-border-light);
+}
+
+.summary-item-info { min-width: 0; }
+
+.summary-item-name {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.summary-item-col,
+.summary-item-sku {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    line-height: 1.3;
+}
+
+.summary-item-right {
+    text-align: right;
+}
+
+.summary-item-qty {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+.summary-item-price {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+/* Footer resumen */
+.summary-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    padding: 3px 0;
+}
+
+.summary-discount { color: var(--color-success); }
+
+.discount-amount {
+    font-weight: var(--font-weight-semibold);
+}
+
+.summary-total {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-top: var(--spacing-xs);
+    padding-top: var(--spacing-xs);
+    border-top: 1px solid var(--color-border);
+}
+
+.summary-total-amount {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    color: var(--color-accent);
+}
+
+/* -------------------------------------------------------
+   FORMULARIO (columna derecha)
+------------------------------------------------------- */
+.checkout-form-section { min-width: 0; }
+
+.checkout-form-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    letter-spacing: var(--letter-spacing-wide);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Fieldsets */
+.form-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0 0 var(--spacing-lg) 0;
+}
+
+.form-legend {
+    font-family: var(--font-display);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-secondary);
+    letter-spacing: var(--letter-spacing-wider);
+    text-transform: uppercase;
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--color-border);
+    width: 100%;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Grupos */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-row { display: grid; gap: var(--spacing-md); }
+.form-row-2 { grid-template-columns: 1fr 1fr; }
+.form-row-phone { grid-template-columns: 100px 1fr; }
+
+.form-label {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    letter-spacing: var(--letter-spacing-wider);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.required { color: var(--color-accent); }
+
+.form-hint {
+    font-weight: var(--font-weight-regular);
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-text-tertiary);
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px var(--spacing-sm);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: var(--color-text-tertiary);
+    opacity: 1;
+    font-weight: var(--font-weight-light);
+}
+
+.form-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+.form-input.input-error {
+    border-color: var(--color-error);
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6B6B' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.form-error {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    margin-top: 4px;
+    min-height: 16px;
+}
+
+.form-success {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+    margin-top: 4px;
+}
+
+/* Radios */
+.form-radio-group {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.form-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+.form-radio-label input[type="radio"] { accent-color: var(--color-accent); }
+
+/* Checkboxes */
+.form-fieldset-legal { margin-bottom: var(--spacing-md); }
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: var(--spacing-xs);
+}
+
+.form-check input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: var(--color-accent);
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.form-check-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+    cursor: pointer;
+}
+
+.form-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+/* -------------------------------------------------------
+   OPCIONES DE PAGO
+------------------------------------------------------- */
+.payment-options {
+    display: grid;
+    gap: var(--spacing-sm);
+}
+
+.payment-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.payment-option:hover {
+    border-color: var(--color-accent-light);
+}
+
+.payment-option.is-selected {
+    border-color: var(--color-accent);
+    background: rgba(201, 169, 110, 0.04);
+}
+
+.payment-option input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--color-accent);
+    flex-shrink: 0;
+}
+
+.payment-option-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.payment-option-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.payment-option-amount {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    color: var(--color-accent);
+}
+
+.payment-option-note {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+}
+
+/* -------------------------------------------------------
+   GRUPOS TELÉFONO
+------------------------------------------------------- */
+.form-group-code { min-width: 0; }
+.form-group-phone { min-width: 0; }
+
+/* -------------------------------------------------------
+   RADIO TEXT
+------------------------------------------------------- */
+.form-radio-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+/* -------------------------------------------------------
+   CHECKOUT LOADING
+------------------------------------------------------- */
+.checkout-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: var(--color-text-secondary);
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+}
+
+/* -------------------------------------------------------
+   FILA DONO
+------------------------------------------------------- */
+.dono-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--spacing-xs);
+}
+
+.btn-dono-apply {
+    padding: 12px var(--spacing-md);
+    white-space: nowrap;
+    height: 100%;
+}
+
+/* -------------------------------------------------------
+   CTA BUTTON
+------------------------------------------------------- */
+.checkout-cta {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.btn-cta {
+    width: 100%;
+    padding: 18px;
+    font-size: var(--font-size-base);
+    letter-spacing: var(--letter-spacing-wider);
+}
+
+.cta-disclaimer {
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: var(--spacing-xs);
+}
+
+/* -------------------------------------------------------
+   CMO — Checkout Modal styles (modales WA y Wompi)
+------------------------------------------------------- */
+.modal-checkout-content {
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-light) transparent;
+}
+
+.modal-checkout-content::-webkit-scrollbar { width: 4px; }
+.modal-checkout-content::-webkit-scrollbar-thumb {
+    background: var(--color-accent-light);
+    border-radius: var(--radius-full);
+}
+
+.modal-checkout-body {
+    padding: var(--spacing-lg);
+}
+
+.checkout-modal-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.checkout-modal-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    letter-spacing: var(--letter-spacing-tight);
+    margin-bottom: 6px;
+}
+
+.checkout-modal-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+}
+
+/* CMO — sección label */
+.cmo-section-label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-widest);
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 8px;
+    margin: var(--spacing-lg) 0 var(--spacing-md);
+}
+
+.cmo-section-label:first-child {
+    margin-top: 0;
+}
+
+/* CMO — group */
+.cmo-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.cmo-label {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    letter-spacing: var(--letter-spacing-wider);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.cmo-req { color: var(--color-accent); margin-left: 2px; }
+
+.cmo-hint {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-tertiary);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 4px;
+}
+
+.cmo-hint-block {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-bottom: 6px;
+}
+
+/* CMO — input */
+.cmo-input {
+    width: 100%;
+    padding: 12px var(--spacing-sm);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.cmo-input::placeholder {
+    color: var(--color-text-tertiary);
+    font-weight: var(--font-weight-light);
+}
+
+.cmo-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+.cmo-input-error {
+    border-color: var(--color-error) !important;
+}
+
+.cmo-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6B6B' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+.cmo-textarea {
+    resize: vertical;
+    min-height: 72px;
+}
+
+.cmo-error {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    margin-top: 4px;
+    min-height: 16px;
+}
+
+.cmo-success {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+    margin-top: 4px;
+}
+
+/* CMO — rows */
+.cmo-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.cmo-row-phone {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.cmo-group-prefix { min-width: 0; }
+.cmo-group-tel    { min-width: 0; }
+
+/* CMO — radio */
+.cmo-radio-group {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: 8px;
+}
+
+.cmo-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+.cmo-radio-label input[type="radio"] {
+    accent-color: var(--color-accent);
+}
+
+/* CMO — birthday promo */
+.cmo-birthday-promo {
+    background: linear-gradient(135deg, rgba(201,169,110,0.08), rgba(201,169,110,0.04));
+    border: 1px solid var(--color-accent-light);
+    border-radius: var(--radius-md);
+    padding: 12px var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-md);
+}
+
+/* CMO — checkbox */
+.cmo-check-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    margin-top: var(--spacing-md);
+}
+
+.cmo-check-wrap input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: var(--color-accent);
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.cmo-check-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+    cursor: pointer;
+}
+
+.cmo-legal-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* CMO — bono row */
+.cmo-bono-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+}
+
+.cmo-btn-bono {
+    padding: 12px var(--spacing-md);
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+}
+
+/* CMO — total box */
+.cmo-total-box {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+}
+
+.cmo-total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    padding: 4px 0;
+}
+
+.cmo-line-discount .cmo-discount-val {
+    color: var(--color-success);
+    font-weight: var(--font-weight-semibold);
+}
+
+.cmo-line-total {
+    border-top: 1px solid var(--color-border);
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.cmo-total-val {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* CMO — footer */
+.cmo-footer {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.cmo-footer-wompi {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.cmo-btn-submit {
+    width: 100%;
+    padding: 16px;
+    font-size: var(--font-size-sm);
+    letter-spacing: var(--letter-spacing-wider);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.cmo-btn-cancel {
+    width: 100%;
+    padding: 12px;
+    font-size: var(--font-size-sm);
+    margin-top: 8px;
+}
+
+.cmo-btn-pago {
+    width: 100%;
+    padding: 14px var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.cmo-btn-pago-label {
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--letter-spacing-wider);
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.cmo-btn-pago-amount {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* CMO — confirm screen */
+.cmo-confirm-icon {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.cmo-confirm-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.cmo-confirm-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+    line-height: var(--line-height-relaxed);
+}
+
+.cmo-confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+}
+
+.cmo-confirm-note {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    text-align: center;
+    font-family: monospace;
+}
+
+/* CMO — gift total */
+.cmo-gift-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+}
+
+.cmo-gift-total-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.cmo-gift-total-amount {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* -------------------------------------------------------
+   RESPONSIVE
+------------------------------------------------------- */
+@media (max-width: 768px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .checkout-summary {
+        position: static;
+        order: -1;
+    }
+
+    .summary-items {
+        max-height: 200px;
+    }
+
+    .form-row-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row-phone {
+        grid-template-columns: 90px 1fr;
+    }
+
+    .checkout-main {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+
+    .cmo-row-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .cmo-row-phone {
+        grid-template-columns: 90px 1fr;
+    }
+
+    .modal-checkout-body {
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .form-row-phone {
+        grid-template-columns: 80px 1fr;
+    }
+
+    .dono-row {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-dono-apply {
+        width: 100%;
+    }
+
+    .cmo-row-phone {
+        grid-template-columns: 80px 1fr;
+    }
+}

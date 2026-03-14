@@ -1,7 +1,7 @@
-// @version    v1.0  @file ttt-api.js  @updated 2026-03-14  @session fix-mlg-404-error-aSVYy
+// @version    v2.0  @file ttt-api.js  @updated 2026-03-14  @session fix-mlg-404-error-aSVYy
 /* ===== TTT - ttt-api.js =====
  * Capa de comunicación con Google Apps Script (code.gs TTT)
- * Clon de imolarte-api.js adaptado para TTT
+ * POST via URLSearchParams — evita preflight CORS
  * ============================================ */
 
 'use strict';
@@ -15,11 +15,11 @@ const Api = (() => {
     if (!url) { Logger.warn('ttt-api.js: sheetsUrl no configurada'); return { ok: false, error: 'URL no configurada' }; }
     try {
       const secured = { _token: TTT_CONFIG?.checkout?.apiToken || '', ...payload };
-      const params = new URLSearchParams();
+      const params  = new URLSearchParams();
       params.append('data', JSON.stringify(secured));
       const resp = await fetch(url, { method: 'POST', redirect: 'follow', body: params });
       const data = JSON.parse(await resp.text());
-      Logger.log('ttt-api.js POST ok', payload.action);
+      Logger.log('ttt-api.js POST ok', payload.action, payload.referencia || '');
       return data;
     } catch(err) {
       Logger.warn('ttt-api.js: fetch error', payload.action, err.message);
@@ -54,8 +54,8 @@ const Api = (() => {
     }));
   }
 
-  function _campaniaId()  { return TTT_CONFIG?.campania?.id  || ''; }
-  function _catalogoId()  { return TTT_CONFIG?.catalogo?.id  || ''; }
+  function _campaniaId() { return TTT_CONFIG?.campania?.id  || ''; }
+  function _catalogoId() { return TTT_CONFIG?.catalogo?.id  || ''; }
 
   // ── WISHLIST ────────────────────────────────────────────
   async function createWishlist(data, items, totales) {
@@ -74,17 +74,87 @@ const Api = (() => {
       : { ok: false, referencia: _genRef('WA'), error: result.error };
   }
 
-  // ── CLIENTES ────────────────────────────────────────────
+  async function updateEstadoWishlist(referencia, estado) {
+    return _post({ action: 'updateEstadoWishlist', referencia, estadoWA: estado });
+  }
+
+  // ── PEDIDOS WOMPI ─────────────────────────────────────────────
+  async function createPedidoWompi(data, items, totales) {
+    const result = await _post({
+      action:             'createPedidoWompi',
+      campaniaId:          _campaniaId(),
+      catalogoId:          _catalogoId(),
+      cliente:            data.cliente,
+      entrega:            data.entrega,
+      formaPago:          totales.formaPago       || 'WOMPI_100',
+      productos:          _mapProductos(items),
+      subtotal:           totales.subtotal         || 0,
+      descuento:          totales.descuento        || 0,
+      total:              totales.total            || 0,
+      porcentajePagado:   totales.porcentajePagado || 100,
+      referencia:         totales.referencia       || '',
+      wompiTransactionId: '',
+      _skipEmail:         totales._skipEmail       || false,
+    });
+    return result.ok
+      ? { ok: true,  referencia: result.referencia || _genRef('WP'), clienteId: result.clienteId || '' }
+      : { ok: false, referencia: _genRef('WP'), error: result.error };
+  }
+
+  async function confirmarPagoWompi(referencia, status, transactionId, pedidoPayload) {
+    return _post({
+      action:        'confirmarPagoWompi',
+      referencia,
+      status,
+      transactionId: transactionId || '',
+      ...(pedidoPayload ? { pedidoPayload } : {}),
+    });
+  }
+
+  // ── CLIENTES ─────────────────────────────────────────────────
   async function getCliente(telefono) { return _get({ action: 'getCliente', telefono }); }
 
-  // ── CAMPAÑAS ────────────────────────────────────────────
+  async function getPedido(referencia) { return _get({ action: 'getPedido', referencia }); }
+
+  // ── GIFT CARDS ───────────────────────────────────────────────
+  async function createGiftCard(payload) { return _post({ action: 'createGiftCard', ...payload }); }
+
+  async function cancelGiftCard(referencia) { return _post({ action: 'cancelGiftCard', referencia }); }
+
+  async function getGiftCard(codigo) { return _get({ action: 'getGiftCard', codigo }); }
+
+  async function redeemDono(code, amount, referencia) {
+    return _post({ action: 'redeemDono', code, amount, referencia: referencia || '' });
+  }
+
+  async function validateDono(code) { return _get({ action: 'validateDono', code }); }
+
+  // ── INFLUENCERS ──────────────────────────────────────────────
+  async function getInfluencer(codigo) { return _get({ action: 'getInfluencer', codigo }); }
+
+  // ── CAMPAÑAS ─────────────────────────────────────────────────
   async function getCampaniasActivas() { return _get({ action: 'getCampanias' }); }
 
   async function ping() { return _get({ action: 'ping' }); }
 
-  return { createWishlist, getCliente, getCampaniasActivas, ping };
+  return {
+    createWishlist,
+    updateEstadoWishlist,
+    createPedidoWompi,
+    confirmarPagoWompi,
+    getCliente,
+    getPedido,
+    createGiftCard,
+    cancelGiftCard,
+    getGiftCard,
+    redeemDono,
+    validateDono,
+    getInfluencer,
+    getCampaniasActivas,
+    ping,
+  };
 
 })();
 
 window.Api = Api;
-Logger.log('ttt-api.js cargado ✓');
+Logger.log('ttt-api.js v2.0 cargado ✓');
