@@ -1825,7 +1825,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% poliestere",
     images:    ["TT1000004018.jpg", "TT1000004017.jpg", "TT1000004020.jpg", "TT1000004019.jpg", "TT1000004147.jpg"],
-    medidas:   [{"sku": "NT260060-060427", "medida": "Única talla", "precio": 748250, "imagen": "TT1000004018.jpg"}],
+    medidas:   [{"sku": "NT260060-060427", "medida": "37x48cm", "precio": 748250, "imagen": "TT1000004018.jpg"}],
   },
   {
     sku:       "PESCIFLORA_TOVAGLIETTA",
@@ -1935,7 +1935,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Individual",
     material:  "100% poliestere",
     images:    ["TT1000004074.jpg", "TT1000004073.jpg", "TT1000004076.jpg", "TT1000004075.jpg", "TT1000004176.jpg"],
-    medidas:   [{"sku": "NT260061-060017", "medida": "Única talla", "precio": 748250, "imagen": "TT1000004074.jpg"}],
+    medidas:   [{"sku": "NT260061-060017", "medida": "37x48cm", "precio": 748250, "imagen": "TT1000004074.jpg"}],
   },
   {
     sku:       "ANGKOR_MEZZERO",
