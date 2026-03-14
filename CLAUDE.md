@@ -39,6 +39,37 @@ Antes de cada respuesta Claude DEBE:
 
 ---
 
+## Protocolo de Trabajo — Flujo Obligatorio (4 Fases)
+
+**Lógica primero, código después. Nunca al revés.**
+
+### Fase 1 — ESCANEO (siempre antes de cualquier propuesta)
+- Scan del repo: leer los archivos clave del catálogo activo
+- Leer TODOS los mensajes del usuario en la sesión — no solo el último
+- Si hay URL, ruta o imagen compartida → leerla/fetchearla PRIMERO
+- Recolectar incoherencias, datos faltantes, conflictos de lógica
+- **Output obligatorio**: tabla o sketch visual de hallazgos — nunca texto largo sin estructura
+
+### Fase 2 — LÓGICA CONJUNTA (sin código)
+- Presentar análisis como tabla / diagrama ASCII / sketch visual
+- Proponer opciones claras con pros/contras cuando hay decisión del dueño
+- **Esperar confirmación explícita antes de pasar a Fase 3**
+- Opciones de implementación técnica → responsabilidad de Claude
+- Decisiones de negocio / diseño / qué construir → dueño del proyecto
+
+### Fase 3 — GENERACIÓN (solo con aprobación explícita)
+- Producir código completo **sin interrupciones**
+- **Backtest obligatorio**: verificar coherencia contra todos los `*.css`, `*.js`, `*.html` del directorio de trabajo — no solo el archivo modificado
+- Si backtest detecta inconsistencia → resolver antes de commitear
+- Si no se puede resolver → reportar con sketch visual y esperar instrucción
+
+### Fase 4 — ENTREGA
+- Commit solo si R1–R8 del pre-commit hook pasan al 100%
+- **Mejoras post-testeo: ESPERADAS pero NO BIENVENIDAS** → hacerlo bien la primera vez es el estándar
+- Error en producción después del testeo → análisis de causa raíz, no parche rápido
+
+---
+
 ## Estructura del Proyecto
 
 ```
@@ -152,7 +183,9 @@ La bigger picture siempre presente, nunca perdida en el detalle.
 6. Confirmar que `images/placeholder.*` existe en el catálogo
 7. Documentar qué cambió y por qué en el commit message
 
-El pre-commit hook valida 1–6 automáticamente y bloquea el commit si fallan.
+El pre-commit hook valida R1–R8 automáticamente y bloquea el commit si fallan.
+- **R7**: coherencia JS ↔ HTML (cada `.js` staged debe estar referenciado en el `*-index.html`)
+- **R8**: calidad de datos — tolerancia cero: sin `medidas:[]` vacíos ni descriptores italianos en campo `medida`
 
 ### Nunca:
 - Suponer posiciones CSS — copiar del original y ajustar
@@ -171,3 +204,8 @@ El pre-commit hook valida 1–6 automáticamente y bloquea el commit si fallan.
 - 2026-03-14: TTT arquitectura 6 familias documentada. Grid → family cards → modal con medidas.
 - 2026-03-14: Back link correcto: `../arte-de-la-mesa-main-index.html` (no `../main-index.html`).
 - 2026-03-14: Pre-commit hook instalado en `.git/hooks/pre-commit` — valida back links, exports JS, colores G-Living, placeholder.
+- 2026-03-14: Protocolo 4 fases documentado (Escaneo → Lógica → Generación → Entrega). Lógica primero, código después.
+- 2026-03-14: Pre-commit R7 añadido — coherencia JS ↔ HTML (archivo JS staged debe estar referenciado en *-index.html).
+- 2026-03-14: Pre-commit R8 añadido — calidad de datos tolerancia 0%: sin medidas vacías, sin descriptores italianos en campo medida.
+- 2026-03-14: TTT variables.css corregido `#C9A961` → `#C9A96E` (dorado G-Living canónico). Opción A aprobada por dueño.
+- 2026-03-14: R5 confirmado por dueño: imolarte/mlg 100% protegidos. Cambios requieren solicitud formal con pros/contras.
