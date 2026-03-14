@@ -1554,6 +1554,7 @@ gmp-placeautocomplete::part(input):focus {
 /* Desktop: igual que checkout */
 @media (min-width: 1025px) {
     .modal-family-content { width: 760px; height: 88vh; }
+    .btn-share { display: none !important; }
 }
 
 /* Header familia */
@@ -1575,6 +1576,7 @@ gmp-placeautocomplete::part(input):focus {
 
 /* Imagen + flechas */
 .family-modal-img-section {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -1668,18 +1670,12 @@ gmp-placeautocomplete::part(input):focus {
     white-space: nowrap;
 }
 
-/* Columna derecha: flecha siguiente + botón compartir */
-.family-nav-right {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-xs);
-    flex-shrink: 0;
-}
-
-/* Share button — mismo estilo que las nav buttons */
+/* Share button — pie de la fotografía, alineado con el botón X — solo mobile/tablet */
 .btn-share {
     display: none; /* JS lo muestra con 'flex' si navigator.share existe */
+    position: absolute;
+    bottom: var(--spacing-sm);
+    right: var(--spacing-sm);
     align-items: center;
     justify-content: center;
     width: 40px;
@@ -1691,6 +1687,7 @@ gmp-placeautocomplete::part(input):focus {
     cursor: pointer;
     flex-shrink: 0;
     transition: all var(--transition-fast);
+    z-index: 2;
 }
 .btn-share:hover {
     border-color: var(--color-accent);
