@@ -21,7 +21,7 @@
   <!-- HEADER -->
   <header class="site-header">
 
-    <a href="../main-index.html" class="back-to-main" aria-label="Volver a Colecciones">
+    <a href="../arte-de-la-mesa-main-index.html" class="back-to-main" aria-label="Volver a Colecciones">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -85,17 +85,11 @@
 
   </header>
 
-  <!-- FILTROS -->
-  <div class="ttt-filters" role="search" aria-label="Filtros de productos">
-    <select class="ttt-filter-select" id="filterZona" aria-label="Filtrar por zona">
-      <option value="">Todo</option>
-    </select>
-    <select class="ttt-filter-select" id="filterCat" aria-label="Filtrar por categoría">
-      <option value="">Todas las categorías</option>
-    </select>
+  <!-- FILTROS — solo búsqueda por patrón (el grid muestra 6 familias estáticas) -->
+  <div class="ttt-filters" role="search" aria-label="Buscar patrón">
     <input class="ttt-filter-input" id="filterSearch" type="search"
            placeholder="Buscar patrón..." aria-label="Buscar patrón">
-    <button class="ttt-filter-clear" id="filterClear" aria-label="Limpiar filtros">Limpiar</button>
+    <button class="ttt-filter-clear" id="filterClear" aria-label="Limpiar búsqueda">Limpiar</button>
     <span class="ttt-filter-counter" id="filterCounter" aria-live="polite"></span>
   </div>
 
