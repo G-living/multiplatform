@@ -2,7 +2,7 @@
 // TTT — Google Apps Script Backend v1.0
 // Tessitura Toscana Telerie | G-Living
 // ============================================================
-// Setup: crear nuevo Google Sheet → Extensions → Apps Script → pegar este código
+// Spreadsheet ID : 1H094kL9ZtbipFfsm4Gn12RczSYTQdq1u8BxxZDB9waY
 // Publicar: Deploy → New deployment → Web App → Execute as: Me → Access: Anyone
 // Setup inicial (ejecutar una vez): setupSheets()
 // ============================================================
@@ -10,13 +10,13 @@
 'use strict';
 
 const CFG = {
-  SPREADSHEET_ID  : 'PENDIENTE_REEMPLAZAR_CON_ID_SHEET',   // ← reemplazar tras crear el Sheet
+  SPREADSHEET_ID  : '1H094kL9ZtbipFfsm4Gn12RczSYTQdq1u8BxxZDB9waY',
   NOMBRE_TIENDA   : 'TTT — Tessitura Toscana Telerie | G-Living | Est. 2018',
   EMAIL_ADMIN     : 'filippo.massara2016@gmail.com',
   EMAIL_REMITENTE : 'filippo.massara2016@gmail.com',
   WHATSAPP        : '+573004257367',
   WEBSITE         : 'https://g-living.github.io/multiplatform/',
-  API_TOKEN       : 'PENDIENTE_TTT_TOKEN',   // ← debe coincidir con ttt-config.js apiToken
+  API_TOKEN       : 'ttt_tLaO8fenZj_FyP0HCW8N5KdzXZe28rSSYZyUy_j6',
   CURRENCY        : 'EUR',
   TZ              : 'America/Bogota',
 };

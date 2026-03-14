@@ -28,11 +28,11 @@ const TTT_CONFIG = {
     signatureWorkerUrl: '',
     wompiPublicKey:   '',
     wompiCheckoutUrl: 'https://checkout.wompi.co/p/',
-    sheetsUrl: 'https://script.google.com/macros/s/PENDIENTE_TTT/exec',
+    sheetsUrl: 'PENDIENTE_DEPLOY',  // ← pegar URL /exec tras Deploy en Apps Script
     checkoutUrl: 'https://g-living.github.io/multiplatform/arte-de-la-mesa/ttt/ttt-checkout.html',
     discountPayFull: 0.03,
     discountInfluencer: 0.05,
-    apiToken: 'PENDIENTE_TTT_TOKEN',
+    apiToken: 'ttt_tLaO8fenZj_FyP0HCW8N5KdzXZe28rSSYZyUy_j6',
   },
 
   toast: {
