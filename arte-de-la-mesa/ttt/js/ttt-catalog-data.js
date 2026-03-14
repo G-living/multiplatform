@@ -8873,4 +8873,4 @@ const TTT_PRODUCTS = [
 ];
 
 window.TTT_PRODUCTS = TTT_PRODUCTS;
-if (typeof Logger \!== 'undefined') { Logger.log('ttt-catalog-data.js cargado \u2713 — 490 productos'); }
+if (typeof Logger !== 'undefined') { Logger.log('ttt-catalog-data.js cargado ✓ — 490 productos'); }
