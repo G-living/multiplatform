@@ -26,7 +26,6 @@ const Catalog = (() => {
   ];
 
   let _all       = [];   // TTT_PRODUCTS completo
-  let _fText     = '';   // filtro texto patron
   let _rotTimers = {};   // { cat: intervalId }
 
   // -------------------------------------------------------
@@ -46,7 +45,6 @@ const Catalog = (() => {
 
     _render(grid);
     _bindCardEvents(grid);
-    _bindSearchEvent();
 
     Logger.log(`ttt-catalog.js: ${FAMILIES.length} familias renderizadas ✓`);
 
@@ -61,14 +59,7 @@ const Catalog = (() => {
   // -------------------------------------------------------
   // API PÚBLICA — usada por Modal para construir catalogList
   // -------------------------------------------------------
-  function getFiltered() {
-    if (!_fText) return _all;
-    const q = _fText.toLowerCase();
-    return _all.filter(p =>
-      p.patron?.toLowerCase().includes(q) ||
-      p.name?.toLowerCase().includes(q)
-    );
-  }
+  function getFiltered() { return _all; }
 
   function getAllProducts() { return _all; }
 
@@ -205,10 +196,7 @@ const Catalog = (() => {
   // -------------------------------------------------------
   function _bindCardEvents(grid) {
     const open = (cat) => {
-      // Productos de esta familia, filtrados por búsqueda activa
-      const filtered = getFiltered().filter(p => p.categoria === cat);
-      // Si búsqueda no coincide con nada, abrir todos los de esa familia
-      const prods = filtered.length ? filtered : _all.filter(p => p.categoria === cat);
+      const prods = _all.filter(p => p.categoria === cat);
       if (!prods.length || !window.Modal?.openProduct) return;
       Modal.openProduct(prods[0]);
     };
@@ -222,35 +210,6 @@ const Catalog = (() => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       const card = e.target.closest('.ttt-product-card[data-cat]');
       if (card) { e.preventDefault(); open(card.dataset.cat); }
-    });
-  }
-
-  // -------------------------------------------------------
-  // BÚSQUEDA POR PATRÓN — afina qué ve el modal al abrir
-  // -------------------------------------------------------
-  function _bindSearchEvent() {
-    const searchInput = document.getElementById('filterSearch');
-    const clearBtn    = document.getElementById('filterClear');
-    const counter     = document.getElementById('filterCounter');
-
-    const refresh = () => {
-      if (counter) {
-        if (_fText) {
-          const n = getFiltered().length;
-          counter.textContent = `${n} diseño${n !== 1 ? 's' : ''} encontrado${n !== 1 ? 's' : ''}`;
-        } else {
-          counter.textContent = '';
-        }
-      }
-    };
-
-    const debounced = Utils.debounce(e => { _fText = e.target.value.trim(); refresh(); }, 250);
-    searchInput?.addEventListener('input', debounced);
-
-    clearBtn?.addEventListener('click', () => {
-      _fText = '';
-      if (searchInput) searchInput.value = '';
-      if (counter) counter.textContent = '';
     });
   }
 

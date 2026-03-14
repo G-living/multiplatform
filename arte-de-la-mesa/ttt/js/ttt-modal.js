@@ -79,14 +79,19 @@ const Modal = (() => {
     document.getElementById('tttBtnCart')?.addEventListener('click', _addToCart);
 
     document.getElementById('tttBtnShare')?.addEventListener('click', async () => {
-      if (!navigator.share || !_product) return;
-      const url = `${location.origin}${location.pathname}?p=${_product.sku}`;
-      try {
-        await navigator.share({
-          title: `${_product.patron} — ${Utils.catLabel(_product.categoria)}`,
-          url,
-        });
-      } catch (_) { /* cancelado */ }
+      if (!_product) return;
+      const url  = `${location.origin}${location.pathname}?p=${_product.sku}`;
+      const title = `${_product.patron} — ${Utils.catLabel(_product.categoria)}`;
+      if (navigator.share) {
+        try { await navigator.share({ title, url }); } catch (_) { /* cancelado */ }
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          Toast.show('Enlace copiado al portapapeles');
+        } catch (_) {
+          window.prompt('Copia el enlace:', url);
+        }
+      }
     });
 
     document.getElementById('tttModalProduct')?.addEventListener('keydown', (e) => {
