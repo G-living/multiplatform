@@ -28,7 +28,7 @@ const TTT_CONFIG = {
     signatureWorkerUrl: '',
     wompiPublicKey:   '',
     wompiCheckoutUrl: 'https://checkout.wompi.co/p/',
-    sheetsUrl: 'https://script.google.com/macros/s/AKfycbzEcnqJH80fJbVLEk34dzFc-Tu5lpBzTeVB0j4flb6tuFHifM6PAK_l4fnocEGR5-H/exec',
+    sheetsUrl: 'https://script.google.com/macros/s/AKfycbyDbEdP5a5AhzhpcVGKCK1iS10uw02cscTMG62pW68fw_5PDOVs1RV8lhBcebr-1mEc/exec',
     checkoutUrl: 'https://g-living.github.io/multiplatform/arte-de-la-mesa/ttt/ttt-checkout.html',
     discountPayFull: 0.03,
     discountInfluencer: 0.05,

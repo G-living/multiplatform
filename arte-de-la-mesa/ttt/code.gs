@@ -3,7 +3,7 @@
 // Tessitura Toscana Telerie | G-Living
 // ============================================================
 // Spreadsheet ID : 1H094kL9ZtbipFfsm4Gn12RczSYTQdq1u8BxxZDB9waY
-// GSA URL        : https://script.google.com/macros/s/AKfycbzEcnqJH80fJbVLEk34dzFc-Tu5lpBzTeVB0j4flb6tuFHifM6PAK_l4fnocEGR5-H/exec
+// GSA URL        : https://script.google.com/macros/s/AKfycbyDbEdP5a5AhzhpcVGKCK1iS10uw02cscTMG62pW68fw_5PDOVs1RV8lhBcebr-1mEc/exec
 // Publicar: Deploy → New deployment → Web App → Execute as: Me → Access: Anyone
 // Setup inicial (una vez): setupSheets()
 // ============================================================
