@@ -219,6 +219,12 @@ const Catalog = (() => {
 // ===== BOOTSTRAP =====
 document.addEventListener('DOMContentLoaded', () => {
   Catalog.init();
+
+  // Deep-link: ?p=familia-coleccion-tipo → abre el modal de familia en ese producto
+  const pid = new URLSearchParams(location.search).get('p');
+  if (pid && window.Modal?.openFamilyAtProduct) {
+    window.Modal.openFamilyAtProduct(pid);
+  }
 });
 
 window.Catalog = Catalog;
