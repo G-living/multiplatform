@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+  <line x1="0" y1="0" x2="400" y2="400" stroke="#f0f0f0" stroke-width="1"/>
+  <line x1="400" y1="0" x2="0" y2="400" stroke="#f0f0f0" stroke-width="1"/>
+  <text
+    x="200" y="210"
+    font-family="Arial, sans-serif"
+    font-size="36"
+    font-weight="bold"
+    fill="#cc0000"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    letter-spacing="1"
+  >placeholder</text>
+</svg>
