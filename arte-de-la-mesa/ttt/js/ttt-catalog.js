@@ -1,9 +1,11 @@
-// @version    v1.0  @file ttt-catalog.js  @updated 2026-03-14  @session fix-mlg-404-error-aSVYy
+// @version    v2.0  @file ttt-catalog.js  @updated 2026-03-14  @session fix-mlg-404-error-aSVYy
 /* ===== TTT - ttt-catalog.js =====
- * Grid de productos TTT (490 grouped products)
- * Cada card = un producto (patron + categoria)
- * Filtros: zona, categoria, búsqueda por nombre
- * Click → Modal.openProduct(product)
+ * Grid de 6 FAMILIAS con imágenes rotatorias.
+ * Fuente: TTT_PRODUCTS (de ttt-catalog-data.js), agrupados por categoria.
+ * 6 familias: tovaglie, runner, tovaglioli, tovaglietta, mezzero, cuscini
+ * Cada card → imagen rotatoria → click abre Modal.openProduct(primerProducto)
+ * El modal navega con flechas entre todos los productos de esa familia.
+ * Búsqueda por patrón filtra qué productos verá el modal al abrir.
  * ============================================ */
 
 'use strict';
@@ -11,16 +13,21 @@
 const Catalog = (() => {
 
   const GRID_ID   = 'productsGrid';
-  const ROTATE_MS = 8000;  // rotar foto cada 8s
+  const ROTATE_MS = 8000;
 
-  let _all      = [];   // TTT_PRODUCTS completo
-  let _filtered = [];   // productos visibles tras filtros
-  let _rotTimers = {};  // { sku: intervalId }
+  // 6 familias del catálogo TTT — orden visual en el grid
+  const FAMILIES = [
+    { cat: 'tovaglie',    label: 'Manteles'        },
+    { cat: 'runner',      label: 'Caminos de mesa'  },
+    { cat: 'tovaglioli',  label: 'Servilletas'      },
+    { cat: 'tovaglietta', label: 'Individuales'     },
+    { cat: 'mezzero',     label: 'Paños deco'       },
+    { cat: 'cuscini',     label: 'Cojines'          },
+  ];
 
-  // Filtros activos
-  let _fZona = '';
-  let _fCat  = '';
-  let _fText = '';
+  let _all       = [];   // TTT_PRODUCTS completo
+  let _fText     = '';   // filtro texto patron
+  let _rotTimers = {};   // { cat: intervalId }
 
   // -------------------------------------------------------
   // INIT
@@ -37,123 +44,66 @@ const Catalog = (() => {
       return;
     }
 
-    _buildFilters();
-    _applyFilters();
     _render(grid);
-    _bindFilterEvents();
+    _bindCardEvents(grid);
+    _bindSearchEvent();
 
-    Logger.log(`ttt-catalog.js: ${_all.length} productos cargados ✓`);
+    Logger.log(`ttt-catalog.js: ${FAMILIES.length} familias renderizadas ✓`);
 
-    // Cargar campaña → refrescar badges si hay descuento
     Campania.cargar().then(() => {
       if (Campania.activa()) {
         _renderPresaleBadges();
         Logger.log(`ttt-catalog.js: badges presale ${Campania.descuentoPct()}% aplicados`);
       }
     });
-
-    // Deep-link: ?p=SKU → abre modal directo
-    const pSku = new URLSearchParams(location.search).get('p');
-    if (pSku) {
-      const prod = _all.find(p => p.sku === pSku);
-      if (prod && window.Modal?.openProduct) {
-        requestAnimationFrame(() => Modal.openProduct(prod));
-      }
-    }
   }
 
   // -------------------------------------------------------
-  // FILTROS
+  // API PÚBLICA — usada por Modal para construir catalogList
   // -------------------------------------------------------
-  function _buildFilters() {
-    // Poblar select de categorias únicas
-    const catSelect = document.getElementById('filterCat');
-    if (!catSelect) return;
-
-    const zonas = [...new Set(_all.map(p => p.zona).filter(Boolean))].sort();
-    const cats  = [...new Set(_all.map(p => p.categoria).filter(Boolean))].sort();
-
-    const zonaSelect = document.getElementById('filterZona');
-    if (zonaSelect) {
-      zonaSelect.innerHTML = '<option value="">Todo</option>' +
-        zonas.map(z => `<option value="${z}">${Utils.zonaLabel(z)}</option>`).join('');
-    }
-
-    catSelect.innerHTML = '<option value="">Todas las categorías</option>' +
-      cats.map(c => `<option value="${c}">${Utils.catLabel(c)}</option>`).join('');
+  function getFiltered() {
+    if (!_fText) return _all;
+    const q = _fText.toLowerCase();
+    return _all.filter(p =>
+      p.patron?.toLowerCase().includes(q) ||
+      p.name?.toLowerCase().includes(q)
+    );
   }
 
-  function _applyFilters() {
-    _filtered = _all.filter(p => {
-      if (_fZona && p.zona !== _fZona) return false;
-      if (_fCat  && p.categoria !== _fCat) return false;
-      if (_fText) {
-        const q = _fText.toLowerCase();
-        if (!p.patron?.toLowerCase().includes(q) &&
-            !p.name?.toLowerCase().includes(q) &&
-            !p.shortDesc?.toLowerCase().includes(q)) return false;
-      }
-      return true;
-    });
-  }
+  function getAllProducts() { return _all; }
 
-  function _bindFilterEvents() {
-    const zonaSelect = document.getElementById('filterZona');
-    const catSelect  = document.getElementById('filterCat');
-    const searchInput= document.getElementById('filterSearch');
-    const clearBtn   = document.getElementById('filterClear');
-    const counter    = document.getElementById('filterCounter');
-    const grid       = document.getElementById(GRID_ID);
-
-    const refresh = () => {
-      _applyFilters();
-      _render(grid);
-      if (counter) counter.textContent = `${_filtered.length} productos`;
-    };
-
-    zonaSelect?.addEventListener('change', e => { _fZona = e.target.value; refresh(); });
-    catSelect?.addEventListener('change',  e => { _fCat  = e.target.value; refresh(); });
-
-    const debouncedSearch = Utils.debounce(e => { _fText = e.target.value.trim(); refresh(); }, 250);
-    searchInput?.addEventListener('input', debouncedSearch);
-
-    clearBtn?.addEventListener('click', () => {
-      _fZona = ''; _fCat = ''; _fText = '';
-      if (zonaSelect)  zonaSelect.value  = '';
-      if (catSelect)   catSelect.value   = '';
-      if (searchInput) searchInput.value = '';
-      refresh();
-    });
-
-    if (counter) counter.textContent = `${_filtered.length} productos`;
+  function findProduct(sku) {
+    return _all.find(p => p.sku === sku) || null;
   }
 
   // -------------------------------------------------------
-  // RENDER GRID
+  // RENDER GRID — 6 family cards
   // -------------------------------------------------------
   function _render(grid) {
     _stopAllRotations();
     grid.className = 'ttt-products-grid';
 
-    if (_filtered.length === 0) {
-      grid.innerHTML = `
-        <div class="catalog-empty">
-          <p class="catalog-empty-title">Sin resultados</p>
-          <p class="catalog-empty-sub">Prueba con otros filtros.</p>
-        </div>`;
-      return;
-    }
-
     const frag = document.createDocumentFragment();
-    _filtered.forEach(prod => {
-      const card = _createCard(prod);
+    FAMILIES.forEach(fam => {
+      const prods = _all.filter(p => p.categoria === fam.cat);
+      if (!prods.length) return;
+
+      // Recoger imágenes únicas de todos los productos de la familia (máx 20)
+      const seen = new Set();
+      const images = prods
+        .flatMap(p => p.images || [])
+        .filter(img => { if (seen.has(img)) return false; seen.add(img); return true; })
+        .slice(0, 20);
+
+      if (!images.length) return;
+
+      const card = _createFamilyCard(fam, prods.length, images);
       if (card) frag.appendChild(card);
     });
+
     grid.innerHTML = '';
     grid.appendChild(frag);
-
     _startAllRotations();
-    _bindCardEvents(grid);
   }
 
   function _renderEmpty(grid) {
@@ -165,42 +115,35 @@ const Catalog = (() => {
   }
 
   // -------------------------------------------------------
-  // CREAR CARD
+  // CREAR FAMILY CARD — reutiliza clases CSS ttt-product-card
   // -------------------------------------------------------
-  function _createCard(prod) {
-    const images = prod.images || [];
-    // Imagen inicial aleatoria
-    const startIdx = images.length ? Math.floor(Math.random() * images.length) : 0;
-    const firstImg = images[startIdx]
-      ? ImageManager.productSrc(images[startIdx])
-      : TTT_CONFIG.images.placeholder;
-
-    const catLabel = Utils.catLabel(prod.categoria);
-    const newBadge = prod.isNew ? '<span class="ttt-card-badge-new">Nuevo</span>' : '';
+  function _createFamilyCard(fam, count, images) {
+    const imgSrcs  = images.map(img => ImageManager.productSrc(img));
+    const startIdx = Math.floor(Math.random() * imgSrcs.length);
+    const firstImg = imgSrcs[startIdx] || TTT_CONFIG.images.placeholder;
 
     const card = document.createElement('article');
     card.className = 'ttt-product-card';
-    card.dataset.sku = prod.sku;
+    card.dataset.cat = fam.cat;
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
-    card.setAttribute('aria-label', `Ver ${prod.patron} — ${catLabel}`);
+    card.setAttribute('aria-label', `Ver colección ${fam.label}`);
 
     card.innerHTML = `
       <div class="ttt-card-img-wrap">
         <img
           class="ttt-card-img"
           src="${Utils.sanitize(firstImg)}"
-          alt="${Utils.sanitize(prod.patron)}"
+          alt="${Utils.sanitize(fam.label)}"
           loading="lazy"
           onerror="this.onerror=null;this.src='${TTT_CONFIG.images.placeholder}'"
-          data-imgs='${JSON.stringify(images.map(img => ImageManager.productSrc(img)))}'
+          data-imgs='${JSON.stringify(imgSrcs)}'
           data-idx="${startIdx}"
         >
-        ${newBadge}
       </div>
       <div class="ttt-card-body">
-        <p class="ttt-card-patron">${Utils.sanitize(prod.patron)}</p>
-        <p class="ttt-card-cat">${Utils.sanitize(catLabel)}</p>
+        <p class="ttt-card-patron">${Utils.sanitize(fam.label)}</p>
+        <p class="ttt-card-cat">${count} diseños</p>
       </div>
     `;
 
@@ -212,7 +155,7 @@ const Catalog = (() => {
   // -------------------------------------------------------
   function _renderPresaleBadges() {
     const pct = Campania.descuentoPct();
-    document.querySelectorAll('.ttt-product-card').forEach(card => {
+    document.querySelectorAll('.ttt-product-card[data-cat]').forEach(card => {
       if (card.querySelector('.presale-badge')) return;
       const body = card.querySelector('.ttt-card-body');
       if (!body) return;
@@ -232,14 +175,14 @@ const Catalog = (() => {
       try { imgs = JSON.parse(img.dataset.imgs || '[]'); } catch { return; }
       if (imgs.length <= 1) return;
 
-      const sku = img.closest('.ttt-product-card')?.dataset.sku;
-      if (!sku) return;
+      const cat = img.closest('.ttt-product-card')?.dataset.cat;
+      if (!cat) return;
 
       let idx = parseInt(img.dataset.idx, 10) || 0;
       const delay = Math.random() * ROTATE_MS;
 
       setTimeout(() => {
-        _rotTimers[sku] = setInterval(() => {
+        _rotTimers[cat] = setInterval(() => {
           idx = (idx + 1) % imgs.length;
           img.dataset.idx = idx;
           img.classList.add('is-fading');
@@ -258,43 +201,64 @@ const Catalog = (() => {
   }
 
   // -------------------------------------------------------
-  // EVENTOS — delegación en grid
+  // EVENTOS — click en family card abre modal
   // -------------------------------------------------------
   function _bindCardEvents(grid) {
+    const open = (cat) => {
+      // Productos de esta familia, filtrados por búsqueda activa
+      const filtered = getFiltered().filter(p => p.categoria === cat);
+      // Si búsqueda no coincide con nada, abrir todos los de esa familia
+      const prods = filtered.length ? filtered : _all.filter(p => p.categoria === cat);
+      if (!prods.length || !window.Modal?.openProduct) return;
+      Modal.openProduct(prods[0]);
+    };
+
     grid.addEventListener('click', (e) => {
-      const card = e.target.closest('.ttt-product-card');
-      if (!card) return;
-      const prod = _all.find(p => p.sku === card.dataset.sku);
-      if (prod && window.Modal?.openProduct) Modal.openProduct(prod);
+      const card = e.target.closest('.ttt-product-card[data-cat]');
+      if (card) open(card.dataset.cat);
     });
 
     grid.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      const card = e.target.closest('.ttt-product-card');
-      if (!card) return;
-      e.preventDefault();
-      const prod = _all.find(p => p.sku === card.dataset.sku);
-      if (prod && window.Modal?.openProduct) Modal.openProduct(prod);
+      const card = e.target.closest('.ttt-product-card[data-cat]');
+      if (card) { e.preventDefault(); open(card.dataset.cat); }
     });
   }
 
   // -------------------------------------------------------
-  // API PÚBLICA
+  // BÚSQUEDA POR PATRÓN — afina qué ve el modal al abrir
   // -------------------------------------------------------
-  function findProduct(sku) {
-    return _all.find(p => p.sku === sku) || null;
+  function _bindSearchEvent() {
+    const searchInput = document.getElementById('filterSearch');
+    const clearBtn    = document.getElementById('filterClear');
+    const counter     = document.getElementById('filterCounter');
+
+    const refresh = () => {
+      if (counter) {
+        if (_fText) {
+          const n = getFiltered().length;
+          counter.textContent = `${n} diseño${n !== 1 ? 's' : ''} encontrado${n !== 1 ? 's' : ''}`;
+        } else {
+          counter.textContent = '';
+        }
+      }
+    };
+
+    const debounced = Utils.debounce(e => { _fText = e.target.value.trim(); refresh(); }, 250);
+    searchInput?.addEventListener('input', debounced);
+
+    clearBtn?.addEventListener('click', () => {
+      _fText = '';
+      if (searchInput) searchInput.value = '';
+      if (counter) counter.textContent = '';
+    });
   }
-
-  function getAllProducts() { return _all; }
-
-  // Devuelve la lista filtrada activa — usada por Modal para navegar entre productos
-  function getFiltered() { return _filtered; }
 
   return {
     init,
-    findProduct,
-    getAllProducts,
     getFiltered,
+    getAllProducts,
+    findProduct,
     stopRotations:  _stopAllRotations,
     startRotations: _startAllRotations,
   };
