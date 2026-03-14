@@ -1,30 +1,30 @@
 /* ===== TTT - Variables CSS ===== */
-/* Paleta refinada — Tessitura Toscana Telerie | G-Living | Est. 2018 */
+/* Paleta refinada — G-Living | Tessitura Toscana Telerie | Est. 2018 */
 
 :root {
     /* ===== COLORES BASE ===== */
     --color-background: #FFFFFF;
-    --color-background-secondary: #F9F8F6;
+    --color-background-secondary: #FAFAF8;
 
     /* ===== TEXTOS ===== */
     --color-text-primary: #1A1A1A;
     --color-text-secondary: #6B6B6B;
     --color-text-tertiary: #9B9B9B;
 
-    /* ===== ACCENT (Verde salvia toscano) ===== */
-    --color-accent: #7B9E87;
-    --color-accent-hover: #6A8E76;
-    --color-accent-dark: #4F7059;
-    --color-accent-light: #C8DCCF;
+    /* ===== ACCENT (Dorado G-Living) ===== */
+    --color-accent: #C9A961;
+    --color-accent-hover: #B8985A;
+    --color-accent-dark: #9A7A42;
+    --color-accent-light: #E5D4B3;
 
     /* ===== NEUTRALES ===== */
-    --color-border: #E4E4E0;
-    --color-border-light: #F2F1EE;
+    --color-border: #E8E8E6;
+    --color-border-light: #F5F5F3;
     --color-hover-overlay: rgba(0, 0, 0, 0.03);
 
     /* ===== BOTONES JERARQUÍA ===== */
-    --color-primary-button: #7B9E87;
-    --color-primary-button-hover: #6A8E76;
+    --color-primary-button: #C9A961;
+    --color-primary-button-hover: #B8985A;
     --color-secondary-button: #8B8B8B;
     --color-secondary-button-hover: #6B6B6B;
     

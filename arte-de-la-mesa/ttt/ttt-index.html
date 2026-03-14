@@ -326,6 +326,142 @@
     <span class="toast-message" id="toastMessage"></span>
   </div>
 
+  <!-- ==========================================
+       MODAL PRODUCTO TTT
+  =========================================== -->
+  <div class="modal" id="tttModalProduct" role="dialog" aria-modal="true" aria-labelledby="tttProductTitle">
+    <div class="modal-overlay" id="tttModalOverlay"></div>
+    <div class="modal-content ttt-modal-content">
+
+      <button class="modal-close" id="tttModalClose" aria-label="Cerrar">×</button>
+
+      <!-- Cabecera categoría -->
+      <div class="ttt-modal-header">
+        <span class="ttt-modal-cat-label" id="tttModalCatLabel"></span>
+      </div>
+
+      <!-- Sección foto -->
+      <div class="ttt-modal-img-section">
+        <button class="ttt-nav-btn ttt-nav-prev" id="tttNavPrev" aria-label="Producto anterior">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="ttt-modal-img-wrap" id="tttImgWrap">
+          <img id="tttMainImg" class="ttt-modal-img" src="" alt="" title="Ampliar imagen"
+            onerror="this.style.display='none';document.getElementById('tttImgPlaceholder').style.display='flex'">
+          <div id="tttImgPlaceholder" class="ttt-modal-img-placeholder" style="display:none">
+            <span>Sin imagen</span>
+          </div>
+        </div>
+        <div class="ttt-nav-right">
+          <button class="ttt-nav-btn ttt-nav-next" id="tttNavNext" aria-label="Producto siguiente">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="ttt-btn-share" id="tttBtnShare" aria-label="Compartir producto" style="display:none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Controles foto: − N/M + -->
+      <div class="ttt-photo-controls">
+        <button class="ttt-photo-ctrl-btn" id="tttPhotoDec" aria-label="Foto anterior">−</button>
+        <span class="ttt-photo-counter" id="tttPhotoCounter">1 / 1</span>
+        <button class="ttt-photo-ctrl-btn" id="tttPhotoInc" aria-label="Foto siguiente">+</button>
+      </div>
+
+      <!-- Info producto -->
+      <div class="ttt-modal-product-info">
+        <div class="ttt-modal-product-title-row">
+          <h2 class="ttt-modal-product-title" id="tttProductTitle"></h2>
+          <span class="ttt-modal-product-counter" id="tttProductCounter"></span>
+        </div>
+        <p class="ttt-modal-product-desc" id="tttProductDesc"></p>
+        <p class="ttt-modal-product-material" id="tttProductMaterial"></p>
+      </div>
+
+      <!-- Medidas array -->
+      <div class="ttt-modal-medidas-wrap">
+        <div class="ttt-medidas-header">
+          <span></span>
+          <span>Medida / SKU</span>
+          <span>Precio</span>
+          <span>Cantidad</span>
+          <span>Subtotal</span>
+        </div>
+        <div id="tttMedidasList" class="ttt-medidas-list"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="ttt-modal-footer">
+        <div class="ttt-modal-total">
+          <span class="ttt-modal-total-label">Total seleccionado:</span>
+          <span class="ttt-modal-total-amount" id="tttTotalAmount">€0</span>
+        </div>
+        <button class="btn btn-primary ttt-btn-cart" id="tttBtnCart" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          Selecciona al menos una medida
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL ZOOM TTT
+  =========================================== -->
+  <div class="modal" id="tttModalZoom" style="z-index:1500">
+    <div class="ttt-zoom-overlay" id="tttZoomOverlay"></div>
+    <div class="ttt-zoom-content">
+      <button class="modal-close ttt-zoom-close" id="tttZoomClose" aria-label="Cerrar">×</button>
+      <img id="tttZoomImage" class="ttt-zoom-image" src="" alt="">
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL CARRITO TTT
+  =========================================== -->
+  <div class="modal" id="tttModalCart" role="dialog" aria-modal="true" aria-labelledby="tttCartTitle">
+    <div class="modal-overlay" id="tttCartOverlay"></div>
+    <div class="modal-content ttt-cart-content">
+
+      <button class="modal-close" id="tttCartClose" aria-label="Cerrar">×</button>
+
+      <div class="ttt-cart-header">
+        <h2 class="ttt-cart-title" id="tttCartTitle">Tu selección</h2>
+      </div>
+
+      <div id="cartEmpty" class="ttt-cart-empty" style="display:none">
+        <p>No hay artículos en tu selección.</p>
+      </div>
+
+      <div id="cartItems" class="ttt-cart-items"></div>
+
+      <div id="cartFooter" class="ttt-cart-footer" style="display:none">
+        <div class="ttt-cart-total-row">
+          <span>Total estimado:</span>
+          <span class="ttt-cart-total-amount" id="cartTotalAmount">€0</span>
+        </div>
+        <div class="ttt-cart-actions">
+          <button class="btn btn-secondary ttt-btn-wishlist" id="tttBtnWishlist">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Enviar por WhatsApp
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- SCRIPTS — orden crítico: config → data → cart → api → modal → catalog -->
   <script src="js/ttt-config.js?v=1.0"></script>
   <script src="js/ttt-catalog-data.js?v=1.0"></script>
