@@ -635,7 +635,7 @@ const TTT_PRODUCTS = [
     shortDesc: "Mantel",
     material:  "100% lino",
     images:    ["TT1000002100.jpg", "TT1000002101.jpg", "TT1000002116.jpg", "TT1000002102.jpg", "TT1000002103.jpg", "TT1000003015.jpg", "TT1000004109.jpeg", "TT1000004164.jpg"],
-    medidas:   [{"sku": "NT170031-020067", "medida": "Cuadrado 170x170cm", "precio": 3102500, "imagen": "TT1000002100.jpg"}, {"sku": "NT170032-020067", "medida": "Rectangular 160x230cm", "precio": 3595250, "imagen": "TT1000002100.jpg"}, {"sku": "NT170033-020067", "medida": "Rectangular 170x270cm", "precio": 4088000, "imagen": "TT1000002100.jpg"}, {"sku": "NT260070-020067", "medida": "Única talla", "precio": 5566250, "imagen": "TT1000002100.jpg"}],
+    medidas:   [{"sku": "NT170031-020067", "medida": "Cuadrado 170x170cm", "precio": 3102500, "imagen": "TT1000002100.jpg"}, {"sku": "NT170032-020067", "medida": "Rectangular 160x230cm", "precio": 3595250, "imagen": "TT1000002100.jpg"}, {"sku": "NT170033-020067", "medida": "Rectangular 170x270cm", "precio": 4088000, "imagen": "TT1000002100.jpg"}, {"sku": "NT260070-020067", "medida": "Rectangular 170x360cm", "precio": 5566250, "imagen": "TT1000002100.jpg"}],
   },
   {
     sku:       "TULI_TOVAGLIE",
