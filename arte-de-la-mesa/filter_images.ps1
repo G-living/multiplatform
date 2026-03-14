@@ -25,7 +25,7 @@ $countKeep = 0
 $countDiscard = 0
 
 # Procesar cada imagen jpg/jpeg en la carpeta raiz (no subcarpetas)
-Get-ChildItem -Path $folder -MaxDepth 1 -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg)$' } | ForEach-Object {
+Get-ChildItem -Path $folder -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg)$' -and $_.DirectoryName -eq $folder } | ForEach-Object {
     $code = $_.BaseName  # nombre sin extension
     if ($validCodes.Contains($code)) {
         Move-Item -Path $_.FullName -Destination (Join-Path $keep $_.Name)
