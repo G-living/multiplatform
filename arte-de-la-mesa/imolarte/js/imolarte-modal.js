@@ -248,6 +248,23 @@ const Modal = (() => {
   //   [10 variantes: comodín | colección | precio | qty | subtotal]
   //   [footer: total | btn WA | btn Wompi]
   // -------------------------------------------------------
+  // Abre el modal de familia posicionado directamente en el producto indicado (deep-link)
+  function openFamilyAtProduct(productId) {
+    const prod = window.CATALOG_BY_ID?.[productId];
+    if (!prod) return;
+    _currentFamily  = prod.familia;
+    _familyProducts = (typeof Catalog !== 'undefined')
+      ? Catalog.getProductsByFamily(prod.familia)
+      : [];
+    if (!_familyProducts.length) return;
+    _familyIdx  = Math.max(0, _familyProducts.findIndex(p => p.id === productId));
+    _quantities = {};
+    (_familyProducts[_familyIdx]?.variants || []).forEach(v => { _quantities[v.sku] = 0; });
+    _ensureFamilyModal();
+    _renderFamilyModal();
+    _openModal('modalFamily');
+  }
+
   function openFamily(familyName) {
     if (!familyName) return;
 
@@ -312,6 +329,14 @@ const Modal = (() => {
         <!-- Info producto -->
         <div class="family-modal-product-info">
           <h2 class="family-modal-product-title" id="familyProductTitle"></h2>
+          <button class="btn-share" id="familyBtnShare" aria-label="Compartir producto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+          </button>
           <span class="family-modal-counter" id="familyCounter"></span>
         </div>
 
@@ -344,6 +369,16 @@ const Modal = (() => {
     document.getElementById('familyNavNext')?.addEventListener('click', _familyNavNext);
     document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
     document.getElementById('familyBtnCart')?.addEventListener('click', _familyAddToCart);
+
+    // Share button — solo actúa si Web Share API disponible (móvil)
+    document.getElementById('familyBtnShare')?.addEventListener('click', async () => {
+      if (!navigator.share) return;
+      const btn = document.getElementById('familyBtnShare');
+      const url  = `${location.origin}${location.pathname}?p=${btn.dataset.productId}`;
+      try {
+        await navigator.share({ title: btn.dataset.productName, url });
+      } catch (_) { /* usuario canceló */ }
+    });
 
     // Click imagen principal → zoom
     document.getElementById('familyProductImg')?.addEventListener('click', () => {
@@ -390,6 +425,14 @@ const Modal = (() => {
     // Título
     const titleEl = document.getElementById('familyProductTitle');
     if (titleEl) titleEl.textContent = prod.name;
+
+    // Share button — actualizar datos del producto actual
+    const shareBtn = document.getElementById('familyBtnShare');
+    if (shareBtn) {
+      shareBtn.dataset.productId   = prod.id;
+      shareBtn.dataset.productName = prod.name;
+      shareBtn.style.display       = navigator.share ? '' : 'none';
+    }
 
     // Contador
     const counterEl = document.getElementById('familyCounter');
@@ -2412,6 +2455,7 @@ const Modal = (() => {
     restoreGiftStep2,
     openProduct,
     openFamily,
+    openFamilyAtProduct,
     openZoom,
     openCart,
     openCheckoutWA,
