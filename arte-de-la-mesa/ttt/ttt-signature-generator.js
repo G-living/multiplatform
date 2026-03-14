@@ -1,34 +1,20 @@
 // ttt-signature-generator.js
 // Cloudflare Worker — Genera firma SHA-256 de integridad para Wompi (TTT)
 // Deploy: cd arte-de-la-mesa/ttt && npx wrangler deploy --config wrangler-ttt-signature.toml
-// Secrets:
-//   npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-ttt-signature.toml
-//   npx wrangler secret put API_TOKEN           --config wrangler-ttt-signature.toml
+// Secrets: npx wrangler secret put WOMPI_INTEGRITY_KEY --config wrangler-ttt-signature.toml
+//          npx wrangler secret put API_TOKEN           --config wrangler-ttt-signature.toml
 
 export default {
   async fetch(request, env) {
     const corsHeaders = {
       'Access-Control-Allow-Origin': 'https://g-living.github.io',
-      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     };
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
-    }
-
-    // ── CMD: echo (diagnóstico GET) ────────────────────────────
-    const url = new URL(request.url);
-    if (url.searchParams.get('cmd') === 'echo') {
-      return new Response(JSON.stringify({
-        ok:      true,
-        worker:  'ttt-signature-generator',
-        version: 'v1.0',
-        time:    new Date().toISOString(),
-        method:  request.method,
-        origin:  request.headers.get('origin') || null,
-      }), { status: 200, headers: corsHeaders });
     }
 
     if (request.method !== 'POST') {
@@ -47,11 +33,10 @@ export default {
         });
       }
 
-      // ── Validar parámetros requeridos ─────────────────────────
       if (!reference || !amountInCents || typeof amountInCents !== 'number' || amountInCents <= 0) {
         return new Response(JSON.stringify({ error: 'Missing or invalid reference/amountInCents' }), {
           status: 400,
-          headers: corsHeaders,
+          headers: corsHeaders
         });
       }
 
@@ -59,11 +44,10 @@ export default {
       if (!integrityKey) {
         return new Response(JSON.stringify({ error: 'Server configuration error' }), {
           status: 500,
-          headers: corsHeaders,
+          headers: corsHeaders
         });
       }
 
-      // ── Generar firma SHA-256 ─────────────────────────────────
       const concat = `${reference}${amountInCents}${currency}${integrityKey}`;
       const encoder = new TextEncoder();
       const data = encoder.encode(concat);
@@ -73,13 +57,13 @@ export default {
 
       return new Response(
         JSON.stringify({ integritySignature: signature, reference, amountInCents, currency }),
-        { status: 200, headers: corsHeaders },
+        { status: 200, headers: corsHeaders }
       );
     } catch (err) {
       return new Response(JSON.stringify({ error: 'Signature generation failed' }), {
         status: 500,
-        headers: corsHeaders,
+        headers: corsHeaders
       });
     }
-  },
+  }
 };
