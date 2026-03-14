@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTT — Tessitura Toscana Telerie | G-Living | Est. 2018</title>
+  <meta name="description" content="Textiles de hogar de lujo importados directamente desde Toscana, Italia. Manteles, sábanas, cojines y más.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="images/favicon/001.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <!-- Botón Aa — tamaño de texto -->
+  <button class="btn-aa" id="btnAa" aria-label="Ajustar tamaño de texto" title="Tamaño de texto" data-level="0">Aa</button>
+
+  <!-- HEADER -->
+  <header class="site-header">
+
+    <a href="../main-index.html" class="back-to-main" aria-label="Volver a Colecciones">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Colecciones
+    </a>
+
+    <!-- Slider galería -->
+    <div class="header-slider" id="headerSlider" aria-label="Galería TTT">
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-slide is-active" aria-hidden="false">
+          <img src="images/gallery/bodas/boda.png" alt="Lista de bodas — G-Living" class="slider-img">
+        </div>
+        <div class="slider-slide" aria-hidden="true">
+          <img src="images/gallery/visitanos/visitanos.png" alt="Visítanos — Calle 70 # 9-87 Bogotá" class="slider-img">
+        </div>
+        <div class="slider-slide" aria-hidden="true">
+          <img src="images/gallery/prodcutobrand/producto.png" alt="Textiles TTT — Toscana Italia" class="slider-img">
+        </div>
+      </div>
+      <div class="slider-dots" role="tablist" aria-label="Navegar galería">
+        <button class="slider-dot is-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-idx="0"></button>
+        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 2" data-idx="1"></button>
+        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 3" data-idx="2"></button>
+      </div>
+    </div>
+
+    <!-- Brand info -->
+    <div class="header-brand">
+      <img src="images/branding/Logo-G-living.jpeg"
+           alt="G-Living | Italian Living & Design | Est. 2018"
+           class="header-logo-img"
+           onerror="this.style.display='none'">
+      <p style="font-family:'Lato',sans-serif;font-size:0.78rem;font-weight:300;letter-spacing:0.12em;text-transform:uppercase;color:#6B6B6B;margin:6px 0 0;">
+        Tessitura Toscana Telerie · Textiles italianos de lujo
+      </p>
+    </div>
+
+    <script>
+    (function() {
+      var current = 0, total = 3, interval = null;
+      function goTo(idx) {
+        document.querySelectorAll('.slider-slide').forEach(function(s,i){
+          s.classList.toggle('is-active', i===idx); s.setAttribute('aria-hidden', i!==idx);
+        });
+        document.querySelectorAll('.slider-dot').forEach(function(d,i){
+          d.classList.toggle('is-active', i===idx); d.setAttribute('aria-selected', i===idx);
+        });
+        current = idx;
+      }
+      function next() { goTo((current+1)%total); }
+      function startAuto() { interval = setInterval(next, 4500); }
+      function stopAuto()  { clearInterval(interval); }
+      document.addEventListener('DOMContentLoaded', function() {
+        goTo(0); startAuto();
+        document.querySelectorAll('.slider-dot').forEach(function(dot) {
+          dot.addEventListener('click', function() { stopAuto(); goTo(parseInt(this.dataset.idx)); startAuto(); });
+        });
+      });
+    })();
+    </script>
+
+  </header>
+
+  <!-- FILTROS -->
+  <div class="ttt-filters" role="search" aria-label="Filtros de productos">
+    <select class="ttt-filter-select" id="filterZona" aria-label="Filtrar por zona">
+      <option value="">Todo</option>
+    </select>
+    <select class="ttt-filter-select" id="filterCat" aria-label="Filtrar por categoría">
+      <option value="">Todas las categorías</option>
+    </select>
+    <input class="ttt-filter-input" id="filterSearch" type="search"
+           placeholder="Buscar patrón..." aria-label="Buscar patrón">
+    <button class="ttt-filter-clear" id="filterClear" aria-label="Limpiar filtros">Limpiar</button>
+    <span class="ttt-filter-counter" id="filterCounter" aria-live="polite"></span>
+  </div>
+
+  <!-- CATÁLOGO -->
+  <main class="main-content" id="mainContent">
+    <div id="productsGrid"></div>
+  </main>
+
+  <!-- CARRITO FLOTANTE -->
+  <button class="cart-float" id="cartButton" aria-label="Ver selección">
+    <svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <path d="M16 10a4 4 0 01-8 0"/>
+    </svg>
+    <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+  </button>
+
+  <!-- TOAST -->
+  <div class="toast-notification" id="toast" style="display:none" role="alert" aria-live="polite">
+    <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span class="toast-message" id="toastMessage"></span>
+  </div>
+
+  <!-- SCRIPTS — orden crítico: config → data → cart → api → modal → catalog -->
+  <script src="js/ttt-config.js?v=1.0"></script>
+  <script src="js/ttt-catalog-data.js?v=1.0"></script>
+  <script src="js/ttt-cart.js?v=1.0"></script>
+  <script src="js/ttt-api.js?v=1.0"></script>
+  <script src="js/ttt-modal.js?v=1.0"></script>
+  <script src="js/ttt-catalog.js?v=1.0"></script>
+
+  <script>
+  // ── Carrito flotante → abre modal carrito ──
+  document.getElementById('cartButton')?.addEventListener('click', () => {
+    if (window.Modal?.openCart) Modal.openCart();
+  });
+
+  // ── Botón Aa — tamaño de texto (3 niveles) ──
+  (function() {
+    var key    = 'ttt_prefs';
+    var sizes  = ['', 'font-size-110', 'font-size-125'];
+    var stored = 0;
+    try { stored = parseInt(JSON.parse(localStorage.getItem(key)||'{}').aaLevel||0,10); } catch(e){}
+    stored = Math.max(0, Math.min(2, stored));
+
+    var btn = document.getElementById('btnAa');
+    function applyLevel(lv) {
+      document.body.classList.remove('font-size-110','font-size-125');
+      if (sizes[lv]) document.body.classList.add(sizes[lv]);
+      if (btn) btn.dataset.level = lv;
+      try { localStorage.setItem(key, JSON.stringify({aaLevel: lv})); } catch(e){}
+    }
+
+    applyLevel(stored);
+    btn?.addEventListener('click', function() {
+      applyLevel((stored + 1) % 3);
+      stored = parseInt(btn.dataset.level, 10);
+    });
+  })();
+  </script>
+
+  <style>
+    .font-size-110 { font-size: 110% !important; }
+    .font-size-125 { font-size: 125% !important; }
+  </style>
+
+</body>
+</html>
