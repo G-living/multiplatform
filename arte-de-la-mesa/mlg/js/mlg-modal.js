@@ -26,6 +26,7 @@ const Modal = (() => {
   let _currentFamily  = null;   // nombre de familia activa
   let _familyProducts = [];     // array de productos de la familia
   let _familyIdx      = 0;      // índice del producto visible en el modal
+  let _currentPhotoIdx = 0;    // índice de la foto activa dentro del producto
   let _quantities     = {};     // { sku: qty } — una cantidad por variante
   let _focusTrapCleanup = null;
   let _prevFocus = null;
@@ -269,19 +270,39 @@ const Modal = (() => {
   function _buildFamilyProducts(familyName) {
     return (window.MLG_PRODUCT_TYPES || [])
       .filter(t => t.familia === familyName)
-      .map(t => ({
-        id:       [t.familia, t.coleccion, t.tipo].join('-').toLowerCase().replace(/\s+/g, '-'),
-        name:     t.coleccion + ' — ' + t.tipo,
-        subtitle: [t.medidas, t.material].filter(Boolean).join(' · '),
-        familia:  t.familia,
-        image:    (t.variantes[0] || {}).image || '',
-        variants: (t.variantes || []).map(v => ({
-          sku:       v.sku,
-          color:     v.color,
-          precio_cop: v.precio_cop,
-          image:     v.image,
-        })),
-      }));
+      .map(t => {
+        // Galería: usa t.images si está definido, si no recopila imágenes de variantes
+        const images = (t.images && t.images.length)
+          ? t.images
+          : (t.variantes || []).map(v => v.image).filter(Boolean);
+
+        // Filas de display: 1 por combinación única (medida · material · precio_cop)
+        const displayRows = [];
+        const seen = new Set();
+        (t.variantes || []).forEach(v => {
+          const key = `${t.medidas}|${t.material}|${v.precio_cop}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            displayRows.push({
+              sku:        v.sku,
+              medida:     t.medidas   || '—',
+              material:   t.material  || '—',
+              precio_cop: v.precio_cop,
+              image:      v.image     || '',
+            });
+          }
+        });
+
+        return {
+          id:       [t.familia, t.coleccion, t.tipo].join('-').toLowerCase().replace(/\s+/g, '-'),
+          name:     t.coleccion + ' — ' + t.tipo,
+          subtitle: [t.medidas, t.material].filter(Boolean).join(' · '),
+          familia:  t.familia,
+          image:    images[0] || '',
+          images,
+          variants: displayRows,
+        };
+      });
   }
 
   // Abre el modal de familia posicionado directamente en el producto indicado (deep-link)
@@ -368,6 +389,13 @@ const Modal = (() => {
           </button>
         </div>
 
+        <!-- Navegación de fotos -->
+        <div class="family-photo-nav" id="familyPhotoNav">
+          <button class="photo-nav-btn" id="photoNavPrev" aria-label="Foto anterior">−</button>
+          <span class="photo-nav-counter" id="photoNavCounter">1 / 1</span>
+          <button class="photo-nav-btn" id="photoNavNext" aria-label="Foto siguiente">+</button>
+        </div>
+
         <!-- Info producto -->
         <div class="family-modal-product-info">
           <h2 class="family-modal-product-title" id="familyProductTitle"></h2>
@@ -402,6 +430,8 @@ const Modal = (() => {
     document.getElementById('modalFamilyOverlay')?.addEventListener('click', () => _closeModal('modalFamily'));
     document.getElementById('familyNavPrev')?.addEventListener('click', _familyNavPrev);
     document.getElementById('familyNavNext')?.addEventListener('click', _familyNavNext);
+    document.getElementById('photoNavPrev')?.addEventListener('click', _photoNavPrev);
+    document.getElementById('photoNavNext')?.addEventListener('click', _photoNavNext);
     document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
     document.getElementById('familyBtnCart')?.addEventListener('click', _familyAddToCart);
 
@@ -415,9 +445,11 @@ const Modal = (() => {
       } catch (_) { /* usuario canceló */ }
     });
 
-    // Click imagen principal → zoom
+    // Click imagen principal → zoom (foto actual de la galería)
     document.getElementById('familyProductImg')?.addEventListener('click', () => {
-      if (_currentProduct?.image) openZoom(_currentProduct.image, _currentProduct.name);
+      const prod = _familyProducts[_familyIdx];
+      const src = prod?.images?.[_currentPhotoIdx] || _currentProduct?.image;
+      if (src) openZoom(src, _currentProduct?.name || '');
     });
   }
 
@@ -434,28 +466,11 @@ const Modal = (() => {
     const labelEl = document.getElementById('familyModalLabel');
     if (labelEl) labelEl.textContent = _currentFamily;
 
-    // Imagen — precargar antes de asignar para evitar flash de placeholder
-    const imgEl = document.getElementById('familyProductImg');
-    const phEl  = document.getElementById('familyImgPlaceholder');
-    if (imgEl) {
-      if (prod.image) {
-        const preload = new Image();
-        preload.onload = () => {
-          imgEl.src     = prod.image;
-          imgEl.alt     = prod.name;
-          imgEl.style.display = '';
-          if (phEl) phEl.style.display = 'none';
-        };
-        preload.onerror = () => {
-          imgEl.style.display = 'none';
-          if (phEl) phEl.style.display = 'flex';
-        };
-        preload.src = prod.image;
-      } else {
-        imgEl.style.display = 'none';
-        if (phEl) phEl.style.display = 'flex';
-      }
-    }
+    // Foto inicial aleatoria dentro de la galería del producto
+    _currentPhotoIdx = prod.images?.length
+      ? Math.floor(Math.random() * prod.images.length)
+      : 0;
+    _updateMainPhoto();
 
     // Título + subtítulo (medidas · material)
     const titleEl = document.getElementById('familyProductTitle');
@@ -497,19 +512,9 @@ const Modal = (() => {
 
     list.innerHTML = variants.map(v => `
       <div class="fv-row" data-sku="${Utils.sanitize(v.sku)}">
-        <img
-          class="fv-comodin"
-          src="${Utils.sanitize(v.image || 'images/placeholder.jpg')}"
-          alt="${Utils.sanitize(v.color)}"
-          loading="lazy"
-          onerror="this.style.visibility='hidden'"
-          data-zoom-src="${Utils.sanitize(v.image || '')}"
-          data-zoom-alt="${Utils.sanitize(v.color)}"
-          title="Ampliar"
-        >
         <div class="fv-info">
-          <span class="fv-name">${Utils.sanitize(v.color)}</span>
-          <span class="fv-sku">${Utils.sanitize(v.sku)}</span>
+          <span class="fv-name">${Utils.sanitize(v.material)}</span>
+          <span class="fv-sku">${Utils.sanitize(v.medida)}</span>
         </div>
         ${(() => {
           const ps = Utils.calcPresale(v.precio_cop);
@@ -533,12 +538,6 @@ const Modal = (() => {
   }
 
   function _handleFamilyVariantClick(e) {
-    // Zoom comodín
-    const comodinImg = e.target.closest('.fv-comodin');
-    if (comodinImg && comodinImg.dataset.zoomSrc) {
-      openZoom(comodinImg.dataset.zoomSrc, comodinImg.dataset.zoomAlt);
-      return;
-    }
     // Qty buttons
     const btn = e.target.closest('.qty-btn');
     if (!btn) return;
@@ -595,6 +594,60 @@ const Modal = (() => {
     }, 0);
   }
 
+  // -------------------------------------------------------
+  // NAVEGACIÓN DE FOTOS (−/+ dentro de un mismo producto)
+  // -------------------------------------------------------
+  function _updateMainPhoto() {
+    const prod = _familyProducts[_familyIdx];
+    const imgEl = document.getElementById('familyProductImg');
+    const phEl  = document.getElementById('familyImgPlaceholder');
+    const counterEl = document.getElementById('photoNavCounter');
+    const prevBtn   = document.getElementById('photoNavPrev');
+    const nextBtn   = document.getElementById('photoNavNext');
+    const navEl     = document.getElementById('familyPhotoNav');
+    const total = prod?.images?.length || 0;
+
+    if (navEl) navEl.style.display = total > 1 ? 'flex' : 'none';
+    if (counterEl) counterEl.textContent = `${_currentPhotoIdx + 1} / ${total}`;
+    if (prevBtn) prevBtn.disabled = _currentPhotoIdx === 0;
+    if (nextBtn) nextBtn.disabled = _currentPhotoIdx >= total - 1;
+
+    const src = prod?.images?.[_currentPhotoIdx] || '';
+    if (!imgEl) return;
+    if (src) {
+      const preload = new Image();
+      preload.onload = () => {
+        imgEl.src = src;
+        imgEl.alt = prod.name;
+        imgEl.style.display = '';
+        if (phEl) phEl.style.display = 'none';
+      };
+      preload.onerror = () => {
+        imgEl.style.display = 'none';
+        if (phEl) phEl.style.display = 'flex';
+      };
+      preload.src = src;
+    } else {
+      imgEl.style.display = 'none';
+      if (phEl) phEl.style.display = 'flex';
+    }
+  }
+
+  function _photoNavPrev() {
+    if (_currentPhotoIdx > 0) {
+      _currentPhotoIdx--;
+      _updateMainPhoto();
+    }
+  }
+
+  function _photoNavNext() {
+    const prod = _familyProducts[_familyIdx];
+    if (prod && _currentPhotoIdx < prod.images.length - 1) {
+      _currentPhotoIdx++;
+      _updateMainPhoto();
+    }
+  }
+
   function _familyNavPrev() {
     if (_familyIdx > 0) {
       _familyIdx--;
@@ -628,13 +681,13 @@ const Modal = (() => {
           productId:     _currentProduct.id,
           productName:   _currentProduct.name,
           familia:       _currentFamily,
-          collection:    v.color,
+          collection:    v.medida,
           sku:           v.sku,
-          price:         ps.final,          // precio efectivo (con descuento si hay campaña)
-          priceOriginal: ps.original,       // precio pleno — para mostrar tachado en carrito
-          descPct:       ps.descPct,        // % descuento aplicado (0 si no hay campaña)
+          price:         ps.final,
+          priceOriginal: ps.original,
+          descPct:       ps.descPct,
           quantity:      _quantities[v.sku],
-          image:         v.image,           // foto real de la variante (no comodín)
+          image:         v.image || _currentProduct.images?.[0] || '',
         };
       });
   }

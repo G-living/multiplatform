@@ -981,12 +981,11 @@
     }
 
     .fv-row {
-        grid-template-columns: 28px 1fr auto auto auto;
+        grid-template-columns: 1fr auto auto auto;
         gap: 3px;
         padding: 4px 2px;
     }
 
-    .fv-comodin { width: 24px; height: 24px; }
     .fv-price   { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-subtotal { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-name    { font-size: var(--font-size-xs); }
@@ -1721,6 +1720,53 @@ gmp-placeautocomplete::part(input):focus {
     background: var(--color-background-secondary);
 }
 
+/* Navegación de fotos (−/+ bajo la imagen) */
+.family-photo-nav {
+    display: none; /* JS lo muestra con 'flex' cuando hay más de 1 foto */
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: 4px var(--spacing-md);
+    background: var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-border-light);
+    flex-shrink: 0;
+}
+
+.photo-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-lg);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.photo-nav-btn:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: var(--color-background-secondary);
+}
+
+.photo-nav-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+}
+
+.photo-nav-counter {
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    min-width: 40px;
+    text-align: center;
+}
+
 /* Variantes (scrollable) */
 .family-modal-variants {
     flex: 1;
@@ -1733,7 +1779,7 @@ gmp-placeautocomplete::part(input):focus {
 /* Fila variante familia */
 .fv-row {
     display: grid;
-    grid-template-columns: 40px 1fr auto auto auto;
+    grid-template-columns: 1fr auto auto auto;
     align-items: center;
     gap: var(--spacing-xs);
     padding: 6px var(--spacing-xs);
@@ -1862,12 +1908,11 @@ gmp-placeautocomplete::part(input):focus {
     }
 
     .fv-row {
-        grid-template-columns: 32px 1fr auto auto auto;
+        grid-template-columns: 1fr auto auto auto;
         gap: 4px;
         padding: 5px 4px;
     }
 
-    .fv-comodin { width: 28px; height: 28px; }
     .fv-price { min-width: 64px; font-size: var(--font-size-xs); }
     .fv-subtotal { min-width: 64px; font-size: var(--font-size-xs); }
     .fv-name { font-size: var(--font-size-xs); }
