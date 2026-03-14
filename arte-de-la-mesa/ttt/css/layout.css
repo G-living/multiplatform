@@ -158,32 +158,29 @@
 }
 
 
-/* ===== GRID DE PRODUCTOS TTT ===== */
+/* ===== GRID DE FAMILIAS TTT — 6 cards, 3 col desktop (igual a MLG) ===== */
 .ttt-products-grid {
     display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-md);
-    max-width: 1600px;
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-3xl);
+    max-width: 1280px;
     margin: 0 auto;
 }
 
-@media (min-width: 1281px) {
-    .ttt-products-grid { grid-template-columns: repeat(6, 1fr); }
+@media (max-width: 1024px) {
+    .ttt-products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-2xl);
+    }
 }
 
-@media (min-width: 1025px) and (max-width: 1280px) {
-    .ttt-products-grid { grid-template-columns: repeat(5, 1fr); }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .ttt-products-grid { grid-template-columns: repeat(4, 1fr); gap: var(--spacing-sm); }
-}
-
-@media (max-width: 768px) and (orientation: landscape) {
-    .ttt-products-grid { grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm); }
-}
-
-@media (max-width: 768px) and (orientation: portrait) {
-    .ttt-products-grid { grid-template-columns: repeat(2, 1fr); gap: var(--spacing-sm); }
+@media (max-width: 600px) {
+    .ttt-products-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md) var(--spacing-sm) var(--spacing-xl);
+    }
 }
 
 
