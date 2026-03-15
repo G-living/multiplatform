@@ -373,11 +373,8 @@ const Modal = (() => {
           <span class="family-modal-header-text" id="familyModalHeaderText"></span>
         </div>
 
-        <!-- Imagen + flechas -->
+        <!-- Imagen + flechas centradas en el eje de la foto -->
         <div class="family-modal-img-section">
-          <button class="family-nav-btn family-nav-prev" id="familyNavPrev" aria-label="Producto anterior">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
           <div class="family-modal-img-wrap">
             <img id="familyProductImg" class="family-modal-img family-modal-img--zoomable" src="" alt=""
               onerror="this.style.display='none';document.getElementById('familyImgPlaceholder').style.display='flex'"
@@ -385,18 +382,21 @@ const Modal = (() => {
             <div id="familyImgPlaceholder" class="family-modal-placeholder" style="display:none">
               <span class="family-card-placeholder-text">MLG</span>
             </div>
+            <button class="family-nav-btn family-nav-prev" id="familyNavPrev" aria-label="Producto anterior">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="family-nav-btn family-nav-next" id="familyNavNext" aria-label="Producto siguiente">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="btn-share" id="familyBtnShare" aria-label="Compartir producto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                <polyline points="16 6 12 2 8 6"/>
+                <line x1="12" y1="2" x2="12" y2="15"/>
+              </svg>
+            </button>
           </div>
-          <button class="family-nav-btn family-nav-next" id="familyNavNext" aria-label="Producto siguiente">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <button class="btn-share" id="familyBtnShare" aria-label="Compartir producto">
-            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-              <polyline points="16 6 12 2 8 6"/>
-              <line x1="12" y1="2" x2="12" y2="15"/>
-            </svg>
-          </button>
         </div>
 
         <!-- Descripción: tipo · medidas · material + contador -->
