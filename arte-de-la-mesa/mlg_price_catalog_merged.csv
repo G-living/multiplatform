@@ -11,8 +11,8 @@ H.ALZ.NIN4,Ninfea cake dome green,Acrílico,"30,25",16 cm,"20,5 cm",,mediano,nin
 H.ALZ.NIN5,Ninfea cake dome gold,Acrílico,"33,88",16 cm,"20,5 cm",,mediano,ninfea-oro-2359.jpg
 H.ALZ.SUS1,Susan centerpiece gold,Acrílico,"55,00","13,2 cm",31 cm,,grande,susan-oro-2411.jpg
 H.ALZ.SUS2,Susan centerpiece red,Acrílico,"55,00","13,2 cm",31 cm,,grande,susan-rosso-2408.jpg
-H.ALZ.SUS3,Susan centerpiece clear,Acrílico,"55,00","13,2 cm",31 cm,,grande,pie-trasparente-2627.jpg
-H.ALZ.SUS4,Susan centerpiece green,Acrílico,"55,00","13,2 cm",31 cm,,grande,pie-verde-2628.jpg
+H.ALZ.SUS3,Susan centerpiece clear,Acrílico,"55,00","13,2 cm",31 cm,,grande,susan-trasparente-2412.jpg
+H.ALZ.SUS4,Susan centerpiece green,Acrílico,"55,00","13,2 cm",31 cm,,grande,susan-verde-2413.jpg
 H.BIK.BN1,Biancaneve Shot clear,Acrílico,"5,50",9 cm,"4,9 cm",,shot,biancaneve-trasparente-2554.jpg
 H.BIK.BN2,Biancaneve Shot gold,Acrílico,"5,50",9 cm,"4,9 cm",,shot,biancaneve-oro-2553.jpg
 H.BIK.BN3,Biancaneve Shot green,Acrílico,"5,50",9 cm,"4,9 cm",,shot,biancaneve-verde-2552.jpg
@@ -22,10 +22,10 @@ H.BIK.BN6,Biancaneve Shot turquoise,Acrílico,"5,50",9 cm,"4,9 cm",,shot,biancan
 H.BIK.DF1,Double Face tumbler fluo orange,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-arancio-1054.jpg
 H.BIK.DF2,Double Face tumbler fluo green,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-verde-1055.jpg
 H.BIK.DF3,Double Face tumbler fluo fuxia,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-fuxia-1053.jpg
-H.BIK.DF4,Double Face tumbler light blue,Acrílico,"8,47",11 cm,9 cm,,mediano,
+H.BIK.DF4,Double Face tumbler light blue,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-turchese-1057.jpg
 H.BIK.DF5,Double Face tumbler black,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-nero-1056.jpg
 H.BIK.DF6,Double Face tumbler white,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-bianco-1052.jpg
-H.BIK.DF7,Double Face tumbler blue/green,Acrílico,"8,47",11 cm,9 cm,,mediano,
+H.BIK.DF7,Double Face tumbler blue/green,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-petrolio-1632.jpg
 H.BIK.DF8,Double Face tumbler cobalt purple,Acrílico,"8,47",11 cm,9 cm,,mediano,
 H.BIK.DF9,Double Face tumbler scarlet,Acrílico,"8,47",11 cm,9 cm,,mediano,double-face-scarlet-1631.jpg
 H.BIK.DIA02,Diamante tumbler clear,Acrílico,"7,87","9,5 cm",9 cm,,pequeño,
@@ -304,14 +304,14 @@ H.BRO.DIA19,Diamante pitcher green,Acrílico,"22,99",21 cm,,3 L,grande,diamante-
 H.BRO.DIA21,Palla pitcher clear,Acrílico,"29,04",21 cm,,3 L,grande,palla-trasparente-121.jpg
 H.BRO.DIA23,Palla pitcher dark green,Acrílico,"29,04",21 cm,,3 L,grande,
 H.BRO.DIA24,Palla pitcher royal blue,Acrílico,"29,04",21 cm,,3 L,grande,
-H.BRO.DIA34,Palla pitcher red gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-rosso-123.jpg
+H.BRO.DIA34,Palla pitcher red gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-smalto-rosso-450.jpg
 H.BRO.DIA35,Palla pitcher black gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-smalto-nero-2334.jpg
 H.BRO.DIA36,Palla pitcher white gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-smalto-bianco-448.jpg
 H.BRO.DIA37,Palla pitcher turquoise gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-smalto-turchese-451.jpg
 H.BRO.DIA41,Palla pitcher amber,Acrílico,"29,04",21 cm,,3 L,grande,palla-ambra-594.jpg
 H.BRO.DIA44,Palla pitcher aquamarine gloss,Acrílico,"29,04",21 cm,,3 L,grande,
 H.BRO.DIA45,Palla pitcher fluo fuxia gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-flu-fuxia-740.jpg
-H.BRO.DIA46,Palla pitcher fluo orange gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-arancio-verde-1454.jpg
+H.BRO.DIA46,Palla pitcher fluo orange gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-flu-arancio-738.jpg
 H.BRO.DIA47,Palla pitcher fluo green gloss,Acrílico,"29,04",21 cm,,3 L,grande,palla-flu-verde-739.jpg
 H.BRO.DIA48,Palla pitcher white opaque,Acrílico,"29,04",21 cm,,3 L,grande,
 H.BRO.DIA49,Palla pitcher orange/green,Acrílico,"29,04",21 cm,,3 L,grande,
@@ -341,7 +341,7 @@ H.BRO.MAR3,Maria pitcher purple,Acrílico,"18,15",,,,pequeño,maria-viola-932.jp
 H.BRO.MAR6,Maria pitcher white gloss,Acrílico,"18,15",,,,pequeño,maria-bianco-927.jpg
 H.BRO.PAL1,Pallina pitcher clear,Acrílico,"26,62",19 cm,,2 L,mediano,pallina-trasparente-1512.jpg
 H.BRO.PAL11,Pallina pitcher grey,Acrílico,"26,62",19 cm,,2 L,mediano,pallina-grigio-2123.jpg
-H.BRO.PAL12,Pallina pitcher yellow/handle red,Acrílico,"26,62",19 cm,,2 L,mediano,pallina-giallo-1516.jpg
+H.BRO.PAL12,Pallina pitcher yellow/handle red,Acrílico,"26,62",19 cm,,2 L,mediano,pallina-giallo-rosso-2229.jpg
 H.BRO.PAL13,Pallina pitcher olive green gloss,Acrílico,"26,62",19 cm,,2 L,mediano,pallina-verde-oliva-2472.jpg
 H.BRO.PAL2,Pallina pitcher white gloss,Acrílico,"26,62",19 cm,,2 L,mediano,pallina-bianco-1511.jpg
 H.BRO.PAL3,Pallina pitcher opaque pink,Acrílico,"26,62",19 cm,,2 L,mediano,
@@ -370,7 +370,7 @@ H.BRO.ROB3,Roberta Pitcher ruby,Acrílico,"33,88","24,5 cm",,"1,2 L",grande,robe
 H.BRO.ROB4,Roberta pitcher green,Acrílico,"33,88","24,5 cm",,"1,2 L",grande,roberta-verde-1575.jpg
 H.BRO.ROB6,Roberta pitcher blue,Acrílico,"33,88","24,5 cm",,"1,2 L",grande,roberta-blu-1572.jpg
 H.BRO.SIS1,Sister Rosetta pitcher white gloss,Acrílico,"47,00",22 cm,,"2,4 L",grande,sisterrosetta-bianco-2440.jpg
-H.BRO.SIS10,Sister Rosetta pitcher fuxia fluo,Acrílico,"47,00",22 cm,,"2,4 L",grande,sisterrosetta-arancio-fluo-2445.jpg
+H.BRO.SIS10,Sister Rosetta pitcher fuxia fluo,Acrílico,"47,00",22 cm,,"2,4 L",grande,sisterrosetta-fuxia-fluo-2444.jpg
 H.BRO.SIS2,Sister Rosetta pitcher green,Acrílico,"47,00",22 cm,,"2,4 L",grande,sisterrosetta-verde-2439.jpg
 H.BRO.SIS3,Sister Rosetta pitcher clear,Acrílico,"47,00",22 cm,,"2,4 L",grande,sisterrosetta-trasparente-2438.jpg
 H.BRO.SIS4,Sister Rosetta pitcher ruby,Acrílico,"47,00",22 cm,,"2,4 L",grande,sisterrosetta-rubino-2441.jpg
@@ -409,11 +409,11 @@ H.COR.RAN4,Ranieri photo frame blue,Acrílico,"78,65",,,,,
 H.COR.RAN5,Ranieri photo frame grey,Acrílico,"78,65",,,,,
 H.COR.RAN2,Ranieri photo frame red,Acrílico,"78,65",,,,,
 H.COR.RAN1,Ranieri photo frame clear,Acrílico,"78,65",,,,,
-H.INS.CHU6,Churchill salad bowl gold,Acrílico,"43,56",12 cm,"25,5 cm",,grande,churchill-oro-2297.jpg
-H.INS.CHU1,Churchill sald bowl red,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-rosso-2098.jpg
-H.INS.CHU5,Churchill salad bowl white,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-bianco-2095.jpg
-H.INS.CHU2,Churchill sald bowl clear,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-trasparente-2099.jpg
-H.INS.CHU4,Churchill salad bowl green,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-verde-2101.jpg
+H.INS.CHU6,Churchill salad bowl gold,Acrílico,"43,56",12 cm,"25,5 cm",,grande,churchill-oro-2297-g1-v.jpg
+H.INS.CHU1,Churchill sald bowl red,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-rosso-2098-g1-v.jpg
+H.INS.CHU5,Churchill salad bowl white,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-bianco-2095-g1-v.jpg
+H.INS.CHU2,Churchill sald bowl clear,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-trasparente-2099-g1-v.jpg
+H.INS.CHU4,Churchill salad bowl green,Acrílico,"36,30",12 cm,"25,5 cm",,grande,churchill-verde-2101-g1-v.jpg
 H.INS.CHU11,Elena small bowl gold,Acrílico,"11,00",7 cm,14 cm,,pequeño,churchill-piccola-oro-2270.jpg
 H.INS.CHU12,Elena small bowl red,Acrílico,"11,00",7 cm,14 cm,,pequeño,churchill-piccola-rosso-2272.jpg
 H.INS.CHU9,Elena small bowl clear,Acrílico,"11,00",7 cm,14 cm,,pequeño,churchill-piccola-trasparente-2275.jpg
@@ -583,7 +583,7 @@ H.PIA.MAR14,Marinella medium plate Green,Melamina,"12,65",,27 cm,,grande,marinel
 H.PIA.PAN25,Lillybet soup plate,Melamina,"10,12",,19 cm,,pequeño,lillybet-fondo-2453.jpg
 H.PIA.PAN26,Lillybet small plate,Melamina,"10,12",,23 cm,,mediano,lillybet-frutta-2454.jpg
 H.PIA.PAN27,Lillybet medium plate,Melamina,"12,65",,27 cm,,grande,lillybet-medio-2455.jpg
-H.PIA.PAN28,Lillybet underplate,Melamina,"21,78",,,,,lillybet-sottopiatto-2500.jpg
+H.PIA.PAN28,Lillybet underplate,Melamina,"21,78",,,,,lillybetsottopiatti-bianco-2456.jpg
 H.PIA.PAN2,Pancale soup plate orange,Melamina,"10,12",,19 cm,,pequeño,pancale-arancio-fondo-2300.jpg
 H.PIA.PAN1,Pancale soup plate white,Melamina,"10,12",,19 cm,,pequeño,pancale-bianco-fondo-2303.jpg
 H.PIA.PAN21,Pancale soup plate blue,Melamina,"10,12",,19 cm,,pequeño,pancaleblu-fondo-2451.jpg
@@ -608,7 +608,7 @@ H.PIA.PAN20,Pancale underplate yellow,Melamina,"21,78",,,,,pancale-sottopiatti-g
 H.PIA.PAN18,Pancale underplate turquoise,Melamina,"21,78",,,,,pancale-sottopiatti-turchese-2319.jpg
 H.PIA.PAT5,Patagonia soup plate yellow,Melamina,"10,12",,19 cm,,pequeño,patagonia-giallo-fondo-2187.jpg
 H.PIA.PAT3,Patagonia soup plate green,Melamina,"10,12",,19 cm,,pequeño,patagonia-verde-fondo-2193.jpg
-H.PIA.PAT7,Patagonia small plate blue,Melamina,"10,12",,23 cm,,mediano,patagonia-blu-bianco-2186.jpg
+H.PIA.PAT7,Patagonia small plate blue,Melamina,"10,12",,23 cm,,mediano,patagonia-blu-frutta-2184.jpg
 H.PIA.PAT10,Patagonia small plate yellow,Melamina,"10,12",,23 cm,,mediano,patagonia-giallo-frutta-2189.jpg
 H.PIA.PAT8,Patagonia small plate green,Melamina,"10,12",,23 cm,,mediano,patagonia-verde-frutta-2194.jpg
 H.PIA.PAT12,Patagonia medium plate blue,Melamina,"12,65",,27 cm,,grande,patagonia-blu-medio-2185.jpg
