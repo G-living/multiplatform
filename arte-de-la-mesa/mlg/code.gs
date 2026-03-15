@@ -927,7 +927,7 @@ function _getInfluencer(codigo) {
   const codigoNorm = String(codigo).trim().toUpperCase();
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][colCod]).trim().toUpperCase() !== codigoNorm) continue;
-    const estado   = String(data[i][colEstado] || '').trim();
+    const estado   = String(data[i][colEstado] || '').trim().toUpperCase();
     const isActive = estado === 'ACTIVO';
     const nombre   = [data[i][colNombre] || '', data[i][colApellido] || '']
       .filter(Boolean).join(' ');
@@ -2123,7 +2123,13 @@ function _emailInfluencerVenta(inflCodigo, opts) {
   if (!inflCodigo) return;
   try {
     const infl = _getInfluencer(inflCodigo);
-    if (!infl.valid || !infl.email) return;
+    if (!infl.valid || !infl.email) {
+      _log('emailInfluencerVenta_SKIP', inflCodigo,
+           `valid:${infl.valid}`,
+           infl.email ? 'email:OK' : 'email:MISSING',
+           infl.reason || infl.error || '');
+      return;
+    }
 
     const inflEmail   = infl.email;
     const inflNombre  = (infl.nombre || '').split(' ')[0] || infl.nombre || 'influencer';
@@ -2168,7 +2174,7 @@ function _emailInfluencerVenta(inflCodigo, opts) {
     GmailApp.sendEmail(inflEmail, `Nueva venta con tu codigo ${inflCodigo} — ${CFG.NOMBRE_TIENDA}`, '', { htmlBody: body });
     _log('emailInfluencerVenta', inflCodigo, inflEmail, ref);
   } catch(err) {
-    _log('emailInfluencerVenta_ERROR', String(err.message), inflCodigo);
+    _log('emailInfluencerVenta_ERROR', inflCodigo, String(err.message), String(err.stack || '').slice(0, 200));
   }
 }
 

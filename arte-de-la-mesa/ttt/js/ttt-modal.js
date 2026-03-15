@@ -1,4 +1,4 @@
-// @version    v3.0  @file ttt-modal.js  @updated 2026-03-14  @session fix-mlg-404-error-aSVYy
+// @version    v3.1  @file ttt-modal.js  @updated 2026-03-15  @session fix-mlg-404-error-aSVYy
 /* ===== TTT - ttt-modal.js =====
  * Modal producto TTT — modales estáticos en HTML, eventos enlazados en _bindEvents()
  *  - Imagen principal: fotos del producto
@@ -12,7 +12,7 @@
  *  - Modal Carrito: detalle + [Wishlist WA] + [Pagar Wompi]
  *  - Modal Checkout WA: formulario cliente → WhatsApp + Sheets
  *  - Modal Checkout Wompi: formulario cliente → bono/influencer → Wompi
- * v3.0: checkout completo WA + Wompi (sin Google Places, sin Gift Card)
+ * v3.1: Google Places API + Modal Legal (TyC/Datos/Gift Card)
  * ============================================ */
 
 'use strict';
@@ -37,6 +37,9 @@ const Modal = (() => {
   let _ckBono       = null;   // { code, available }
   let _ckInfluencer = null;   // { codigo, descuentoPct, comisionPct }
   let _ckSubtotal   = 0;
+
+  // ---- Google Places — instancias activas por inputId ----
+  const _pacInstances = {};
 
   // -------------------------------------------------------
   // HELPERS APERTURA / CIERRE
@@ -178,6 +181,38 @@ const Modal = (() => {
     });
     document.getElementById('wpInputEmailConf')?.addEventListener('input', () => {
       _validateCMOField('wpInputEmailConf', 'wp');
+    });
+
+    // ── Modal Legal ──
+    document.getElementById('btnOpenTyCWA')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplTyC', 'Términos y Condiciones Generales');
+    });
+    document.getElementById('btnOpenTyC')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplTyC', 'Términos y Condiciones Generales');
+    });
+    document.getElementById('btnOpenTyC')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _openLegal('tplTyC', 'Términos y Condiciones Generales'); }
+    });
+    document.getElementById('btnOpenDatos')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplDatos', 'Tratamiento de Datos Personales — Ley Habeas Data');
+    });
+    document.getElementById('btnOpenDatos')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _openLegal('tplDatos', 'Tratamiento de Datos Personales — Ley Habeas Data'); }
+    });
+    document.getElementById('btnOpenTyCGift')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplTyCGift', 'Términos y Condiciones — Gift Card');
+    });
+    document.getElementById('btnOpenDatosGift')?.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      _openLegal('tplDatos', 'Tratamiento de Datos Personales — Ley Habeas Data');
+    });
+    document.getElementById('btnCloseLegal')?.addEventListener('click', _closeLegal);
+    document.getElementById('modalLegal')?.addEventListener('click', e => {
+      if (e.target === document.getElementById('modalLegal')) _closeLegal();
     });
 
     // Escape global — cierra el modal más interno
@@ -494,6 +529,103 @@ const Modal = (() => {
   }
 
   // ═══════════════════════════════════════════════════════
+  // MODAL LEGAL
+  // ═══════════════════════════════════════════════════════
+  function _openLegal(tplId, title) {
+    const tpl = document.getElementById(tplId);
+    const overlay = document.getElementById('modalLegal');
+    const content = document.getElementById('modalLegalContent');
+    const titleEl = document.getElementById('modalLegalTitle');
+    if (!tpl || !overlay || !content) return;
+    if (titleEl) titleEl.textContent = title || 'Información Legal';
+    content.innerHTML = '';
+    content.appendChild(tpl.content.cloneNode(true));
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function _closeLegal() {
+    const overlay = document.getElementById('modalLegal');
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // GOOGLE PLACES — widget oficial Autocomplete (Places API New, importLibrary)
+  // ═══════════════════════════════════════════════════════
+  async function _initPlacesAutocomplete(dirInputId, barrioInputId, ciudadInputId) {
+    try {
+      await google.maps.importLibrary('places');
+    } catch(e) {
+      Logger.warn('ttt-modal.js: google.maps.importLibrary no disponible, reintentando…');
+      setTimeout(() => _initPlacesAutocomplete(dirInputId, barrioInputId, ciudadInputId), 500);
+      return;
+    }
+
+    const input = document.getElementById(dirInputId);
+    if (!input || input.dataset.pacInit) return;
+    input.dataset.pacInit = '1';
+    input.setAttribute('autocomplete', 'off');
+
+    const ac = new google.maps.places.Autocomplete(input, {
+      componentRestrictions: { country: 'co' },
+      fields: ['address_components', 'formatted_address'],
+      types:  ['address'],
+    });
+
+    ac.addListener('place_changed', () => {
+      const place = ac.getPlace();
+      if (!place || !place.address_components) {
+        Logger.warn('ttt-modal.js: Places place_changed sin address_components');
+        return;
+      }
+
+      const components = place.address_components;
+      let via    = '';
+      let numero = '';
+      let barrio = '';
+      let ciudad = '';
+
+      components.forEach(comp => {
+        const types = comp.types || [];
+        const txt   = comp.long_name || '';
+        if (types.includes('route'))          via    = txt;
+        if (types.includes('street_number'))  numero = txt;
+        if (!barrio && (
+          types.includes('neighborhood')        ||
+          types.includes('sublocality_level_1') ||
+          types.includes('sublocality_level_2') ||
+          types.includes('sublocality')
+        )) barrio = txt;
+        if (!ciudad && (
+          types.includes('locality') ||
+          types.includes('administrative_area_level_2')
+        )) ciudad = txt;
+      });
+
+      const dirFormatted = via
+        ? via + (numero ? ' # ' + numero : '')
+        : (place.formatted_address || '').split(',')[0].trim();
+      input.value = dirFormatted;
+
+      const barrioEl = document.getElementById(barrioInputId);
+      if (barrioEl) {
+        if (barrio) {
+          barrioEl.value = barrio;
+        } else {
+          const parts = (place.formatted_address || '').split(',');
+          if (parts.length >= 2) barrioEl.value = parts[1].trim();
+        }
+      }
+
+      const ciudadEl = document.getElementById(ciudadInputId);
+      if (ciudadEl && ciudad) ciudadEl.value = ciudad;
+
+      Logger.log('Places→', dirFormatted, '|', barrio, '|', ciudad);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
   // CHECKOUT — OPEN
   // ═══════════════════════════════════════════════════════
 
@@ -501,6 +633,7 @@ const Modal = (() => {
     _populateDias('waInputCumpleDia');
     _ckSubtotal = Cart.getTotal();
     _openModal('modalCheckoutWA');
+    _initPlacesAutocomplete('waInputDir', 'waInputBarrio', 'waInputCiudad');
     requestAnimationFrame(() => {
       _loadDraft();
       _bindDraftListeners();
@@ -518,9 +651,15 @@ const Modal = (() => {
     if (btn60)  btn60.disabled  = false;
     if (btn100) btn100.disabled = false;
     _openModal('modalCheckoutWompi');
+    _initPlacesAutocomplete('wpInputDir', 'wpInputBarrio', 'wpInputCiudad');
     requestAnimationFrame(() => {
       _loadDraft();
       _bindDraftListeners();
+      // Barrio y Ciudad los llena Places Autocomplete al escribir la dirección.
+      ['wpInputBarrio', 'wpInputCiudad'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
       // Auto-revalidar códigos si el usuario regresa de Wompi con "Regresar"
       const inflInput = document.getElementById('wpInputInfluencer');
       if (inflInput && inflInput.value.trim()) _applyInfluencer();
@@ -1266,4 +1405,4 @@ const Modal = (() => {
 })();
 
 window.Modal = Modal;
-Logger.log('ttt-modal.js v3.0 cargado ✓');
+Logger.log('ttt-modal.js v3.1 cargado ✓');
