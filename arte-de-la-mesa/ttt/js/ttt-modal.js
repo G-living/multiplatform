@@ -38,6 +38,13 @@ const Modal = (() => {
   let _ckInfluencer = null;   // { codigo, descuentoPct, comisionPct }
   let _ckSubtotal   = 0;
 
+  // ---- Estado Gift Card ----
+  let _giftValue      = 0;
+  let _giftCode       = '';
+  let _giftValidUntil = '';
+  let _giftLogoImg    = null;
+  let _giftLogoLoaded = false;
+
   // ---- Google Places — instancias activas por inputId ----
   const _pacInstances = {};
 
@@ -215,6 +222,12 @@ const Modal = (() => {
       if (e.target === document.getElementById('modalLegal')) _closeLegal();
     });
 
+    // Modal GIFT — abrir/cerrar
+    document.getElementById('giftButton')
+      ?.addEventListener('click', () => openGift());
+    document.getElementById('closeGift')?.addEventListener('click', () => _closeModal('modalGift'));
+    document.getElementById('modalGiftOverlay')?.addEventListener('click', () => _closeModal('modalGift'));
+
     // Escape global — cierra el modal más interno
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
@@ -223,6 +236,7 @@ const Modal = (() => {
       if (document.getElementById('tttModalCart')?.classList.contains('is-open'))         { _closeModal('tttModalCart');           return; }
       if (document.getElementById('modalCheckoutWA')?.classList.contains('is-open'))      { _resetWAModal(); _closeModal('modalCheckoutWA');    return; }
       if (document.getElementById('modalCheckoutWompi')?.classList.contains('is-open'))   { _closeModal('modalCheckoutWompi');     return; }
+      if (document.getElementById('modalGift')?.classList.contains('is-open'))            { _closeModal('modalGift');             return; }
     });
 
     // Restaurar modal Wompi si el usuario vuelve con "Regresar" del navegador
@@ -1386,10 +1400,485 @@ const Modal = (() => {
     window.location.href = `ttt-checkout.html?reference=${encodeURIComponent(reference)}&transaction_status=APPROVED&giftPaid=1`;
   }
 
+  // ═══════════════════════════════════════════════════════
+  // GIFT CARD — COMPRA
+  // ═══════════════════════════════════════════════════════
+
+  // ── Genera código alfanumérico tipo HC-XXXXXXXX ──
+  function _generateGiftCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'HC-';
+    for (let i = 0; i < 8; i++) {
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
+  }
+
+  // ── Fecha vigencia +9 meses ──
+  function _giftVigencia() {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 9);
+    const meses = ['ene','feb','mar','abr','may','jun',
+                   'jul','ago','sep','oct','nov','dic'];
+    return `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  // ── Dibuja la tarjeta en el canvas (base sin logo) ──
+  function _drawGiftCardBase(ctx, W, H, amount) {
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0,   '#0a0a0a');
+    grad.addColorStop(0.5, '#1a1610');
+    grad.addColorStop(1,   '#0a0a0a');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    _roundRect(ctx, 0, 0, W, H, 22);
+    ctx.fill();
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(196,160,90,0.07)';
+    ctx.lineWidth   = 0.8;
+    const step = 38;
+    for (let x = -H; x < W + H; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + H, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x - H, H); ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(196,160,90,0.5)';
+    ctx.lineWidth   = 1.5;
+    ctx.beginPath();
+    _roundRect(ctx, 4, 4, W - 8, H - 8, 19);
+    ctx.stroke();
+    ctx.restore();
+
+    const BAND_H = 82;
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(22, 4);
+    ctx.lineTo(W - 22, 4);
+    ctx.quadraticCurveTo(W - 4, 4, W - 4, 22);
+    ctx.lineTo(W - 4, BAND_H);
+    ctx.lineTo(4, BAND_H);
+    ctx.lineTo(4, 22);
+    ctx.quadraticCurveTo(4, 4, 22, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(196,160,90,0.5)';
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(4, BAND_H);
+    ctx.lineTo(W - 4, BAND_H);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = 'bold 42px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('GIFT CARD', W / 2, H / 2 + 30);
+    ctx.restore();
+
+    const amountStr = amount > 0
+      ? '$ ' + amount.toLocaleString('es-CO')
+      : '$ — — —';
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = '600 28px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(amountStr, W / 2, H - 86);
+    ctx.restore();
+
+    if (_giftCode) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.font      = '14px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(_giftCode, W / 2, H - 54);
+      ctx.restore();
+    }
+
+    if (_giftValidUntil) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,0.38)';
+      ctx.font      = '12px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Válido hasta: ' + _giftValidUntil, W / 2, H - 30);
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(196,160,90,0.6)';
+    ctx.lineWidth   = 1.2;
+    ctx.beginPath(); ctx.arc(W - 36, H - 36, 14, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(W - 36, H - 36, 9,  0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+  }
+
+  function _loadGiftLogo(callback) {
+    if (_giftLogoLoaded) { callback(_giftLogoImg); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = 'images/branding/Logo-HC.jpeg';
+    img.onload  = () => { _giftLogoImg = img; _giftLogoLoaded = true; callback(img); };
+    img.onerror = () => { _giftLogoLoaded = true; _giftLogoImg = null; callback(null); };
+  }
+
+  function _drawLogoOnCard(ctx, W, BAND_H, img) {
+    if (!img) {
+      ctx.save();
+      ctx.fillStyle   = '#1a1610';
+      ctx.font        = 'bold 17px Georgia, serif';
+      ctx.textAlign   = 'center';
+      ctx.letterSpacing = '3px';
+      ctx.fillText('G-LIVING', W / 2, BAND_H / 2 + 7);
+      ctx.restore();
+      return;
+    }
+    const PAD   = 18;
+    const maxW  = W - PAD * 2;
+    const maxH  = BAND_H - PAD * 2;
+    const ratio = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+    const dw    = img.naturalWidth  * ratio;
+    const dh    = img.naturalHeight * ratio;
+    const dx    = (W - dw) / 2;
+    const dy    = PAD + (maxH - dh) / 2;
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  function _drawGiftCard(amount) {
+    const canvas = document.getElementById('giftCanvas');
+    if (!canvas) return;
+    const ctx    = canvas.getContext('2d');
+    const W      = canvas.width;
+    const H      = canvas.height;
+    const BAND_H = 82;
+    _loadGiftLogo(logoImg => {
+      ctx.clearRect(0, 0, W, H);
+      _drawGiftCardBase(ctx, W, H, amount);
+      _drawLogoOnCard(ctx, W, BAND_H, logoImg);
+    });
+  }
+
+  function _roundRect(ctx, x, y, w, h, r) {
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function _formatAmountInput(raw) {
+    const digits = raw.replace(/\D/g, '');
+    if (!digits) return '';
+    return parseInt(digits, 10).toLocaleString('es-CO');
+  }
+
+  function _parseAmountInput(formatted) {
+    return parseInt(formatted.replace(/\./g, '').replace(/\D/g, ''), 10) || 0;
+  }
+
+  function openGift() {
+    _giftValue      = 0;
+    _giftCode       = '';
+    _giftValidUntil = '';
+
+    const amountEl = document.getElementById('giftAmount');
+    if (amountEl) amountEl.value = '500.000';
+    const errEl   = document.getElementById('giftErrAmount');
+    if (errEl) errEl.textContent = '';
+
+    _giftValue      = 500000;
+    _giftCode       = _generateGiftCode();
+    _giftValidUntil = _giftVigencia();
+    const codeEl  = document.getElementById('giftCodeDisplay');
+    const validEl = document.getElementById('giftValidUntil');
+    const infoEl  = document.getElementById('giftCardInfo');
+    const nextBtn = document.getElementById('giftBtnNext');
+    if (codeEl)  codeEl.textContent  = _giftCode;
+    if (validEl) validEl.textContent = _giftValidUntil;
+    if (infoEl)  infoEl.style.display = 'block';
+    if (nextBtn) nextBtn.disabled = false;
+
+    _giftShowStep(1);
+    _openModal('modalGift');
+
+    requestAnimationFrame(() => {
+      _loadDraft();
+      _bindDraftListeners();
+      ['gfBarrio', 'gfCiudad'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+    });
+
+    setTimeout(() => _drawGiftCard(500000), 80);
+  }
+
+  function _giftShowStep(n) {
+    document.getElementById('giftStep1').style.display = n === 1 ? 'block' : 'none';
+    document.getElementById('giftStep2').style.display = n === 2 ? 'block' : 'none';
+  }
+
+  function _bindGiftEvents() {
+    document.getElementById('giftAmount')?.addEventListener('input', e => {
+      const raw       = e.target.value;
+      const formatted = _formatAmountInput(raw);
+      e.target.value  = formatted;
+      const amount    = _parseAmountInput(formatted);
+      const errEl     = document.getElementById('giftErrAmount');
+      const infoEl    = document.getElementById('giftCardInfo');
+      const nextBtn   = document.getElementById('giftBtnNext');
+
+      if (amount > 0 && amount < 200000) {
+        if (errEl)   errEl.textContent = 'Valor mínimo $200.000';
+        if (nextBtn) nextBtn.disabled  = true;
+        _giftValue = 0; _giftCode = ''; _giftValidUntil = '';
+        if (infoEl) infoEl.style.display = 'none';
+        _drawGiftCard(amount);
+        return;
+      }
+      if (amount > 10000000) {
+        if (errEl)   errEl.textContent = 'Valor máximo $10.000.000';
+        if (nextBtn) nextBtn.disabled  = true;
+        _giftValue = 0; _giftCode = ''; _giftValidUntil = '';
+        if (infoEl) infoEl.style.display = 'none';
+        _drawGiftCard(amount);
+        return;
+      }
+      if (errEl) errEl.textContent = '';
+
+      if (amount >= 200000) {
+        _giftValue = amount;
+        if (!_giftCode) { _giftCode = _generateGiftCode(); _giftValidUntil = _giftVigencia(); }
+        const codeEl  = document.getElementById('giftCodeDisplay');
+        const validEl = document.getElementById('giftValidUntil');
+        if (codeEl)  codeEl.textContent  = _giftCode;
+        if (validEl) validEl.textContent = _giftValidUntil;
+        if (infoEl)  infoEl.style.display = 'block';
+        if (nextBtn) nextBtn.disabled = false;
+      } else {
+        _giftValue = 0; _giftCode = ''; _giftValidUntil = '';
+        if (infoEl)  infoEl.style.display = 'none';
+        if (nextBtn) nextBtn.disabled = true;
+      }
+      _drawGiftCard(amount);
+    });
+
+    document.getElementById('giftBtnNext')?.addEventListener('click', () => {
+      if (_giftValue < 200000 || _giftValue > 10000000) return;
+      const label = '$ ' + _giftValue.toLocaleString('es-CO');
+      const selEl = document.getElementById('giftSelectedLabel');
+      const totEl = document.getElementById('giftTotalDisplay');
+      if (selEl) selEl.textContent = label;
+      if (totEl) totEl.textContent = Utils.formatPrice(_giftValue);
+      _giftShowStep(2);
+      setTimeout(() => _initPlacesAutocomplete('gfDir', 'gfBarrio', 'gfCiudad'), 100);
+    });
+
+    document.getElementById('giftBtnBack')?.addEventListener('click', () => {
+      _giftShowStep(1);
+      const amountEl = document.getElementById('giftAmount');
+      if (amountEl && !amountEl.value && _giftValue) amountEl.value = _giftValue;
+      setTimeout(() => _drawGiftCard(_giftValue), 60);
+    });
+
+    document.getElementById('gfEmailConf')?.addEventListener('input', () => _validateGiftField('gfEmailConf'));
+
+    ['gfNombre','gfApellido','gfCumpleDia','gfCumpleMes','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
+     'gfRecNombre','gfRecApellido','gfRecEmail','gfRecTel'].forEach(id => {
+      document.getElementById(id)?.addEventListener('blur', () => _validateGiftField(id));
+    });
+
+    document.getElementById('formGift')?.addEventListener('submit', _handleSubmitGift);
+  }
+
+  function _validateGiftField(id) {
+    const el    = document.getElementById(id);
+    if (!el) return true;
+    const key   = id.replace('gf', '');
+    const errEl = document.getElementById('gfErr' + key);
+    let msg = '';
+
+    if (el.required && !el.value.trim()) {
+      msg = 'Campo obligatorio';
+    } else if (id === 'gfTipoDoc' && el.required && !el.value) {
+      msg = 'Selecciona un tipo';
+    } else if (id === 'gfNumDoc' && el.value.trim()) {
+      if (!/^\d{4,15}$/.test(el.value.trim())) msg = 'Solo números, 4-15 dígitos';
+    } else if ((id === 'gfNombre' || id === 'gfApellido') && el.value.trim()) {
+      const r = _CMO_VALIDATORS.nombre(el.value);
+      if (r !== true) msg = r;
+    } else if (id === 'gfEmail' && el.value) {
+      const r = _CMO_VALIDATORS.email(el.value);
+      if (r !== true) msg = r;
+    } else if (id === 'gfEmailConf' && el.value) {
+      const mainEl = document.getElementById('gfEmail');
+      const okEl   = document.getElementById('gfOkEmailConf');
+      if (mainEl && el.value !== mainEl.value) {
+        msg = 'Los emails no coinciden';
+        if (okEl) okEl.style.display = 'none';
+      } else if (mainEl && el.value === mainEl.value) {
+        if (okEl) okEl.style.display = 'block';
+      }
+    } else if (id === 'gfTel' && el.value) {
+      const r = _CMO_VALIDATORS.telefono(el.value);
+      if (r !== true) msg = r;
+    } else if (id === 'gfDir' && el.required && !el.value.trim()) {
+      msg = 'Campo obligatorio';
+    } else if ((id === 'gfBarrio' || id === 'gfCiudad') && el.required) {
+      if (!el.value.trim()) {
+        msg = 'Campo obligatorio';
+      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-\.]+$/.test(el.value.trim())) {
+        msg = 'Solo se permiten letras';
+      }
+    } else if ((id === 'gfRecNombre' || id === 'gfRecApellido') && el.required) {
+      if (!el.value.trim()) {
+        msg = 'Campo obligatorio';
+      } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-]+$/.test(el.value.trim())) {
+        msg = 'Solo se permiten letras';
+      }
+    } else if (id === 'gfRecTel' && el.required) {
+      if (!el.value.trim()) {
+        msg = 'Campo obligatorio';
+      } else {
+        const r = _CMO_VALIDATORS.telefono(el.value);
+        if (r !== true) msg = r;
+      }
+    } else if (id === 'gfRecEmail' && el.required) {
+      if (!el.value.trim()) {
+        msg = 'Campo obligatorio';
+      } else {
+        const r = _CMO_VALIDATORS.email(el.value);
+        if (r !== true) msg = r;
+      }
+    } else if ((id === 'gfCumpleDia' || id === 'gfCumpleMes') && el.required) {
+      if (!el.value) msg = 'Campo obligatorio';
+    }
+
+    if (errEl) errEl.textContent = msg;
+    el.classList.toggle('cmo-input-error', !!msg);
+    return !msg;
+  }
+
+  function _validateGiftForm() {
+    let ok = true;
+    ['gfNombre','gfApellido','gfCumpleDia','gfCumpleMes','gfTipoDoc','gfNumDoc','gfEmail','gfEmailConf','gfTel','gfDir','gfBarrio','gfCiudad',
+     'gfRecNombre','gfRecApellido','gfRecEmail','gfRecTel'].forEach(id => {
+      if (!_validateGiftField(id)) ok = false;
+    });
+    const tyc    = document.getElementById('gfCheckTyC');
+    const tycErr = document.getElementById('gfErrTyC');
+    if (tyc && !tyc.checked) {
+      if (tycErr) tycErr.textContent = 'Debes aceptar los términos y condiciones';
+      ok = false;
+    } else {
+      if (tycErr) tycErr.textContent = '';
+    }
+    return ok;
+  }
+
+  async function _handleSubmitGift(e) {
+    e.preventDefault();
+    if (!_validateGiftForm()) return;
+
+    const btn = document.getElementById('giftBtnPagar');
+    if (btn) { btn.disabled = true; btn.textContent = 'Procesando…'; }
+
+    const amount    = parseFloat(_giftValue);
+    const amountCts = Math.round(amount * 100);
+    const reference = `GIFT-${Date.now()}`;
+    const cfg       = TTT_CONFIG.checkout;
+
+    const nombre    = document.getElementById('gfNombre')?.value.trim() || '';
+    const apellido  = document.getElementById('gfApellido')?.value.trim() || '';
+    const cumpleDia = document.getElementById('gfCumpleDia')?.value.trim() || '';
+    const cumpleMes = document.getElementById('gfCumpleMes')?.value || '';
+    const tipoDoc   = document.getElementById('gfTipoDoc')?.value || '';
+    const numDoc    = document.getElementById('gfNumDoc')?.value.trim() || '';
+    const email     = document.getElementById('gfEmail')?.value.trim() || '';
+    const tel       = document.getElementById('gfTel')?.value.trim() || '';
+    const pais      = document.getElementById('gfPais')?.value || '+57';
+    const dir       = document.getElementById('gfDir')?.value.trim() || '';
+    const barrio    = document.getElementById('gfBarrio')?.value.trim() || '';
+    const ciudad    = document.getElementById('gfCiudad')?.value.trim() || '';
+    const recNom    = document.getElementById('gfRecNombre')?.value.trim() || '';
+    const recApe    = document.getElementById('gfRecApellido')?.value.trim() || '';
+    const recEmail  = document.getElementById('gfRecEmail')?.value.trim() || '';
+    const recPais   = document.getElementById('gfRecPais')?.value || '+57';
+    const recTel    = document.getElementById('gfRecTel')?.value.trim() || '';
+    const mensaje   = document.getElementById('gfMensaje')?.value.trim() || '';
+
+    const _giftPayload = {
+      referencia:   reference,
+      codigo:       _giftCode,
+      vigencia:     _giftValidUntil,
+      valor:        amount,
+      campaniaId:   TTT_CONFIG?.campania?.id  || '',
+      catalogoId:   TTT_CONFIG?.catalogo?.id  || '',
+      emisor:       { nombre, apellido, cumpleDia, cumpleMes, tipoDoc, numDoc, email, telefono: pais + tel, direccion: dir, barrio, ciudad },
+      destinatario: { nombre: recNom, apellido: recApe, email: recEmail, telefono: recPais + recTel },
+      mensaje,
+    };
+    const _giftPayloadStr = JSON.stringify(_giftPayload);
+    try { sessionStorage.setItem('ttt_gift_payload', _giftPayloadStr); } catch(e) {}
+    try { localStorage.setItem('ttt_gift_payload',   _giftPayloadStr); } catch(e) {}
+    try { localStorage.setItem('ttt_gift_' + reference, _giftPayloadStr); } catch(e) {}
+
+    let signature = null;
+    await Promise.all([
+      Api.createGiftCard(_giftPayload)
+        .catch(err => Logger.warn('ttt-modal.js: createGiftCard pre-redirect error', err)),
+      (async () => {
+        try {
+          const resp = await fetch(cfg.signatureWorkerUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference, amountInCents: amountCts, currency: cfg.currency, apiToken: cfg.apiToken }),
+          });
+          if (resp.ok) {
+            const r = await resp.json();
+            signature = r.integritySignature || null;
+          }
+        } catch(err) { Logger.warn('ttt-modal.js: error firma gift', err); }
+      })(),
+    ]);
+
+    const params = new URLSearchParams({
+      'public-key':      cfg.wompiPublicKey,
+      'currency':        cfg.currency,
+      'amount-in-cents': amountCts,
+      'reference':       reference,
+      'redirect-url':    cfg.checkoutUrl + (cfg.checkoutUrl.includes('?') ? '&' : '?') + 'isGiftCard=1',
+    });
+    if (signature) params.set('signature:integrity', signature);
+    if (nombre)    params.set('customer-data:full-name', `${nombre} ${apellido}`);
+    if (email)     params.set('customer-data:email', email);
+    if (tel)       params.set('customer-data:phone-number', `${pais}${tel}`);
+
+    Logger.log('ttt-modal.js: gift card → Wompi', { reference, amountCts });
+    try { sessionStorage.removeItem('ttt_wompi_redirect'); } catch(e) {}
+    try { sessionStorage.setItem('ttt_gift_redirect', reference); } catch(e) {}
+    try { localStorage.setItem('ttt_gift_redirect', reference); }   catch(e) {}
+    window.location.href = `${cfg.wompiCheckoutUrl}?${params.toString()}`;
+  }
+
   // -------------------------------------------------------
   // INIT
   // -------------------------------------------------------
-  document.addEventListener('DOMContentLoaded', _bindEvents);
+  document.addEventListener('DOMContentLoaded', () => {
+    _bindEvents();
+    _bindGiftEvents();
+  });
 
   // -------------------------------------------------------
   // API PÚBLICA
@@ -1400,6 +1889,7 @@ const Modal = (() => {
     openZoom,
     openCheckoutWA,
     openCheckoutWompi,
+    openGift,
   };
 
 })();
