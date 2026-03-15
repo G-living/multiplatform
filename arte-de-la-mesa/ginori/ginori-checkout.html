@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GINORI — Confirmación de pedido</title>
+  <meta name="description" content="Confirmación de tu pedido GINORI by G-Living.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="images/favicon/001.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/checkout.css">
+</head>
+<body>
+
+  <header class="site-header">
+
+    <!-- ── GALLERY SLIDER ── -->
+    <div class="header-slider" id="headerSlider" aria-label="Galería de imágenes">
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-slide" aria-hidden="false">
+          <img src="images/gallery/bodas/boda.png"
+               alt="Lista de bodas — G-Living"
+               class="slider-img">
+        </div>
+        <div class="slider-slide" aria-hidden="true">
+          <img src="images/gallery/visitanos/visitanos.png"
+               alt="Visítanos — Calle 70 # 9-87 Bogotá"
+               class="slider-img">
+        </div>
+        <div class="slider-slide" aria-hidden="true">
+          <img src="images/gallery/prodcutobrand/producto.png"
+               alt="Nuestros productos artísticos"
+               class="slider-img">
+        </div>
+      </div>
+      <div class="slider-dots" role="tablist" aria-label="Navegar galería">
+        <button class="slider-dot is-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-idx="0"></button>
+        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 2" data-idx="1"></button>
+        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 3" data-idx="2"></button>
+      </div>
+    </div>
+
+    <!-- ── BRAND INFO ── -->
+    <div class="header-brand">
+      <img src="images/branding/Logo-G-living.jpeg"
+           alt="G-Living | Italian Living &amp; Design | Est. 2018"
+           class="header-logo-img"
+           onerror="this.style.display='none';document.getElementById('checkoutBrandFallback').style.display='block'">
+      <h1 class="brand-name" id="checkoutBrandFallback" style="display:none">G-Living | Italian Living &amp; Design</h1>
+      <p class="brand-description">
+        Cerámicas artísticas importadas directamente desde Italia.
+        Cada pieza única representa siglos de tradición cerámica.
+      </p>
+    </div>
+
+    <script>
+    (function() {
+      var current = 0, total = 3, interval = null;
+      function goTo(idx) {
+        document.querySelectorAll('.slider-slide').forEach(function(s,i){ s.classList.toggle('is-active', i===idx); s.setAttribute('aria-hidden', i!==idx); });
+        document.querySelectorAll('.slider-dot').forEach(function(d,i){ d.classList.toggle('is-active', i===idx); d.setAttribute('aria-selected', i===idx); });
+        current = idx;
+      }
+      function next(){ goTo((current+1)%total); }
+      function startAuto(){ interval = setInterval(next, 4000); }
+      function stopAuto(){ clearInterval(interval); }
+      document.addEventListener('DOMContentLoaded', function(){
+        goTo(0); startAuto();
+        document.querySelectorAll('.slider-dot').forEach(function(dot){
+          dot.addEventListener('click', function(){ stopAuto(); goTo(parseInt(this.dataset.idx)); startAuto(); });
+        });
+      });
+    })();
+    </script>
+
+  </header>
+
+  <main class="checkout-confirm-main">
+    <div class="checkout-confirm-card" id="confirmCard">
+
+      <!-- Botón X — cierra y vuelve al catálogo -->
+      <button class="confirm-close" id="confirmClose" aria-label="Cerrar y volver al catálogo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <div class="confirm-icon" id="confirmIcon">⏳</div>
+      <h2 class="confirm-title" id="confirmTitle">Verificando pago…</h2>
+      <div class="confirm-message" id="confirmMessage"></div>
+      <p class="confirm-ref" id="confirmRef"></p>
+      <div id="confirmActions" class="confirm-actions"></div>
+    </div>
+  </main>
+
+  <style>
+    .checkout-confirm-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 140px);
+      padding: 40px 16px;
+    }
+    .checkout-confirm-card {
+      position: relative;
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 56px 48px 48px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-large);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .checkout-confirm-card.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Botón X */
+    .confirm-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: var(--color-background);
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .confirm-close:hover {
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+    }
+    .confirm-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      display: block;
+      line-height: 1;
+    }
+    .confirm-title {
+      font-family: var(--font-display);
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-regular);
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+    }
+    .confirm-title--success { color: #2d7a4f; }
+    .confirm-title--error   { color: var(--color-error); }
+    .confirm-title--pending { color: #b07d2a; }
+    .confirm-message {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .confirm-ref {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+      font-family: monospace;
+      margin-bottom: 32px;
+      display: block;
+    }
+    .confirm-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 480px) {
+      .checkout-confirm-card { padding: 48px 20px 32px; }
+      .confirm-title { font-size: var(--font-size-xl); }
+    }
+  </style>
+
+  <script src="js/ginori-config.js?v=21.2"></script>
+  <script src="js/ginori-cart.js?v=21.2"></script>
+  <script src="js/ginori-api.js?v=21.2"></script>
+  <script src="js/ginori-checkout.js?v=21.3"></script>
+</body>
+</html>
