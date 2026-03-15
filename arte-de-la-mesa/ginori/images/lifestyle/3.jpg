@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
-  <rect width="800" height="600" fill="#FAFAF8"/>
-  <rect x="1" y="1" width="798" height="598" fill="none" stroke="#E8E8E6" stroke-width="2"/>
-  <line x1="0" y1="0" x2="800" y2="600" stroke="#E8E8E6" stroke-width="1"/>
-  <line x1="800" y1="0" x2="0" y2="600" stroke="#E8E8E6" stroke-width="1"/>
-  <text x="400" y="270" font-family="Georgia, serif" font-size="36" fill="#C9A96E" text-anchor="middle" letter-spacing="6">GINORI</text>
-  <text x="400" y="312" font-family="Arial, sans-serif" font-size="14" fill="#9B9B9B" text-anchor="middle" letter-spacing="2">G-Living | Italian Life Style &amp; Design</text>
-  <text x="400" y="342" font-family="Arial, sans-serif" font-size="12" fill="#C8C8C6" text-anchor="middle">Imagen pendiente</text>
-</svg>
