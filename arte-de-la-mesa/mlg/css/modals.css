@@ -981,11 +981,12 @@
     }
 
     .fv-row {
-        grid-template-columns: 1fr auto auto auto;
+        grid-template-columns: 32px 1fr auto auto auto;
         gap: 3px;
         padding: 4px 2px;
     }
 
+    .fv-thumb   { width: 28px; height: 28px; }
     .fv-price   { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-subtotal { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-name    { font-size: var(--font-size-xs); }
@@ -1590,8 +1591,21 @@ gmp-placeautocomplete::part(input):focus {
     border-bottom: 1px solid var(--color-border-light);
     background: var(--color-background-secondary);
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
+/* Nombre de colección — protagonista */
+.family-modal-collection {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    letter-spacing: 0.03em;
+}
+
+/* Familia — etiqueta discreta */
 .family-modal-label {
     font-family: var(--font-body);
     font-size: var(--font-size-xs);
@@ -1670,15 +1684,11 @@ gmp-placeautocomplete::part(input):focus {
     cursor: not-allowed;
 }
 
-/* Info producto */
-.family-modal-product-info {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-bottom: 1px solid var(--color-border-light);
+/* Bloque descripción bajo la foto: tipo + medidas + material */
+.family-modal-product-desc-bar {
+    padding: var(--spacing-xs) var(--spacing-md) 2px;
     flex-shrink: 0;
+    background: var(--color-background-secondary);
 }
 
 .family-modal-product-title {
@@ -1686,8 +1696,26 @@ gmp-placeautocomplete::part(input):focus {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-regular);
     color: var(--color-text-primary);
+    margin: 0 0 2px;
+}
+
+.family-modal-product-desc {
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
     margin: 0;
-    flex: 1;
+    letter-spacing: 0.01em;
+}
+
+/* Barra contador N/M */
+.family-modal-counter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 2px var(--spacing-md) var(--spacing-xs);
+    background: var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-border-light);
+    flex-shrink: 0;
 }
 
 .family-modal-counter {
@@ -1699,7 +1727,7 @@ gmp-placeautocomplete::part(input):focus {
 
 /* Share button — pie de la fotografía, alineado con el botón X */
 .btn-share {
-    display: none; /* JS lo muestra con 'flex' si navigator.share existe */
+    display: flex; /* siempre visible: Web Share en móvil, clipboard en desktop */
     position: absolute;
     bottom: var(--spacing-sm);
     right: var(--spacing-sm);
@@ -1777,10 +1805,10 @@ gmp-placeautocomplete::part(input):focus {
     padding: var(--spacing-xs) var(--spacing-sm);
 }
 
-/* Fila variante familia */
+/* Fila variante familia: miniatura | info | precio | qty | subtotal */
 .fv-row {
     display: grid;
-    grid-template-columns: 1fr auto auto auto;
+    grid-template-columns: 44px 1fr auto auto auto;
     align-items: center;
     gap: var(--spacing-xs);
     padding: 6px var(--spacing-xs);
@@ -1795,6 +1823,20 @@ gmp-placeautocomplete::part(input):focus {
 .fv-row:hover {
     background: var(--color-hover-overlay);
     border-radius: var(--radius-sm);
+}
+
+.fv-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    cursor: zoom-in;
+    transition: transform var(--transition-fast);
+    background: var(--color-background-secondary);
+}
+
+.fv-thumb:hover {
+    transform: scale(1.12);
 }
 
 .fv-comodin {
@@ -1909,13 +1951,14 @@ gmp-placeautocomplete::part(input):focus {
     }
 
     .fv-row {
-        grid-template-columns: 1fr auto auto auto;
+        grid-template-columns: 36px 1fr auto auto auto;
         gap: 4px;
         padding: 5px 4px;
     }
 
-    .fv-price { min-width: 64px; font-size: var(--font-size-xs); }
-    .fv-subtotal { min-width: 64px; font-size: var(--font-size-xs); }
+    .fv-thumb { width: 32px; height: 32px; }
+    .fv-price { min-width: 56px; font-size: var(--font-size-xs); }
+    .fv-subtotal { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-name { font-size: var(--font-size-xs); }
 
     .family-modal-footer {
