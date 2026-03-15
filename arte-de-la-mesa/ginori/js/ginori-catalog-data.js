@@ -238,7 +238,7 @@ const CATALOG_PRODUCTS = [
     familia: 'Bowls, ensaldera y fruteras',
     image:   'images/products/004RG00_FIN000010265G00172400_CMS_thumb.png',
     variants: [
-      { coleccion: 'FRUIT BOWL · D 5,51 in | H 1,57 in', sku: '004RG00 FCP000010140G00125600', foto_comodin: 'images/placeholder.svg', precio_cop: 1375000 },
+      { coleccion: 'FRUIT BOWL · D 5,51 in | H 1,57 in', sku: '004RG00 FCP000010140G00125600', foto_comodin: 'images/products/004RG00 FCP000010140G00135600-CMS_thumb.png', precio_cop: 1375000 },
       { coleccion: 'SALAD BOWL · D 10,43 in | H 3,78 in', sku: '004RG00 FIN000010265G00125600', foto_comodin: 'images/products/004RG00_FIN000010265G00172400_CMS_thumb.png', precio_cop: 5225000 },
       { coleccion: 'BOWL · D 8,46 in | H 4,53 in | C 65,94 fl.oz', sku: '020RG00 FG649901G00125600', foto_comodin: 'images/placeholder.svg', precio_cop: 8855000 },
       { coleccion: 'FRUIT BOWL · D 5,51 in | H 1,57 in', sku: '004RG00 FCP000010140G00125700', foto_comodin: 'images/placeholder.svg', precio_cop: 1375000 },
@@ -281,7 +281,7 @@ const CATALOG_PRODUCTS = [
       { coleccion: 'SQUARED VIDE POCHE · H 1,26 in | W 7,09 in', sku: '017RG02 FG6837010180G00125600', foto_comodin: 'images/placeholder.svg', precio_cop: 3740000 },
       { coleccion: 'VIDE POCHE SQUARED · H 1,73 in | W 5,31 in', sku: '172RG01 FCP2200113XG00125600', foto_comodin: 'images/placeholder.svg', precio_cop: 1815000 },
       { coleccion: 'VIDE POCHE SQUARED · H 1,38 in | W 9,65 in', sku: '017RG02 FG6836010245G00125600', foto_comodin: 'images/products/017RG02_FG6836010245M00129000_1.png', precio_cop: 4070000 },
-      { coleccion: 'VIDE POCHE SQUARED · H 0,91 in | W 12,17 in', sku: '172RG01 FVS1210130XG00125600', foto_comodin: 'images/placeholder.svg', precio_cop: 4015000 },
+      { coleccion: 'VIDE POCHE SQUARED · H 0,91 in | W 12,17 in', sku: '172RG01 FVS1210130XG00125600', foto_comodin: 'images/products/172RG01_FVS1210130XG00129100_web_thumbnail (1).png', precio_cop: 4015000 },
       { coleccion: 'ROUND BOX · D 5,2 in | H 2,09 in', sku: '017RG02 FX508001G00125600', foto_comodin: 'images/placeholder.svg', precio_cop: 2530000 },
       { coleccion: 'TUREEN · D 12,48 in | H 7,95 in | C 135,25 fl.oz', sku: '004RG00 FZP030010400G00125700', foto_comodin: 'images/placeholder.svg', precio_cop: 15675000 },
       { coleccion: 'VIDE POCHE RECTANGULAR · H 1,26 in | W 7,48 in', sku: '017RG02 FG6838010150G00125700', foto_comodin: 'images/placeholder.svg', precio_cop: 3795000 },
@@ -476,8 +476,8 @@ const CATALOG_PRODUCTS = [
     familia: 'Complementos',
     image:   'images/placeholder.svg',
     variants: [
-      { coleccion: 'VIDE POCHE SQUARED · H 0,91 in | W 12,17 in', sku: '172RG01 FVS121LX30XG00135500', foto_comodin: 'images/placeholder.svg', precio_cop: 4400000 },
-      { coleccion: 'ROUND BOX · D 5,2 in | H 2,09 in', sku: '017RG02 FX5080LXG00135500', foto_comodin: 'images/placeholder.svg', precio_cop: 2750000 }
+      { coleccion: 'VIDE POCHE SQUARED · H 0,91 in | W 12,17 in', sku: '172RG01 FVS121LX30XG00135500', foto_comodin: 'images/products/172RG01_FVS121LX30XG00135400_n1rrda.png', precio_cop: 4400000 },
+      { coleccion: 'ROUND BOX · D 5,2 in | H 2,09 in', sku: '017RG02 FX5080LXG00135500', foto_comodin: 'images/products/017RG02_FX5080LXG00135400_thumb.png', precio_cop: 2750000 }
     ],
   },
   {
@@ -783,7 +783,7 @@ const CATALOG_PRODUCTS = [
     image:   'images/products/008RG00_FRV000010215G00134900_j0yhcq.png',
     variants: [
       { coleccion: 'PICKLE DISH · H 1,5 in | W 8,5 in', sku: '008RG00 FRV000010215G00134900', foto_comodin: 'images/products/008RG00_FRV000010215G00134900_j0yhcq.png', precio_cop: 2035000 },
-      { coleccion: 'RECTANGULAR PLATTER · H 1,1 in | W 11,26 in', sku: '136RG00 FVS140LX28XG00134900', foto_comodin: 'images/placeholder.svg', precio_cop: 2530000 }
+      { coleccion: 'RECTANGULAR PLATTER · H 1,1 in | W 11,26 in', sku: '136RG00 FVS140LX28XG00134900', foto_comodin: 'images/products/136RG00_FVS140LX28XG00134900_jtgfre.png', precio_cop: 2530000 }
     ],
   },
   {
@@ -803,7 +803,7 @@ const CATALOG_PRODUCTS = [
     familia: 'Complementos',
     image:   'images/products/017RG00_FCO108LX0170G00134900_eqyghi.png',
     variants: [
-      { coleccion: 'VIDE POCHE SQUARED · H 1,73 in | W 5,31 in', sku: '172RG01 FCP220LX13XG00134900', foto_comodin: 'images/placeholder.svg', precio_cop: 1760000 },
+      { coleccion: 'VIDE POCHE SQUARED · H 1,73 in | W 5,31 in', sku: '172RG01 FCP220LX13XG00134900', foto_comodin: 'images/products/172RG01_FCP220LX13XG00134900_qlwrhg.png', precio_cop: 1760000 },
       { coleccion: 'ROUND CHANGE TRAY · D 6,85 in | H 1,18 in', sku: '017RG00 FCO108LX0170G00134900', foto_comodin: 'images/products/017RG00_FCO108LX0170G00134900_eqyghi.png', precio_cop: 3355000 },
       { coleccion: 'BOX WITH COVER · D 3,23 in | H 2,48 in', sku: '017RG00 FCO400LX0080G00134900', foto_comodin: 'images/products/017RG00_FCO400LX0080G00134901_le9fv8.png', precio_cop: 2255000 }
     ],
@@ -2563,7 +2563,7 @@ const CATALOG_PRODUCTS = [
     familia: 'Bowls, ensaldera y fruteras',
     image:   'images/placeholder.svg',
     variants: [
-      { coleccion: 'BOWL · H 5,31 in | W 12,01 in', sku: '020RG00 FCP030010305G00172400', foto_comodin: 'images/placeholder.svg', precio_cop: 9020000 }
+      { coleccion: 'BOWL · H 5,31 in | W 12,01 in', sku: '020RG00 FCP030010305G00172400', foto_comodin: 'images/products/020RG00 FCP030010305G00172400_thumb.png', precio_cop: 9020000 }
     ],
   },
   {
