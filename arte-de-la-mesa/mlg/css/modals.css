@@ -981,11 +981,12 @@
     }
 
     .fv-row {
-        grid-template-columns: 1fr auto auto auto;
+        grid-template-columns: 32px 1fr auto auto auto;
         gap: 3px;
         padding: 4px 2px;
     }
 
+    .fv-thumb   { width: 28px; height: 28px; }
     .fv-price   { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-subtotal { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-name    { font-size: var(--font-size-xs); }
@@ -1581,39 +1582,37 @@ gmp-placeautocomplete::part(input):focus {
 /* Desktop: igual que checkout */
 @media (min-width: 1025px) {
     .modal-family-content { width: 760px; height: 88vh; }
-    .btn-share { display: none !important; }
 }
 
-/* Header familia */
+/* Header: Familia · Colección — una línea, padding-right para no tapar el botón X */
 .family-modal-header {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-xs) calc(40px + var(--spacing-sm) * 2) var(--spacing-xs) var(--spacing-md);
     border-bottom: 1px solid var(--color-border-light);
     background: var(--color-background-secondary);
     text-align: center;
+    flex-shrink: 0;
 }
 
-.family-modal-label {
+.family-modal-header-text {
     font-family: var(--font-body);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     color: var(--color-accent);
-    letter-spacing: var(--letter-spacing-widest);
+    letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
 /* Imagen + flechas */
 .family-modal-img-section {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
+    position: relative;          /* referencia para .btn-share */
     padding: var(--spacing-sm) var(--spacing-md);
     background: var(--color-background-secondary);
     flex-shrink: 0;
 }
 
 .family-modal-img-wrap {
-    flex: 1;
+    position: relative;
+    width: 100%;
     aspect-ratio: 4 / 3;
     overflow: hidden;
     border-radius: var(--radius-md);
@@ -1645,6 +1644,9 @@ gmp-placeautocomplete::part(input):focus {
 }
 
 .family-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     width: 40px;
     height: 40px;
     border-radius: var(--radius-full);
@@ -1655,9 +1657,12 @@ gmp-placeautocomplete::part(input):focus {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    flex-shrink: 0;
+    z-index: 2;
     transition: all var(--transition-fast);
 }
+
+.family-nav-prev { left: var(--spacing-xs); }
+.family-nav-next { right: var(--spacing-xs); }
 
 .family-nav-btn:hover:not(:disabled) {
     border-color: var(--color-accent);
@@ -1670,24 +1675,28 @@ gmp-placeautocomplete::part(input):focus {
     cursor: not-allowed;
 }
 
-/* Info producto */
-.family-modal-product-info {
+/* Descripción: tipo · medidas · material — una línea + contador */
+.family-modal-product-desc-bar {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: var(--spacing-sm);
     padding: var(--spacing-xs) var(--spacing-md);
     border-bottom: 1px solid var(--color-border-light);
     flex-shrink: 0;
+    background: var(--color-background-secondary);
 }
 
-.family-modal-product-title {
-    font-family: var(--font-display);
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-regular);
+.family-modal-product-desc {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
     color: var(--color-text-primary);
     margin: 0;
     flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .family-modal-counter {
@@ -1697,9 +1706,10 @@ gmp-placeautocomplete::part(input):focus {
     white-space: nowrap;
 }
 
-/* Share button — pie de la fotografía, alineado con el botón X */
+/* Share button — pie de la foto, alineado en eje right con botón X del modal */
+/* Ambos tienen right: spacing-sm; img-section es full-width = misma referencia */
 .btn-share {
-    display: none; /* JS lo muestra con 'flex' si navigator.share existe */
+    display: flex;
     position: absolute;
     bottom: var(--spacing-sm);
     right: var(--spacing-sm);
@@ -1712,7 +1722,7 @@ gmp-placeautocomplete::part(input):focus {
     background: var(--color-background);
     color: var(--color-text-secondary);
     cursor: pointer;
-    flex-shrink: 0;
+    z-index: 2;
     transition: all var(--transition-fast);
 }
 .btn-share:hover {
@@ -1721,52 +1731,6 @@ gmp-placeautocomplete::part(input):focus {
     background: var(--color-background-secondary);
 }
 
-/* Navegación de fotos (−/+ bajo la imagen) */
-.family-photo-nav {
-    display: none; /* JS lo muestra con 'flex' cuando hay más de 1 foto */
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    padding: 4px var(--spacing-md);
-    background: var(--color-background-secondary);
-    border-bottom: 1px solid var(--color-border-light);
-    flex-shrink: 0;
-}
-
-.photo-nav-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--color-border);
-    background: var(--color-background);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-lg);
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.photo-nav-btn:hover:not(:disabled) {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-    background: var(--color-background-secondary);
-}
-
-.photo-nav-btn:disabled {
-    opacity: 0.25;
-    cursor: not-allowed;
-}
-
-.photo-nav-counter {
-    font-family: var(--font-body);
-    font-size: var(--font-size-xs);
-    color: var(--color-text-tertiary);
-    min-width: 40px;
-    text-align: center;
-}
 
 /* Variantes (scrollable) */
 .family-modal-variants {
@@ -1777,10 +1741,10 @@ gmp-placeautocomplete::part(input):focus {
     padding: var(--spacing-xs) var(--spacing-sm);
 }
 
-/* Fila variante familia */
+/* Fila variante familia: miniatura | info | precio | qty | subtotal */
 .fv-row {
     display: grid;
-    grid-template-columns: 1fr auto auto auto;
+    grid-template-columns: 44px 1fr auto auto auto;
     align-items: center;
     gap: var(--spacing-xs);
     padding: 6px var(--spacing-xs);
@@ -1795,6 +1759,20 @@ gmp-placeautocomplete::part(input):focus {
 .fv-row:hover {
     background: var(--color-hover-overlay);
     border-radius: var(--radius-sm);
+}
+
+.fv-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    cursor: zoom-in;
+    transition: transform var(--transition-fast);
+    background: var(--color-background-secondary);
+}
+
+.fv-thumb:hover {
+    transform: scale(1.12);
 }
 
 .fv-comodin {
@@ -1909,13 +1887,14 @@ gmp-placeautocomplete::part(input):focus {
     }
 
     .fv-row {
-        grid-template-columns: 1fr auto auto auto;
+        grid-template-columns: 36px 1fr auto auto auto;
         gap: 4px;
         padding: 5px 4px;
     }
 
-    .fv-price { min-width: 64px; font-size: var(--font-size-xs); }
-    .fv-subtotal { min-width: 64px; font-size: var(--font-size-xs); }
+    .fv-thumb { width: 32px; height: 32px; }
+    .fv-price { min-width: 56px; font-size: var(--font-size-xs); }
+    .fv-subtotal { min-width: 56px; font-size: var(--font-size-xs); }
     .fv-name { font-size: var(--font-size-xs); }
 
     .family-modal-footer {

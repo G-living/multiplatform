@@ -258,6 +258,24 @@ const Modal = (() => {
   }
 
   // -------------------------------------------------------
+  // HELPER — parsea campo medidas en texto legible
+  // Formatos: 'h16.5cm ø9cm', 'h20cm · 2.5l', 'h18cm', '40x30x7cm'
+  // -------------------------------------------------------
+  function _parseMedidas(raw) {
+    if (!raw) return '';
+    // Formato plano: 40x30x7cm
+    if (/^\d/.test(raw) && raw.includes('x')) return raw;
+    const parts = [];
+    const altoM = raw.match(/h([\d.]+)cm/);
+    const diaM  = raw.match(/ø([\d.]+)cm/);
+    const capM  = raw.match(/([\d.]+)\s*l\b/);
+    if (altoM) parts.push(`Alto: ${altoM[1]} cm`);
+    if (diaM)  parts.push(`Ø: ${diaM[1]} cm`);
+    if (capM)  parts.push(`Cap: ${capM[1]} l`);
+    return parts.join(' · ');
+  }
+
+  // -------------------------------------------------------
   // MODAL FAMILIA
   // Abre el modal con todos los productos de una familia.
   // Flechas ←→ navegan entre productos dentro de la familia.
@@ -271,36 +289,28 @@ const Modal = (() => {
     return (window.MLG_PRODUCT_TYPES || [])
       .filter(t => t.familia === familyName)
       .map(t => {
-        // Galería: usa t.images si está definido, si no recopila imágenes de variantes
-        const images = (t.images && t.images.length)
-          ? t.images
-          : (t.variantes || []).map(v => v.image).filter(Boolean);
+        // Galería: imágenes de cada variante de color
+        const images = (t.variantes || []).map(v => v.image).filter(Boolean);
 
-        // Filas de display: 1 por combinación única (medida · material · precio_cop)
-        const displayRows = [];
-        const seen = new Set();
-        (t.variantes || []).forEach(v => {
-          const key = `${t.medidas}|${t.material}|${v.precio_cop}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            displayRows.push({
-              sku:        v.sku,
-              medida:     t.medidas   || '—',
-              material:   t.material  || '—',
-              precio_cop: v.precio_cop,
-              image:      v.image     || '',
-            });
-          }
-        });
+        // 1 fila por variante de color
+        const displayRows = (t.variantes || []).map(v => ({
+          sku:        v.sku,
+          color:      v.color      || '—',
+          precio_cop: v.precio_cop,
+          image:      v.image      || '',
+        }));
 
         return {
-          id:       [t.familia, t.coleccion, t.tipo].join('-').toLowerCase().replace(/\s+/g, '-'),
-          name:     t.coleccion + ' — ' + t.tipo,
-          subtitle: [t.medidas, t.material].filter(Boolean).join(' · '),
-          familia:  t.familia,
-          image:    images[0] || '',
+          id:        [t.familia, t.coleccion, t.tipo].join('-').toLowerCase().replace(/\s+/g, '-'),
+          name:      t.tipo,
+          coleccion: t.coleccion,
+          tipo:      t.tipo,
+          subtitle:  _parseMedidas(t.medidas),
+          material:  t.material || '',
+          familia:   t.familia,
+          image:     images[0] || '',
           images,
-          variants: displayRows,
+          variants:  displayRows,
         };
       });
   }
@@ -350,7 +360,7 @@ const Modal = (() => {
     modal.className = 'modal';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-labelledby', 'familyProductTitle');
+    modal.setAttribute('aria-labelledby', 'familyModalHeaderText');
 
     modal.innerHTML = `
       <div class="modal-overlay" id="modalFamilyOverlay"></div>
@@ -358,16 +368,13 @@ const Modal = (() => {
 
         <button class="modal-close" id="closeFamilyModal" aria-label="Cerrar">×</button>
 
-        <!-- Cabecera familia -->
+        <!-- Cabecera: Familia · Colección -->
         <div class="family-modal-header">
-          <span class="family-modal-label" id="familyModalLabel"></span>
+          <span class="family-modal-header-text" id="familyModalHeaderText"></span>
         </div>
 
-        <!-- Imagen + flechas -->
+        <!-- Imagen + flechas centradas en el eje de la foto -->
         <div class="family-modal-img-section">
-          <button class="family-nav-btn family-nav-prev" id="familyNavPrev" aria-label="Producto anterior">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
           <div class="family-modal-img-wrap">
             <img id="familyProductImg" class="family-modal-img family-modal-img--zoomable" src="" alt=""
               onerror="this.style.display='none';document.getElementById('familyImgPlaceholder').style.display='flex'"
@@ -375,10 +382,14 @@ const Modal = (() => {
             <div id="familyImgPlaceholder" class="family-modal-placeholder" style="display:none">
               <span class="family-card-placeholder-text">MLG</span>
             </div>
+            <button class="family-nav-btn family-nav-prev" id="familyNavPrev" aria-label="Producto anterior">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="family-nav-btn family-nav-next" id="familyNavNext" aria-label="Producto siguiente">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
           </div>
-          <button class="family-nav-btn family-nav-next" id="familyNavNext" aria-label="Producto siguiente">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
+          <!-- Share fuera del img-wrap → mismo ancho que modal → eje right coincide con X -->
           <button class="btn-share" id="familyBtnShare" aria-label="Compartir producto">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -389,17 +400,9 @@ const Modal = (() => {
           </button>
         </div>
 
-        <!-- Navegación de fotos -->
-        <div class="family-photo-nav" id="familyPhotoNav">
-          <button class="photo-nav-btn" id="photoNavPrev" aria-label="Foto anterior">−</button>
-          <span class="photo-nav-counter" id="photoNavCounter">1 / 1</span>
-          <button class="photo-nav-btn" id="photoNavNext" aria-label="Foto siguiente">+</button>
-        </div>
-
-        <!-- Info producto -->
-        <div class="family-modal-product-info">
-          <h2 class="family-modal-product-title" id="familyProductTitle"></h2>
-          <p class="family-modal-product-subtitle" id="familyProductSubtitle"></p>
+        <!-- Descripción: tipo · medidas · material + contador -->
+        <div class="family-modal-product-desc-bar" id="familyProductDescBar">
+          <p class="family-modal-product-desc" id="familyProductDesc"></p>
           <span class="family-modal-counter" id="familyCounter"></span>
         </div>
 
@@ -430,19 +433,24 @@ const Modal = (() => {
     document.getElementById('modalFamilyOverlay')?.addEventListener('click', () => _closeModal('modalFamily'));
     document.getElementById('familyNavPrev')?.addEventListener('click', _familyNavPrev);
     document.getElementById('familyNavNext')?.addEventListener('click', _familyNavNext);
-    document.getElementById('photoNavPrev')?.addEventListener('click', _photoNavPrev);
-    document.getElementById('photoNavNext')?.addEventListener('click', _photoNavNext);
-    document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
+document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
     document.getElementById('familyBtnCart')?.addEventListener('click', _familyAddToCart);
 
-    // Share button — solo actúa si Web Share API disponible (móvil)
+    // Share button — Web Share API en móvil, clipboard en desktop
     document.getElementById('familyBtnShare')?.addEventListener('click', async () => {
-      if (!navigator.share) return;
-      const btn = document.getElementById('familyBtnShare');
+      const btn  = document.getElementById('familyBtnShare');
       const url  = `${location.origin}${location.pathname}?p=${btn.dataset.productId}`;
-      try {
-        await navigator.share({ title: btn.dataset.productName, url });
-      } catch (_) { /* usuario canceló */ }
+      const title = btn.dataset.productName || '';
+      if (navigator.share) {
+        try { await navigator.share({ title, url }); } catch (_) { /* usuario canceló */ }
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          Toast.show('Link copiado al portapapeles ✓');
+        } catch (_) {
+          window.prompt('Copia el link:', url);
+        }
+      }
     });
 
     // Click imagen principal → zoom (foto actual de la galería)
@@ -462,28 +470,29 @@ const Modal = (() => {
     _quantities = {};
     (prod.variants || []).forEach(v => { _quantities[v.sku] = 0; });
 
-    // Label familia
-    const labelEl = document.getElementById('familyModalLabel');
-    if (labelEl) labelEl.textContent = _currentFamily;
+    // Cabecera: "Familia · Colección" en una línea
+    const headerEl = document.getElementById('familyModalHeaderText');
+    if (headerEl) headerEl.textContent = [_currentFamily, prod.coleccion].filter(Boolean).join(' · ');
 
-    // Foto inicial aleatoria dentro de la galería del producto
+    // Foto inicial aleatoria entre las variantes de color
     _currentPhotoIdx = prod.images?.length
       ? Math.floor(Math.random() * prod.images.length)
       : 0;
     _updateMainPhoto();
 
-    // Título + subtítulo (medidas · material)
-    const titleEl = document.getElementById('familyProductTitle');
-    if (titleEl) titleEl.textContent = prod.name;
-    const subtitleEl = document.getElementById('familyProductSubtitle');
-    if (subtitleEl) subtitleEl.textContent = prod.subtitle || '';
+    // Descripción: tipo · medidas · material en una línea
+    const descEl = document.getElementById('familyProductDesc');
+    if (descEl) {
+      const parts = [prod.tipo || prod.name, prod.subtitle, prod.material].filter(Boolean);
+      descEl.textContent = parts.join(' · ');
+    }
 
-    // Share button — actualizar datos del producto actual
+    // Share button — siempre visible (Web Share en móvil, clipboard en desktop)
     const shareBtn = document.getElementById('familyBtnShare');
     if (shareBtn) {
       shareBtn.dataset.productId   = prod.id;
-      shareBtn.dataset.productName = prod.name;
-      shareBtn.style.display       = navigator.share ? 'flex' : 'none';
+      shareBtn.dataset.productName = prod.coleccion + ' — ' + (prod.tipo || prod.name);
+      shareBtn.style.display       = 'flex';
     }
 
     // Contador
@@ -510,34 +519,50 @@ const Modal = (() => {
       return;
     }
 
-    list.innerHTML = variants.map(v => `
-      <div class="fv-row" data-sku="${Utils.sanitize(v.sku)}">
-        <div class="fv-info">
-          <span class="fv-name">${Utils.sanitize(v.material)}</span>
-          <span class="fv-sku">${Utils.sanitize(v.medida)}</span>
-        </div>
-        ${(() => {
-          const ps = Utils.calcPresale(v.precio_cop);
-          if (ps.tieneDescuento) {
-            return `<span class="fv-price fv-price--presale">
-              <span class="fv-price-original">${Utils.formatPrice(ps.original)}</span>
-              <span class="fv-price-final">${Utils.formatPrice(ps.final)}</span>
-            </span>`;
-          }
-          return `<span class="fv-price">${Utils.formatPrice(ps.original)}</span>`;
-        })()}
-        <div class="fv-qty">
-          <button class="qty-btn" data-action="dec" data-sku="${Utils.sanitize(v.sku)}" aria-label="Reducir">−</button>
-          <span class="qty-display" id="fqty-${Utils.sanitize(v.sku)}">0</span>
-          <button class="qty-btn" data-action="inc" data-sku="${Utils.sanitize(v.sku)}" aria-label="Aumentar">+</button>
-          <span class="qty-min6-msg" id="min6-fam-${Utils.sanitize(v.sku)}" style="display:none;color:red;font-weight:bold;font-size:0.75em">mínimo 6 unidades</span>
-        </div>
-        <span class="fv-subtotal" id="fsub-${Utils.sanitize(v.sku)}">$0</span>
-      </div>
-    `).join('');
+    list.innerHTML = variants.map(v => {
+      const ps = Utils.calcPresale(v.precio_cop);
+      const priceHtml = ps.tieneDescuento
+        ? `<span class="fv-price fv-price--presale">
+             <span class="fv-price-original">${Utils.formatPrice(ps.original)}</span>
+             <span class="fv-price-final">${Utils.formatPrice(ps.final)}</span>
+           </span>`
+        : `<span class="fv-price">${Utils.formatPrice(ps.original)}</span>`;
+      return `
+        <div class="fv-row" data-sku="${Utils.sanitize(v.sku)}">
+          <img
+            class="fv-thumb"
+            src="${Utils.sanitize(v.image)}"
+            alt="${Utils.sanitize(v.color)}"
+            loading="lazy"
+            data-zoom-src="${Utils.sanitize(v.image)}"
+            data-zoom-alt="${Utils.sanitize(v.color)}"
+            title="Ampliar"
+            onerror="this.style.visibility='hidden'"
+          >
+          <div class="fv-info">
+            <span class="fv-name">${Utils.sanitize(v.color)}</span>
+            <span class="fv-sku">${Utils.sanitize(v.sku)}</span>
+          </div>
+          ${priceHtml}
+          <div class="fv-qty">
+            <button class="qty-btn" data-action="dec" data-sku="${Utils.sanitize(v.sku)}" aria-label="Reducir">−</button>
+            <span class="qty-display" id="fqty-${Utils.sanitize(v.sku)}">0</span>
+            <button class="qty-btn" data-action="inc" data-sku="${Utils.sanitize(v.sku)}" aria-label="Aumentar">+</button>
+            <span class="qty-min6-msg" id="min6-fam-${Utils.sanitize(v.sku)}" style="display:none;color:red;font-weight:bold;font-size:0.75em">mínimo 6</span>
+          </div>
+          <span class="fv-subtotal" id="fsub-${Utils.sanitize(v.sku)}">$0</span>
+        </div>`;
+    }).join('');
   }
 
   function _handleFamilyVariantClick(e) {
+    // Zoom en miniatura de variante
+    const thumb = e.target.closest('.fv-thumb');
+    if (thumb) {
+      Modal.openZoom(thumb.dataset.zoomSrc, thumb.dataset.zoomAlt);
+      return;
+    }
+
     // Qty buttons
     const btn = e.target.closest('.qty-btn');
     if (!btn) return;
@@ -567,9 +592,9 @@ const Modal = (() => {
     if (subEl) {
       const variant = (_currentProduct?.variants || []).find(v => v.sku === sku);
       const ps = Utils.calcPresale(variant?.precio_cop || 0);
-      subEl.textContent = Utils.formatPrice(ps.final * qty);
+      subEl.textContent = qty > 0 ? Utils.formatPrice(ps.final * qty) : '$0';
     }
-    if (msgEl) msgEl.style.display = (_needsMin6(sku) && qty > 0) ? 'block' : 'none';
+    if (msgEl) msgEl.style.display = (_needsMin6(sku) && qty > 0 && qty < 6) ? 'block' : 'none';
   }
 
   function _updateFamilyFooter() {
@@ -595,24 +620,13 @@ const Modal = (() => {
   }
 
   // -------------------------------------------------------
-  // NAVEGACIÓN DE FOTOS (−/+ dentro de un mismo producto)
+  // FOTO PRINCIPAL — carga la imagen del índice actual
   // -------------------------------------------------------
   function _updateMainPhoto() {
-    const prod = _familyProducts[_familyIdx];
+    const prod  = _familyProducts[_familyIdx];
     const imgEl = document.getElementById('familyProductImg');
     const phEl  = document.getElementById('familyImgPlaceholder');
-    const counterEl = document.getElementById('photoNavCounter');
-    const prevBtn   = document.getElementById('photoNavPrev');
-    const nextBtn   = document.getElementById('photoNavNext');
-    const navEl     = document.getElementById('familyPhotoNav');
-    const total = prod?.images?.length || 0;
-
-    if (navEl) navEl.style.display = total > 1 ? 'flex' : 'none';
-    if (counterEl) counterEl.textContent = `${_currentPhotoIdx + 1} / ${total}`;
-    if (prevBtn) prevBtn.disabled = _currentPhotoIdx === 0;
-    if (nextBtn) nextBtn.disabled = _currentPhotoIdx >= total - 1;
-
-    const src = prod?.images?.[_currentPhotoIdx] || '';
+    const src   = prod?.images?.[_currentPhotoIdx] || '';
     if (!imgEl) return;
     if (src) {
       const preload = new Image();
@@ -630,21 +644,6 @@ const Modal = (() => {
     } else {
       imgEl.style.display = 'none';
       if (phEl) phEl.style.display = 'flex';
-    }
-  }
-
-  function _photoNavPrev() {
-    if (_currentPhotoIdx > 0) {
-      _currentPhotoIdx--;
-      _updateMainPhoto();
-    }
-  }
-
-  function _photoNavNext() {
-    const prod = _familyProducts[_familyIdx];
-    if (prod && _currentPhotoIdx < prod.images.length - 1) {
-      _currentPhotoIdx++;
-      _updateMainPhoto();
     }
   }
 
@@ -679,9 +678,9 @@ const Modal = (() => {
         const ps = Utils.calcPresale(v.precio_cop);
         return {
           productId:     _currentProduct.id,
-          productName:   _currentProduct.name,
+          productName:   (_currentProduct.coleccion || '') + ' — ' + (_currentProduct.tipo || _currentProduct.name),
           familia:       _currentFamily,
-          collection:    v.medida,
+          collection:    v.color || v.sku,
           sku:           v.sku,
           price:         ps.final,
           priceOriginal: ps.original,
