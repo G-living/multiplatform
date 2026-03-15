@@ -1584,7 +1584,46 @@ gmp-placeautocomplete::part(input):focus {
     .modal-family-content { width: 760px; height: 88vh; }
 }
 
-/* Header: Familia · Colección — una línea, padding-right para no tapar el botón X */
+/* Barra de tabs de familia — scroll horizontal, sin scrollbar visible */
+.family-tabs-bar {
+    display: flex;
+    gap: 6px;
+    padding: 8px var(--spacing-md);
+    padding-right: calc(40px + var(--spacing-sm) * 2); /* no tapar botón X */
+    border-bottom: 1px solid var(--color-border-light);
+    background: var(--color-background);
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+}
+.family-tabs-bar::-webkit-scrollbar { display: none; }
+
+.family-tab {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    white-space: nowrap;
+}
+.family-tab:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+.family-tab.is-active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Header: Colección — una línea, padding-right para no tapar el botón X */
 .family-modal-header {
     padding: var(--spacing-xs) calc(40px + var(--spacing-sm) * 2) var(--spacing-xs) var(--spacing-md);
     border-bottom: 1px solid var(--color-border-light);
