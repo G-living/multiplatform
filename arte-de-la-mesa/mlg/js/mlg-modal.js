@@ -360,7 +360,7 @@ const Modal = (() => {
     modal.className = 'modal';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-labelledby', 'familyProductTitle');
+    modal.setAttribute('aria-labelledby', 'familyModalHeaderText');
 
     modal.innerHTML = `
       <div class="modal-overlay" id="modalFamilyOverlay"></div>
@@ -368,10 +368,9 @@ const Modal = (() => {
 
         <button class="modal-close" id="closeFamilyModal" aria-label="Cerrar">×</button>
 
-        <!-- Cabecera: nombre de colección -->
+        <!-- Cabecera: Familia · Colección -->
         <div class="family-modal-header">
-          <span class="family-modal-collection" id="familyModalCollection"></span>
-          <span class="family-modal-label" id="familyModalLabel"></span>
+          <span class="family-modal-header-text" id="familyModalHeaderText"></span>
         </div>
 
         <!-- Imagen + flechas -->
@@ -400,12 +399,9 @@ const Modal = (() => {
           </button>
         </div>
 
-        <!-- Descripción debajo de la foto: tipo + medidas + material + contador -->
+        <!-- Descripción: tipo · medidas · material + contador -->
         <div class="family-modal-product-desc-bar" id="familyProductDescBar">
-          <div class="family-modal-product-desc-left">
-            <h2 class="family-modal-product-title" id="familyProductTitle"></h2>
-            <p class="family-modal-product-desc" id="familyProductDesc"></p>
-          </div>
+          <p class="family-modal-product-desc" id="familyProductDesc"></p>
           <span class="family-modal-counter" id="familyCounter"></span>
         </div>
 
@@ -473,11 +469,9 @@ document.getElementById('familyVariantsList')?.addEventListener('click', _handle
     _quantities = {};
     (prod.variants || []).forEach(v => { _quantities[v.sku] = 0; });
 
-    // Cabecera: colección (grande) + familia (pequeño)
-    const collectionEl = document.getElementById('familyModalCollection');
-    if (collectionEl) collectionEl.textContent = prod.coleccion || '';
-    const labelEl = document.getElementById('familyModalLabel');
-    if (labelEl) labelEl.textContent = _currentFamily;
+    // Cabecera: "Familia · Colección" en una línea
+    const headerEl = document.getElementById('familyModalHeaderText');
+    if (headerEl) headerEl.textContent = [_currentFamily, prod.coleccion].filter(Boolean).join(' · ');
 
     // Foto inicial aleatoria entre las variantes de color
     _currentPhotoIdx = prod.images?.length
@@ -485,12 +479,10 @@ document.getElementById('familyVariantsList')?.addEventListener('click', _handle
       : 0;
     _updateMainPhoto();
 
-    // Descripción bajo foto: tipo + medidas parseadas + material
-    const titleEl = document.getElementById('familyProductTitle');
-    if (titleEl) titleEl.textContent = prod.tipo || prod.name;
+    // Descripción: tipo · medidas · material en una línea
     const descEl = document.getElementById('familyProductDesc');
     if (descEl) {
-      const parts = [prod.subtitle, prod.material].filter(Boolean);
+      const parts = [prod.tipo || prod.name, prod.subtitle, prod.material].filter(Boolean);
       descEl.textContent = parts.join(' · ');
     }
 

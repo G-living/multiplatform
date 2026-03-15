@@ -1585,33 +1585,21 @@ gmp-placeautocomplete::part(input):focus {
     .btn-share { display: none !important; }
 }
 
-/* Header familia */
+/* Header: Familia · Colección — una línea */
 .family-modal-header {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-md);
     border-bottom: 1px solid var(--color-border-light);
     background: var(--color-background-secondary);
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex-shrink: 0;
 }
 
-/* Nombre de colección — protagonista */
-.family-modal-collection {
-    font-family: var(--font-display);
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-regular);
-    color: var(--color-text-primary);
-    letter-spacing: 0.03em;
-}
-
-/* Familia — etiqueta discreta */
-.family-modal-label {
+.family-modal-header-text {
     font-family: var(--font-body);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    color: var(--color-accent);
-    letter-spacing: var(--letter-spacing-widest);
+    color: var(--color-text-secondary);
+    letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
@@ -1684,10 +1672,10 @@ gmp-placeautocomplete::part(input):focus {
     cursor: not-allowed;
 }
 
-/* Bloque descripción bajo la foto: tipo + medidas + material + contador */
+/* Descripción: tipo · medidas · material — una línea + contador */
 .family-modal-product-desc-bar {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: var(--spacing-sm);
     padding: var(--spacing-xs) var(--spacing-md);
@@ -1696,28 +1684,16 @@ gmp-placeautocomplete::part(input):focus {
     background: var(--color-background-secondary);
 }
 
-.family-modal-product-desc-left {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-    min-width: 0;
-}
-
-.family-modal-product-title {
-    font-family: var(--font-display);
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-regular);
-    color: var(--color-text-primary);
-    margin: 0;
-}
-
 .family-modal-product-desc {
     font-family: var(--font-body);
-    font-size: var(--font-size-xs);
-    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
     margin: 0;
-    letter-spacing: 0.01em;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .family-modal-counter {
