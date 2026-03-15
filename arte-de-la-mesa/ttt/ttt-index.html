@@ -8,6 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="icon" href="images/favicon/001.jpg" type="image/jpeg">
+  <!-- Google Maps + Places API -->
+  <!-- Google Maps — nuevo bootstrap loader (Places API New, sin deprecation warning) -->
+  <script>
+    (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.googleapis.com/maps/api/js?`+e;a.onerror=()=>n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a);d[q]=f}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+    ({key: "AIzaSyBCHhJjFYCVJ-Yq_nX0VY326Kt-_Khu7r0", v: "weekly"});
+  </script>
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/modals.css">
@@ -29,24 +35,29 @@
       Colecciones
     </a>
 
-    <!-- Slider galería -->
-    <div class="header-slider" id="headerSlider" aria-label="Galería TTT">
+    <!-- Slider lifestyle — 15 imágenes -->
+    <div class="header-slider" id="headerSlider" aria-label="Galería lifestyle TTT">
       <div class="slider-track" id="sliderTrack">
-        <div class="slider-slide is-active" aria-hidden="false">
-          <img src="images/gallery/bodas/boda.png" alt="Lista de bodas — G-Living" class="slider-img">
-        </div>
-        <div class="slider-slide" aria-hidden="true">
-          <img src="images/gallery/visitanos/visitanos.png" alt="Visítanos — Calle 70 # 9-87 Bogotá" class="slider-img">
-        </div>
-        <div class="slider-slide" aria-hidden="true">
-          <img src="images/gallery/prodcutobrand/producto.png" alt="Textiles TTT — Toscana Italia" class="slider-img">
-        </div>
+        <div class="slider-slide is-active" aria-hidden="false"><img src="images/lifestyle/1.jpg"  alt="Lifestyle TTT 1"  class="slider-img" loading="eager"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/2.jpg"  alt="Lifestyle TTT 2"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/3.jpg"  alt="Lifestyle TTT 3"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/4.jpg"  alt="Lifestyle TTT 4"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/5.jpg"  alt="Lifestyle TTT 5"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/6.jpg"  alt="Lifestyle TTT 6"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/7.jpg"  alt="Lifestyle TTT 7"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/8.jpg"  alt="Lifestyle TTT 8"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/9.jpg"  alt="Lifestyle TTT 9"  class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/10.jpg" alt="Lifestyle TTT 10" class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/11.jpg" alt="Lifestyle TTT 11" class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/12.jpg" alt="Lifestyle TTT 12" class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/13.jpg" alt="Lifestyle TTT 13" class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/14.jpg" alt="Lifestyle TTT 14" class="slider-img" loading="lazy"></div>
+        <div class="slider-slide" aria-hidden="true"><img src="images/lifestyle/15.jpg" alt="Lifestyle TTT 15" class="slider-img" loading="lazy"></div>
       </div>
-      <div class="slider-dots" role="tablist" aria-label="Navegar galería">
-        <button class="slider-dot is-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-idx="0"></button>
-        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 2" data-idx="1"></button>
-        <button class="slider-dot"           role="tab" aria-selected="false" aria-label="Slide 3" data-idx="2"></button>
-      </div>
+      <!-- Flechas + contador en lugar de 15 dots -->
+      <button class="slider-arrow slider-prev" id="sliderPrev" aria-label="Imagen anterior">&#8249;</button>
+      <button class="slider-arrow slider-next" id="sliderNext" aria-label="Imagen siguiente">&#8250;</button>
+      <div class="slider-counter" id="sliderCounter" aria-live="polite">1 / 15</div>
     </div>
 
     <!-- Brand info -->
@@ -62,24 +73,25 @@
 
     <script>
     (function() {
-      var current = 0, total = 3, interval = null;
+      var current = 0, total = 15, interval = null;
+      var counter = document.getElementById('sliderCounter');
       function goTo(idx) {
         document.querySelectorAll('.slider-slide').forEach(function(s,i){
           s.classList.toggle('is-active', i===idx); s.setAttribute('aria-hidden', i!==idx);
         });
-        document.querySelectorAll('.slider-dot').forEach(function(d,i){
-          d.classList.toggle('is-active', i===idx); d.setAttribute('aria-selected', i===idx);
-        });
         current = idx;
+        if (counter) counter.textContent = (idx+1) + ' / ' + total;
       }
       function next() { goTo((current+1)%total); }
+      function prev() { goTo((current-1+total)%total); }
       function startAuto() { interval = setInterval(next, 4500); }
       function stopAuto()  { clearInterval(interval); }
       document.addEventListener('DOMContentLoaded', function() {
         goTo(0); startAuto();
-        document.querySelectorAll('.slider-dot').forEach(function(dot) {
-          dot.addEventListener('click', function() { stopAuto(); goTo(parseInt(this.dataset.idx)); startAuto(); });
-        });
+        var btnNext = document.getElementById('sliderNext');
+        var btnPrev = document.getElementById('sliderPrev');
+        if (btnNext) btnNext.addEventListener('click', function() { stopAuto(); next(); startAuto(); });
+        if (btnPrev) btnPrev.addEventListener('click', function() { stopAuto(); prev(); startAuto(); });
       });
     })();
     </script>
@@ -613,7 +625,7 @@
           <div class="cmo-check-wrap">
             <input type="checkbox" id="waCheckTyC" required>
             <label for="waCheckTyC" class="cmo-check-label">
-              He leído y acepto los <span class="cmo-legal-link">términos y condiciones generales</span> de TTT — G-Living. <span class="cmo-req">*</span>
+              He leído y acepto los <span class="cmo-legal-link" id="btnOpenTyCWA" role="button" tabindex="0">términos y condiciones generales</span> de TTT — G-Living. <span class="cmo-req">*</span>
             </label>
           </div>
           <span class="cmo-error" id="waErrTyC"></span>
@@ -855,7 +867,7 @@
           <div class="cmo-check-wrap">
             <input type="checkbox" id="wpCheckTyC" required>
             <label for="wpCheckTyC" class="cmo-check-label">
-              He leído y acepto los <span class="cmo-legal-link">términos y condiciones generales</span> de TTT — G-Living. <span class="cmo-req">*</span>
+              He leído y acepto los <span class="cmo-legal-link" id="btnOpenTyC" role="button" tabindex="0">términos y condiciones generales</span> de TTT — G-Living. <span class="cmo-req">*</span>
             </label>
           </div>
           <span class="cmo-error" id="wpErrTyC"></span>
@@ -863,7 +875,7 @@
           <div class="cmo-check-wrap">
             <input type="checkbox" id="wpCheckDatos" required>
             <label for="wpCheckDatos" class="cmo-check-label">
-              He leído y acepto el <span class="cmo-legal-link">tratamiento de datos personales</span> acorde a ley Habeas Data. <span class="cmo-req">*</span>
+              He leído y acepto el <span class="cmo-legal-link" id="btnOpenDatos" role="button" tabindex="0">tratamiento de datos personales</span> acorde a ley Habeas Data. <span class="cmo-req">*</span>
             </label>
           </div>
           <span class="cmo-error" id="wpErrDatos"></span>
@@ -1036,6 +1048,134 @@
     .font-size-110 { font-size: 110% !important; }
     .font-size-125 { font-size: 125% !important; }
   </style>
+
+
+  <!-- ==========================================
+       MODAL LEGAL — TyC y Datos Personales
+  =========================================== -->
+  <div class="modal-legal-overlay" id="modalLegal" role="dialog" aria-modal="true" aria-labelledby="modalLegalTitle" style="display:none">
+    <div class="modal-legal-box">
+      <div class="modal-legal-header">
+        <h2 class="modal-legal-title" id="modalLegalTitle">Términos y Condiciones</h2>
+        <button class="modal-legal-close" id="btnCloseLegal" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-legal-body" id="modalLegalContent"></div>
+    </div>
+  </div>
+
+  <!-- TyC — compartido WA y Wompi -->
+  <template id="tplTyC">
+    <div class="legal-doc">
+      <p class="legal-entity">G-LIVING | Italian Living &amp; Design | Est. 2018 · NIT 901.066.592 · Bogotá D.C., Colombia<br>info@g-living.co</p>
+      <h3>1. Objeto</h3>
+      <p>Estos términos regulan la compra de textiles de lujo TTT — Tessitura Toscana Telerie a través del catálogo en línea de G-LIVING | Italian Living &amp; Design | Est. 2018.</p>
+      <h3>2. Productos a pedido</h3>
+      <p>Todos los productos son importados directamente desde Toscana, Italia. Por su naturaleza artesanal, pueden existir variaciones mínimas de color o textura respecto a las fotografías del catálogo; dichas variaciones son inherentes al proceso de manufactura y no constituyen defecto. El tiempo de entrega estimado es de hasta 5 meses desde la confirmación del pago.</p>
+      <h3>3. Precios, IVA y envío</h3>
+      <p>Los precios están expresados en pesos colombianos (COP) e incluyen IVA de venta del 19%. No incluyen costo de envío a domicilio. El retiro en almacén no genera costo adicional.</p>
+      <h3>4. Modalidades de pago</h3>
+      <p>El pago se procesa exclusivamente de forma electrónica mediante enlace WOMPI de Bancolombia S.A.</p>
+      <ul>
+        <li><strong>Anticipo 60%:</strong> reserva el pedido. El saldo del 40% es exigible antes de la entrega.</li>
+        <li><strong>Pago total 100%:</strong> aplica descuento del 3% sobre el valor neto.</li>
+      </ul>
+      <h3>5. Cancelaciones</h3>
+      <p>Una vez confirmado el pago, no es posible cancelar el pedido, ya que se importa específicamente a solicitud del cliente.</p>
+      <h3>6. Devoluciones</h3>
+      <p>Se aceptan devoluciones siempre que: (a) el producto se entregue físicamente en nuestro almacén en Bogotá D.C.; (b) se presente en empaque original sin señales de uso; (c) la solicitud se realice dentro de los 10 días calendario contados desde la fecha de entrega.</p>
+      <h3>7. Garantía</h3>
+      <p>Un (1) año contado desde la fecha de entrega. Cubre exclusivamente defectos de producción comprobables.</p>
+      <h3>8. Cuidado y mantenimiento</h3>
+      <ul>
+        <li>Seguir las instrucciones de lavado indicadas en cada producto.</li>
+        <li>No exponer a blanqueadores ni productos abrasivos.</li>
+        <li>Las variaciones de color entre lotes son características del tejido artesanal, no un defecto.</li>
+      </ul>
+      <h3>9. Facturación</h3>
+      <p>Se emitirá recibo de caja al momento del pago. La factura electrónica se expedirá cuando la mercancía esté en tránsito o disponible en bodega.</p>
+      <h3>10. Fuerza mayor</h3>
+      <p>TTT — G-Living no será responsable por retrasos derivados de causas de fuerza mayor, incluyendo desastres naturales, pandemias, bloqueos portuarios, restricciones aduaneras o decisiones gubernamentales.</p>
+      <h3>11. Propiedad intelectual</h3>
+      <p>Las imágenes, textos y diseños del catálogo son propiedad de G-LIVING | Italian Living &amp; Design | Est. 2018 y no pueden reproducirse sin autorización escrita.</p>
+      <h3>12. Ley aplicable</h3>
+      <p>Este contrato se rige por las leyes de la República de Colombia. Controversias ante jueces competentes de Bogotá D.C.</p>
+      <h3>13. Contacto</h3>
+      <p>Para consultas: info@g-living.co</p>
+    </div>
+  </template>
+
+  <!-- Datos Personales — Wompi (transacción comercial completa) -->
+  <template id="tplDatos">
+    <div class="legal-doc">
+      <p class="legal-entity">Responsable: G-LIVING | Italian Living &amp; Design | Est. 2018 · NIT 901.066.592 · Bogotá D.C., Colombia<br>info@g-living.co</p>
+      <p>Autorizo de manera libre, previa, expresa, informada e inequívoca a G-LIVING | Italian Living &amp; Design | Est. 2018 para tratar mis datos personales recolectados en esta compra, incluyendo:</p>
+      <h3>Datos recolectados</h3>
+      <p>Nombre completo, documento de identidad, correo electrónico, teléfono, dirección de entrega, datos de pago (procesados por pasarela segura, sin almacenamiento directo), comportamiento de compra y pago.</p>
+      <h3>Finalidades principales</h3>
+      <ul>
+        <li>Ejecutar la venta, generar y enviar factura electrónica, gestionar envío/entrega y atención postventa.</li>
+        <li>En caso de incumplimiento o mora: cesión del crédito derivado de la factura emitida a agencias de cobranza o terceros adquirentes de cartera, conforme al Código de Comercio y Código General del Proceso.</li>
+        <li>Consultar, reportar y circular datos personales, financieros y crediticios ante operadores de bases de datos crediticias (DataCrédito, Cifin/TransUnion u otros autorizados), incluyendo reporte negativo por mora.</li>
+      </ul>
+      <h3>Finalidades secundarias</h3>
+      <p>Análisis estadístico interno, mejora de servicios y comunicaciones comerciales sobre productos similares. Puedes revocar esta parte en cualquier momento.</p>
+      <h3>Duración</h3>
+      <p>Los datos se conservarán el tiempo necesario para cumplir la finalidad, incluyendo prescripción de obligaciones comerciales y crediticias (mínimo 5-10 años según normas tributarias y civiles).</p>
+      <h3>Transmisión y transferencia</h3>
+      <p>Los datos podrán transmitirse a proveedores de logística, pasarelas de pago, entidades financieras, cesionarios de cartera o autoridades judiciales/legales cuando sea requerido.</p>
+      <h3>Derechos como titular — Art. 8 Ley 1581/2012</h3>
+      <p>Conocer, actualizar, rectificar y suprimir sus datos; revocar la autorización; solicitar prueba de la autorización; presentar queja ante la SIC una vez agotado el trámite interno; acceder gratuitamente a sus datos.</p>
+      <h3>Canales para ejercer sus derechos</h3>
+      <p>Envíe solicitud a info@g-living.co indicando nombre, documento, derecho a ejercer y hechos. Responderemos en máximo 15 días hábiles.</p>
+      <p class="legal-consent">Al marcar esta casilla confirmo haber leído y entendido este texto, y otorgo la autorización de forma voluntaria.</p>
+    </div>
+  </template>
+
+  <!-- Datos Personales WA — almacenamiento de contacto (sin pago) -->
+  <template id="tplDatosWA">
+    <div class="legal-doc">
+      <p class="legal-entity">Responsable: G-LIVING | Italian Living &amp; Design | Est. 2018 · NIT 901.066.592 · Bogotá D.C., Colombia<br>info@g-living.co</p>
+      <p>Al enviar tu lista de deseos, autorizas de manera libre, previa, expresa e informada a <strong>G-LIVING | Italian Living &amp; Design | Est. 2018</strong> para recolectar y tratar los datos personales que proporcionas en este formulario, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p>
+      <h3>Datos recolectados</h3>
+      <p>Nombre completo, documento de identidad, correo electrónico, número de teléfono y dirección de contacto.</p>
+      <h3>Finalidades</h3>
+      <ul>
+        <li>Atender tu solicitud de información sobre productos y disponibilidad.</li>
+        <li>Contactarte vía WhatsApp o email para coordinar tu pedido.</li>
+        <li>Registrar tu historial de interacciones con la marca para brindarte un servicio personalizado.</li>
+        <li>Enviarte comunicaciones comerciales sobre productos, colecciones y eventos (puedes revocar esto en cualquier momento).</li>
+      </ul>
+      <h3>Duración</h3>
+      <p>Los datos se conservarán mientras exista una relación comercial activa o hasta que solicites su eliminación, salvo obligación legal de conservación.</p>
+      <h3>Tus derechos — Art. 8 Ley 1581/2012</h3>
+      <p>Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos; revocar esta autorización; y presentar queja ante la Superintendencia de Industria y Comercio (SIC).</p>
+      <h3>Contacto</h3>
+      <p>Escríbenos a info@g-living.co indicando tu nombre, documento y el derecho que deseas ejercer. Responderemos en máximo 15 días hábiles.</p>
+    </div>
+  </template>
+
+  <!-- TyC Gift Card -->
+  <template id="tplTyCGift">
+    <div class="legal-doc">
+      <p class="legal-entity">G-LIVING | Italian Living &amp; Design | Est. 2018 · NIT 901.066.592 · Bogotá D.C., Colombia<br>info@g-living.co</p>
+      <h3>1. Valor e IVA</h3>
+      <p>El valor cargado a la Gift Card incluye el IVA del 19% vigente en Colombia. La persona que adquiere la tarjeta recibirá una factura electrónica por el valor total de la recarga, expedida a nombre del comprador registrado en el formulario.</p>
+      <h3>2. Vigencia</h3>
+      <p>Cada Gift Card tiene una vigencia de nueve (9) meses contados a partir de la fecha de emisión. Transcurrido dicho plazo sin que la tarjeta haya sido canjeada total o parcialmente, será anulada automáticamente y su valor o saldo eventual quedarán en favor de G-LIVING | Italian Living &amp; Design | Est. 2018, sin posibilidad de reembolso.</p>
+      <h3>3. Cesibilidad</h3>
+      <p>Las Gift Cards son cedibles a terceros. El código único de la tarjeta puede ser transferido libremente por su titular a cualquier persona, quien podrá utilizarlo en las mismas condiciones.</p>
+      <h3>4. Canje</h3>
+      <p>El código de la Gift Card deberá ingresarse en el espacio habilitado para bonos en el paso de pago del carrito TTT. El sistema descontará automáticamente el valor disponible del total a pagar.</p>
+      <h3>5. Uso parcial</h3>
+      <p>Si el valor de la compra es inferior al saldo de la Gift Card, el saldo restante permanecerá disponible para futuras compras durante el período de vigencia.</p>
+      <h3>6. No reembolsable</h3>
+      <p>Las Gift Cards no son reembolsables en dinero en efectivo ni transferencia bancaria bajo ninguna circunstancia.</p>
+      <h3>7. Responsabilidad</h3>
+      <p>G-LIVING no se hace responsable por el uso no autorizado del código de Gift Card una vez este haya sido compartido por el titular.</p>
+      <h3>8. Ley aplicable</h3>
+      <p>Este acuerdo se rige por las leyes de la República de Colombia.</p>
+    </div>
+  </template>
 
 </body>
 </html>
