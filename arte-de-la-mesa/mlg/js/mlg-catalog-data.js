@@ -858,7 +858,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-ambra-1014.jpg',
         color:      'Ámbar',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-ambra-1014.jpg',
+        image:      'images/products/dolce-vita-flûte-ambra-1014.jpg',
       },
       {
         sku:        'H.BIK.DLV27',
@@ -871,7 +871,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-bianco-1278.jpg',
         color:      'Blanco',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-bianco-1278.jpg',
+        image:      'images/products/dolce-vita-flûte-bianco-1278.jpg',
       },
       {
         sku:        'H.BIK.DLV33',
@@ -884,7 +884,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-grigio-1613.jpg',
         color:      'Gris',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-grigio-1613.jpg',
+        image:      'images/products/dolce-vita-flûte-grigio-1613.jpg',
       },
       {
         sku:        'H.BIK.DLV10',
@@ -897,7 +897,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-nero-1016.jpg',
         color:      'Negro',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-nero-1016.jpg',
+        image:      'images/products/dolce-vita-flûte-nero-1016.jpg',
       },
       {
         sku:        'H.BIK.DLV36',
@@ -910,7 +910,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-oro-2226.jpg',
         color:      'Dorado',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-oro-2226.jpg',
+        image:      'images/products/dolce-vita-flûte-oro-2226.jpg',
       },
       {
         sku:        'H.BIK.DLV15',
@@ -923,7 +923,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-rosso-1017.jpg',
         color:      'Rojo',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-rosso-1017.jpg',
+        image:      'images/products/dolce-vita-flûte-rosso-1017.jpg',
       },
       {
         sku:        'H.BIK.DLV11',
@@ -936,7 +936,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-blu-1015.jpg',
         color:      'Azul Real',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-blu-1015.jpg',
+        image:      'images/products/dolce-vita-flûte-blu-1015.jpg',
       },
       {
         sku:        'H.BIK.DLV16',
@@ -949,7 +949,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-rubino-1018.jpg',
         color:      'Rubí',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-rubino-1018.jpg',
+        image:      'images/products/dolce-vita-flûte-rubino-1018.jpg',
       },
       {
         sku:        'H.BIK.DLV42',
@@ -975,7 +975,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-trasparente-1019.jpg',
         color:      'Transparente',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-trasparente-1019.jpg',
+        image:      'images/products/dolce-vita-flûte-trasparente-1019.jpg',
       },
       {
         sku:        'H.BIK.DLV30',
@@ -988,7 +988,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-turchese-1328.jpg',
         color:      'Turquesa',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-turchese-1328.jpg',
+        image:      'images/products/dolce-vita-flûte-turchese-1328.jpg',
       },
       {
         sku:        'H.BIK.DLV13',
@@ -1001,7 +1001,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'dolce-vita-flüte-verde-1020.jpg',
         color:      'Verde',
         precio_cop: 135000,
-        image:      'images/products/dolce-vita-fl\303\273te-verde-1020.jpg',
+        image:      'images/products/dolce-vita-flûte-verde-1020.jpg',
       },
     ],
   },
@@ -1129,7 +1129,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'flüte-trasparente-119.jpg',
         color:      'Transparente',
         precio_cop: 103000,
-        image:      'images/products/fl\303\273te-trasparente-119.jpg',
+        image:      'images/products/flûte-trasparente-119.jpg',
       },
     ],
   },
@@ -4037,7 +4037,7 @@ const MLG_PRODUCT_TYPES = [
         foto:       'roberta-soirée-oro-1675.jpg',
         color:      'Dorado',
         precio_cop: 476000,
-        image:      'images/products/roberta-soir\303\251e-oro-1675.jpg',
+        image:      'images/products/roberta-soirée-oro-1675.jpg',
       },
       {
         sku:        'H.BRO.ROB2',
