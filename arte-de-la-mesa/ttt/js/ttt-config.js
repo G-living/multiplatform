@@ -24,9 +24,8 @@ const TTT_CONFIG = {
   checkout: {
     currency:        'COP',
     currencySymbol:  '$',
-    // Cloudflare Worker signature (clonar de imolarte cuando esté listo)
-    signatureWorkerUrl: '',
-    wompiPublicKey:   '',
+    signatureWorkerUrl: 'https://ttt-signature-generator.filippo-massara2016.workers.dev',
+    wompiPublicKey:   'pub_test_rT7K8rzYnk2Ec8Lv25tRL3JIof6b6Lwp',
     wompiCheckoutUrl: 'https://checkout.wompi.co/p/',
     sheetsUrl: 'https://script.google.com/macros/s/AKfycbyDbEdP5a5AhzhpcVGKCK1iS10uw02cscTMG62pW68fw_5PDOVs1RV8lhBcebr-1mEc/exec',
     checkoutUrl: 'https://g-living.github.io/multiplatform/arte-de-la-mesa/ttt/ttt-checkout.html',
@@ -82,7 +81,7 @@ const Utils = {
   },
 
   formatPriceFull(price) {
-    return this.formatPrice(price) + ' EUR';
+    return this.formatPrice(price) + ' COP';
   },
 
   uid() {
