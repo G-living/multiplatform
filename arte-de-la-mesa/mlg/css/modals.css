@@ -1684,11 +1684,24 @@ gmp-placeautocomplete::part(input):focus {
     cursor: not-allowed;
 }
 
-/* Bloque descripción bajo la foto: tipo + medidas + material */
+/* Bloque descripción bajo la foto: tipo + medidas + material + contador */
 .family-modal-product-desc-bar {
-    padding: var(--spacing-xs) var(--spacing-md) 2px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border-light);
     flex-shrink: 0;
     background: var(--color-background-secondary);
+}
+
+.family-modal-product-desc-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
 }
 
 .family-modal-product-title {
@@ -1696,7 +1709,7 @@ gmp-placeautocomplete::part(input):focus {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-regular);
     color: var(--color-text-primary);
-    margin: 0 0 2px;
+    margin: 0;
 }
 
 .family-modal-product-desc {
@@ -1705,17 +1718,6 @@ gmp-placeautocomplete::part(input):focus {
     color: var(--color-text-tertiary);
     margin: 0;
     letter-spacing: 0.01em;
-}
-
-/* Barra contador N/M */
-.family-modal-counter-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 2px var(--spacing-md) var(--spacing-xs);
-    background: var(--color-background-secondary);
-    border-bottom: 1px solid var(--color-border-light);
-    flex-shrink: 0;
 }
 
 .family-modal-counter {
@@ -1749,52 +1751,6 @@ gmp-placeautocomplete::part(input):focus {
     background: var(--color-background-secondary);
 }
 
-/* Navegación de fotos (−/+ bajo la imagen) */
-.family-photo-nav {
-    display: none; /* JS lo muestra con 'flex' cuando hay más de 1 foto */
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    padding: 4px var(--spacing-md);
-    background: var(--color-background-secondary);
-    border-bottom: 1px solid var(--color-border-light);
-    flex-shrink: 0;
-}
-
-.photo-nav-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--color-border);
-    background: var(--color-background);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-lg);
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.photo-nav-btn:hover:not(:disabled) {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-    background: var(--color-background-secondary);
-}
-
-.photo-nav-btn:disabled {
-    opacity: 0.25;
-    cursor: not-allowed;
-}
-
-.photo-nav-counter {
-    font-family: var(--font-body);
-    font-size: var(--font-size-xs);
-    color: var(--color-text-tertiary);
-    min-width: 40px;
-    text-align: center;
-}
 
 /* Variantes (scrollable) */
 .family-modal-variants {

@@ -400,21 +400,12 @@ const Modal = (() => {
           </button>
         </div>
 
-        <!-- Navegación de fotos -->
-        <div class="family-photo-nav" id="familyPhotoNav">
-          <button class="photo-nav-btn" id="photoNavPrev" aria-label="Foto anterior">−</button>
-          <span class="photo-nav-counter" id="photoNavCounter">1 / 1</span>
-          <button class="photo-nav-btn" id="photoNavNext" aria-label="Foto siguiente">+</button>
-        </div>
-
-        <!-- Descripción debajo de la foto: tipo + medidas + material -->
+        <!-- Descripción debajo de la foto: tipo + medidas + material + contador -->
         <div class="family-modal-product-desc-bar" id="familyProductDescBar">
-          <h2 class="family-modal-product-title" id="familyProductTitle"></h2>
-          <p class="family-modal-product-desc" id="familyProductDesc"></p>
-        </div>
-
-        <!-- Contador N/M -->
-        <div class="family-modal-counter-bar">
+          <div class="family-modal-product-desc-left">
+            <h2 class="family-modal-product-title" id="familyProductTitle"></h2>
+            <p class="family-modal-product-desc" id="familyProductDesc"></p>
+          </div>
           <span class="family-modal-counter" id="familyCounter"></span>
         </div>
 
@@ -445,9 +436,7 @@ const Modal = (() => {
     document.getElementById('modalFamilyOverlay')?.addEventListener('click', () => _closeModal('modalFamily'));
     document.getElementById('familyNavPrev')?.addEventListener('click', _familyNavPrev);
     document.getElementById('familyNavNext')?.addEventListener('click', _familyNavNext);
-    document.getElementById('photoNavPrev')?.addEventListener('click', _photoNavPrev);
-    document.getElementById('photoNavNext')?.addEventListener('click', _photoNavNext);
-    document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
+document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
     document.getElementById('familyBtnCart')?.addEventListener('click', _familyAddToCart);
 
     // Share button — Web Share API en móvil, clipboard en desktop
@@ -638,24 +627,13 @@ const Modal = (() => {
   }
 
   // -------------------------------------------------------
-  // NAVEGACIÓN DE FOTOS (−/+ dentro de un mismo producto)
+  // FOTO PRINCIPAL — carga la imagen del índice actual
   // -------------------------------------------------------
   function _updateMainPhoto() {
-    const prod = _familyProducts[_familyIdx];
+    const prod  = _familyProducts[_familyIdx];
     const imgEl = document.getElementById('familyProductImg');
     const phEl  = document.getElementById('familyImgPlaceholder');
-    const counterEl = document.getElementById('photoNavCounter');
-    const prevBtn   = document.getElementById('photoNavPrev');
-    const nextBtn   = document.getElementById('photoNavNext');
-    const navEl     = document.getElementById('familyPhotoNav');
-    const total = prod?.images?.length || 0;
-
-    if (navEl) navEl.style.display = total > 1 ? 'flex' : 'none';
-    if (counterEl) counterEl.textContent = `${_currentPhotoIdx + 1} / ${total}`;
-    if (prevBtn) prevBtn.disabled = _currentPhotoIdx === 0;
-    if (nextBtn) nextBtn.disabled = _currentPhotoIdx >= total - 1;
-
-    const src = prod?.images?.[_currentPhotoIdx] || '';
+    const src   = prod?.images?.[_currentPhotoIdx] || '';
     if (!imgEl) return;
     if (src) {
       const preload = new Image();
@@ -673,21 +651,6 @@ const Modal = (() => {
     } else {
       imgEl.style.display = 'none';
       if (phEl) phEl.style.display = 'flex';
-    }
-  }
-
-  function _photoNavPrev() {
-    if (_currentPhotoIdx > 0) {
-      _currentPhotoIdx--;
-      _updateMainPhoto();
-    }
-  }
-
-  function _photoNavNext() {
-    const prod = _familyProducts[_familyIdx];
-    if (prod && _currentPhotoIdx < prod.images.length - 1) {
-      _currentPhotoIdx++;
-      _updateMainPhoto();
     }
   }
 
