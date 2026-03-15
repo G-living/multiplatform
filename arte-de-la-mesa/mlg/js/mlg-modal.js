@@ -368,7 +368,10 @@ const Modal = (() => {
 
         <button class="modal-close" id="closeFamilyModal" aria-label="Cerrar">×</button>
 
-        <!-- Cabecera: Familia · Colección -->
+        <!-- Barra de navegación entre familias -->
+        <div class="family-tabs-bar" id="familyTabsBar"></div>
+
+        <!-- Cabecera: Colección -->
         <div class="family-modal-header">
           <span class="family-modal-header-text" id="familyModalHeaderText"></span>
         </div>
@@ -433,8 +436,22 @@ const Modal = (() => {
     document.getElementById('modalFamilyOverlay')?.addEventListener('click', () => _closeModal('modalFamily'));
     document.getElementById('familyNavPrev')?.addEventListener('click', _familyNavPrev);
     document.getElementById('familyNavNext')?.addEventListener('click', _familyNavNext);
-document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
+    document.getElementById('familyVariantsList')?.addEventListener('click', _handleFamilyVariantClick);
     document.getElementById('familyBtnCart')?.addEventListener('click', _familyAddToCart);
+
+    // Tabs de familia — cambiar familia sin cerrar el modal
+    document.getElementById('familyTabsBar')?.addEventListener('click', (e) => {
+      const tab = e.target.closest('.family-tab');
+      if (!tab || tab.classList.contains('is-active')) return;
+      const fn = tab.dataset.family;
+      if (!fn) return;
+      _currentFamily  = fn;
+      _familyProducts = _buildFamilyProducts(fn);
+      _familyIdx      = 0;
+      _quantities     = {};
+      (_familyProducts[0]?.variants || []).forEach(v => { _quantities[v.sku] = 0; });
+      _renderFamilyModal();
+    });
 
     // Share button — Web Share API en móvil, clipboard en desktop
     document.getElementById('familyBtnShare')?.addEventListener('click', async () => {
@@ -461,6 +478,17 @@ document.getElementById('familyVariantsList')?.addEventListener('click', _handle
     });
   }
 
+  function _renderFamilyTabsBar() {
+    const bar = document.getElementById('familyTabsBar');
+    if (!bar) return;
+    const families = Object.keys(window.MLG_FAMILIES || {});
+    bar.innerHTML = families.map(fn =>
+      `<button class="family-tab${fn === _currentFamily ? ' is-active' : ''}"
+               data-family="${Utils.sanitize(fn)}"
+               aria-pressed="${fn === _currentFamily ? 'true' : 'false'}">${Utils.sanitize(fn)}</button>`
+    ).join('');
+  }
+
   function _renderFamilyModal() {
     const prod = _familyProducts[_familyIdx];
     if (!prod) return;
@@ -470,9 +498,12 @@ document.getElementById('familyVariantsList')?.addEventListener('click', _handle
     _quantities = {};
     (prod.variants || []).forEach(v => { _quantities[v.sku] = 0; });
 
-    // Cabecera: "Familia · Colección" en una línea
+    // Tabs de familia — actualizar activo
+    _renderFamilyTabsBar();
+
+    // Cabecera: solo Colección (la familia ya está en los tabs)
     const headerEl = document.getElementById('familyModalHeaderText');
-    if (headerEl) headerEl.textContent = [_currentFamily, prod.coleccion].filter(Boolean).join(' · ');
+    if (headerEl) headerEl.textContent = prod.coleccion || '';
 
     // Foto inicial aleatoria entre las variantes de color
     _currentPhotoIdx = prod.images?.length
